@@ -1,0 +1,37 @@
+{
+  "name": "nslv-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NS Luxury Villa Management System — Production hospitality management platform",
+  "workspaces": [
+    "packages/shared",
+    "packages/server",
+    "packages/client",
+    "packages/desktop"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=packages/server & npm run dev --workspace=packages/client",
+    "dev:server": "npm run dev --workspace=packages/server",
+    "dev:client": "npm run dev --workspace=packages/client",
+    "dev:desktop": "npm run dev --workspace=packages/desktop",
+    "build": "npm run build --workspaces",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "build:server": "npm run build --workspace=packages/server",
+    "build:client": "npm run build --workspace=packages/client",
+    "build:desktop": "npm run build --workspace=packages/desktop",
+    "test": "npm run test --workspaces --if-present",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspaces --if-present",
+    "lint": "eslint packages/*/src --ext .ts,.tsx",
+    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,css}\"",
+    "db:migrate": "npm run db:migrate --workspace=packages/server",
+    "db:seed": "npm run db:seed --workspace=packages/server",
+    "db:studio": "npm run db:studio --workspace=packages/server",
+    "clean": "rimraf packages/*/dist packages/*/node_modules/.cache"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "NS Luxury Villa",
+  "license": "UNLICENSED"
+}
