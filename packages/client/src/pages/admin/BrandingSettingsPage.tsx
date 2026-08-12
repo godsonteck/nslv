@@ -58,8 +58,10 @@ export const BrandingSettingsPage: React.FC = () => {
       showToast('success', 'Branding updated successfully.');
       setDraft({});
       setDirty(false);
-    } catch {
-      showToast('error', 'Failed to save branding.');
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : 'Failed to save branding.';
+      console.error('[BrandingSettingsPage] Save error:', errMsg, error);
+      showToast('error', errMsg);
     } finally {
       setSaving(false);
     }

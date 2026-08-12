@@ -115,6 +115,13 @@ export class ThemeService {
    * Update theme configuration
    */
   static async updateTheme(config: Partial<ThemeConfig>, updatedByUserId: string): Promise<ThemeConfig> {
+    console.log('[ThemeService] updateTheme called with:', {
+      keys: Object.keys(config),
+      updatedByUserId,
+      logoUrlLength: (config.logoUrl?.length ?? 0),
+      loginBgUrlLength: (config.loginBgUrl?.length ?? 0),
+    });
+    
     let theme = await prisma.brandingTheme.findFirst();
 
     if (!theme) {

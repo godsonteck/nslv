@@ -759,8 +759,8 @@ model BrandingTheme {
   id              String   @id @default(uuid())
   villaName       String   @default("NS Luxury Villa") @map("villa_name")
   villaTagline    String   @default("Property Operations") @map("villa_tagline")
-  logoUrl         String?  @map("logo_url")
-  loginBgUrl      String?  @map("login_bg_url")
+  logoUrl         String?  @db.Text @map("logo_url")
+  loginBgUrl      String?  @db.Text @map("login_bg_url")
   
   // Primary brand colors
   primaryColor    String   @default("#174b59") @map("primary_color")

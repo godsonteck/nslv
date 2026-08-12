@@ -39,6 +39,13 @@ router.put(
   requirePermission(PERMISSIONS.SETTINGS_EDIT),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      console.log('[ThemeRoute] PUT /theme received:', {
+        bodyKeys: Object.keys(req.body),
+        bodySize: JSON.stringify(req.body).length,
+        hasLogoUrl: !!req.body.logoUrl,
+        hasLoginBgUrl: !!req.body.loginBgUrl,
+      });
+      
       const authReq = req as AuthenticatedRequest;
       const updated = await ThemeService.updateTheme(req.body, authReq.user.userId);
       res.status(200).json({
@@ -47,6 +54,7 @@ router.put(
         message: 'Theme updated successfully.',
       });
     } catch (error) {
+      console.error('[ThemeRoute] PUT /theme error:', error);
       next(error);
     }
   },
