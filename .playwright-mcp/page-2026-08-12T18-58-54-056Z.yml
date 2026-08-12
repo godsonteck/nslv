@@ -1,0 +1,217 @@
+- generic [ref=f21e49]:
+  - banner [ref=f21e50]:
+    - generic [ref=f21e51]:
+      - button "NSVilla NSVilla Property Operations" [ref=f21e52] [cursor=pointer]:
+        - img "NSVilla" [ref=f21e53]
+        - generic [ref=f21e54]:
+          - generic [ref=f21e55]: NSVilla
+          - generic [ref=f21e56]: Property Operations
+      - textbox "Search guests, reservations, rooms…" [ref=f21e62]
+      - generic [ref=f21e63]:
+        - button "Notifications" [ref=f21e65] [cursor=pointer]
+        - button "Settings" [ref=f21e69] [cursor=pointer]
+        - button "avatar Alfred Bedzra Admin" [ref=f21e74] [cursor=pointer]:
+          - img "avatar" [ref=f21e76]
+          - generic [ref=f21e77]:
+            - generic [ref=f21e78]: Alfred Bedzra
+            - generic [ref=f21e79]: Admin
+  - generic [ref=f21e82]:
+    - complementary [ref=f21e83]:
+      - generic [ref=f21e84]:
+        - generic [ref=f21e85]:
+          - generic [ref=f21e87]:
+            - generic [ref=f21e88]: Current workspace
+            - generic [ref=f21e89]: Admin operations
+          - generic [ref=f21e91]: Connected to the live NSVilla property workspace.
+        - generic [ref=f21e92]:
+          - generic [ref=f21e93]: Workspace
+          - generic [ref=f21e94]:
+            - link "Overview" [ref=f21e95] [cursor=pointer]:
+              - /url: /dashboard
+            - link "Front desk" [ref=f21e102] [cursor=pointer]:
+              - /url: /frontdesk
+            - link "Guest bills" [ref=f21e107] [cursor=pointer]:
+              - /url: /bills
+            - link "Reservations" [ref=f21e111] [cursor=pointer]:
+              - /url: /reservations
+            - link "Guests" [ref=f21e115] [cursor=pointer]:
+              - /url: /guests
+            - link "Rooms" [ref=f21e122] [cursor=pointer]:
+              - /url: /rooms
+            - link "Events" [ref=f21e127] [cursor=pointer]:
+              - /url: /events
+        - generic [ref=f21e133]:
+          - generic [ref=f21e134]: Departments
+          - generic [ref=f21e135]:
+            - link "F&B workspace" [ref=f21e136] [cursor=pointer]:
+              - /url: /fnb
+            - link "Restaurant POS" [ref=f21e143] [cursor=pointer]:
+              - /url: /restaurant/pos
+            - link "Bar POS" [ref=f21e150] [cursor=pointer]:
+              - /url: /bar/pos
+            - link "Pool services" [ref=f21e154] [cursor=pointer]:
+              - /url: /pool/services
+        - generic [ref=f21e160]:
+          - generic [ref=f21e161]: Finance & insight
+          - generic [ref=f21e162]:
+            - link "Payments" [ref=f21e163] [cursor=pointer]:
+              - /url: /payments
+            - link "Reports" [ref=f21e167] [cursor=pointer]:
+              - /url: /reports
+            - link "Expenses" [ref=f21e171] [cursor=pointer]:
+              - /url: /expenses
+            - link "Inventory" [ref=f21e175] [cursor=pointer]:
+              - /url: /inventory
+        - generic [ref=f21e180]:
+          - generic [ref=f21e181]: Administration
+          - generic [ref=f21e182]:
+            - link "Admin console" [ref=f21e183] [cursor=pointer]:
+              - /url: /admin
+            - link "Users" [ref=f21e188] [cursor=pointer]:
+              - /url: /admin/users
+            - link "Menus & POS" [ref=f21e193] [cursor=pointer]:
+              - /url: /admin/menus
+            - link "Settings" [ref=f21e198] [cursor=pointer]:
+              - /url: /admin/settings
+            - link "Branding" [ref=f21e203] [cursor=pointer]:
+              - /url: /admin/branding
+        - generic [ref=f21e211]:
+          - generic [ref=f21e212]: NSVilla
+          - generic [ref=f21e213]: Hospitality operations platform
+          - generic [ref=f21e214]: Ho, Volta Region · Ghana
+    - main [ref=f21e215]:
+      - generic [ref=f21e217]:
+        - generic [ref=f21e218]:
+          - generic [ref=f21e219]:
+            - generic [ref=f21e220]: NSVilla · Admin only
+            - heading "System Administration Console" [level=1] [ref=f21e224]
+            - paragraph [ref=f21e225]: Secure management of user accounts, roles & permissions, staff records, POS menus, system settings and the immutable audit trail.
+          - generic [ref=f21e226]:
+            - button "Refresh" [ref=f21e227] [cursor=pointer]
+            - button "Manage users" [ref=f21e233] [cursor=pointer]
+        - generic [ref=f21e240]:
+          - generic [ref=f21e241]:
+            - generic [ref=f21e242]: System administration
+            - heading "Configure the platform, not the rooms." [level=2] [ref=f21e246]
+            - paragraph [ref=f21e247]: Accounts, roles, permissions, staff records, POS menus, system settings and the immutable audit trail. Operations live in the Manager control center.
+          - generic [ref=f21e248]:
+            - generic [ref=f21e249]:
+              - generic [ref=f21e250]: User accounts
+              - generic [ref=f21e256]: Managed here
+            - generic [ref=f21e257]:
+              - generic [ref=f21e258]: Roles & grants
+              - generic [ref=f21e262]: Permission model
+            - generic [ref=f21e263]:
+              - generic [ref=f21e264]: Audit trail
+              - generic [ref=f21e268]: Immutable events
+            - generic [ref=f21e269]:
+              - generic [ref=f21e270]: System settings
+              - generic [ref=f21e274]: Property config
+        - generic [ref=f21e275]:
+          - generic [ref=f21e276]:
+            - generic [ref=f21e277]: User accounts
+            - generic [ref=f21e285]: "0"
+            - generic [ref=f21e286]: 0 active
+          - generic [ref=f21e287]:
+            - generic [ref=f21e288]: System roles
+            - generic [ref=f21e294]: "4"
+            - generic [ref=f21e295]: Granular permission model
+          - generic [ref=f21e296]:
+            - generic [ref=f21e297]: Permissions
+            - generic [ref=f21e303]: "69"
+            - generic [ref=f21e304]: Tracked access grants
+          - generic [ref=f21e305]:
+            - generic [ref=f21e306]: Audit events
+            - generic [ref=f21e311]: "8"
+            - generic [ref=f21e312]: Most recent activity
+        - generic [ref=f21e313]:
+          - heading "Administration modules" [level=2] [ref=f21e314]
+          - generic [ref=f21e315]:
+            - button "User accounts Create, suspend & assign roles Open" [ref=f21e316] [cursor=pointer]:
+              - generic [ref=f21e323]:
+                - generic [ref=f21e324]: User accounts
+                - generic [ref=f21e325]: Create, suspend & assign roles
+                - generic [ref=f21e326]: Open
+            - button "Roles & permissions Define the access model Open" [ref=f21e329] [cursor=pointer]:
+              - generic [ref=f21e334]:
+                - generic [ref=f21e335]: Roles & permissions
+                - generic [ref=f21e336]: Define the access model
+                - generic [ref=f21e337]: Open
+            - button "Staff directory Team & employment records Open" [ref=f21e340] [cursor=pointer]:
+              - generic [ref=f21e354]:
+                - generic [ref=f21e355]: Staff directory
+                - generic [ref=f21e356]: Team & employment records
+                - generic [ref=f21e357]: Open
+            - button "Menu & POS Catalog & department pricing Open" [ref=f21e360] [cursor=pointer]:
+              - generic [ref=f21e365]:
+                - generic [ref=f21e366]: Menu & POS
+                - generic [ref=f21e367]: Catalog & department pricing
+                - generic [ref=f21e368]: Open
+            - button "Data import Documents → menu & inventory Open" [ref=f21e371] [cursor=pointer]:
+              - generic [ref=f21e376]:
+                - generic [ref=f21e377]: Data import
+                - generic [ref=f21e378]: Documents → menu & inventory
+                - generic [ref=f21e379]: Open
+            - button "System settings Property-wide configuration Open" [ref=f21e382] [cursor=pointer]:
+              - generic [ref=f21e387]:
+                - generic [ref=f21e388]: System settings
+                - generic [ref=f21e389]: Property-wide configuration
+                - generic [ref=f21e390]: Open
+            - button "Audit logs Immutable activity trail Open" [ref=f21e393] [cursor=pointer]:
+              - generic [ref=f21e398]:
+                - generic [ref=f21e399]: Audit logs
+                - generic [ref=f21e400]: Immutable activity trail
+                - generic [ref=f21e401]: Open
+        - generic [ref=f21e404]:
+          - generic [ref=f21e405]:
+            - heading "Recent audit activity" [level=2] [ref=f21e406]
+            - paragraph [ref=f21e407]: Latest system events captured on the immutable trail.
+          - button "Full audit logs →" [ref=f21e408] [cursor=pointer]
+        - table [ref=f21e411]:
+          - rowgroup [ref=f21e412]:
+            - row [ref=f21e413]:
+              - columnheader "When" [ref=f21e414]
+              - columnheader "Action" [ref=f21e415]
+              - columnheader "Resource" [ref=f21e416]
+              - columnheader "Actor" [ref=f21e417]
+          - rowgroup [ref=f21e418]:
+            - row [ref=f21e419] [cursor=pointer]:
+              - cell "8/12/2026, 6:58:52 PM" [ref=f21e420]
+              - cell "auth.login_success" [ref=f21e421]
+              - cell "user" [ref=f21e423]
+              - cell "Alfred Bedzra" [ref=f21e424]
+            - row [ref=f21e425] [cursor=pointer]:
+              - cell "8/12/2026, 5:40:54 PM" [ref=f21e426]
+              - cell "theme.updated" [ref=f21e427]
+              - cell "branding_theme" [ref=f21e429]
+              - cell "Alfred Bedzra" [ref=f21e430]
+            - row [ref=f21e431] [cursor=pointer]:
+              - cell "8/12/2026, 5:36:30 PM" [ref=f21e432]
+              - cell "auth.login_success" [ref=f21e433]
+              - cell "user" [ref=f21e435]
+              - cell "Alfred Bedzra" [ref=f21e436]
+            - row [ref=f21e437] [cursor=pointer]:
+              - cell "8/12/2026, 8:14:13 AM" [ref=f21e438]
+              - cell "auth.login_success" [ref=f21e439]
+              - cell "user" [ref=f21e441]
+              - cell "Emmanuel Drah" [ref=f21e442]
+            - row [ref=f21e443] [cursor=pointer]:
+              - cell "8/12/2026, 8:11:48 AM" [ref=f21e444]
+              - cell "auth.login_success" [ref=f21e445]
+              - cell "user" [ref=f21e447]
+              - cell "Alfred Bedzra" [ref=f21e448]
+            - row [ref=f21e449] [cursor=pointer]:
+              - cell "8/12/2026, 5:44:45 AM" [ref=f21e450]
+              - cell "auth.login_success" [ref=f21e451]
+              - cell "user" [ref=f21e453]
+              - cell "Emmanuel Drah" [ref=f21e454]
+            - row [ref=f21e455] [cursor=pointer]:
+              - cell "8/12/2026, 5:37:05 AM" [ref=f21e456]
+              - cell "auth.login_success" [ref=f21e457]
+              - cell "user" [ref=f21e459]
+              - cell "Alfred Bedzra" [ref=f21e460]
+            - row [ref=f21e461] [cursor=pointer]:
+              - cell "8/12/2026, 5:36:51 AM" [ref=f21e462]
+              - cell "auth.login_success" [ref=f21e463]
+              - cell "user" [ref=f21e465]
+              - cell "Alfred Bedzra" [ref=f21e466]

@@ -1,0 +1,30 @@
+- generic [ref=f23e3]:
+  - generic [ref=f23e6]:
+    - generic [ref=f23e7]:
+      - img "NSVilla" [ref=f23e8]
+      - generic [ref=f23e9]:
+        - generic [ref=f23e10]: NSVilla
+        - generic [ref=f23e11]: Property operations
+    - generic [ref=f23e12]:
+      - generic [ref=f23e13]: Staff workspace
+      - heading "A calmer way to run the villa." [level=1] [ref=f23e14]
+      - paragraph [ref=f23e15]: Reservations, rooms, guest stays, folios and department service stay connected from arrival to departure.
+    - generic [ref=f23e16]: Ho, Volta Region · Ghana · Authorized personnel only
+  - generic [ref=f23e18]:
+    - generic [ref=f23e19]:
+      - generic [ref=f23e20]: STAFF ACCESS
+      - heading "Welcome back" [level=2] [ref=f23e21]
+      - paragraph [ref=f23e22]: Sign in to your authorized NSVilla workspace.
+    - generic [ref=f23e23]:
+      - generic [ref=f23e24]:
+        - generic [ref=f23e25]: Username or email
+        - textbox "you@villa.com" [ref=f23e26]
+      - generic [ref=f23e27]:
+        - generic [ref=f23e28]: Password
+        - generic [ref=f23e29]:
+          - textbox "Enter password" [ref=f23e30]
+          - button [ref=f23e31] [cursor=pointer]
+      - button "Sign in" [ref=f23e35] [cursor=pointer]
+    - generic [ref=f23e38]:
+      - generic [ref=f23e39]: Security Notice
+      - paragraph [ref=f23e40]: Access is protected by role-based permissions. Important actions are recorded in the audit trail.
