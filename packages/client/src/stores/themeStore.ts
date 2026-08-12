@@ -81,8 +81,10 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     if (!theme) return;
 
     const root = document.documentElement;
-    
-    // Set CSS variables for colors
+    const dark = Boolean(theme.enableDarkMode);
+
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+
     root.style.setProperty('--color-primary', theme.primaryColor);
     root.style.setProperty('--color-secondary', theme.secondaryColor);
     root.style.setProperty('--color-accent', theme.accentColor);
@@ -94,20 +96,21 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     root.style.setProperty('--color-warning', theme.warningColor);
     root.style.setProperty('--color-error', theme.errorColor);
     root.style.setProperty('--color-info', theme.infoColor);
-    
-    // Set font families
+
     root.style.setProperty('--font-family', theme.fontFamily);
     root.style.setProperty('--font-heading', theme.headingFont);
+    root.style.setProperty('--ns-bg', dark ? '#0b1220' : '#f5f6f4');
+    root.style.setProperty('--ns-surface', dark ? '#121a27' : '#ffffff');
+    root.style.setProperty('--ns-surface-2', dark ? '#1a2433' : '#fafaf8');
+    root.style.setProperty('--ns-line', dark ? '#2a3747' : '#e6e8e5');
+    root.style.setProperty('--ns-ink', dark ? '#edf4f9' : '#14232b');
+    root.style.setProperty('--ns-ink-2', dark ? '#dfeaf3' : '#20343e');
+    root.style.setProperty('--ns-muted', dark ? '#9ab0c0' : '#7a858a');
 
-    // Apply custom CSS if provided
-    if (theme.customCss) {
-      let styleEl = document.getElementById('theme-custom-css');
-      if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = 'theme-custom-css';
-        document.head.appendChild(styleEl);
-      }
-      styleEl.textContent = theme.customCss;
+    const body = document.body;
+    if (body) {
+      body.style.background = dark ? 'var(--ns-bg)' : 'var(--ns-bg)';
+      body.style.color = dark ? 'var(--ns-ink)' : 'var(--ns-ink)';
     }
   },
 }));

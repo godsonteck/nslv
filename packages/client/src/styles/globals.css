@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -19,6 +19,22 @@
   --font-body: 'DM Sans', system-ui, sans-serif;
 }
 
+html[data-theme='dark'] {
+  --ns-ink: #edf4f9;
+  --ns-ink-2: #dfeaf3;
+  --ns-teal: #5ab4d6;
+  --ns-teal-deep: #8ccfe5;
+  --ns-gold: #d7b37a;
+  --ns-gold-soft: #2d2b26;
+  --ns-bg: #0b1220;
+  --ns-surface: #121a27;
+  --ns-surface-2: #1a2433;
+  --ns-line: #2a3747;
+  --ns-muted: #9ab0c0;
+  --ns-danger: #ff7d7d;
+  --ns-success: #69d4a1;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
 html { background: var(--ns-bg); }
@@ -31,6 +47,42 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cfd5d3; border-radius: 999px; }
 ::selection { background: var(--ns-teal); color: white; }
+
+html[data-theme='dark'] body,
+html[data-theme='dark'] #root,
+html[data-theme='dark'] .ns-page,
+html[data-theme='dark'] .app-shell {
+  background: var(--ns-bg);
+  color: var(--ns-ink);
+}
+
+html[data-theme='dark'] .ns-card,
+html[data-theme='dark'] .ns-card-soft,
+html[data-theme='dark'] .ns-input,
+html[data-theme='dark'] .bg-\[\#1C1F28\],
+html[data-theme='dark'] .bg-\[\#14161D\],
+html[data-theme='dark'] .bg-\[\#232733\] {
+  background-color: var(--ns-surface) !important;
+  color: var(--ns-ink) !important;
+  border-color: var(--ns-line) !important;
+}
+
+html[data-theme='dark'] .text-\[\#F4F4F2\],
+html[data-theme='dark'] .text-\[\#1A202C\],
+html[data-theme='dark'] .text-\[\#1B4965\],
+html[data-theme='dark'] .text-\[\#A0A5AD\],
+html[data-theme='dark'] .text-\[\#6E737B\] {
+  color: var(--ns-ink) !important;
+}
+
+html[data-theme='dark'] .ns-input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea {
+  background: var(--ns-surface-2) !important;
+  color: var(--ns-ink) !important;
+  border-color: var(--ns-line) !important;
+}
 
 .ns-card { background: var(--ns-surface); border: 1px solid var(--ns-line); border-radius: 18px; box-shadow: 0 8px 28px rgba(23, 44, 52, .045); }
 .ns-card-soft { background: var(--ns-surface-2); border: 1px solid var(--ns-line); border-radius: 16px; }
