@@ -1,0 +1,83 @@
+- generic [ref=f18e3]:
+  - banner [ref=f18e4]:
+    - generic [ref=f18e5]:
+      - button "NSVilla NSVilla Property Operations" [ref=f18e6] [cursor=pointer]:
+        - img "NSVilla" [ref=f18e7]
+        - generic [ref=f18e8]:
+          - generic [ref=f18e9]: NSVilla
+          - generic [ref=f18e10]: Property Operations
+      - textbox "Search guests, reservations, rooms…" [ref=f18e16]
+      - generic [ref=f18e17]:
+        - button "Notifications" [ref=f18e19] [cursor=pointer]
+        - button "Settings" [ref=f18e23] [cursor=pointer]
+        - button "SA System Administrator Admin" [ref=f18e28] [cursor=pointer]:
+          - generic [ref=f18e29]: SA
+          - generic [ref=f18e30]:
+            - generic [ref=f18e31]: System Administrator
+            - generic [ref=f18e32]: Admin
+  - generic [ref=f18e35]:
+    - complementary [ref=f18e36]:
+      - generic [ref=f18e37]:
+        - generic [ref=f18e38]:
+          - generic [ref=f18e40]:
+            - generic [ref=f18e41]: Current workspace
+            - generic [ref=f18e42]: Admin operations
+          - generic [ref=f18e44]: Connected to the live NSVilla property workspace.
+        - generic [ref=f18e45]:
+          - generic [ref=f18e46]: Workspace
+          - generic [ref=f18e47]:
+            - link "Overview" [ref=f18e48] [cursor=pointer]:
+              - /url: /dashboard
+            - link "Front desk" [ref=f18e55] [cursor=pointer]:
+              - /url: /frontdesk
+            - link "Guest bills" [ref=f18e60] [cursor=pointer]:
+              - /url: /bills
+            - link "Reservations" [ref=f18e64] [cursor=pointer]:
+              - /url: /reservations
+            - link "Guests" [ref=f18e68] [cursor=pointer]:
+              - /url: /guests
+            - link "Rooms" [ref=f18e75] [cursor=pointer]:
+              - /url: /rooms
+            - link "Events" [ref=f18e80] [cursor=pointer]:
+              - /url: /events
+        - generic [ref=f18e86]:
+          - generic [ref=f18e87]: Departments
+          - generic [ref=f18e88]:
+            - link "F&B workspace" [ref=f18e89] [cursor=pointer]:
+              - /url: /fnb
+            - link "Restaurant POS" [ref=f18e96] [cursor=pointer]:
+              - /url: /restaurant/pos
+            - link "Bar POS" [ref=f18e103] [cursor=pointer]:
+              - /url: /bar/pos
+            - link "Pool services" [ref=f18e107] [cursor=pointer]:
+              - /url: /pool/services
+        - generic [ref=f18e113]:
+          - generic [ref=f18e114]: Finance & insight
+          - generic [ref=f18e115]:
+            - link "Payments" [ref=f18e116] [cursor=pointer]:
+              - /url: /payments
+            - link "Reports" [ref=f18e120] [cursor=pointer]:
+              - /url: /reports
+            - link "Expenses" [ref=f18e124] [cursor=pointer]:
+              - /url: /expenses
+            - link "Inventory" [ref=f18e128] [cursor=pointer]:
+              - /url: /inventory
+        - generic [ref=f18e133]:
+          - generic [ref=f18e134]: Administration
+          - generic [ref=f18e135]:
+            - link "Admin console" [ref=f18e136] [cursor=pointer]:
+              - /url: /admin
+            - link "Users" [ref=f18e141] [cursor=pointer]:
+              - /url: /admin/users
+            - link "Menus & POS" [ref=f18e146] [cursor=pointer]:
+              - /url: /admin/menus
+            - link "Settings" [ref=f18e151] [cursor=pointer]:
+              - /url: /admin/settings
+            - link "Branding" [ref=f18e156] [cursor=pointer]:
+              - /url: /admin/branding
+        - generic [ref=f18e164]:
+          - generic [ref=f18e165]: NSVilla
+          - generic [ref=f18e166]: Hospitality operations platform
+          - generic [ref=f18e167]: Ho, Volta Region · Ghana
+    - main [ref=f18e168]:
+      - paragraph [ref=f18e172]: Loading the system administration console…
