@@ -1,0 +1,10 @@
+node_modules
+packages/*/node_modules
+packages/desktop
+*.log
+.env
+.env.local
+.env.*.local
+packages/server/dist
+packages/client/dist
+packages/shared/dist

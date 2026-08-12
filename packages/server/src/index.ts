@@ -1,6 +1,6 @@
 // ============================================
 // NS LUXURY VILLA — Express Server Entrypoint
-// Production server configuration & lifecycle
+// Production server configuration & lifecycle (Vercel Serverless Ready)
 // ============================================
 
 import express from 'express';
@@ -16,11 +16,10 @@ import { errorHandler } from './middleware/error';
 
 const app = express();
 
-// Trust the configured number of proxy hops so rate limiting and audit
-// logging see the real client IP behind a reverse proxy / load balancer.
+// Trust proxy hops
 app.set('trust proxy', config.trustProxy);
 
-// Simple request logging (method, path, status, duration)
+// Request logging
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
@@ -29,7 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Security Headers (Helmet)
+// Security Headers
 app.use(
   helmet({
     contentSecurityPolicy: config.isProd,
@@ -53,7 +52,6 @@ const globalLimiter = rateLimit({
   max: config.rateLimitMax,
   standardHeaders: true,
   legacyHeaders: false,
-  // Let load-balancer/orchestrator health checks hit /health without burning quota.
   skip: (req) => req.originalUrl.endsWith('/health'),
   message: {
     success: false,
@@ -85,22 +83,17 @@ app.use(cookieParser());
 // Mount API v1 Routes
 app.use('/api/v1', routes);
 
-// Serve the built client app (SPA) in production so a single process runs both.
+// Serve built client app in production standalone mode
 const clientDist = path.resolve(__dirname, '../../client/dist');
 const serveClient = config.isProd && fs.existsSync(clientDist);
 if (serveClient) {
   app.use(express.static(clientDist));
-  // SPA fallback — hand every non-API GET the client index.html.
   app.get(/^\/(?!api(?:\/|$)).*/, (_req, res) => {
     res.sendFile(path.join(clientDist, 'index.html'));
   });
-  console.log(`[STATIC] Serving client from ${clientDist}`);
-} else if (config.isProd) {
-  console.warn(`[STATIC] Client build not found at ${clientDist} — running API-only.`);
 }
 
-// 404 Route Handler — API endpoints get a JSON 404; everything else already
-// went to the SPA fallback above (or was a static asset).
+// 404 Route Handler for API endpoints
 app.use((_req, res) => {
   res.status(404).json({
     success: false,
@@ -114,12 +107,11 @@ app.use((_req, res) => {
 // Global Error Handler
 app.use(errorHandler);
 
-// Start Server
-const server = app.listen(config.port, config.host, () => {
-  if (!process.env['NODE_ENV']) {
-    console.warn('[WARN] NODE_ENV is not set — defaulting to development. Set NODE_ENV=production in production.');
-  }
-  console.log(`
+// Start standalone HTTP server only when NOT in Vercel Serverless environment
+let server: any;
+if (!process.env.VERCEL) {
+  server = app.listen(config.port, config.host, () => {
+    console.log(`
 =====================================================
 🏨  NS LUXURY VILLA MANAGEMENT SYSTEM — API SERVER  🏨
 =====================================================
@@ -129,18 +121,19 @@ const server = app.listen(config.port, config.host, () => {
   API Base:    http://${config.host}:${config.port}/api/v1
   Timezone:    ${config.villa.timezone}
 =====================================================
-  `);
-});
+    `);
+  });
+}
 
 // Graceful Shutdown
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
 const stopServer = async (): Promise<void> => {
+  if (!server) return;
   await new Promise<void>((resolve) => {
-    // Force-close keep-alive connections if graceful close drags on.
     const forceTimer = setTimeout(() => {
       console.warn('[SYSTEM] Shutdown timeout reached — force-closing connections.');
-      server.closeAllConnections();
+      server.closeAllConnections?.();
       resolve();
     }, SHUTDOWN_TIMEOUT_MS);
     forceTimer.unref();
@@ -167,13 +160,5 @@ const gracefulShutdown = async (signal: string, exitCode = 0) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-process.on('unhandledRejection', (reason) => {
-  console.error('[SYSTEM] Unhandled promise rejection:', reason);
-  void gracefulShutdown('unhandledRejection', 1);
-});
-process.on('uncaughtException', (error) => {
-  console.error('[SYSTEM] Uncaught exception:', error);
-  void gracefulShutdown('uncaughtException', 1);
-});
 
 export default app;

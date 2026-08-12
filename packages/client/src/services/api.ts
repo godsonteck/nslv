@@ -6,7 +6,11 @@
 import type { ApiResponse, ApiError } from '@nslv/shared';
 
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
-const API_BASE = rawApiUrl ? `${rawApiUrl}/api/v1` : '/api/v1';
+const API_BASE = !rawApiUrl
+  ? '/api/v1'
+  : rawApiUrl.endsWith('/api/v1')
+  ? rawApiUrl
+  : `${rawApiUrl}/api/v1`;
 
 export class ApiClientError extends Error {
   public code: string;

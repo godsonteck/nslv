@@ -1,10 +1,22 @@
 {
-  "buildCommand": "npm run build:shared && npm run build:client",
+  "framework": null,
+  "installCommand": "npm ci --legacy-peer-deps",
+  "buildCommand": "npm run build:shared && npm run db:generate && npm run build:client",
   "outputDirectory": "packages/client/dist",
-  "rewrites": [
+  "functions": {
+    "api/index.ts": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/api/(.*)",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }

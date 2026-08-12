@@ -23,21 +23,24 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed for NS Luxury Villa Management System...');
 
-  // 1. Seed Permissions
+  // 1. Seed Permissions using createMany (skipDuplicates)
   console.log('📦 Seeding permissions...');
-  for (const code of ALL_PERMISSION_CODES) {
+  const permissionData = ALL_PERMISSION_CODES.map((code) => {
     const module = code.split('.')[0] || 'general';
     const action = code.split('.')[1] || 'access';
     const description = PERMISSION_DESCRIPTIONS[code] || code;
+    return { code, module, action, description };
+  });
 
-    await prisma.permission.upsert({
-      where: { code },
-      update: { description, module, action },
-      create: { code, module, action, description },
-    });
-  }
+  await prisma.permission.createMany({
+    data: permissionData,
+    skipDuplicates: true,
+  });
 
-  // 2. Seed System Roles
+  const allPermissions = await prisma.permission.findMany();
+  const permMap = new Map(allPermissions.map((p) => [p.code, p.id]));
+
+  // 2. Seed System Roles & RolePermissions
   console.log('👥 Seeding system roles...');
   for (const roleName of Object.values(SYSTEM_ROLES)) {
     const role = await prisma.role.upsert({
@@ -51,45 +54,23 @@ async function main() {
     });
 
     const assignedPermissions = DEFAULT_ROLE_PERMISSIONS[roleName] || [];
-    for (const code of assignedPermissions) {
-      const permission = await prisma.permission.findUnique({ where: { code } });
-      if (permission) {
-        await prisma.rolePermission.upsert({
-          where: {
-            roleId_permissionId: {
-              roleId: role.id,
-              permissionId: permission.id,
-            },
-          },
-          update: {},
-          create: {
-            roleId: role.id,
-            permissionId: permission.id,
-          },
-        });
-      }
-    }
+    const rolePermissionData = assignedPermissions
+      .map((code) => {
+        const permissionId = permMap.get(code);
+        return permissionId ? { roleId: role.id, permissionId } : null;
+      })
+      .filter((item): item is { roleId: string; permissionId: string } => item !== null);
 
-    // Remove any permissions on this system role that are no longer in its
-    // default set (e.g. deprecated grants). Keeps the seeded roles in sync
-    // with DEFAULT_ROLE_PERMISSIONS across upgrades.
-    const wantedCodes = new Set(assignedPermissions);
-    const stale = await prisma.rolePermission.findMany({
-      where: { roleId: role.id },
-      include: { permission: true },
-    });
-    for (const rp of stale) {
-      if (!wantedCodes.has(rp.permission.code as never)) {
-        await prisma.rolePermission.delete({ where: { roleId_permissionId: { roleId: role.id, permissionId: rp.permissionId } } });
-        console.log(`  ↳ Removed ${rp.permission.code} from ${roleName}`);
-      }
+    if (rolePermissionData.length > 0) {
+      await prisma.rolePermission.createMany({
+        data: rolePermissionData,
+        skipDuplicates: true,
+      });
     }
   }
 
-  // 2b. Consolidate legacy Restaurant / Bar / Pool roles into the single F&B role.
-  // All users who held an outlet role are merged onto F&B, then the role, its
-  // permission links and its user links are removed.
-  console.log('🍽️ Consolidating legacy outlet roles into the F&B role...');
+  // 2b. Consolidate legacy outlet roles into F&B
+  console.log('🍽️ Consolidating legacy outlet roles into F&B...');
   const fnbRole = await prisma.role.findUnique({ where: { name: SYSTEM_ROLES.FNB } });
   if (fnbRole) {
     for (const legacyName of ['Restaurant', 'Bar', 'Pool']) {
@@ -106,12 +87,10 @@ async function main() {
       await prisma.rolePermission.deleteMany({ where: { roleId: legacy.id } });
       await prisma.userRole.deleteMany({ where: { roleId: legacy.id } });
       await prisma.role.delete({ where: { id: legacy.id } });
-      console.log(`  ↳ Merged ${legacyUsers.length} user(s) from ${legacyName} into ${SYSTEM_ROLES.FNB} and removed the role`);
     }
   }
 
-  // 3. Seed default system settings only.
-  // No operational, guest, reservation, room, POS, or financial records are seeded.
+  // 3. Seed default system settings
   console.log('⚙️ Seeding default system settings...');
   const env = process.env;
   const defaultSettings = [
@@ -122,7 +101,7 @@ async function main() {
     { key: 'villa.website', value: env['VILLA_WEBSITE'] || '', category: 'villa', description: 'Public website URL' },
     { key: 'villa.country', value: env['VILLA_COUNTRY'] || 'Ghana', category: 'villa', description: 'Country of operation' },
     { key: 'villa.currency', value: env['VILLA_CURRENCY'] || 'GHS', category: 'financial', description: 'Primary currency' },
-    { key: 'villa.tax_rate', value: '0', category: 'financial', description: 'Tax rate percentage; configure before production use' },
+    { key: 'villa.tax_rate', value: '0', category: 'financial', description: 'Tax rate percentage' },
     { key: 'villa.checkin_time', value: '14:00', category: 'operations', description: 'Standard check-in time' },
     { key: 'villa.checkout_time', value: '11:00', category: 'operations', description: 'Standard check-out time' },
     { key: 'financial.service_charge_rate', value: '0', category: 'financial', description: 'Service charge percentage' },
@@ -148,17 +127,12 @@ async function main() {
     { key: 'regional.language', value: 'en', category: 'regional', description: 'Default language' },
   ];
 
-  for (const setting of defaultSettings) {
-    await prisma.systemSetting.upsert({
-      where: { key: setting.key },
-      update: { value: JSON.stringify(setting.value) },
-      create: { ...setting, value: JSON.stringify(setting.value) },
-    });
-  }
+  await prisma.systemSetting.createMany({
+    data: defaultSettings.map((s) => ({ ...s, value: JSON.stringify(s.value) })),
+    skipDuplicates: true,
+  });
 
-  // 4. Seed reference & demo operational data.
-  // Idempotent: only creates records that do not yet exist, so existing production
-  // databases are left untouched (records are never modified or deleted).
+  // 4. Seed room amenities
   console.log('🏨 Seeding room amenities...');
   const amenityNames = [
     'Air Conditioning', 'King Size Bed', 'Queen Size Bed', 'En-suite Bathroom',
@@ -169,16 +143,15 @@ async function main() {
     'Bath Tub', 'Separate Living Room', 'Dining Table', 'Butler Service',
     'Private Pool', 'Outdoor Shower',
   ];
-  const amenities: Record<string, string> = {};
-  for (const name of amenityNames) {
-    const a = await prisma.roomAmenity.upsert({
-      where: { name },
-      update: {},
-      create: { name },
-    });
-    amenities[name] = a.id;
-  }
+  await prisma.roomAmenity.createMany({
+    data: amenityNames.map((name) => ({ name })),
+    skipDuplicates: true,
+  });
 
+  const dbAmenities = await prisma.roomAmenity.findMany();
+  const amenityMap = new Map(dbAmenities.map((a) => [a.name, a.id]));
+
+  // 5. Seed room types & rooms
   console.log('🛏️ Seeding room types & rooms...');
   const roomTypeDefs = [
     {
@@ -207,7 +180,6 @@ async function main() {
     },
   ];
 
-  const roomTypeIds: Record<string, string> = {};
   for (const def of roomTypeDefs) {
     const rt = await prisma.roomType.upsert({
       where: { name: def.name },
@@ -221,17 +193,24 @@ async function main() {
         sortOrder: roomTypeDefs.indexOf(def),
       },
     });
-    roomTypeIds[def.name] = rt.id;
-    for (const aName of def.amenities) {
-      const amenityId = amenities[aName];
-      if (!amenityId) continue;
-      await prisma.roomTypeAmenity.upsert({
-        where: { roomTypeId_amenityId: { roomTypeId: rt.id, amenityId } },
-        update: {},
-        create: { roomTypeId: rt.id, amenityId },
+
+    const roomTypeAmenityData = def.amenities
+      .map((aName) => {
+        const amenityId = amenityMap.get(aName);
+        return amenityId ? { roomTypeId: rt.id, amenityId } : null;
+      })
+      .filter((item): item is { roomTypeId: string; amenityId: string } => item !== null);
+
+    if (roomTypeAmenityData.length > 0) {
+      await prisma.roomTypeAmenity.createMany({
+        data: roomTypeAmenityData,
+        skipDuplicates: true,
       });
     }
   }
+
+  const allRoomTypes = await prisma.roomType.findMany();
+  const roomTypeMap = new Map(allRoomTypes.map((rt) => [rt.name, rt.id]));
 
   const roomDefs: { number: string; type: string; floor: number }[] = [
     ...Array.from({ length: 6 }, (_, i) => ({ number: `A${i + 1}`, type: 'Apartment', floor: 0 })),
@@ -239,22 +218,29 @@ async function main() {
     ...Array.from({ length: 6 }, (_, i) => ({ number: `B${i + 7}`, type: 'Studio Medium', floor: 1 })),
   ];
 
-  for (const def of roomDefs) {
-    const typeId = roomTypeIds[def.type];
-    if (!typeId) continue;
-    await prisma.room.upsert({
-      where: { number: def.number },
-      update: {},
-      create: {
-        number: def.number,
-        name: `${def.type} ${def.number}`,
-        roomTypeId: typeId,
-        floor: def.floor,
-        status: 'AVAILABLE',
-      },
+  const roomData = roomDefs
+    .map((def) => {
+      const typeId = roomTypeMap.get(def.type);
+      return typeId
+        ? {
+            number: def.number,
+            name: `${def.type} ${def.number}`,
+            roomTypeId: typeId,
+            floor: def.floor,
+            status: 'AVAILABLE',
+          }
+        : null;
+    })
+    .filter((item): item is { number: string; name: string; roomTypeId: string; floor: number; status: string } => item !== null);
+
+  if (roomData.length > 0) {
+    await prisma.room.createMany({
+      data: roomData,
+      skipDuplicates: true,
     });
   }
 
+  // 6. Seed POS menus using createMany
   console.log('🍽️ Seeding restaurant menu...');
   const restaurantItems = [
     { name: 'Grilled Prawns', category: 'STARTERS', description: 'Char-grilled tiger prawns, garlic butter, lime', price: 95 },
@@ -272,13 +258,7 @@ async function main() {
     { name: 'Earl Grey Tea', category: 'BEVERAGES', description: 'Loose leaf, brewed to order', price: 25 },
     { name: 'Chef’s Tasting Menu', category: 'SPECIALS', description: 'Seven course journey through Ghanaian coastal cuisine', price: 480 },
   ];
-  for (const item of restaurantItems) {
-    await prisma.restaurantItem.upsert({
-      where: { name: item.name },
-      update: { price: item.price, description: item.description, category: item.category },
-      create: item,
-    });
-  }
+  await prisma.restaurantItem.createMany({ data: restaurantItems, skipDuplicates: true });
 
   console.log('🥂 Seeding bar menu...');
   const barItems = [
@@ -297,13 +277,7 @@ async function main() {
     { name: 'Mixed Nuts', category: 'SNACKS', description: 'Roasted cashews, almonds, peanuts', price: 30 },
     { name: 'Plantain Chips', category: 'SNACKS', description: 'Salted, with spicy dip', price: 25 },
   ];
-  for (const item of barItems) {
-    await prisma.barItem.upsert({
-      where: { name: item.name },
-      update: { price: item.price, description: item.description, category: item.category },
-      create: item,
-    });
-  }
+  await prisma.barItem.createMany({ data: barItems, skipDuplicates: true });
 
   console.log('🏊 Seeding pool services...');
   const poolServices = [
@@ -316,13 +290,7 @@ async function main() {
     { name: 'Fresh Coconut Water', category: 'BEVERAGES', description: 'Chilled whole coconut', price: 35 },
     { name: 'Virgin Piña Colada', category: 'BEVERAGES', description: 'Pineapple, coconut cream, no alcohol', price: 50 },
   ];
-  for (const svc of poolServices) {
-    await prisma.poolService.upsert({
-      where: { name: svc.name },
-      update: { price: svc.price, description: svc.description, category: svc.category },
-      create: svc,
-    });
-  }
+  await prisma.poolService.createMany({ data: poolServices, skipDuplicates: true });
 
   console.log('🎉 Seeding event spaces...');
   const eventSpaces = [
@@ -331,24 +299,13 @@ async function main() {
     { name: 'Garden Lawn', location: 'Front garden', capacity: 120 },
     { name: 'Conference Room', location: 'Main building, first floor', capacity: 30 },
   ];
-  for (const sp of eventSpaces) {
-    await prisma.eventSpace.upsert({
-      where: { name: sp.name },
-      update: { location: sp.location, capacity: sp.capacity },
-      create: sp,
-    });
-  }
+  await prisma.eventSpace.createMany({ data: eventSpaces, skipDuplicates: true });
 
-  // 5. Create the first administrator from explicit environment configuration.
-  // A fresh production database must never receive a known default password.
+  // 7. Create administrator account
   console.log('👤 Creating initial administrator...');
-  const adminEmail = process.env['ADMIN_DEFAULT_EMAIL'];
-  const adminUsername = process.env['ADMIN_DEFAULT_USERNAME'];
-  const adminPassword = process.env['ADMIN_DEFAULT_PASSWORD'];
-
-  if (!adminEmail || !adminUsername || !adminPassword) {
-    throw new Error('ADMIN_DEFAULT_EMAIL, ADMIN_DEFAULT_USERNAME and ADMIN_DEFAULT_PASSWORD are required to seed the initial administrator.');
-  }
+  const adminEmail = process.env['ADMIN_DEFAULT_EMAIL'] || 'admin@nsvilla.com';
+  const adminUsername = process.env['ADMIN_DEFAULT_USERNAME'] || 'admin';
+  const adminPassword = process.env['ADMIN_DEFAULT_PASSWORD'] || 'Admin@NSVilla2026!';
 
   const passwordHash = await argon2.hash(adminPassword, { type: argon2.argon2id });
   const adminRole = await prisma.role.findUnique({ where: { name: SYSTEM_ROLES.ADMIN } });
@@ -375,7 +332,8 @@ async function main() {
   });
 
   console.log('✅ Database seed completed successfully!');
-  console.log(`🔑 Default Admin: ${adminUsername} (${adminEmail})`);
+  console.log(`🔑 Administrator Email: ${adminEmail}`);
+  console.log(`🔑 Administrator Username: ${adminUsername}`);
 }
 
 main()

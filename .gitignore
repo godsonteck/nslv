@@ -86,3 +86,6 @@ Thumbs.db
 # Sensitive files (auto-detected)
 .env
 
+
+.vercel
+.env*
