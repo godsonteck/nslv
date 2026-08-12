@@ -30,6 +30,7 @@ const ALL_SECTIONS: NavSection[] = [
     { label: 'Inventory', to: '/inventory', icon: ClipboardList, perms: ['inventory.view'] },
   ] },
   { title: 'Administration', items: [
+    { label: 'Admin console', to: '/admin', icon: ShieldCheck, perms: ['users.view'] },
     { label: 'Users', to: '/admin/users', icon: ShieldCheck, perms: ['users.view'] },
     { label: 'Staff directory', to: '/admin/staff', icon: UserCog, perms: ['staff.view'] },
     { label: 'Menus & POS', to: '/admin/menus', icon: Utensils, perms: ['restaurant.menu', 'bar.menu', 'pool.manage'] },
