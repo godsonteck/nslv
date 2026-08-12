@@ -1,10 +1,33 @@
 import { create } from 'zustand';
 import { themeApi, type ThemeConfig } from '../services/apiService';
 
+const DEFAULT_THEME: ThemeConfig = {
+  villaName: 'NS Luxury Villa',
+  villaTagline: 'Property Operations',
+  logoUrl: undefined,
+  loginBgUrl: undefined,
+  primaryColor: '#174b59',
+  secondaryColor: '#b18a55',
+  accentColor: '#d9bd91',
+  bgColor: '#f5f6f4',
+  textColor: '#14232b',
+  textMuted: '#7a858a',
+  borderColor: '#e5e8e5',
+  successColor: '#2d8a68',
+  warningColor: '#d97706',
+  errorColor: '#dc2626',
+  infoColor: '#0284c7',
+  fontFamily: 'system-ui, -apple-system, sans-serif',
+  headingFont: 'Manrope, sans-serif',
+  customCss: undefined,
+  useCustomLogin: false,
+  enableDarkMode: false,
+};
+
 interface ThemeStore {
   theme: ThemeConfig | null;
   isLoading: boolean;
-  
+
   // Actions
   loadTheme: () => Promise<void>;
   updateTheme: (config: Partial<ThemeConfig>) => Promise<void>;
@@ -13,17 +36,19 @@ interface ThemeStore {
 }
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
-  theme: null,
+  theme: DEFAULT_THEME,
   isLoading: false,
 
   loadTheme: async () => {
     set({ isLoading: true });
     try {
       const result = await themeApi.getTheme();
-      set({ theme: result.data });
+      set({ theme: result.data ?? DEFAULT_THEME });
       get().applyTheme();
     } catch (error) {
       console.error('Failed to load theme:', error);
+      set({ theme: DEFAULT_THEME });
+      get().applyTheme();
     } finally {
       set({ isLoading: false });
     }

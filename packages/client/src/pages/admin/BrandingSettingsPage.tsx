@@ -38,7 +38,15 @@ export const BrandingSettingsPage: React.FC = () => {
   const [resetOpen, setResetOpen] = useState(false);
 
   useEffect(() => {
-    void loadTheme().then(() => setLoading(false));
+    let mounted = true;
+
+    void loadTheme().finally(() => {
+      if (mounted) setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+    };
   }, [loadTheme]);
 
   const handleChange = (key: keyof ThemeConfig, val: any) => {
@@ -73,11 +81,33 @@ export const BrandingSettingsPage: React.FC = () => {
     }
   };
 
-  if (loading || !theme) {
+  if (loading && !theme) {
     return <div className="py-8 text-center text-xs text-[#A0A5AD]">Loading theme settings...</div>;
   }
 
-  const getValue = (key: keyof ThemeConfig): any => draft[key] !== undefined ? draft[key] : theme[key];
+  const activeTheme = theme ?? {
+    ...{
+      villaName: 'NS Luxury Villa',
+      villaTagline: 'Property Operations',
+      primaryColor: '#174b59',
+      secondaryColor: '#b18a55',
+      accentColor: '#d9bd91',
+      bgColor: '#f5f6f4',
+      textColor: '#14232b',
+      textMuted: '#7a858a',
+      borderColor: '#e5e8e5',
+      successColor: '#2d8a68',
+      warningColor: '#d97706',
+      errorColor: '#dc2626',
+      infoColor: '#0284c7',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      headingFont: 'Manrope, sans-serif',
+      useCustomLogin: false,
+      enableDarkMode: false,
+    }
+  } as ThemeConfig;
+
+  const getValue = (key: keyof ThemeConfig): any => draft[key] !== undefined ? draft[key] : activeTheme[key];
 
   return (
     <div className="space-y-6">
