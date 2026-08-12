@@ -81,6 +81,10 @@ export const PERMISSIONS = {
   INVENTORY_MANAGE: 'inventory.manage',
   INVENTORY_ADJUST: 'inventory.adjust',
 
+  // Categories
+  CATEGORIES_VIEW: 'categories.view',
+  CATEGORIES_MANAGE: 'categories.manage',
+
   // Reports
   REPORTS_VIEW: 'reports.view',
   REPORTS_EXPORT: 'reports.export',
@@ -194,6 +198,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRoleName, PermissionCode[]> 
     PERMISSIONS.INVENTORY_VIEW,
     PERMISSIONS.INVENTORY_MANAGE,
     PERMISSIONS.INVENTORY_ADJUST,
+    PERMISSIONS.CATEGORIES_MANAGE,
     PERMISSIONS.REPORTS_VIEW,
     PERMISSIONS.REPORTS_EXPORT,
     PERMISSIONS.REPORTS_FINANCIAL,
@@ -292,6 +297,8 @@ export const PERMISSION_DESCRIPTIONS: Record<PermissionCode, string> = {
   [PERMISSIONS.INVENTORY_VIEW]: 'View inventory',
   [PERMISSIONS.INVENTORY_MANAGE]: 'Manage inventory items and suppliers',
   [PERMISSIONS.INVENTORY_ADJUST]: 'Make inventory adjustments',
+  [PERMISSIONS.CATEGORIES_VIEW]: 'View menu and inventory categories',
+  [PERMISSIONS.CATEGORIES_MANAGE]: 'Create, edit, and delete categories',
   [PERMISSIONS.REPORTS_VIEW]: 'View operational reports',
   [PERMISSIONS.REPORTS_EXPORT]: 'Export reports (CSV/PDF)',
   [PERMISSIONS.REPORTS_FINANCIAL]: 'View financial reports',

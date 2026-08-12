@@ -292,6 +292,114 @@ export const notificationsApi = {
 };
 
 // ──────────────────────────────────────────
+// Theme & Branding
+// ──────────────────────────────────────────
+export interface ThemeConfig {
+  id?: string;
+  villaName: string;
+  villaTagline: string;
+  logoUrl?: string;
+  loginBgUrl?: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  bgColor: string;
+  textColor: string;
+  textMuted: string;
+  borderColor: string;
+  successColor: string;
+  warningColor: string;
+  errorColor: string;
+  infoColor: string;
+  fontFamily: string;
+  headingFont: string;
+  customCss?: string;
+  useCustomLogin: boolean;
+  enableDarkMode: boolean;
+}
+
+export const themeApi = {
+  getTheme: async (): Promise<{ success: true; data: ThemeConfig }> => {
+    const data = await apiFetch<ThemeConfig>('/theme', {});
+    return { success: true, data };
+  },
+
+  updateTheme: async (config: Partial<ThemeConfig>): Promise<{ success: true; data: ThemeConfig }> => {
+    const data = await apiFetch<ThemeConfig>('/theme', {
+      method: 'PUT',
+      body: JSON.stringify(config),
+    }, token());
+    return { success: true, data };
+  },
+
+  resetTheme: async (): Promise<{ success: true; data: ThemeConfig }> => {
+    const data = await apiFetch<ThemeConfig>('/theme/reset', {
+      method: 'POST',
+    }, token());
+    return { success: true, data };
+  },
+};
+
+// ──────────────────────────────────────────
+// Categories
+// ──────────────────────────────────────────
+export interface ItemCategory {
+  id: string;
+  name: string;
+  type: string;
+  description?: string;
+  color?: string;
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const categoriesApi = {
+  listAll: async (params?: { type?: string; includeInactive?: boolean }): Promise<{ success: true; data: ItemCategory[] }> => {
+    const qs = new URLSearchParams();
+    if (params?.type) qs.set('type', params.type);
+    if (params?.includeInactive) qs.set('includeInactive', 'true');
+    const data = await apiFetch<ItemCategory[]>(`/categories?${qs}`, {}, token());
+    return { success: true, data };
+  },
+
+  listByType: async (type: string): Promise<{ success: true; data: ItemCategory[] }> => {
+    const data = await apiFetch<ItemCategory[]>(`/categories/${type}`, {}, token());
+    return { success: true, data };
+  },
+
+  create: async (body: { name: string; type: string; description?: string; color?: string; order?: number }): Promise<{ success: true; data: ItemCategory }> => {
+    const data = await apiFetch<ItemCategory>('/categories', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }, token());
+    return { success: true, data };
+  },
+
+  update: async (id: string, body: Partial<Omit<ItemCategory, 'id' | 'type' | 'createdAt' | 'updatedAt'>>): Promise<{ success: true; data: ItemCategory }> => {
+    const data = await apiFetch<ItemCategory>(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }, token());
+    return { success: true, data };
+  },
+
+  delete: async (id: string): Promise<{ success: true }> => {
+    await apiFetch<void>(`/categories/${id}`, { method: 'DELETE' }, token());
+    return { success: true };
+  },
+
+  reorder: async (updates: Array<{ id: string; order: number }>): Promise<{ success: true; data: ItemCategory[] }> => {
+    const data = await apiFetch<ItemCategory[]>('/categories/reorder', {
+      method: 'POST',
+      body: JSON.stringify({ updates }),
+    }, token());
+    return { success: true, data };
+  },
+};
+
+// ──────────────────────────────────────────
 // Rooms & Room Types
 // ──────────────────────────────────────────
 export const roomsApi = {

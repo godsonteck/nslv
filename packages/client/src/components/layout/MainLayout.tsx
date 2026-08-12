@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { ToastContainer } from '../ui';
 import { authApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
+import { useThemeStore } from '../../stores/themeStore';
 
 export const MainLayout: React.FC = () => {
   const location = useLocation();
@@ -32,6 +33,11 @@ export const MainLayout: React.FC = () => {
         // Invalid or expired refresh session — return to the login screen.
         void useAuthStore.getState().logout();
       });
+  }, []);
+
+  // Load theme on startup
+  useEffect(() => {
+    void useThemeStore.getState().loadTheme();
   }, []);
 
   return (

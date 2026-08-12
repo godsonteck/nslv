@@ -10,6 +10,7 @@ import roleRoutes from './role.routes';
 import auditRoutes from './audit.routes';
 import healthRoutes from './health.routes';
 import settingsRoutes from './settings.routes';
+import themeRoutes from './theme.routes';
 import roomsRoutes from './rooms.routes';
 import guestsRoutes from './guests.routes';
 import reservationsRoutes from './reservations.routes';
@@ -24,6 +25,7 @@ import eventsRoutes from './events.routes';
 import importsRoutes from './imports.routes';
 import systemRoutes from './system.routes';
 import notificationsRoutes from './notifications.routes';
+import categoriesRoutes from './categories.routes';
 
 const router = Router();
 
@@ -33,7 +35,9 @@ router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/audit', auditRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/theme', themeRoutes);
 router.use('/notifications', notificationsRoutes);
+router.use('/categories', categoriesRoutes);
 router.use('/rooms', roomsRoutes);
 router.use('/guests', guestsRoutes);
 router.use('/reservations', reservationsRoutes);

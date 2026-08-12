@@ -3,9 +3,10 @@
 // React Router v7 with Role Guards & Phased Lazy Loading
 // ============================================
 
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { useThemeStore } from './stores/themeStore';
 import { MainLayout } from './components/layout/MainLayout';
 import Login from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -36,7 +37,7 @@ const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
 const AuditLogsPage = lazy(() => import('./pages/admin/AuditLogsPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
-const StaffDirectoryPage = lazy(() => import('./pages/admin/StaffDirectoryPage'));
+const BrandingSettingsPage = lazy(() => import('./pages/admin/BrandingSettingsPage'));
 const MenuManagementPage = lazy(() => import('./pages/admin/MenuManagementPage'));
 const ImportPage = lazy(() => import('./pages/admin/ImportPage'));
 const AdminConsolePage = lazy(() => import('./pages/admin/AdminConsolePage'));
@@ -44,6 +45,15 @@ const AdminConsolePage = lazy(() => import('./pages/admin/AdminConsolePage'));
 const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
 const UnauthorizedPage = lazy(() => import('./pages/error/UnauthorizedPage'));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
+
+// Initialize theme on app startup (for all pages including login)
+const AppInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  useEffect(() => {
+    void useThemeStore.getState().loadTheme();
+  }, []);
+
+  return <>{children}</>;
+};
 
 const PageLoader: React.FC = () => (
   <div className="flex items-center justify-center h-full py-24 text-xs text-slate-500">
@@ -68,8 +78,9 @@ const HomeRedirect: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AppInitializer>
+      <BrowserRouter>
+        <Routes>
         {/* Public Authentication Route */}
         <Route path="/login" element={<Login />} />
 
@@ -116,7 +127,7 @@ export const App: React.FC = () => {
           <Route path="admin/roles" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['roles.view']}><RolesPage /></RequirePermission></Suspense>} />
           <Route path="admin/audit" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['audit.view']}><AuditLogsPage /></RequirePermission></Suspense>} />
           <Route path="admin/settings" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.view']}><SettingsPage /></RequirePermission></Suspense>} />
-          <Route path="admin/staff" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['staff.view']}><StaffDirectoryPage /></RequirePermission></Suspense>} />
+          <Route path="admin/branding" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.edit']}><BrandingSettingsPage /></RequirePermission></Suspense>} />
           <Route path="admin/menus" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage']}><MenuManagementPage /></RequirePermission></Suspense>} />
           <Route path="admin/imports" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage', 'inventory.manage', 'inventory.adjust']}><ImportPage /></RequirePermission></Suspense>} />
 
@@ -126,6 +137,7 @@ export const App: React.FC = () => {
         </Route>
       </Routes>
     </BrowserRouter>
+    </AppInitializer>
   );
 };
 

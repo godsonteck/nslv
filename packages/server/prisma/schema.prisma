@@ -458,6 +458,27 @@ model Payment {
 }
 
 // ──────────────────────────────────────────
+// Categories
+// ──────────────────────────────────────────
+
+model ItemCategory {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // RESTAURANT | BAR | POOL | INVENTORY | EXPENSE
+  description String?
+  color       String?  // Optional hex color for UI display
+  order       Int      @default(0) // Sort order
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([name, type])
+  @@index([type])
+  @@index([isActive])
+  @@map("item_categories")
+}
+
+// ──────────────────────────────────────────
 // POS — Restaurant
 // ──────────────────────────────────────────
 
@@ -728,6 +749,53 @@ model EventBooking {
   @@index([status])
   @@index([eventSpaceId])
   @@map("event_bookings")
+}
+
+// ──────────────────────────────────────────
+// Branding & Theme Configuration
+// ──────────────────────────────────────────
+
+model BrandingTheme {
+  id              String   @id @default(uuid())
+  villaName       String   @default("NS Luxury Villa") @map("villa_name")
+  villaTagline    String   @default("Property Operations") @map("villa_tagline")
+  logoUrl         String?  @map("logo_url")
+  loginBgUrl      String?  @map("login_bg_url")
+  
+  // Primary brand colors
+  primaryColor    String   @default("#174b59") @map("primary_color")
+  secondaryColor  String   @default("#b18a55") @map("secondary_color")
+  accentColor     String   @default("#d9bd91") @map("accent_color")
+  
+  // UI Colors
+  bgColor         String   @default("#f5f6f4") @map("bg_color")
+  textColor       String   @default("#14232b") @map("text_color")
+  textMuted       String   @default("#7a858a") @map("text_muted")
+  borderColor     String   @default("#e5e8e5") @map("border_color")
+  
+  // Status colors
+  successColor    String   @default("#2d8a68") @map("success_color")
+  warningColor    String   @default("#d97706") @map("warning_color")
+  errorColor      String   @default("#dc2626") @map("error_color")
+  infoColor       String   @default("#0284c7") @map("info_color")
+  
+  // Typography
+  fontFamily      String   @default("system-ui, -apple-system, sans-serif") @map("font_family")
+  headingFont     String   @default("Manrope, sans-serif") @map("heading_font")
+  
+  // Custom CSS
+  customCss       String?  @map("custom_css") // Additional custom CSS
+  
+  // Settings
+  useCustomLogin  Boolean  @default(false) @map("use_custom_login")
+  enableDarkMode  Boolean  @default(false) @map("enable_dark_mode")
+  
+  // Metadata
+  updatedBy       String?  @map("updated_by")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("branding_themes")
 }
 
 // ──────────────────────────────────────────

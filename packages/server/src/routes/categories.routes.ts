@@ -1,0 +1,147 @@
+import { Router, Request, Response } from 'express';
+import { authenticate, verifyActiveUser, requirePermission, type AuthenticatedRequest } from '../middleware/auth';
+import { CategoryService } from '../services/categories.service';
+
+const router = Router();
+
+/**
+ * GET /api/v1/categories
+ * List categories (optionally filtered by type)
+ * Query: type, includeInactive
+ */
+router.get('/', authenticate, verifyActiveUser, requirePermission('categories.view'), async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const { type, includeInactive } = req.query;
+    const normalizedType = Array.isArray(type) ? type[0] : typeof type === 'string' ? type : undefined;
+
+    const categories = await CategoryService.listAll({
+      type: typeof normalizedType === 'string' ? normalizedType : undefined,
+      includeInactive: includeInactive === 'true',
+    });
+
+    void authReq.user;
+    res.json(categories);
+  } catch (err: any) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/v1/categories/:type
+ * List categories by type
+ */
+router.get('/:type', authenticate, verifyActiveUser, requirePermission('categories.view'), async (req: Request, res: Response) => {
+  try {
+    const type = Array.isArray(req.params.type) ? req.params.type[0] : req.params.type;
+    const categories = await CategoryService.listByType(String(type).toUpperCase());
+    res.json(categories);
+  } catch (err: any) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/v1/categories
+ * Create a new category
+ * Required: categories.manage permission
+ * Body: { name, type, description?, color?, order? }
+ */
+router.post('/', authenticate, verifyActiveUser, requirePermission('categories.manage'), async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const { name, type, description, color, order } = req.body;
+
+    if (!name || !type) {
+      res.status(400).json({ error: 'Name and type are required' });
+      return;
+    }
+
+    const category = await CategoryService.create(
+      { name, type, description, color, order },
+      authReq.user.userId
+    );
+
+    res.status(201).json(category);
+  } catch (err: any) {
+    if (err.code === 'P2002') {
+      res.status(409).json({ error: `Category "${req.body.name}" already exists for type ${req.body.type}` });
+    } else {
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  }
+});
+
+/**
+ * PUT /api/v1/categories/:id
+ * Update a category
+ * Required: categories.manage permission
+ * Body: { name?, description?, color?, order?, isActive? }
+ */
+router.put('/:id', authenticate, verifyActiveUser, requirePermission('categories.manage'), async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const category = await CategoryService.update(
+      String(req.params.id),
+      req.body,
+      authReq.user.userId
+    );
+
+    res.json(category);
+  } catch (err: any) {
+    if (err.message === 'Category not found') {
+      res.status(404).json({ error: err.message });
+    } else if (err.code === 'P2002') {
+      res.status(409).json({ error: `Category name already exists for this type` });
+    } else {
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  }
+});
+
+/**
+ * DELETE /api/v1/categories/:id
+ * Delete a category (soft delete)
+ * Required: categories.manage permission
+ */
+router.delete('/:id', authenticate, verifyActiveUser, requirePermission('categories.manage'), async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const category = await CategoryService.delete(
+      String(req.params.id),
+      authReq.user.userId
+    );
+
+    res.json({ success: true, category });
+  } catch (err: any) {
+    if (err.message === 'Category not found') {
+      res.status(404).json({ error: err.message });
+    } else {
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  }
+});
+
+/**
+ * POST /api/v1/categories/reorder
+ * Reorder categories
+ * Required: categories.manage permission
+ * Body: { updates: [{ id, order }, ...] }
+ */
+router.post('/reorder', authenticate, verifyActiveUser, requirePermission('categories.manage'), async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const { updates } = req.body;
+    if (!Array.isArray(updates)) {
+      res.status(400).json({ error: 'Updates must be an array' });
+      return;
+    }
+
+    const result = await CategoryService.reorder(updates, authReq.user.userId);
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+export default router;
