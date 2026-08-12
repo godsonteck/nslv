@@ -116,6 +116,12 @@ export const PERMISSIONS = {
   NOTIFICATIONS_VIEW: 'notifications.view',
   NOTIFICATIONS_MANAGE: 'notifications.manage',
 
+  // Events
+  EVENTS_VIEW: 'events.view',
+  EVENTS_CREATE: 'events.create',
+  EVENTS_EDIT: 'events.edit',
+  EVENTS_CANCEL: 'events.cancel',
+
   // System
   SYSTEM_CONFIGURE: 'system.configure',
   INTEGRATIONS_MANAGE: 'integrations.manage',
@@ -129,14 +135,14 @@ export const ALL_PERMISSION_CODES: PermissionCode[] = Object.values(PERMISSIONS)
 /**
  * Default system role names.
  * These are created at seed and cannot be deleted.
+ * Restaurant, Bar and Pool are consolidated into the single F&B role so one
+ * person manages all three outlets from one workspace.
  */
 export const SYSTEM_ROLES = {
   ADMIN: 'Admin',
   MANAGER: 'Manager',
   RECEPTION: 'Reception',
-  RESTAURANT: 'Restaurant',
-  BAR: 'Bar',
-  POOL: 'Pool',
+  FNB: 'F&B',
 } as const;
 
 export type SystemRoleName = (typeof SYSTEM_ROLES)[keyof typeof SYSTEM_ROLES];
@@ -166,11 +172,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRoleName, PermissionCode[]> 
     PERMISSIONS.CHECKOUT_PERFORM,
     PERMISSIONS.FOLIOS_VIEW,
     PERMISSIONS.FOLIOS_MANAGE,
-    PERMISSIONS.FOLIOS_ADJUST,
     PERMISSIONS.PAYMENTS_VIEW,
     PERMISSIONS.PAYMENTS_CREATE,
-    PERMISSIONS.PAYMENTS_REFUND,
-    PERMISSIONS.PAYMENTS_ADJUST,
     PERMISSIONS.RESTAURANT_VIEW,
     PERMISSIONS.RESTAURANT_ORDERS,
     PERMISSIONS.RESTAURANT_MENU,
@@ -195,12 +198,11 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRoleName, PermissionCode[]> 
     PERMISSIONS.REPORTS_EXPORT,
     PERMISSIONS.REPORTS_FINANCIAL,
     PERMISSIONS.STAFF_VIEW,
-    PERMISSIONS.STAFF_MANAGE,
-    PERMISSIONS.USERS_VIEW,
     PERMISSIONS.NOTIFICATIONS_VIEW,
-    PERMISSIONS.NOTIFICATIONS_MANAGE,
-    PERMISSIONS.SETTINGS_VIEW,
-    PERMISSIONS.AUDIT_VIEW,
+    PERMISSIONS.EVENTS_VIEW,
+    PERMISSIONS.EVENTS_CREATE,
+    PERMISSIONS.EVENTS_EDIT,
+    PERMISSIONS.EVENTS_CANCEL,
   ],
 
   [SYSTEM_ROLES.RECEPTION]: [
@@ -223,39 +225,23 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRoleName, PermissionCode[]> 
     PERMISSIONS.NOTIFICATIONS_VIEW,
   ],
 
-  [SYSTEM_ROLES.RESTAURANT]: [
+  [SYSTEM_ROLES.FNB]: [
     PERMISSIONS.DASHBOARD_VIEW,
     PERMISSIONS.RESTAURANT_VIEW,
     PERMISSIONS.RESTAURANT_ORDERS,
     PERMISSIONS.RESTAURANT_MENU,
     PERMISSIONS.RESTAURANT_ROOM_CHARGE,
     PERMISSIONS.RESTAURANT_SALES,
-    PERMISSIONS.GUESTS_VIEW,
-    PERMISSIONS.ROOMS_VIEW,
-    PERMISSIONS.NOTIFICATIONS_VIEW,
-  ],
-
-  [SYSTEM_ROLES.BAR]: [
-    PERMISSIONS.DASHBOARD_VIEW,
     PERMISSIONS.BAR_VIEW,
     PERMISSIONS.BAR_ORDERS,
     PERMISSIONS.BAR_MENU,
     PERMISSIONS.BAR_ROOM_CHARGE,
     PERMISSIONS.BAR_SALES,
-    PERMISSIONS.GUESTS_VIEW,
-    PERMISSIONS.ROOMS_VIEW,
-    PERMISSIONS.INVENTORY_VIEW,
-    PERMISSIONS.NOTIFICATIONS_VIEW,
-  ],
-
-  [SYSTEM_ROLES.POOL]: [
-    PERMISSIONS.DASHBOARD_VIEW,
     PERMISSIONS.POOL_VIEW,
     PERMISSIONS.POOL_MANAGE,
     PERMISSIONS.POOL_INCIDENTS,
     PERMISSIONS.POOL_PAYMENTS,
-    PERMISSIONS.GUESTS_VIEW,
-    PERMISSIONS.ROOMS_VIEW,
+    PERMISSIONS.INVENTORY_VIEW,
     PERMISSIONS.NOTIFICATIONS_VIEW,
   ],
 };
@@ -329,6 +315,10 @@ export const PERMISSION_DESCRIPTIONS: Record<PermissionCode, string> = {
   [PERMISSIONS.NOTIFICATIONS_MANAGE]: 'Manage notification settings',
   [PERMISSIONS.SYSTEM_CONFIGURE]: 'Configure system-level settings',
   [PERMISSIONS.INTEGRATIONS_MANAGE]: 'Manage external integrations',
+  [PERMISSIONS.EVENTS_VIEW]: 'View events and event spaces',
+  [PERMISSIONS.EVENTS_CREATE]: 'Create new events',
+  [PERMISSIONS.EVENTS_EDIT]: 'Edit events and event spaces',
+  [PERMISSIONS.EVENTS_CANCEL]: 'Cancel or delete events',
 };
 
 /**
@@ -357,6 +347,7 @@ export const PERMISSION_MODULES = [
   'audit',
   'backups',
   'notifications',
+  'events',
   'system',
   'integrations',
 ] as const;

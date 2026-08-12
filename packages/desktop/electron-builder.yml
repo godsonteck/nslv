@@ -1,7 +1,16 @@
 appId: com.nsvilla.management
 productName: NS Luxury Villa Management System
+electronVersion: 33.4.11
 directories:
   output: release
+files:
+  - dist/**/*
+  - package.json
+extraResources:
+  - from: ../client/dist
+    to: client-dist
+    filter:
+      - "**/*"
 win:
   target: nsis
 nsis:

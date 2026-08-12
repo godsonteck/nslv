@@ -13,25 +13,21 @@ const router = Router();
  * System health check (Database ping, uptime, env status)
  */
 router.get('/', async (_req: Request, res: Response) => {
-  let dbStatus = 'DISCONNECTED';
+  let databaseAvailable = false;
   try {
     await prisma.$queryRaw`SELECT 1`;
-    dbStatus = 'CONNECTED';
-  } catch (error) {
-    dbStatus = `ERROR: ${(error as Error).message}`;
+    databaseAvailable = true;
+  } catch {
+    databaseAvailable = false;
   }
 
-  res.status(200).json({
-    success: true,
+  res.status(databaseAvailable ? 200 : 503).json({
+    success: databaseAvailable,
     data: {
-      status: 'ONLINE',
-      system: config.villa.name,
-      version: '1.0.0',
+      status: databaseAvailable ? 'ONLINE' : 'DEGRADED',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
-      database: dbStatus,
-      environment: config.nodeEnv,
-      timezone: config.villa.timezone,
+      dependencies: { database: databaseAvailable ? 'AVAILABLE' : 'UNAVAILABLE' },
     },
   });
 });

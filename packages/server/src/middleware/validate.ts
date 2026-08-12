@@ -26,11 +26,17 @@ export function validateBody(schema: ZodSchema) {
           details[path].push(issue.message);
         }
 
+        const firstIssue = error.issues[0];
+        const fieldName = firstIssue?.path.length ? firstIssue.path.join('.') : null;
+        const summaryMessage = fieldName
+          ? `${fieldName}: ${firstIssue.message}`
+          : firstIssue?.message || 'Please check your input and try again.';
+
         res.status(400).json({
           success: false,
           error: {
             code: 'VALIDATION_ERROR',
-            message: 'Please check your input and try again.',
+            message: summaryMessage,
             details,
           },
         });

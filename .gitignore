@@ -13,6 +13,7 @@ build/
 .env.local
 .env.production
 .env.staging
+!.env.example
 
 # Database
 packages/server/prisma/*.db
@@ -84,6 +85,4 @@ Thumbs.db
 
 # Sensitive files (auto-detected)
 .env
-.env.example
-node_modules
 

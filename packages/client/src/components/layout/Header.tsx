@@ -1,124 +1,61 @@
-// ============================================
-// NS LUXURY VILLA — Header Component
-// Top bar with live Accra clock, connection status & user menu
-// ============================================
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { ConnectionBadge } from '../common/ConnectionBadge';
-import { getDisplayName, getInitials } from '@nslv/shared';
-import { Bell, LogOut, Shield, User as UserIcon } from 'lucide-react';
+import { villaAssets } from '../../assets';
+import { Bell, ChevronDown, LogOut, Search, Settings2 } from 'lucide-react';
 
 export const Header: React.FC = () => {
+  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const [timeString, setTimeString] = useState<string>('');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState('');
+  const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
+  const canSettings = user?.permissions?.includes('settings.view') ?? false;
+  const canSearchGuests = user?.permissions?.includes('guests.view') ?? false;
 
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeString(
-        now.toLocaleTimeString('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-          timeZone: 'Africa/Accra',
-        }) + ' (GMT)',
-      );
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const displayName = getDisplayName(user);
-  const initials = getInitials(displayName);
-  const userRoles = user?.roles?.map((r) => r.name).join(', ') || 'Staff';
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) navigate(`/guests?search=${encodeURIComponent(query.trim())}`);
+  };
 
   return (
-    <header className="h-16 border-b border-[#2D3748] bg-[#151C28] px-6 flex items-center justify-between select-none">
-      {/* Left: Branding & Tagline */}
-      <div className="flex items-center gap-4">
-        <div>
-          <h1 className="text-lg font-bold text-[#F3F4F6] tracking-wide font-['Outfit']">
-            NS LUXURY VILLA
-          </h1>
-          <p className="text-xs text-[#E2B768] font-medium">Ho, Ghana · Management Platform</p>
-        </div>
-      </div>
-
-      {/* Center: Live Clock & Network Status */}
-      <div className="flex items-center gap-6">
-        <div className="text-center hidden md:block">
-          <div className="text-xs text-[#9CA3AF]">Local Time (Ho)</div>
-          <div className="text-sm font-mono font-semibold text-[#F3F4F6]">{timeString}</div>
-        </div>
-
-        <ConnectionBadge />
-      </div>
-
-      {/* Right: Notifications & User Profile Menu */}
-      <div className="flex items-center gap-4">
-        {/* Notification Bell */}
-        <button
-          className="p-2 text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#1C2536] rounded-lg transition-colors relative"
-          title="Notifications"
-        >
-          <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#C49A45] rounded-full"></span>
+    <header className="sticky top-0 z-40 border-b border-[#e5e8e5] bg-white/95 backdrop-blur-xl">
+      <div className="flex h-[72px] items-center gap-3 px-4 sm:px-6 lg:px-7">
+        <button onClick={() => navigate('/dashboard')} className="flex shrink-0 items-center gap-3 text-left">
+          <img src={villaAssets.logo} alt="NSVilla" className="h-10 w-10 rounded-xl object-cover ring-1 ring-black/5" />
+          <div className="hidden sm:block">
+            <div className="font-['Manrope'] text-[16px] font-extrabold tracking-[-0.03em] text-[#14232b]">NSVilla</div>
+            <div className="text-[9px] font-bold uppercase tracking-[.18em] text-[#b18a55]">Property Operations</div>
+          </div>
         </button>
 
-        {/* User Profile Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex items-center gap-3 p-1.5 rounded-lg hover:bg-[#1C2536] transition-colors text-left outline-none"
-          >
-            <div className="w-9 h-9 rounded-full bg-[#8C2D19] text-white flex items-center justify-center font-bold text-xs border border-[#C49A45]/30">
-              {initials}
+        {canSearchGuests && (
+          <form onSubmit={submitSearch} className="ml-2 hidden min-w-0 flex-1 md:block md:max-w-[360px] lg:ml-7">
+            <div className="relative">
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search guests, reservations, rooms…" className="ns-input h-10 w-full pl-10 pr-3 text-xs text-slate-700 placeholder:text-slate-400" />
             </div>
-            <div className="hidden sm:block">
-              <div className="text-xs font-semibold text-[#F3F4F6]">{displayName}</div>
-              <div className="text-[11px] text-[#C49A45] font-medium">{userRoles}</div>
-            </div>
-          </button>
+          </form>
+        )}
 
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-[#1C2536] border border-[#2D3748] rounded-xl shadow-xl py-2 z-50">
-              <div className="px-4 py-2 border-b border-[#2D3748]">
-                <p className="text-xs font-semibold text-[#F3F4F6]">{displayName}</p>
-                <p className="text-[11px] text-[#9CA3AF]">{user?.email}</p>
-              </div>
-
-              <div className="py-1">
-                <a
-                  href="#profile"
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs text-[#F3F4F6] hover:bg-[#242F44] transition-colors"
-                >
-                  <UserIcon size={14} /> My Profile
-                </a>
-                <a
-                  href="#security"
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs text-[#F3F4F6] hover:bg-[#242F44] transition-colors"
-                >
-                  <Shield size={14} /> 2FA & Security
-                </a>
-              </div>
-
-              <div className="border-t border-[#2D3748] pt-1">
-                <button
-                  onClick={() => logout()}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-[#EF4444] hover:bg-[#8C2D19]/20 transition-colors text-left"
-                >
-                  <LogOut size={14} /> Sign Out
-                </button>
-              </div>
-            </div>
-          )}
+        <div className="ml-auto flex items-center gap-1.5">
+          <button className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex" aria-label="Notifications"><Bell size={17} /></button>
+          {canSettings && <button className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex" onClick={() => navigate('/admin/settings')} aria-label="Settings"><Settings2 size={17} /></button>}
+          <div className="relative">
+            <button onClick={() => setOpen(v => !v)} className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-slate-50">
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#174b59] text-[11px] font-extrabold text-white ring-2 ring-[#eef3f2]">{user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}</span>
+              <span className="hidden text-left lg:block"><span className="block max-w-[120px] truncate text-[11px] font-extrabold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</span><span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-400">{user?.roles?.[0]?.name ?? 'User'}</span></span>
+              <ChevronDown size={13} className="hidden text-slate-400 lg:block" />
+            </button>
+            {open && <div className="absolute right-0 top-12 w-52 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_50px_rgba(20,35,43,.14)]">
+              <div className="border-b border-slate-100 px-3 py-2.5"><div className="text-xs font-bold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</div><div className="mt-0.5 text-[10px] text-slate-400">{user?.roles?.[0]?.name ?? 'User'} access</div></div>
+              <button onClick={() => navigate('/account')} className="mt-1 w-full rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-50">Account & settings</button>
+              <button onClick={() => void logout()} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50"><LogOut size={14} /> Sign out</button>
+            </div>}
+          </div>
         </div>
       </div>
     </header>
   );
 };
+export default Header;

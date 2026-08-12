@@ -4,19 +4,26 @@
 // ============================================
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { UserPlus, Edit2, ShieldOff, ShieldCheck } from 'lucide-react';
+import { UserPlus, Edit2, ShieldOff, ShieldCheck, Trash2 } from 'lucide-react';
 import {
-  PageHeader, Button, DataTable, Pagination, SearchInput,
-  Badge, Modal, FormField, TextInput, ToastContainer, showToast,
+  PageHeader,
+  Button,
+  DataTable,
+  Pagination,
+  SearchInput,
+  SelectInput,
+  Badge,
+  Modal,
+  FormField,
+  TextInput,
+  showToast,
   statusBadge,
-} from '../components/ui';
-import { usersApi, rolesApi, type UserRecord } from '../services/apiService';
-import { useAuthStore } from '../stores/authStore';
+} from '../../components/ui';
+import { usersApi, rolesApi, type UserRecord } from '../../services/apiService';
+import { ApiClientError } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
 
-// ──────────────────────────────────────────
-// Create / Edit User Modal
-// ──────────────────────────────────────────
 interface UserModalProps {
   open: boolean;
   editUser: UserRecord | null;
@@ -29,8 +36,13 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
   const isEdit = !!editUser;
 
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', username: '',
-    password: '', phone: '', roleIds: [] as string[],
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    password: '',
+    phone: '',
+    roleId: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -44,30 +56,41 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
         username: editUser.username,
         password: '',
         phone: editUser.phone ?? '',
-        roleIds: editUser.roles.map((r) => r.id),
+        roleId: editUser.roles[0]?.id ?? '',
       });
     } else {
-      setForm({ firstName: '', lastName: '', email: '', username: '', password: '', phone: '', roleIds: [] });
+      setForm({ firstName: '', lastName: '', email: '', username: '', password: '', phone: '', roleId: '' });
     }
     setErrors({});
   }, [editUser, open]);
 
   const setField = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
-  const toggleRole = (id: string) =>
-    setForm((f) => ({
-      ...f,
-      roleIds: f.roleIds.includes(id) ? f.roleIds.filter((r) => r !== id) : [...f.roleIds, id],
-    }));
-
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!form.firstName.trim()) errs.firstName = 'Required';
-    if (!form.lastName.trim()) errs.lastName = 'Required';
-    if (!form.email.trim() || !form.email.includes('@')) errs.email = 'Valid email required';
-    if (!isEdit && !form.username.trim()) errs.username = 'Required';
-    if (!isEdit && form.password.length < 8) errs.password = 'Min 8 characters';
-    if (form.roleIds.length === 0) errs.roleIds = 'Assign at least one role';
+    if (!form.firstName.trim()) errs.firstName = 'First name is required';
+    if (!form.lastName.trim()) errs.lastName = 'Last name is required';
+    if (!form.email.trim() || !form.email.includes('@')) errs.email = 'Valid email address required';
+    if (!isEdit && !form.username.trim()) errs.username = 'Username is required';
+    if (!isEdit) {
+      if (!form.password) {
+        errs.password = 'Password is required';
+      } else if (form.password.length < 8) {
+        errs.password = 'Min 8 characters required';
+      } else if (!/[A-Z]/.test(form.password)) {
+        errs.password = 'Must contain at least 1 uppercase letter (A-Z)';
+      } else if (!/[a-z]/.test(form.password)) {
+        errs.password = 'Must contain at least 1 lowercase letter (a-z)';
+      } else if (!/[0-9]/.test(form.password)) {
+        errs.password = 'Must contain at least 1 number (0-9)';
+      } else if (!/[^A-Za-z0-9]/.test(form.password)) {
+        errs.password = 'Must contain at least 1 special symbol (!@#$%...)';
+      }
+    }
+    if (form.phone && form.phone.trim() && !/^\+?[0-9\s-]{7,20}$/.test(form.phone.trim())) {
+      errs.phone = 'Valid phone number required (e.g. +233XXXXXXXXX)';
+    }
+    if (!form.roleId) errs.roleId = 'Select a role';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -82,7 +105,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
           lastName: form.lastName,
           email: form.email,
           phone: form.phone || null,
-          roleIds: form.roleIds,
+          roleId: form.roleId,
         });
         showToast('success', 'User updated successfully.');
       } else {
@@ -93,13 +116,24 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
           username: form.username,
           password: form.password,
           phone: form.phone || null,
-          roleIds: form.roleIds,
+          roleId: form.roleId,
         });
         showToast('success', 'User created successfully.');
       }
       onSaved();
       onClose();
     } catch (err: any) {
+      if (err instanceof ApiClientError && err.details) {
+        const fieldErrs: Record<string, string> = {};
+        for (const [k, msgs] of Object.entries(err.details)) {
+          if (Array.isArray(msgs) && msgs.length > 0) {
+            fieldErrs[k] = msgs[0];
+          }
+        }
+        if (Object.keys(fieldErrs).length > 0) {
+          setErrors((prev) => ({ ...prev, ...fieldErrs }));
+        }
+      }
       showToast('error', err?.message ?? 'An error occurred.');
     } finally {
       setSaving(false);
@@ -107,7 +141,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={isEdit ? 'Edit User' : 'Create New User'} size="lg">
+    <Modal open={open} onClose={onClose} title={isEdit ? 'Edit System User' : 'Create New System User'} size="lg">
       <div className="grid grid-cols-2 gap-x-4">
         <FormField label="First Name" required error={errors.firstName}>
           <TextInput value={form.firstName} onChange={(e) => setField('firstName', e.target.value)} error={!!errors.firstName} placeholder="John" />
@@ -117,7 +151,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
         </FormField>
       </div>
       <FormField label="Email Address" required error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} error={!!errors.email} placeholder="john@example.com" />
+        <TextInput type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} error={!!errors.email} placeholder="john@nsvilla.com" />
       </FormField>
       {!isEdit && (
         <div className="grid grid-cols-2 gap-x-4">
@@ -125,29 +159,29 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
             <TextInput value={form.username} onChange={(e) => setField('username', e.target.value)} error={!!errors.username} placeholder="johndoe" />
           </FormField>
           <FormField label="Password" required error={errors.password}>
-            <TextInput type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} error={!!errors.password} placeholder="Min 8 characters" />
+            <TextInput type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} error={!!errors.password} placeholder="Min 8 chars (e.g. Pass@1234)" />
           </FormField>
         </div>
       )}
-      <FormField label="Phone (optional)">
-        <TextInput value={form.phone} onChange={(e) => setField('phone', e.target.value)} placeholder="+233 XX XXX XXXX" />
+      <FormField label="Phone (optional)" error={errors.phone}>
+        <TextInput value={form.phone} onChange={(e) => setField('phone', e.target.value)} error={!!errors.phone} placeholder="+233 XX XXX XXXX" />
       </FormField>
-      <FormField label="Assign Roles" required error={errors.roleIds}>
-        <div className="grid grid-cols-2 gap-2 mt-1">
+      <FormField label="Assign Role" required error={errors.roleId}>
+        <SelectInput
+          value={form.roleId}
+          onChange={(e) => setField('roleId', e.target.value)}
+          error={!!errors.roleId}
+        >
+          <option value="">Select role</option>
           {roles.map((role) => (
-            <label key={role.id}
-              className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${form.roleIds.includes(role.id) ? 'border-[#C49A45] bg-[#C49A45]/10 text-[#C49A45]' : 'border-[#2D3748] hover:border-[#4B5563] text-[#9CA3AF]'}`}>
-              <input type="checkbox" className="hidden" checked={form.roleIds.includes(role.id)} onChange={() => toggleRole(role.id)} />
-              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${form.roleIds.includes(role.id) ? 'border-[#C49A45] bg-[#C49A45]' : 'border-[#4B5563]'}`}>
-                {form.roleIds.includes(role.id) && <span className="text-[#0F141C] text-[9px] font-bold">✓</span>}
-              </div>
-              <span className="text-xs font-medium capitalize">{role.name.replace(/_/g, ' ')}</span>
-            </label>
+            <option key={role.id} value={role.id}>
+              {role.name.replace(/_/g, ' ')}
+            </option>
           ))}
-        </div>
-        {errors.roleIds && <p className="text-xs text-[#EF4444] mt-1">{errors.roleIds}</p>}
+        </SelectInput>
+        {errors.roleId && <p className="text-xs text-[#EF4444] mt-1">{errors.roleId}</p>}
       </FormField>
-      <div className="flex justify-end gap-3 mt-2">
+      <div className="flex justify-end gap-3 mt-4 pt-3 border-t border-[#2B303E]">
         <Button variant="ghost" onClick={onClose}>Cancel</Button>
         <Button variant="primary" loading={saving} onClick={save}>{isEdit ? 'Save Changes' : 'Create User'}</Button>
       </div>
@@ -155,13 +189,11 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
   );
 };
 
-// ──────────────────────────────────────────
-// Users Page
-// ──────────────────────────────────────────
-const UsersPage: React.FC = () => {
+export const UsersPage: React.FC = () => {
   const { hasPermission } = useAuthStore();
   const canCreate = hasPermission(PERMISSIONS.USERS_CREATE);
   const canEdit = hasPermission(PERMISSIONS.USERS_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.USERS_DELETE);
 
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [total, setTotal] = useState(0);
@@ -185,7 +217,7 @@ const UsersPage: React.FC = () => {
         setTotal(res.data.total);
       }
     } catch {
-      showToast('error', 'Failed to load users.');
+      showToast('error', 'Failed to load system users.');
     } finally {
       setLoading(false);
     }
@@ -206,7 +238,18 @@ const UsersPage: React.FC = () => {
       showToast('success', `User ${newStatus === 'ACTIVE' ? 'reactivated' : 'suspended'}.`);
       fetchUsers();
     } catch {
-      showToast('error', 'Failed to update status.');
+      showToast('error', 'Failed to update user status.');
+    }
+  };
+
+  const handleDelete = async (u: UserRecord) => {
+    if (!window.confirm(`Permanently delete ${u.firstName} ${u.lastName} (@${u.username})? This cannot be undone.`)) return;
+    try {
+      await usersApi.remove(u.id);
+      showToast('success', 'User account deleted.');
+      fetchUsers();
+    } catch (err: any) {
+      showToast('error', err?.message ?? 'Failed to delete user.');
     }
   };
 
@@ -216,20 +259,20 @@ const UsersPage: React.FC = () => {
       header: 'Name',
       render: (u: UserRecord) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C49A45] to-[#8C2D19] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+          <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-semibold text-[#C5A880] shrink-0">
             {u.firstName[0]}{u.lastName[0]}
           </div>
           <div>
-            <div className="font-medium text-[#F3F4F6]">{u.firstName} {u.lastName}</div>
-            <div className="text-[#6B7280]">@{u.username}</div>
+            <div className="font-medium text-[#F4F4F2]">{u.firstName} {u.lastName}</div>
+            <div className="text-[11px] text-[#6E737B]">@{u.username}</div>
           </div>
         </div>
       ),
     },
-    { key: 'email', header: 'Email', render: (u: UserRecord) => <span className="text-[#9CA3AF]">{u.email}</span> },
+    { key: 'email', header: 'Email', render: (u: UserRecord) => <span className="text-[#A0A5AD]">{u.email}</span> },
     {
       key: 'roles',
-      header: 'Roles',
+      header: 'Assigned Roles',
       render: (u: UserRecord) => (
         <div className="flex flex-wrap gap-1">
           {u.roles.map((r) => (
@@ -241,38 +284,39 @@ const UsersPage: React.FC = () => {
     {
       key: 'status',
       header: 'Status',
+      align: 'center' as const,
       render: (u: UserRecord) => statusBadge(u.status),
     },
     {
       key: '2fa',
       header: '2FA',
-      render: (u: UserRecord) => u.totpEnabled
-        ? <Badge label="Enabled" variant="success" />
-        : <Badge label="Disabled" variant="neutral" />,
+      align: 'center' as const,
+      render: (u: UserRecord) => u.totpEnabled ? <Badge label="Enabled" variant="success" /> : <Badge label="Disabled" variant="neutral" />,
     },
     {
       key: 'lastLogin',
       header: 'Last Login',
-      render: (u: UserRecord) => u.lastLoginAt
-        ? <span className="text-[#9CA3AF]">{new Date(u.lastLoginAt).toLocaleDateString()}</span>
-        : <span className="text-[#6B7280]">Never</span>,
+      render: (u: UserRecord) => u.lastLoginAt ? <span className="text-[#A0A5AD]">{new Date(u.lastLoginAt).toLocaleDateString()}</span> : <span className="text-[#6E737B]">Never</span>,
     },
     {
       key: 'actions',
-      header: 'Actions',
+      header: '',
+      align: 'right' as const,
       render: (u: UserRecord) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 justify-end">
           {canEdit && (
             <>
-              <button onClick={() => { setEditUser(u); setModalOpen(true); }}
-                className="p-1.5 hover:bg-[#2D3748] rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] transition-colors" title="Edit">
-                <Edit2 size={13} />
+              <button onClick={() => { setEditUser(u); setModalOpen(true); }} className="p-1 hover:bg-[#232733] rounded text-[#A0A5AD] hover:text-[#F4F4F2]" title="Edit">
+                <Edit2 size={14} />
               </button>
-              <button onClick={() => handleStatusToggle(u)}
-                className="p-1.5 hover:bg-[#2D3748] rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] transition-colors"
-                title={u.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}>
-                {u.status === 'ACTIVE' ? <ShieldOff size={13} /> : <ShieldCheck size={13} />}
+              <button onClick={() => handleStatusToggle(u)} className="p-1 hover:bg-[#232733] rounded text-[#A0A5AD] hover:text-[#F4F4F2]" title={u.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}>
+                {u.status === 'ACTIVE' ? <ShieldOff size={14} /> : <ShieldCheck size={14} />}
               </button>
+              {canDelete && (
+                <button onClick={() => handleDelete(u)} className="p-1 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete">
+                  <Trash2 size={14} />
+                </button>
+              )}
             </>
           )}
         </div>
@@ -283,53 +327,34 @@ const UsersPage: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <div className="p-6">
+    <div className="space-y-6">
       <PageHeader
-        title="User Management"
-        subtitle="Manage staff accounts, roles, and access levels"
+        title="User Accounts & Access"
+        subtitle="Manage system staff accounts, role assignments, and security status"
         actions={
           canCreate ? (
             <Button variant="primary" size="sm" onClick={() => { setEditUser(null); setModalOpen(true); }}>
-              <UserPlus size={14} /> Add User
+              <UserPlus size={14} /> Add System User
             </Button>
           ) : undefined
         }
       />
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-4">
-        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search users..." />
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="bg-[#121824] border border-[#2D3748] rounded-lg px-3 py-2 text-xs text-[#F3F4F6] focus:outline-none focus:border-[#C49A45] transition-colors"
-        >
+      <div className="flex items-center gap-3 p-3 bg-[#1C1F28] border border-[#2B303E] rounded-md">
+        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search users by name or email..." className="w-72" />
+        <SelectInput value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="w-40">
           <option value="">All Statuses</option>
           <option value="ACTIVE">Active</option>
           <option value="SUSPENDED">Suspended</option>
           <option value="DEACTIVATED">Deactivated</option>
-        </select>
+        </SelectInput>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={users}
-        loading={loading}
-        keyFn={(u) => u.id}
-        emptyMessage="No users found."
-      />
+      <DataTable columns={columns} data={users} loading={loading} keyFn={(u) => u.id} emptyTitle="No user accounts found" />
 
       <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
 
-      <UserModal
-        open={modalOpen}
-        editUser={editUser}
-        roles={roles}
-        onClose={() => setModalOpen(false)}
-        onSaved={fetchUsers}
-      />
-
-      <ToastContainer />
+      <UserModal open={modalOpen} editUser={editUser} roles={roles} onClose={() => setModalOpen(false)} onSaved={fetchUsers} />
     </div>
   );
 };

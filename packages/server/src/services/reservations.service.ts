@@ -1,0 +1,356 @@
+// ============================================
+// NS LUXURY VILLA — Reservation Service
+// Real availability calculation & booking transaction safety
+// ============================================
+
+import { prisma } from '../config';
+import { Prisma } from '@prisma/client';
+import { randomBytes } from 'node:crypto';
+
+export interface CreateReservationDTO {
+  guestId: string;
+  roomId: string;
+  checkInDate: string | Date;
+  checkOutDate: string | Date;
+  adults?: number;
+  children?: number;
+  baseRate?: number;
+  discountAmount?: number;
+  taxAmount?: number;
+  depositAmount?: number;
+  source?: string;
+  specialRequests?: string;
+  notes?: string;
+  createdBy?: string;
+  /** Groups this reservation with others into one party/booking */
+  bookingId?: string;
+  /** Additional guests staying in this room (per-room guest list) */
+  additionalGuestIds?: string[];
+}
+
+export interface CreateMultiReservationDTO {
+  checkInDate: string | Date;
+  checkOutDate: string | Date;
+  source?: string;
+  specialRequests?: string;
+  notes?: string;
+  createdBy?: string;
+  /** One entry per room in the party */
+  rooms: Array<{
+    roomId: string;
+    guestId: string;
+    adults?: number;
+    children?: number;
+    additionalGuestIds?: string[];
+  }>;
+}
+
+export class ReservationService {
+  /** Check if room is available for given dates */
+  static async checkAvailability(
+    roomId: string,
+    checkInDate: Date,
+    checkOutDate: Date,
+    excludeReservationId?: string,
+    txClient?: any,
+  ) {
+    const db = txClient || prisma;
+    const overlapping = await db.reservation.findFirst({
+      where: {
+        roomId,
+        id: excludeReservationId ? { not: excludeReservationId } : undefined,
+        status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+        AND: [
+          { checkInDate: { lt: checkOutDate } },
+          { checkOutDate: { gt: checkInDate } },
+        ],
+      },
+    });
+
+    return !overlapping;
+  }
+
+  /** Find available rooms for date range */
+  static async getAvailableRooms(checkInDate: Date, checkOutDate: Date, roomTypeId?: string) {
+    const where: any = { isActive: true };
+    if (roomTypeId) where.roomTypeId = roomTypeId;
+
+    const allRooms = await prisma.room.findMany({
+      where,
+      include: { roomType: true },
+    });
+
+    const unavailableRoomIds = (
+      await prisma.reservation.findMany({
+        where: {
+          status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+          AND: [
+            { checkInDate: { lt: checkOutDate } },
+            { checkOutDate: { gt: checkInDate } },
+          ],
+        },
+        select: { roomId: true },
+      })
+    ).map((r) => r.roomId);
+
+    return allRooms.filter((room) => !unavailableRoomIds.includes(room.id));
+  }
+
+  /** List reservations */
+  static async getReservations(filters?: { status?: string; search?: string; roomId?: string }) {
+    const where: any = {};
+    if (filters?.status) where.status = filters.status;
+    if (filters?.roomId) where.roomId = filters.roomId;
+    if (filters?.search) {
+      where.OR = [
+        { confirmationNo: { contains: filters.search, mode: 'insensitive' } },
+        { guests: { some: { guest: { lastName: { contains: filters.search, mode: 'insensitive' } } } } },
+        { guests: { some: { guest: { firstName: { contains: filters.search, mode: 'insensitive' } } } } },
+      ];
+    }
+
+    return prisma.reservation.findMany({
+      where,
+      include: {
+        room: { include: { roomType: true } },
+        guests: { include: { guest: true } },
+        folios: true,
+      },
+      orderBy: { checkInDate: 'asc' },
+    });
+  }
+
+  /** Create reservation with atomic availability check transaction */
+  static async createReservation(data: CreateReservationDTO) {
+    const checkIn = new Date(data.checkInDate);
+    const checkOut = new Date(data.checkOutDate);
+
+    if (checkOut <= checkIn) {
+      throw new Error('Departure date must be strictly after arrival date.');
+    }
+
+    // Atomic transaction for double booking protection
+    const reservation = await prisma.$transaction(
+      (tx) => this.createReservationInTx(tx, data, checkIn, checkOut),
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
+
+    return reservation;
+  }
+
+  /** Per-room reservation creation inside a transaction (shared by single & multi booking) */
+  private static async createReservationInTx(
+    tx: any,
+    data: CreateReservationDTO,
+    checkIn: Date,
+    checkOut: Date,
+  ) {
+    const isAvailable = await this.checkAvailability(data.roomId, checkIn, checkOut, undefined, tx);
+    if (!isAvailable) throw new Error('The selected room is not available for the specified dates.');
+
+    const [room, guest] = await Promise.all([
+      tx.room.findUnique({ where: { id: data.roomId }, include: { roomType: true } }),
+      tx.guest.findUnique({ where: { id: data.guestId }, select: { id: true } }),
+    ]);
+    if (!room || !room.isActive) throw new Error('Selected room is not available.');
+    if (!guest) throw new Error('Guest not found.');
+
+    // Pricing is authoritative on the server. The client cannot override the room rate.
+    const baseRate = Number(room.roomType.basePrice);
+    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
+    const discountAmount = Math.max(0, Number(data.discountAmount || 0));
+    const taxAmount = Math.max(0, Number(data.taxAmount || 0));
+    const totalAmount = Math.max(0, baseRate * nights - discountAmount + taxAmount);
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const confirmationNo = `NSVL-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
+
+    // Validate additional guests exist and are not duplicated
+    const additionalIds = [...new Set(data.additionalGuestIds || [])].filter((id) => id !== data.guestId);
+    const additionalGuests = additionalIds.length
+      ? await tx.guest.findMany({ where: { id: { in: additionalIds } }, select: { id: true } })
+      : [];
+    if (additionalGuests.length !== additionalIds.length) {
+      throw new Error('One or more additional guests were not found.');
+    }
+
+    const reservation = await tx.reservation.create({
+      data: {
+        confirmationNo,
+        bookingId: data.bookingId || null,
+        roomId: data.roomId,
+        status: 'CONFIRMED',
+        source: data.source || 'WALK_IN',
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        adults: data.adults || 1,
+        children: data.children || 0,
+        baseRate,
+        discountAmount,
+        taxAmount,
+        depositAmount: Math.max(0, Number(data.depositAmount || 0)),
+        totalAmount,
+        specialRequests: data.specialRequests,
+        notes: data.notes,
+        createdBy: data.createdBy,
+        guests: {
+          create: [
+            { guestId: data.guestId, isPrimary: true },
+            ...additionalGuests.map((g: any) => ({ guestId: g.id, isPrimary: false })),
+          ],
+        },
+      },
+      include: {
+        room: { include: { roomType: true } },
+        guests: { include: { guest: true } },
+      },
+    });
+
+    // Update room status to RESERVED if arrival is today
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (checkIn.toISOString().slice(0, 10) === todayStr) {
+      await tx.room.update({
+        where: { id: data.roomId },
+        data: { status: 'RESERVED' },
+      });
+    }
+
+    return reservation;
+  }
+
+  /**
+   * Book multiple rooms in one request as a single party. Every reservation shares
+   * the same bookingId, so the front desk can see, cancel and manage them together.
+   */
+  static async createMultiReservation(data: CreateMultiReservationDTO) {
+    const checkIn = new Date(data.checkInDate);
+    const checkOut = new Date(data.checkOutDate);
+
+    if (checkOut <= checkIn) {
+      throw new Error('Departure date must be strictly after arrival date.');
+    }
+    if (!data.rooms || data.rooms.length === 0) {
+      throw new Error('At least one room is required for a booking.');
+    }
+
+    const roomIds = data.rooms.map((r) => r.roomId);
+    if (new Set(roomIds).size !== roomIds.length) {
+      throw new Error('Each room can only be booked once in a single request.');
+    }
+
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const bookingId = `BK-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
+
+    const reservations = await prisma.$transaction(
+      async (tx) => {
+        const created: any[] = [];
+        for (const room of data.rooms) {
+          const reservation = await this.createReservationInTx(
+            tx,
+            {
+              ...room,
+              checkInDate: checkIn,
+              checkOutDate: checkOut,
+              source: data.source,
+              specialRequests: data.specialRequests,
+              notes: data.notes,
+              createdBy: data.createdBy,
+              bookingId,
+            },
+            checkIn,
+            checkOut,
+          );
+          created.push(reservation);
+        }
+        return created;
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
+
+    return { bookingId, reservations };
+  }
+
+  /** Return all reservations that share a booking (one party / multi-room request) */
+  static async getParty(bookingId: string) {
+    const reservations = await prisma.reservation.findMany({
+      where: { bookingId },
+      include: {
+        room: { include: { roomType: true } },
+        guests: { include: { guest: true } },
+        folios: true,
+      },
+      orderBy: { checkInDate: 'asc' },
+    });
+    if (reservations.length === 0) throw new Error('Booking not found.');
+    return { bookingId, reservations };
+  }
+
+  /** Attach additional guests to an existing reservation (per-room guest list) */
+  static async addGuestsToReservation(id: string, guestIds: string[]) {
+    if (!guestIds || guestIds.length === 0) {
+      throw new Error('At least one guest id is required.');
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.findUnique({
+        where: { id },
+        include: { guests: { select: { guestId: true, isPrimary: true } } },
+      });
+      if (!reservation) throw new Error('Reservation not found.');
+
+      const existing = new Set(reservation.guests.map((g: any) => g.guestId));
+      const toAdd = [...new Set(guestIds)].filter((id) => !existing.has(id));
+      if (toAdd.length === 0) return this.getPartyReservation(id, tx);
+
+      const found = await tx.guest.findMany({ where: { id: { in: toAdd } }, select: { id: true } });
+      if (found.length !== toAdd.length) {
+        throw new Error('One or more guests were not found.');
+      }
+
+      await tx.reservationGuest.createMany({
+        data: toAdd.map((guestId) => ({ reservationId: id, guestId, isPrimary: false })),
+      });
+
+      return this.getPartyReservation(id, tx);
+    });
+  }
+
+  private static async getPartyReservation(id: string, tx: any) {
+    return tx.reservation.findUnique({
+      where: { id },
+      include: {
+        room: { include: { roomType: true } },
+        guests: { include: { guest: true } },
+        folios: true,
+      },
+    });
+  }
+
+  /** Cancel reservation */
+  static async cancelReservation(id: string, cancelledBy: string, reason?: string) {
+    return prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.findUnique({ where: { id } });
+      if (!reservation) throw new Error('Reservation not found');
+      if (reservation.status === 'CHECKED_IN') {
+        throw new Error('Cannot cancel a reservation that is currently checked in.');
+      }
+
+      const updated = await tx.reservation.update({
+        where: { id },
+        data: {
+          status: 'CANCELLED',
+          cancelledBy,
+          cancelledAt: new Date(),
+          cancelReason: reason,
+        },
+      });
+
+      // Set room back to AVAILABLE if no other active reservation today
+      await tx.room.update({
+        where: { id: reservation.roomId },
+        data: { status: 'AVAILABLE' },
+      });
+
+      return updated;
+    });
+  }
+}

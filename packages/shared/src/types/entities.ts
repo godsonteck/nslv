@@ -188,6 +188,7 @@ export interface ReservationGuest {
 export interface Reservation {
   id: string;
   confirmationNo: string;
+  bookingId: string | null;
   roomId: string;
   room?: Room;
   status: ReservationStatus;
@@ -362,6 +363,46 @@ export interface TwoFactorSetupResponse {
 }
 
 // ──────────────────────────────────────────
+// Events
+// ──────────────────────────────────────────
+
+/** Event space or venue that can host events/birthdays/weddings */
+export interface EventSpace {
+  id: string;
+  name: string;
+  description: string | null;
+  location: string | null;
+  capacity: number;
+  pricePerHour: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Event statuses */
+export type EventStatus = 'PLANNED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+
+/** A booked event at the villa (birthday, wedding, corporate, private party) */
+export interface EventBooking {
+  id: string;
+  title: string;
+  description: string | null;
+  eventSpaceId: string | null;
+  eventSpace?: EventSpace | null;
+  startAt: string;
+  endAt: string;
+  status: EventStatus;
+  guestCount: number;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  notes: string | null;
+  createdById: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ──────────────────────────────────────────
 // Query/Filter Types
 // ──────────────────────────────────────────
 
@@ -439,3 +480,122 @@ export interface FolioFilters extends PaginationParams {
   reservationId?: string;
   guestId?: string;
 }
+
+// ──────────────────────────────────────────
+// POS Entities (Restaurant, Bar, Pool)
+// ──────────────────────────────────────────
+
+export interface RestaurantItem {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  price: number;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RestaurantOrderItem {
+  id: string;
+  orderId: string;
+  itemId: string;
+  item?: RestaurantItem;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  notes: string | null;
+}
+
+export interface RestaurantOrder {
+  id: string;
+  orderNo: string;
+  guestId: string | null;
+  guest?: Guest | null;
+  roomId: string | null;
+  room?: Room | null;
+  tableNo: string | null;
+  status: 'PENDING' | 'PREPARING' | 'SERVED' | 'COMPLETED' | 'CANCELLED';
+  totalAmount: number;
+  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY';
+  paymentStatus: 'PENDING' | 'PAID' | 'CHARGED_TO_FOLIO';
+  folioItemId: string | null;
+  notes: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  orderItems: RestaurantOrderItem[];
+}
+
+export interface BarItem {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  price: number;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BarOrderItem {
+  id: string;
+  orderId: string;
+  itemId: string;
+  item?: BarItem;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  notes: string | null;
+}
+
+export interface BarOrder {
+  id: string;
+  orderNo: string;
+  guestId: string | null;
+  guest?: Guest | null;
+  roomId: string | null;
+  room?: Room | null;
+  status: 'PENDING' | 'SERVED' | 'COMPLETED' | 'CANCELLED';
+  totalAmount: number;
+  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY';
+  paymentStatus: 'PENDING' | 'PAID' | 'CHARGED_TO_FOLIO';
+  folioItemId: string | null;
+  notes: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  orderItems: BarOrderItem[];
+}
+
+export interface PoolService {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  price: number;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PoolTransaction {
+  id: string;
+  transactionNo: string;
+  guestId: string | null;
+  guest?: Guest | null;
+  roomId: string | null;
+  room?: Room | null;
+  serviceId: string;
+  service?: PoolService;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY';
+  paymentStatus: 'PENDING' | 'PAID' | 'CHARGED_TO_FOLIO';
+  folioItemId: string | null;
+  notes: string | null;
+  processedBy: string;
+  createdAt: string;
+}
+

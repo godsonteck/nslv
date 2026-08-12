@@ -1,55 +1,81 @@
-# 🏨 NS Luxury Villa Management System
+# NSVilla Management System
 
-> Production hospitality management platform (PMS + POS + Operations Platform) for **NS Luxury Villa**, Ho, Ghana.  
-> Tagline: *"Arrive as a guest, stay as family."*
+NSVilla is a production-oriented hospitality property management system for six operational portals:
 
----
+- Admin
+- Manager
+- Reception
+- Restaurant
+- Bar
+- Pool
 
-## Architecture Summary
+## Architecture
 
-- **Frontend**: React 18, Vite, TypeScript, Custom Brand Design System, Zustand, React Router v7, TanStack Query.
-- **Backend**: Express.js, TypeScript, Argon2id, JWT Auth, TOTP 2FA, Zod Validation, Audit Logging, Helmet, Rate Limiting.
-- **Data Layer**: Prisma ORM, Cloud PostgreSQL (Production) / SQLite (Development Cache).
-- **Desktop**: Electron wrapper with `electron-builder` NSIS installer support.
+- `packages/client` — React + TypeScript + Vite web workstation
+- `packages/server` — Express + TypeScript API
+- `packages/shared` — shared types, validation and permissions
+- `packages/desktop` — Electron desktop shell
+- `packages/server/prisma` — PostgreSQL schema, migrations and seed
 
----
+The application is designed around real persistence:
 
-## Workspace Structure
+`Client → API → PostgreSQL`
 
-```text
-nslv/
-├── packages/
-│   ├── shared/     # @nslv/shared: Entity types, Zod schemas, 60+ permissions, enums, helpers
-│   ├── server/     # @nslv/server: Express REST API, Prisma schema, Auth, RBAC, Audit logger
-│   ├── client/     # @nslv/client: React + Vite frontend, NS Villa design system, Dashboard
-│   └── desktop/    # @nslv/desktop: Electron main process, electron-builder NSIS config
-├── docs/           # Architecture, Database, & Setup documentation
-└── .env            # Environment configuration
-```
+No production workflow depends on browser localStorage or fake operational records.
 
----
+## Local setup
 
-## Quick Start
+Requirements: Node.js 20+, npm, Docker Desktop.
+
+1. Copy `.env.example` to `.env`.
+2. Set unique JWT secrets and administrator credentials.
+3. Start PostgreSQL:
 
 ```bash
-# 1. Install dependencies
-npm install
+docker compose up -d postgres
+```
 
-# 2. Setup database schema & seed initial admin
-npx prisma db push --schema packages/server/prisma/schema.prisma
-npx tsx packages/server/prisma/seed.ts
+4. Install dependencies:
 
-# 3. Start development server (API + Web app)
+```bash
+npm ci
+```
+
+5. Generate Prisma Client:
+
+```bash
+npm run db:generate
+```
+
+6. Create/apply the development schema:
+
+```bash
+npm run db:migrate
+```
+
+7. Seed only system configuration, permissions, roles and the explicitly configured initial administrator:
+
+```bash
+npm run db:seed
+```
+
+The seed intentionally does **not** create guests, reservations, stays, payments, orders, transactions, or other fake operational records.
+
+8. Start the application:
+
+```bash
 npm run dev
 ```
 
-Default credentials:
-- **Username**: `admin`
-- **Password**: `ChangeThisPassword123!`
+- Web client: `http://localhost:5173`
+- API: `http://localhost:3001`
 
----
+## Production principles
 
-## Phase Status
-
-- [x] **Phase 1 — Architecture & Foundation**: Complete
-- [ ] **Phase 2 — Admin & System Configuration**: Next phase
+- PostgreSQL is the authoritative database.
+- Backend authorization is authoritative; frontend visibility is not security.
+- Financial operations are transactional and auditable.
+- Reservation availability is checked server-side.
+- Important operations are recorded in the audit trail.
+- Secrets are supplied through environment configuration.
+- Production databases must never use the development seed credentials.

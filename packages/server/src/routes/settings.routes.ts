@@ -5,10 +5,11 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { SettingsService } from '../services/settings.service';
-import { authenticate, requirePermission, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { PERMISSIONS } from '@nslv/shared';
 
 const router = Router();
+router.use(authenticate, verifyActiveUser);
 
 /**
  * GET /api/v1/settings
@@ -16,7 +17,6 @@ const router = Router();
  */
 router.get(
   '/',
-  authenticate,
   requirePermission(PERMISSIONS.SETTINGS_VIEW),
   async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -37,7 +37,6 @@ router.get(
  */
 router.put(
   '/:key',
-  authenticate,
   requirePermission(PERMISSIONS.SETTINGS_EDIT),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -66,7 +65,6 @@ router.put(
  */
 router.post(
   '/bulk',
-  authenticate,
   requirePermission(PERMISSIONS.SETTINGS_EDIT),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

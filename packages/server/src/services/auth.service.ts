@@ -13,6 +13,7 @@ import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
 import type { JwtPayload } from '../middleware/auth';
 import type { PermissionCode } from '@nslv/shared';
+import type { ChangePasswordInput, UpdateProfileInput } from '@nslv/shared';
 
 export class AuthService {
   /**
@@ -76,6 +77,25 @@ export class AuthService {
   }
 
   /**
+   * Parse an expiry string like '15m', '1h', '7d' (or raw seconds) into seconds.
+   */
+  private static expiryToSeconds(expiry: string): number {
+    const match = /^(\d+)\s*(s|m|h|d)?$/i.exec(expiry.trim());
+    if (!match) return 900;
+    const value = parseInt(match[1], 10);
+    switch ((match[2] || 's').toLowerCase()) {
+      case 'm':
+        return value * 60;
+      case 'h':
+        return value * 3600;
+      case 'd':
+        return value * 86400;
+      default:
+        return value;
+    }
+  }
+
+  /**
    * Generate access token and refresh token
    */
   static generateTokens(payload: Omit<JwtPayload, 'iat' | 'exp'>) {
@@ -90,7 +110,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: 15 * 60, // 15 minutes in seconds
+      expiresIn: this.expiryToSeconds(config.jwt.accessExpiry),
     };
   }
 
@@ -147,7 +167,6 @@ export class AuthService {
       if (!params.totpCode) {
         return {
           requiresTwoFactor: true,
-          userId: user.id,
         };
       }
 
@@ -302,6 +321,27 @@ export class AuthService {
     }
   }
 
+  /** Change password and invalidate every refresh session for the account. */
+  static async changePassword(userId: string, input: ChangePasswordInput) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.status !== 'ACTIVE') {
+      throw new AppError('Account is not available.', 403, 'ACCOUNT_INACTIVE');
+    }
+    if (!(await this.verifyPassword(user.passwordHash, input.currentPassword))) {
+      await AuditService.log({ userId, action: 'auth.password_change_failed', resource: 'user' });
+      throw new AppError('Current password is incorrect.', 401, 'INVALID_CREDENTIALS');
+    }
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash: await this.hashPassword(input.newPassword), mustChangePassword: false },
+      }),
+      prisma.session.deleteMany({ where: { userId } }),
+    ]);
+    await AuditService.log({ userId, action: 'auth.password_changed', resource: 'user' });
+  }
+
   /**
    * Setup 2FA (TOTP)
    */
@@ -355,5 +395,82 @@ export class AuthService {
     });
 
     return { message: '2FA successfully enabled.' };
+  }
+
+  /**
+   * Get the current user's full profile with roles & permissions
+   */
+  static async getProfile(userId: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new AppError('User not found.', 404, 'USER_NOT_FOUND');
+    }
+
+    const { roles, permissions } = await this.getUserRolesAndPermissions(user.id);
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      avatarUrl: user.avatarUrl,
+      status: user.status as any,
+      totpEnabled: user.totpEnabled,
+      lastLoginAt: user.lastLoginAt?.toISOString() || null,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      roles,
+      permissions,
+    };
+  }
+
+  /** Update the current user's own profile (name, username, phone, avatar). */
+  static async updateProfile(userId: string, input: UpdateProfileInput) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.status !== 'ACTIVE') {
+      throw new AppError('Account is not available.', 403, 'ACCOUNT_INACTIVE');
+    }
+
+    if (input.username && input.username !== user.username) {
+      const existing = await prisma.user.findUnique({ where: { username: input.username } });
+      if (existing) {
+        throw new AppError('This username is already in use.', 409, 'USERNAME_EXISTS');
+      }
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(input.username ? { username: input.username } : {}),
+        ...(input.firstName ? { firstName: input.firstName } : {}),
+        ...(input.lastName ? { lastName: input.lastName } : {}),
+        ...(input.phone !== undefined ? { phone: input.phone } : {}),
+        ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),
+      },
+    });
+
+    await AuditService.log({
+      userId,
+      action: 'auth.profile_updated',
+      resource: 'user',
+      beforeData: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        phone: user.phone,
+        hasAvatar: !!user.avatarUrl,
+      },
+      afterData: {
+        firstName: updated.firstName,
+        lastName: updated.lastName,
+        username: updated.username,
+        phone: updated.phone,
+        hasAvatar: !!updated.avatarUrl,
+      },
+    });
+
+    return this.getProfile(userId);
   }
 }

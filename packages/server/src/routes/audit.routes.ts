@@ -5,11 +5,12 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { AuditService } from '../services/audit.service';
-import { authenticate, requirePermission } from '../middleware/auth';
+import { authenticate, requirePermission, verifyActiveUser } from '../middleware/auth';
 import { validateQuery } from '../middleware/validate';
 import { auditLogFilterSchema, PERMISSIONS } from '@nslv/shared';
 
 const router = Router();
+router.use(authenticate, verifyActiveUser);
 
 /**
  * GET /api/v1/audit
@@ -17,7 +18,6 @@ const router = Router();
  */
 router.get(
   '/',
-  authenticate,
   requirePermission(PERMISSIONS.AUDIT_VIEW),
   validateQuery(auditLogFilterSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

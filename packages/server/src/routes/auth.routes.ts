@@ -12,6 +12,7 @@ import {
   refreshTokenSchema,
   totpVerifySchema,
   changePasswordSchema,
+  updateProfileSchema,
 } from '@nslv/shared';
 
 const router = Router();
@@ -25,7 +26,7 @@ router.post(
   validateBody(loginSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const ipAddress = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
+      const ipAddress = (req.ip as string) || req.socket.remoteAddress || '';
       const deviceInfo = req.headers['user-agent'] || '';
 
       const result = await AuthService.login({
@@ -92,7 +93,7 @@ router.post('/logout', async (req: Request, res: Response, next: NextFunction): 
 router.get('/me', authenticate, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authReq = req as AuthenticatedRequest;
-    const user = authReq.user;
+    const user = await AuthService.getProfile(authReq.user.userId);
 
     res.status(200).json({
       success: true,
@@ -102,6 +103,38 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
     next(error);
   }
 });
+
+/** Update the current user's own profile (name, username, phone, avatar). */
+router.patch(
+  '/me',
+  authenticate,
+  validateBody(updateProfileSchema),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const user = await AuthService.updateProfile(authReq.user.userId, req.body);
+      res.status(200).json({ success: true, data: user });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/** Change the current user's password and invalidate existing sessions. */
+router.post(
+  '/change-password',
+  authenticate,
+  validateBody(changePasswordSchema),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      await AuthService.changePassword(authReq.user.userId, req.body);
+      res.status(200).json({ success: true, message: 'Password changed. Please sign in again.' });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 /**
  * POST /api/v1/auth/2fa/setup

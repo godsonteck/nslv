@@ -23,13 +23,13 @@ function createWindow() {
     autoHideMenuBar: true,
   });
 
-  const isDev = process.env.NODE_ENV === 'development';
-
-  if (isDev) {
+  // In dev (unpackaged `electron .`) load the Vite dev server; in production
+  // load the client build bundled via electron-builder extraResources.
+  if (!app.isPackaged) {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../../client/dist/index.html'));
+    mainWindow.loadFile(path.join(process.resourcesPath, 'client-dist', 'index.html'));
   }
 
   mainWindow.on('closed', () => {

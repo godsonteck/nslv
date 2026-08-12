@@ -1,36 +1,53 @@
 // ============================================
-// NS LUXURY VILLA — React App Root & Router
-// React Router v7 with Protected Route Guards
+// NS LUXURY VILLA — React Application Root & Workstation Router
+// React Router v7 with Role Guards & Phased Lazy Loading
 // ============================================
 
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { MainLayout } from './components/layout/MainLayout';
-import { Login } from './pages/Login';
+import Login from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Spinner } from './components/ui';
+import { PortalGuard, portalPathFor } from './components/auth/PortalGuard';
+import { RequirePermission } from './components/auth/RequirePermission';
 
-// ── Phase 2: Admin & Configuration pages (lazy loaded) ──
+// Lazy-Loaded Hospitality Pages
+const ManagerPortalPage = lazy(() => import('./pages/operations/ManagerPortalPage'));
+const ReservationsPage = lazy(() => import('./pages/frontoffice/ReservationsPage'));
+const GuestsPage = lazy(() => import('./pages/frontoffice/GuestsPage'));
+const RoomsPage = lazy(() => import('./pages/frontoffice/RoomsPage'));
+const FrontDeskPage = lazy(() => import('./pages/frontoffice/FrontDeskPage'));
+const GuestBillsPage = lazy(() => import('./pages/frontoffice/GuestBillsPage'));
+
+const RestaurantPOSPage = lazy(() => import('./pages/pos/RestaurantPOSPage'));
+const BarPOSPage = lazy(() => import('./pages/pos/BarPOSPage'));
+const PoolPortalPage = lazy(() => import('./pages/pos/PoolPortalPage'));
+const FandBPortalPage = lazy(() => import('./pages/operations/FandBPortalPage'));
+const EventsPage = lazy(() => import('./pages/operations/EventsPage'));
+
+const PaymentsPage = lazy(() => import('./pages/finance/PaymentsPage'));
+const ExpensesPage = lazy(() => import('./pages/finance/ExpensesPage'));
+const InventoryPage = lazy(() => import('./pages/operations/InventoryPage'));
+const ReportsPage = lazy(() => import('./pages/operations/ReportsPage'));
+
 const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
 const AuditLogsPage = lazy(() => import('./pages/admin/AuditLogsPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const StaffDirectoryPage = lazy(() => import('./pages/admin/StaffDirectoryPage'));
+const MenuManagementPage = lazy(() => import('./pages/admin/MenuManagementPage'));
+const ImportPage = lazy(() => import('./pages/admin/ImportPage'));
+const AdminConsolePage = lazy(() => import('./pages/admin/AdminConsolePage'));
 
-// ── Fallback for lazy-loaded routes ──
+const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
+const UnauthorizedPage = lazy(() => import('./pages/error/UnauthorizedPage'));
+const AccountPage = lazy(() => import('./pages/AccountPage'));
+
 const PageLoader: React.FC = () => (
-  <div className="flex items-center justify-center h-full py-20">
-    <Spinner size={32} />
-  </div>
-);
-
-// ── Coming Soon placeholder for future phases ──
-const ComingSoon: React.FC<{ phase: string; module: string }> = ({ phase, module }) => (
-  <div className="flex flex-col items-center justify-center h-full py-20 gap-3">
-    <div className="w-12 h-12 rounded-2xl bg-[#1C2536] border border-[#2D3748] flex items-center justify-center text-2xl">🏗️</div>
-    <div className="text-sm font-semibold text-[#F3F4F6]">{module}</div>
-    <div className="text-xs text-[#9CA3AF]">This module is scheduled for {phase}</div>
+  <div className="flex items-center justify-center h-full py-24 text-xs text-slate-500">
+    <Spinner size={24} />
   </div>
 );
 
@@ -43,14 +60,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
+/** Send authenticated users to their role's portal on visiting "/". */
+const HomeRedirect: React.FC = () => {
+  const user = useAuthStore((s) => s.user);
+  return <Navigate to={portalPathFor(user?.roles ?? [])} replace />;
+};
+
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Login Route */}
+        {/* Public Authentication Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Management Workspace */}
+        {/* Protected Hospitality Management Workspace */}
         <Route
           path="/"
           element={
@@ -59,75 +82,48 @@ export const App: React.FC = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route index element={<HomeRedirect />} />
+          
+          {/* Main Role Workstation Entry Points (Consolidated Roles) */}
+          <Route path="admin" element={<PortalGuard role="Admin"><Suspense fallback={<PageLoader />}><AdminConsolePage /></Suspense></PortalGuard>} />
+          <Route path="manager" element={<PortalGuard role="Manager"><Suspense fallback={<PageLoader />}><ManagerPortalPage /></Suspense></PortalGuard>} />
+          <Route path="reception" element={<PortalGuard role="Reception"><Suspense fallback={<PageLoader />}><FrontDeskPage /></Suspense></PortalGuard>} />
+          <Route path="fnb" element={<PortalGuard role="F&B"><Suspense fallback={<PageLoader />}><FandBPortalPage /></Suspense></PortalGuard>} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="account" element={<Suspense fallback={<PageLoader />}><AccountPage /></Suspense>} />
 
-          {/* ── Phase 2: Admin & System Configuration ── */}
-          <Route
-            path="users"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <UsersPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="roles"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <RolesPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="audit"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <AuditLogsPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="settings"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <SettingsPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="staff"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <StaffDirectoryPage />
-              </Suspense>
-            }
-          />
+          {/* Front Office Routes */}
+          <Route path="reservations" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reservations.view']}><ReservationsPage /></RequirePermission></Suspense>} />
+          <Route path="guests" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['guests.view']}><GuestsPage /></RequirePermission></Suspense>} />
+          <Route path="rooms" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['rooms.view']}><RoomsPage /></RequirePermission></Suspense>} />
+          <Route path="frontdesk" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['checkin.perform', 'checkout.perform']}><FrontDeskPage /></RequirePermission></Suspense>} />
+          <Route path="bills" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['folios.view']}><GuestBillsPage /></RequirePermission></Suspense>} />
 
-          {/* ── Phase 3: Reservations, Guests, Rooms, Front Desk ── */}
-          <Route path="reservations" element={<ComingSoon phase="Phase 3" module="Reservations" />} />
-          <Route path="guests" element={<ComingSoon phase="Phase 3" module="Guests" />} />
-          <Route path="rooms" element={<ComingSoon phase="Phase 3" module="Rooms" />} />
-          <Route path="frontdesk" element={<ComingSoon phase="Phase 3" module="Front Desk" />} />
+          {/* Department POS Routes */}
+          <Route path="restaurant/pos" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.view']}><RestaurantPOSPage /></RequirePermission></Suspense>} />
+          <Route path="bar/pos" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['bar.view']}><BarPOSPage /></RequirePermission></Suspense>} />
+          <Route path="pool/services" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['pool.view']}><PoolPortalPage /></RequirePermission></Suspense>} />
 
-          {/* ── Phase 4: Payments & Folios ── */}
-          <Route path="payments" element={<ComingSoon phase="Phase 4" module="Payments & Folios" />} />
+          {/* Finance & Operations Routes */}
+          <Route path="payments" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['payments.view']}><PaymentsPage /></RequirePermission></Suspense>} />
+          <Route path="expenses" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['expenses.view']}><ExpensesPage /></RequirePermission></Suspense>} />
+          <Route path="inventory" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['inventory.view']}><InventoryPage /></RequirePermission></Suspense>} />
+          <Route path="reports" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view']}><ReportsPage /></RequirePermission></Suspense>} />
+          <Route path="events" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['events.view']}><EventsPage /></RequirePermission></Suspense>} />
 
-          {/* ── Phase 5–7: POS Modules ── */}
-          <Route path="restaurant" element={<ComingSoon phase="Phase 5" module="Restaurant POS" />} />
-          <Route path="bar" element={<ComingSoon phase="Phase 6" module="Bar POS" />} />
-          <Route path="pool" element={<ComingSoon phase="Phase 7" module="Pool Workspace" />} />
+          {/* Administration Routes */}
+          <Route path="admin/users" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['users.view']}><UsersPage /></RequirePermission></Suspense>} />
+          <Route path="admin/roles" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['roles.view']}><RolesPage /></RequirePermission></Suspense>} />
+          <Route path="admin/audit" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['audit.view']}><AuditLogsPage /></RequirePermission></Suspense>} />
+          <Route path="admin/settings" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.view']}><SettingsPage /></RequirePermission></Suspense>} />
+          <Route path="admin/staff" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['staff.view']}><StaffDirectoryPage /></RequirePermission></Suspense>} />
+          <Route path="admin/menus" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage']}><MenuManagementPage /></RequirePermission></Suspense>} />
+          <Route path="admin/imports" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage', 'inventory.manage', 'inventory.adjust']}><ImportPage /></RequirePermission></Suspense>} />
 
-          {/* ── Phase 8: Operations ── */}
-          <Route path="expenses" element={<ComingSoon phase="Phase 8" module="Expenses" />} />
-          <Route path="inventory" element={<ComingSoon phase="Phase 8" module="Inventory" />} />
-
-          {/* ── Phase 9: Reports ── */}
-          <Route path="reports" element={<ComingSoon phase="Phase 9" module="Reports" />} />
+          {/* Error pages */}
+          <Route path="unauthorized" element={<Suspense fallback={<PageLoader />}><UnauthorizedPage /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense>} />
         </Route>
-
-        {/* Catch-all fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );

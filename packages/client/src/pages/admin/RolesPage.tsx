@@ -1,43 +1,17 @@
 // ============================================
-// NS LUXURY VILLA — Roles & Permissions Page
-// /admin/roles — Permission Matrix Builder
+// NS LUXURY VILLA — Roles & Permissions Matrix
+// Section #26: Grouped Permissions & Access Controls
 // ============================================
 
-import React, { useEffect, useState } from 'react';
-import { Shield, Lock, Unlock, ChevronDown, ChevronRight } from 'lucide-react';
-import { PageHeader, Button, Spinner, Badge, showToast, ToastContainer } from '../components/ui';
-import { rolesApi, type RoleRecord, type PermissionRecord } from '../services/apiService';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Shield, Lock, Unlock, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
+import {
+  PageHeader, Button, Spinner, Badge, showToast, Modal, FormField, TextInput,
+} from '../../components/ui';
+import { rolesApi, type RoleRecord, type PermissionRecord } from '../../services/apiService';
+import { useAuthStore } from '../../stores/authStore';
+import { PERMISSIONS } from '@nslv/shared';
 
-// ──────────────────────────────────────────
-// Types
-// ──────────────────────────────────────────
-type PermissionWithMeta = PermissionRecord;
-type RoleWithPerms = RoleRecord;
-
-// ──────────────────────────────────────────
-// Role Color Map
-// ──────────────────────────────────────────
-const ROLE_COLORS: Record<string, string> = {
-  SUPER_ADMIN: 'border-[#8C2D19] bg-[#8C2D19]/10 text-[#EF4444]',
-  GENERAL_MANAGER: 'border-[#C49A45] bg-[#C49A45]/10 text-[#C49A45]',
-  FRONT_DESK: 'border-blue-500 bg-blue-500/10 text-blue-400',
-  HOUSEKEEPING: 'border-emerald-500 bg-emerald-500/10 text-emerald-400',
-  RESTAURANT_STAFF: 'border-purple-500 bg-purple-500/10 text-purple-400',
-  ACCOUNTANT: 'border-orange-500 bg-orange-500/10 text-orange-400',
-};
-
-const ROLE_BADGE_COLORS: Record<string, 'danger' | 'warning' | 'info' | 'success' | 'neutral'> = {
-  SUPER_ADMIN: 'danger',
-  GENERAL_MANAGER: 'warning',
-  FRONT_DESK: 'info',
-  HOUSEKEEPING: 'success',
-  RESTAURANT_STAFF: 'neutral',
-  ACCOUNTANT: 'neutral',
-};
-
-// ──────────────────────────────────────────
-// Permission Matrix
-// ──────────────────────────────────────────
 interface MatrixProps {
   roles: RoleRecord[];
   permissions: PermissionRecord[];
@@ -45,7 +19,7 @@ interface MatrixProps {
 }
 
 const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }) => {
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(modules.slice(0, 3)));
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(modules.slice(0, 4)));
 
   const toggleModule = (mod: string) =>
     setExpandedModules((prev) => {
@@ -60,16 +34,16 @@ const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }
     role.permissions?.some((rp) => rp.permission?.id === permId) ?? false;
 
   return (
-    <div className="bg-[#1C2536] border border-[#2D3748] rounded-xl overflow-hidden">
+    <div className="bg-[#1C1F28] border border-[#2B303E] rounded-md overflow-hidden text-xs">
       {/* Role Header Row */}
-      <div className="border-b border-[#2D3748] bg-[#151C28] sticky top-0 z-10">
+      <div className="border-b border-[#2B303E] bg-[#16181F] sticky top-0 z-10">
         <div className="flex">
-          <div className="w-64 shrink-0 px-4 py-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">Permission</div>
+          <div className="w-64 shrink-0 px-4 py-3 font-semibold text-[#A0A5AD] uppercase tracking-wider">
+            Module Permission
+          </div>
           {roles.map((role) => (
-            <div key={role.id} className="flex-1 px-2 py-2 text-center min-w-[100px]">
-              <span className={`inline-block text-[10px] font-bold px-2 py-1 rounded-full border ${ROLE_COLORS[role.name] ?? 'border-[#2D3748] text-[#9CA3AF]'}`}>
-                {role.name.replace(/_/g, ' ')}
-              </span>
+            <div key={role.id} className="flex-1 px-2 py-3 text-center min-w-[110px]">
+              <span className="font-semibold text-[#F4F4F2] block">{role.name.replace(/_/g, ' ')}</span>
             </div>
           ))}
         </div>
@@ -81,42 +55,43 @@ const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }
         const isExpanded = expandedModules.has(mod);
 
         return (
-          <div key={mod} className="border-b border-[#232D3F] last:border-0">
+          <div key={mod} className="border-b border-[#20242F] last:border-0">
             {/* Module Header */}
             <button
               onClick={() => toggleModule(mod)}
-              className="w-full flex items-center px-4 py-2.5 bg-[#181F2E] hover:bg-[#1C2536] transition-colors text-left"
+              className="w-full flex items-center px-4 py-2 bg-[#14161D] hover:bg-[#1C1F28] transition-colors text-left font-semibold text-[#C5A880]"
             >
-              {isExpanded ? <ChevronDown size={14} className="text-[#9CA3AF] mr-2" /> : <ChevronRight size={14} className="text-[#9CA3AF] mr-2" />}
-              <span className="text-xs font-bold text-[#C49A45] uppercase tracking-wide">{mod}</span>
-              <Badge label={`${modPerms.length}`} variant="neutral" />
+              {isExpanded ? <ChevronDown size={14} className="mr-2 text-[#A0A5AD]" /> : <ChevronRight size={14} className="mr-2 text-[#A0A5AD]" />}
+              <span className="uppercase tracking-wider mr-2">{mod}</span>
+              <span className="text-[10px] text-[#6E737B] font-mono">({modPerms.length} rules)</span>
             </button>
 
             {/* Permission Rows */}
-            {isExpanded && modPerms.map((perm) => (
-              <div key={perm.id} className="flex items-center border-t border-[#232D3F] hover:bg-[#1D2840]/30 transition-colors">
-                <div className="w-64 shrink-0 px-4 py-2.5">
-                  <div className="text-xs font-medium text-[#F3F4F6]">{perm.action}</div>
-                  {perm.description && <div className="text-[10px] text-[#6B7280] mt-0.5">{perm.description}</div>}
+            {isExpanded &&
+              modPerms.map((perm) => (
+                <div key={perm.id} className="flex items-center border-t border-[#20242F] hover:bg-[#20242F] transition-colors">
+                  <div className="w-64 shrink-0 px-4 py-2">
+                    <div className="font-medium text-[#F4F4F2]">{perm.action}</div>
+                    {perm.description && <div className="text-[10px] text-[#6E737B]">{perm.description}</div>}
+                  </div>
+                  {roles.map((role) => {
+                    const has = hasPermission(role, perm.id);
+                    return (
+                      <div key={role.id} className="flex-1 flex items-center justify-center py-2 min-w-[110px]">
+                        {has ? (
+                          <div className="w-4 h-4 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                            <Unlock size={10} className="text-emerald-400" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded bg-[#14161D] border border-[#2B303E] flex items-center justify-center">
+                            <Lock size={10} className="text-[#6E737B]" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                {roles.map((role) => {
-                  const has = hasPermission(role, perm.id);
-                  return (
-                    <div key={role.id} className="flex-1 flex items-center justify-center py-2.5 min-w-[100px]">
-                      {has ? (
-                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                          <Unlock size={10} className="text-emerald-400" />
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 rounded-full bg-[#151C28] border border-[#2D3748] flex items-center justify-center">
-                          <Lock size={10} className="text-[#4B5563]" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+              ))}
           </div>
         );
       })}
@@ -124,107 +99,199 @@ const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }
   );
 };
 
-// ──────────────────────────────────────────
-// Role Card
-// ──────────────────────────────────────────
-const RoleCard: React.FC<{ role: RoleRecord }> = ({ role }) => {
-  const totalPerms = role.permissions?.length ?? 0;
-
-  return (
-    <div className={`p-4 rounded-xl border ${ROLE_COLORS[role.name] ?? 'border-[#2D3748] bg-[#1C2536]'} backdrop-blur-sm`}>
-      <div className="flex items-start justify-between mb-2">
-        <div className="p-2 bg-black/20 rounded-lg">
-          <Shield size={16} />
-        </div>
-        <Badge label={`${totalPerms} perms`} variant={ROLE_BADGE_COLORS[role.name] ?? 'neutral'} />
-      </div>
-      <h3 className="text-sm font-bold mt-2">{role.name.replace(/_/g, ' ')}</h3>
-      {role.description && <p className="text-[10px] mt-1 opacity-70 line-clamp-2">{role.description}</p>}
-    </div>
-  );
-};
-
-// ──────────────────────────────────────────
-// Roles & Permissions Page
-// ──────────────────────────────────────────
-const RolesPage: React.FC = () => {
+export const RolesPage: React.FC = () => {
   const [roles, setRoles] = useState<RoleRecord[]>([]);
   const [permissions, setPermissions] = useState<PermissionRecord[]>([]);
   const [modules, setModules] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'matrix'>('overview');
+  const { hasPermission } = useAuthStore();
+  const canManage = hasPermission(PERMISSIONS.ROLES_MANAGE);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const [rolesRes, permsRes] = await Promise.all([rolesApi.list(), rolesApi.permissions()]);
-        if (rolesRes.success && rolesRes.data) setRoles(rolesRes.data);
-        if (permsRes.success && permsRes.data) {
-          setPermissions(permsRes.data.permissions as PermissionWithMeta[]);
-          setModules([...permsRes.data.modules] as string[]);
-        }
-      } catch {
-        showToast('error', 'Failed to load roles data.');
-      } finally {
-        setLoading(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<RoleRecord | null>(null);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedCodes, setSelectedCodes] = useState<Set<string>>(new Set());
+
+  const fetchRoles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [rolesRes, permsRes] = await Promise.all([rolesApi.list(), rolesApi.permissions()]);
+      if (rolesRes.success && rolesRes.data) setRoles(rolesRes.data);
+      if (permsRes.success && permsRes.data) {
+        setPermissions(permsRes.data.permissions);
+        setModules([...permsRes.data.modules]);
       }
-    };
-    load();
+    } catch {
+      showToast('error', 'Failed to load roles data.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
+
+  const openCreate = () => {
+    setEditing(null);
+    setName('');
+    setDescription('');
+    setSelectedCodes(new Set(['dashboard.view']));
+    setModalOpen(true);
+  };
+
+  const openEdit = (role: RoleRecord) => {
+    setEditing(role);
+    setName(role.name);
+    setDescription(role.description ?? '');
+    setSelectedCodes(new Set(role.permissions?.map((rp) => rp.permission?.code).filter(Boolean) as string[] ?? []));
+    setModalOpen(true);
+  };
+
+  const togglePermission = (code: string) => {
+    setSelectedCodes((prev) => {
+      const next = new Set(prev);
+      next.has(code) ? next.delete(code) : next.add(code);
+      return next;
+    });
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedCodes.size === 0) {
+      showToast('error', 'At least one permission must be assigned.');
+      return;
+    }
+    const body = { name, description, permissionCodes: [...selectedCodes] };
+    try {
+      if (editing) {
+        await rolesApi.update(editing.id, body);
+        showToast('success', `Role ${name} updated.`);
+      } else {
+        await rolesApi.create(body);
+        showToast('success', `Role ${name} created.`);
+      }
+      setModalOpen(false);
+      fetchRoles();
+    } catch (err: any) {
+      showToast('error', err?.message ?? 'Failed to save role.');
+    }
+  };
+
+  const handleDelete = async (role: RoleRecord) => {
+    if (!window.confirm(`Delete role "${role.name}"? This cannot be undone.`)) return;
+    try {
+      await rolesApi.remove(role.id);
+      showToast('success', `Role ${role.name} deleted.`);
+      fetchRoles();
+    } catch (err: any) {
+      showToast('error', err?.message ?? 'Failed to delete role.');
+    }
+  };
+
   return (
-    <div className="p-6">
+    <div className="space-y-6">
       <PageHeader
-        title="Roles & Permissions"
-        subtitle="View system roles and the permission matrix for each role"
+        title="Roles & Access Control"
+        subtitle="Structured role definitions and permission matrix across all villa modules"
+        actions={
+          canManage && (
+            <Button variant="primary" size="sm" onClick={openCreate}>
+              <Plus size={14} /> New Role
+            </Button>
+          )
+        }
       />
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-[#121824] p-1 rounded-xl w-fit">
-        {(['overview', 'matrix'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${activeTab === tab
-              ? 'bg-[#1C2536] text-[#F3F4F6] shadow'
-              : 'text-[#6B7280] hover:text-[#9CA3AF]'
-              }`}
-          >
-            {tab === 'overview' ? 'Role Overview' : 'Permission Matrix'}
-          </button>
+      {/* Role Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {roles.map((role) => (
+          <div key={role.id} className="bg-[#1C1F28] border border-[#2B303E] rounded-md p-4 flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Shield size={14} className="text-[#C5A880]" />
+                <span className="font-semibold text-[#F4F4F2]">{role.name.replace(/_/g, ' ')}</span>
+                {role.isSystem && <Badge label="System" variant="info" />}
+              </div>
+              {role.description && <p className="text-[11px] text-[#A0A5AD] mt-1">{role.description}</p>}
+              <div className="text-[10px] text-[#6E737B] font-mono mt-2">
+                {role.permissions?.length ?? 0} permissions
+              </div>
+            </div>
+            {canManage && (
+              <div className="flex items-center gap-1">
+                <button onClick={() => openEdit(role)} className="p-1.5 hover:bg-[#232733] rounded text-[#A0A5AD] hover:text-[#F4F4F2]" title="Edit Role">
+                  <Pencil size={14} />
+                </button>
+                {!role.isSystem && (
+                  <button onClick={() => handleDelete(role)} className="p-1.5 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete Role">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Spinner size={32} /></div>
-      ) : activeTab === 'overview' ? (
-        <div>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {roles.map((role) => <RoleCard key={role.id} role={role} />)}
+        <div className="py-16 text-center text-xs text-[#A0A5AD]"><Spinner /></div>
+      ) : (
+        <PermissionMatrix roles={roles} permissions={permissions} modules={modules} />
+      )}
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? `Edit Role — ${editing.name}` : 'Create New Role'} size="lg">
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField label="Role Name" required>
+              <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Housekeeping" required minLength={2} maxLength={50} />
+            </FormField>
+            <FormField label="Description">
+              <TextInput value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" maxLength={255} />
+            </FormField>
           </div>
-          <div className="bg-[#1C2536] border border-[#2D3748] rounded-xl p-4">
-            <h3 className="text-sm font-bold text-[#F3F4F6] mb-3">Permission Summary by Module</h3>
-            <div className="grid grid-cols-4 gap-3">
+
+          <div>
+            <div className="text-xs font-medium text-[#F4F4F2] mb-2">
+              Permissions <span className="text-[#6E737B] font-normal">({selectedCodes.size} selected)</span>
+            </div>
+            <div className="max-h-72 overflow-y-auto bg-[#14161D] border border-[#2B303E] rounded p-3 space-y-3">
               {modules.map((mod) => {
-                const count = permissions.filter((p) => p.module === mod).length;
+                const modPerms = permissions.filter((p) => p.module === mod);
+                if (modPerms.length === 0) return null;
                 return (
-                  <div key={mod} className="bg-[#151C28] border border-[#2D3748] rounded-lg p-3">
-                    <div className="text-lg font-bold text-[#C49A45]">{count}</div>
-                    <div className="text-[10px] text-[#9CA3AF] mt-0.5 uppercase tracking-wide">{mod}</div>
+                  <div key={mod}>
+                    <div className="text-[10px] uppercase tracking-wider text-[#C5A880] font-semibold mb-1">{mod}</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                      {modPerms.map((p) => (
+                        <label key={p.id} className="flex items-center gap-2 p-1.5 rounded hover:bg-[#1C1F28] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="accent-[#C5A880]"
+                            checked={selectedCodes.has(p.code)}
+                            onChange={() => togglePermission(p.code)}
+                          />
+                          <span className="text-[11px] text-[#A0A5AD]">{p.code}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <PermissionMatrix roles={roles} permissions={permissions} modules={modules} />
-        </div>
-      )}
 
-      <ToastContainer />
+          <div className="pt-4 border-t border-[#2B303E] flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary">
+              {editing ? 'Save Changes' : 'Create Role'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

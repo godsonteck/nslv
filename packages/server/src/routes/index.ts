@@ -10,6 +10,19 @@ import roleRoutes from './role.routes';
 import auditRoutes from './audit.routes';
 import healthRoutes from './health.routes';
 import settingsRoutes from './settings.routes';
+import roomsRoutes from './rooms.routes';
+import guestsRoutes from './guests.routes';
+import reservationsRoutes from './reservations.routes';
+import staysRoutes from './stays.routes';
+import foliosRoutes from './folios.routes';
+import paymentsRoutes from './payments.routes';
+import posRoutes from './pos.routes';
+import expensesRoutes from './expenses.routes';
+import inventoryRoutes from './inventory.routes';
+import reportsRoutes from './reports.routes';
+import eventsRoutes from './events.routes';
+import importsRoutes from './imports.routes';
+import systemRoutes from './system.routes';
 
 const router = Router();
 
@@ -19,5 +32,19 @@ router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/audit', auditRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/rooms', roomsRoutes);
+router.use('/guests', guestsRoutes);
+router.use('/reservations', reservationsRoutes);
+router.use('/stays', staysRoutes);
+router.use('/folios', foliosRoutes);
+router.use('/payments', paymentsRoutes);
+router.use('/pos', posRoutes);
+router.use('/expenses', expensesRoutes);
+router.use('/inventory', inventoryRoutes);
+router.use('/reports', reportsRoutes);
+router.use('/events', eventsRoutes);
+router.use('/imports', importsRoutes);
+router.use('/system', systemRoutes);
 
 export default router;
+

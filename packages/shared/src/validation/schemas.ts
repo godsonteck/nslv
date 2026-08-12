@@ -90,7 +90,7 @@ export const createUserSchema = z.object({
   firstName: nameSchema,
   lastName: nameSchema,
   phone: phoneSchema,
-  roleIds: z.array(uuidSchema).min(1, 'At least one role must be assigned'),
+  roleId: uuidSchema,
 });
 
 export const updateUserSchema = z.object({
@@ -99,13 +99,19 @@ export const updateUserSchema = z.object({
   lastName: nameSchema.optional(),
   phone: phoneSchema,
   status: z.enum(['ACTIVE', 'SUSPENDED', 'DEACTIVATED']).optional(),
-  roleIds: z.array(uuidSchema).optional(),
+  roleId: uuidSchema.optional(),
 });
 
 export const updateProfileSchema = z.object({
+  username: usernameSchema.optional(),
   firstName: nameSchema.optional(),
   lastName: nameSchema.optional(),
   phone: phoneSchema,
+  avatarUrl: z
+    .string()
+    .max(2_000_000, 'Avatar image must be smaller than 2MB')
+    .optional()
+    .nullable(),
 });
 
 // ──────────────────────────────────────────

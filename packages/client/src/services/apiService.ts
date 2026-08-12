@@ -5,6 +5,7 @@
 
 import { apiFetch } from './api';
 import { useAuthStore } from '../stores/authStore';
+import type { AuthUser, AuthTokens, LoginResponse } from '@nslv/shared';
 
 /** Get auth token from Zustand store */
 const token = () => useAuthStore.getState().tokens?.accessToken ?? null;
@@ -29,32 +30,20 @@ export const authApi = {
     apiFetch<void>('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) }, token()),
 
   me: () => apiFetch<AuthUser>('/auth/me', {}, token()),
+
+  updateProfile: (body: Partial<AuthUser>) =>
+    apiFetch<AuthUser>('/auth/me', { method: 'PATCH', body: JSON.stringify(body) }, token()),
+
+  changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) =>
+    apiFetch<void>(
+      '/auth/change-password',
+      {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+      },
+      token(),
+    ),
 };
-
-// ──────────────────────────────────────────
-// Inline types (avoid circular shared imports)
-// ──────────────────────────────────────────
-interface AuthUser {
-  id: string;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  roles: string[];
-  permissions: string[];
-}
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
-}
-
-interface LoginResponse {
-  user: AuthUser;
-  tokens: AuthTokens;
-  requiresTotp?: boolean;
-}
 
 // ──────────────────────────────────────────
 // Users
@@ -110,7 +99,7 @@ export const usersApi = {
     firstName: string;
     lastName: string;
     phone?: string | null;
-    roleIds: string[];
+    roleId: string;
   }): Promise<UserRecord> =>
     apiFetch<UserRecord>('/users', {
       method: 'POST',
@@ -123,12 +112,15 @@ export const usersApi = {
     lastName: string;
     phone: string | null;
     status: string;
-    roleIds: string[];
+    roleId: string;
   }>): Promise<UserRecord> =>
     apiFetch<UserRecord>(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
     }, token()),
+
+  remove: async (id: string): Promise<any> =>
+    apiFetch<any>(`/users/${id}`, { method: 'DELETE' }, token()),
 };
 
 // ──────────────────────────────────────────
@@ -163,6 +155,15 @@ export const rolesApi = {
     const data = await apiFetch<{ permissions: PermissionRecord[]; modules: string[] }>('/roles/permissions', {}, token());
     return { success: true, data };
   },
+
+  create: async (body: { name: string; description?: string; permissionCodes: string[] }): Promise<RoleRecord> =>
+    apiFetch<RoleRecord>('/roles', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  update: async (id: string, body: { name?: string; description?: string; permissionCodes?: string[] }): Promise<RoleRecord> =>
+    apiFetch<RoleRecord>(`/roles/${id}`, { method: 'PUT', body: JSON.stringify(body) }, token()),
+
+  remove: async (id: string): Promise<any> =>
+    apiFetch<any>(`/roles/${id}`, { method: 'DELETE' }, token()),
 };
 
 // ──────────────────────────────────────────
@@ -204,12 +205,13 @@ export interface AuditLogRecord {
   resource: string;
   resourceId: string | null;
   ipAddress: string | null;
-  userAgent: string | null;
+  deviceInfo: string | null;
   beforeData: Record<string, unknown> | null;
   afterData: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
   createdAt: string;
-  user: { id: string; firstName: string; lastName: string; username: string } | null;
+  userId: string | null;
+  userName: string | null;
+  userEmail: string | null;
 }
 
 export const auditApi = {
@@ -233,4 +235,498 @@ export const auditApi = {
     const data = await apiFetch<PaginatedResult<AuditLogRecord>>(`/audit?${qs}`, {}, token());
     return { success: true, data };
   },
+};
+
+// ──────────────────────────────────────────
+// Rooms & Room Types
+// ──────────────────────────────────────────
+export const roomsApi = {
+  getRoomTypes: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/rooms/types', {}, token());
+    return { success: true, data };
+  },
+  createRoomType: async (body: any): Promise<any> =>
+    apiFetch<any>('/rooms/types', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  updateRoomType: async (id: string, body: any): Promise<any> =>
+    apiFetch<any>(`/rooms/types/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+
+  deleteRoomType: async (id: string): Promise<any> =>
+    apiFetch<any>(`/rooms/types/${id}`, { method: 'DELETE' }, token()),
+
+  getAmenities: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/rooms/amenities', {}, token());
+    return { success: true, data };
+  },
+
+  getRooms: async (params?: { status?: string; roomTypeId?: string; search?: string }): Promise<{ success: true; data: any[] }> => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.roomTypeId) qs.set('roomTypeId', params.roomTypeId);
+    if (params?.search) qs.set('search', params.search);
+    const data = await apiFetch<any[]>(`/rooms?${qs}`, {}, token());
+    return { success: true, data };
+  },
+
+  createRoom: async (body: any): Promise<any> =>
+    apiFetch<any>('/rooms', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  updateRoom: async (id: string, body: any): Promise<any> =>
+    apiFetch<any>(`/rooms/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+
+  deleteRoom: async (id: string): Promise<any> =>
+    apiFetch<any>(`/rooms/${id}`, { method: 'DELETE' }, token()),
+
+  updateStatus: async (id: string, status: string, notes?: string): Promise<any> =>
+    apiFetch<any>(`/rooms/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }, token()),
+};
+
+// ──────────────────────────────────────────
+// Guests
+// ──────────────────────────────────────────
+export const guestsApi = {
+  list: async (params?: { search?: string; isVip?: boolean }): Promise<{ success: true; data: any[] }> => {
+    const qs = new URLSearchParams();
+    if (params?.search) qs.set('search', params.search);
+    if (params?.isVip !== undefined) qs.set('isVip', String(params.isVip));
+    const data = await apiFetch<any[]>(`/guests?${qs}`, {}, token());
+    return { success: true, data };
+  },
+  getById: async (id: string): Promise<any> => apiFetch<any>(`/guests/${id}`, {}, token()),
+  create: async (body: any): Promise<any> =>
+    apiFetch<any>('/guests', { method: 'POST', body: JSON.stringify(body) }, token()),
+  update: async (id: string, body: any): Promise<any> =>
+    apiFetch<any>(`/guests/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+};
+
+// ──────────────────────────────────────────
+// Reservations & Availability
+// ──────────────────────────────────────────
+export const reservationsApi = {
+  checkAvailability: async (checkInDate: string, checkOutDate: string, roomTypeId?: string): Promise<{ success: true; data: any[] }> => {
+    const qs = new URLSearchParams({ checkInDate, checkOutDate });
+    if (roomTypeId) qs.set('roomTypeId', roomTypeId);
+    const data = await apiFetch<any[]>(`/reservations/availability?${qs}`, {}, token());
+    return { success: true, data };
+  },
+  list: async (params?: { status?: string; search?: string; roomId?: string }): Promise<{ success: true; data: any[] }> => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.search) qs.set('search', params.search);
+    if (params?.roomId) qs.set('roomId', params.roomId);
+    const data = await apiFetch<any[]>(`/reservations?${qs}`, {}, token());
+    return { success: true, data };
+  },
+  create: async (body: any): Promise<any> =>
+    apiFetch<any>('/reservations', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  createMulti: async (body: any): Promise<any> =>
+    apiFetch<any>('/reservations/multi', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  getParty: async (bookingId: string): Promise<any> =>
+    apiFetch<any>(`/reservations/parties/${bookingId}`, {}, token()),
+
+  addGuests: async (id: string, guestIds: string[]): Promise<any> =>
+    apiFetch<any>(`/reservations/${id}/guests`, { method: 'POST', body: JSON.stringify({ guestIds }) }, token()),
+
+  cancel: async (id: string, reason?: string): Promise<any> =>
+    apiFetch<any>(`/reservations/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) }, token()),
+};
+// ──────────────────────────────────────────
+// Stays (Check-In & Check-Out)
+// ──────────────────────────────────────────
+export const staysApi = {
+  getActiveStays: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/stays/active', {}, token());
+    return { success: true, data };
+  },
+  checkIn: async (body: { reservationId: string; idVerified?: boolean; idDocumentType?: string; idDocumentNumber?: string; notes?: string }): Promise<any> =>
+    apiFetch<any>('/stays/check-in', { method: 'POST', body: JSON.stringify(body) }, token()),
+  checkOut: async (body: { reservationId: string; roomCondition?: string; paymentMethod?: string; notes?: string }): Promise<any> =>
+    apiFetch<any>('/stays/check-out', { method: 'POST', body: JSON.stringify(body) }, token()),
+};
+
+// ──────────────────────────────────────────
+// Folios & Charges
+// ──────────────────────────────────────────
+export const foliosApi = {
+  getFolio: async (idOrReservationId: string): Promise<any> =>
+    apiFetch<any>(`/folios/${idOrReservationId}`, {}, token()),
+  addCharge: async (folioId: string, body: { type: string; description: string; amount: number; quantity?: number; unitPrice: number; department: string }): Promise<any> =>
+    apiFetch<any>(`/folios/${folioId}/charges`, { method: 'POST', body: JSON.stringify(body) }, token()),
+  voidCharge: async (itemId: string, reason: string): Promise<any> =>
+    apiFetch<any>(`/folios/items/${itemId}/void`, { method: 'POST', body: JSON.stringify({ reason }) }, token()),
+};
+
+// ──────────────────────────────────────────
+// Payments
+// ──────────────────────────────────────────
+export const paymentsApi = {
+  list: async (params?: { folioId?: string; reservationId?: string; guestId?: string }): Promise<{ success: true; data: any[] }> => {
+    const qs = new URLSearchParams();
+    if (params?.folioId) qs.set('folioId', params.folioId);
+    if (params?.reservationId) qs.set('reservationId', params.reservationId);
+    if (params?.guestId) qs.set('guestId', params.guestId);
+    const data = await apiFetch<any[]>(`/payments?${qs}`, {}, token());
+    return { success: true, data };
+  },
+  processPayment: async (body: { folioId?: string; reservationId?: string; guestId?: string; amount: number; method: string; reference?: string; description?: string }): Promise<any> =>
+    apiFetch<any>('/payments', { method: 'POST', body: JSON.stringify(body) }, token()),
+};
+
+// ──────────────────────────────────────────
+// POS (Restaurant, Bar, Pool)
+// ──────────────────────────────────────────
+export const posApi = {
+  // Restaurant
+  getRestaurantItems: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/restaurant/items', {}, token());
+    return { success: true, data };
+  },
+  getRestaurantOrders: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/restaurant/orders', {}, token());
+    return { success: true, data };
+  },
+  createRestaurantOrder: async (body: any): Promise<any> => apiFetch<any>('/pos/restaurant/orders', { method: 'POST', body: JSON.stringify(body) }, token()),
+  createRestaurantItem: async (body: any): Promise<any> => apiFetch<any>('/pos/restaurant/items', { method: 'POST', body: JSON.stringify(body) }, token()),
+  updateRestaurantItem: async (id: string, body: any): Promise<any> => apiFetch<any>(`/pos/restaurant/items/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+  toggleRestaurantItem: async (id: string, isAvailable: boolean): Promise<any> => apiFetch<any>(`/pos/restaurant/items/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable }) }, token()),
+  deleteRestaurantItem: async (id: string): Promise<any> => apiFetch<any>(`/pos/restaurant/items/${id}`, { method: 'DELETE' }, token()),
+
+  // Bar
+  getBarItems: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/bar/items', {}, token());
+    return { success: true, data };
+  },
+  getBarOrders: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/bar/orders', {}, token());
+    return { success: true, data };
+  },
+  createBarOrder: async (body: any): Promise<any> => apiFetch<any>('/pos/bar/orders', { method: 'POST', body: JSON.stringify(body) }, token()),
+  createBarItem: async (body: any): Promise<any> => apiFetch<any>('/pos/bar/items', { method: 'POST', body: JSON.stringify(body) }, token()),
+  updateBarItem: async (id: string, body: any): Promise<any> => apiFetch<any>(`/pos/bar/items/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+  toggleBarItem: async (id: string, isAvailable: boolean): Promise<any> => apiFetch<any>(`/pos/bar/items/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable }) }, token()),
+  deleteBarItem: async (id: string): Promise<any> => apiFetch<any>(`/pos/bar/items/${id}`, { method: 'DELETE' }, token()),
+
+  // Pool
+  getPoolAttendance: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/pool/attendance', {}, token());
+    return { success: true, data };
+  },
+  createPoolAttendance: async (body: { visitorName: string; phone?: string; partySize: number; notes?: string }): Promise<any> =>
+    apiFetch<any>('/pos/pool/attendance', { method: 'POST', body: JSON.stringify(body) }, token()),
+  getPoolServices: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/pool/services', {}, token());
+    return { success: true, data };
+  },
+  createPoolService: async (body: any): Promise<any> => apiFetch<any>('/pos/pool/services', { method: 'POST', body: JSON.stringify(body) }, token()),
+  updatePoolService: async (id: string, body: any): Promise<any> => apiFetch<any>(`/pos/pool/services/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+  togglePoolService: async (id: string, isAvailable: boolean): Promise<any> => apiFetch<any>(`/pos/pool/services/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable }) }, token()),
+  deletePoolService: async (id: string): Promise<any> => apiFetch<any>(`/pos/pool/services/${id}`, { method: 'DELETE' }, token()),
+  getPoolTransactions: async (): Promise<{ success: true; data: any[] }> => {
+    const data = await apiFetch<any[]>('/pos/pool/transactions', {}, token());
+    return { success: true, data };
+  },
+  createPoolTransaction: async (body: any): Promise<any> => apiFetch<any>('/pos/pool/transactions', { method: 'POST', body: JSON.stringify(body) }, token()),
+};
+
+// ──────────────────────────────────────────
+// Expenses
+// ──────────────────────────────────────────
+export interface ExpenseRecord {
+  id: string;
+  expenseNo: string;
+  category: string;
+  description: string;
+  amount: number | string;
+  incurredOn: string;
+  paymentMethod: string | null;
+  vendor: string | null;
+  receiptRef: string | null;
+  status: string;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  notes: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const expensesApi = {
+  list: async (params?: {
+    status?: string;
+    category?: string;
+    search?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{ success: true; data: { items: ExpenseRecord[]; total: number } }> => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.category) qs.set('category', params.category);
+    if (params?.search) qs.set('search', params.search);
+    if (params?.startDate) qs.set('startDate', params.startDate);
+    if (params?.endDate) qs.set('endDate', params.endDate);
+    const data = await apiFetch<{ items: ExpenseRecord[]; total: number }>(`/expenses?${qs}`, {}, token());
+    return { success: true, data };
+  },
+
+  create: async (body: {
+    category: string;
+    description: string;
+    amount: number;
+    incurredOn?: string;
+    paymentMethod?: string;
+    vendor?: string;
+    receiptRef?: string;
+    notes?: string;
+  }): Promise<ExpenseRecord> =>
+    apiFetch<ExpenseRecord>('/expenses', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  update: async (id: string, body: Partial<{ category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: string; vendor?: string; receiptRef?: string; notes?: string }>): Promise<ExpenseRecord> =>
+    apiFetch<ExpenseRecord>(`/expenses/${id}`, { method: 'PUT', body: JSON.stringify(body) }, token()),
+
+  setStatus: async (id: string, status: string): Promise<ExpenseRecord> =>
+    apiFetch<ExpenseRecord>(`/expenses/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }, token()),
+
+  remove: async (id: string): Promise<any> =>
+    apiFetch<any>(`/expenses/${id}`, { method: 'DELETE' }, token()),
+};
+
+// ──────────────────────────────────────────
+// Inventory
+// ──────────────────────────────────────────
+export interface InventoryItemRecord {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  unit: string;
+  quantity: number;
+  minQuantity: number;
+  costPrice: number | null;
+  isActive: boolean;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lowStock: boolean;
+}
+
+export const inventoryApi = {
+  list: async (params?: {
+    search?: string;
+    category?: string;
+    lowStockOnly?: boolean;
+    includeInactive?: boolean;
+  }): Promise<{ success: true; data: InventoryItemRecord[] }> => {
+    const qs = new URLSearchParams();
+    if (params?.search) qs.set('search', params.search);
+    if (params?.category) qs.set('category', params.category);
+    if (params?.lowStockOnly !== undefined) qs.set('lowStockOnly', String(params.lowStockOnly));
+    if (params?.includeInactive !== undefined) qs.set('includeInactive', String(params.includeInactive));
+    const data = await apiFetch<InventoryItemRecord[]>(`/inventory?${qs}`, {}, token());
+    return { success: true, data };
+  },
+
+  create: async (body: {
+    sku?: string;
+    name: string;
+    category: string;
+    unit: string;
+    quantity?: number;
+    minQuantity?: number;
+    costPrice?: number | null;
+    notes?: string;
+  }): Promise<InventoryItemRecord> =>
+    apiFetch<InventoryItemRecord>('/inventory', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  update: async (id: string, body: Partial<{ name: string; category: string; unit: string; minQuantity: number; costPrice: number | null; notes: string }>): Promise<InventoryItemRecord> =>
+    apiFetch<InventoryItemRecord>(`/inventory/${id}`, { method: 'PUT', body: JSON.stringify(body) }, token()),
+
+  adjustStock: async (id: string, quantityChange: number, reason?: string): Promise<InventoryItemRecord> =>
+    apiFetch<InventoryItemRecord>(`/inventory/${id}/stock`, { method: 'PATCH', body: JSON.stringify({ quantityChange, reason }) }, token()),
+
+  remove: async (id: string): Promise<any> =>
+    apiFetch<any>(`/inventory/${id}`, { method: 'DELETE' }, token()),
+};
+
+// ──────────────────────────────────────────
+// Reports & Dashboard
+// ──────────────────────────────────────────
+export const reportsApi = {
+  getDashboardMetrics: async (): Promise<any> => apiFetch<any>('/reports/dashboard', {}, token()),
+  getComprehensiveReport: async (startDate?: string, endDate?: string): Promise<{ success: true; data: any }> => {
+    const qs = new URLSearchParams();
+    if (startDate) qs.set('startDate', startDate);
+    if (endDate) qs.set('endDate', endDate);
+    const data = await apiFetch<any>(`/reports/comprehensive?${qs}`, {}, token());
+    return { success: true, data };
+  },
+};
+
+// ──────────────────────────────────────────
+// Events
+// ──────────────────────────────────────────
+export interface EventSpaceRecord {
+  id: string;
+  name: string;
+  description: string | null;
+  location: string | null;
+  capacity: number;
+  pricePerHour: number;
+  isActive: boolean;
+  _count?: { bookings: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventBookingRecord {
+  id: string;
+  title: string;
+  description: string | null;
+  eventSpaceId: string | null;
+  eventSpace?: EventSpaceRecord | null;
+  startAt: string;
+  endAt: string;
+  status: 'PLANNED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  guestCount: number;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const eventsApi = {
+  list: async (params?: { from?: string; to?: string }): Promise<EventBookingRecord[]> => {
+    const qs = new URLSearchParams();
+    if (params?.from) qs.set('from', params.from);
+    if (params?.to) qs.set('to', params.to);
+    return apiFetch<EventBookingRecord[]>(`/events?${qs}`, {}, token());
+  },
+
+  get: (id: string): Promise<EventBookingRecord> => apiFetch<EventBookingRecord>(`/events/${id}`, {}, token()),
+
+  create: (body: Partial<EventBookingRecord> & { title: string; startAt: string; endAt: string }): Promise<EventBookingRecord> =>
+    apiFetch<EventBookingRecord>('/events', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  update: (id: string, body: Partial<EventBookingRecord>): Promise<EventBookingRecord> =>
+    apiFetch<EventBookingRecord>(`/events/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+
+  cancel: (id: string): Promise<EventBookingRecord> =>
+    apiFetch<EventBookingRecord>(`/events/${id}/cancel`, { method: 'POST' }, token()),
+
+  remove: (id: string): Promise<any> => apiFetch<any>(`/events/${id}`, { method: 'DELETE' }, token()),
+
+  spaces: (): Promise<EventSpaceRecord[]> => apiFetch<EventSpaceRecord[]>('/events/spaces', {}, token()),
+
+  createSpace: (body: { name: string; description?: string; location?: string; capacity?: number; pricePerHour?: number; isActive?: boolean }): Promise<EventSpaceRecord> =>
+    apiFetch<EventSpaceRecord>('/events/spaces', { method: 'POST', body: JSON.stringify(body) }, token()),
+};
+
+// ──────────────────────────────────────────
+// Data Imports (document → menu/inventory/stock)
+// ──────────────────────────────────────────
+export interface ImportTargetMeta {
+  label: string;
+  description: string;
+  fields: Array<{ key: string; label: string; required?: boolean; hint?: string }>;
+  defaults: Array<{ key: string; label: string; options?: string[]; placeholder?: string }>;
+  needsPrice: boolean;
+}
+
+export const IMPORT_TARGETS: Record<string, ImportTargetMeta> = {
+  MENU: {
+    label: 'Restaurant menu',
+    description: 'Create restaurant menu items (name, category, price).',
+    fields: [
+      { key: 'name', label: 'Item name', required: true },
+      { key: 'price', label: 'Price', required: true },
+      { key: 'category', label: 'Category' },
+      { key: 'description', label: 'Description' },
+    ],
+    defaults: [{ key: 'category', label: 'Default category', placeholder: 'e.g. BEVERAGES' }],
+    needsPrice: true,
+  },
+  BAR: {
+    label: 'Bar items',
+    description: 'Create bar & lounge items (drinks, snacks, cocktails).',
+    fields: [
+      { key: 'name', label: 'Item name', required: true },
+      { key: 'price', label: 'Price', required: true },
+      { key: 'category', label: 'Category' },
+      { key: 'description', label: 'Description' },
+    ],
+    defaults: [{ key: 'category', label: 'Default category', placeholder: 'e.g. SOFT_DRINKS' }],
+    needsPrice: true,
+  },
+  POOL: {
+    label: 'Pool services',
+    description: 'Create pool services (day pass, cabanas, towels).',
+    fields: [
+      { key: 'name', label: 'Service name', required: true },
+      { key: 'price', label: 'Price', required: true },
+      { key: 'category', label: 'Category' },
+      { key: 'description', label: 'Description' },
+    ],
+    defaults: [{ key: 'category', label: 'Default category', placeholder: 'e.g. DAY_PASS' }],
+    needsPrice: true,
+  },
+  INVENTORY: {
+    label: 'Inventory items',
+    description: 'Create inventory records (sku, name, unit, quantities).',
+    fields: [
+      { key: 'name', label: 'Item name', required: true },
+      { key: 'sku', label: 'SKU' },
+      { key: 'category', label: 'Category' },
+      { key: 'unit', label: 'Unit' },
+      { key: 'quantity', label: 'Quantity' },
+      { key: 'minQuantity', label: 'Min quantity' },
+      { key: 'costPrice', label: 'Cost price' },
+      { key: 'notes', label: 'Notes' },
+    ],
+    defaults: [
+      { key: 'category', label: 'Default category', options: ['RESTAURANT', 'BAR', 'POOL', 'HOUSEKEEPING', 'MAINTENANCE', 'OFFICE'] },
+      { key: 'unit', label: 'Default unit', options: ['pcs', 'bottles', 'kg', 'liters', 'packs', 'boxes'] },
+      { key: 'quantity', label: 'Default quantity', placeholder: '0' },
+      { key: 'minQuantity', label: 'Default min quantity', placeholder: '0' },
+    ],
+    needsPrice: false,
+  },
+  STOCK: {
+    label: 'Stock levels',
+    description: 'Update existing inventory stock quantities (matched by name or SKU).',
+    fields: [
+      { key: 'name', label: 'Item name', required: true },
+      { key: 'sku', label: 'SKU' },
+      { key: 'quantity', label: 'Stock quantity' },
+      { key: 'costPrice', label: 'Cost price' },
+    ],
+    defaults: [{ key: 'quantity', label: 'Default quantity', placeholder: 'e.g. 10' }],
+    needsPrice: false,
+  },
+};
+
+export const importsApi = {
+  parse: (content: string, format: 'csv' | 'tsv' | 'text'): Promise<{ success: true; data: { columns: string[]; rows: string[][] } }> =>
+    apiFetch('/imports/parse', { method: 'POST', body: JSON.stringify({ content, format }) }, token()),
+
+  run: (body: { target: string; columns: string[]; rows: string[][]; mapping: Record<string, string>; defaults: Record<string, string> }): Promise<any> =>
+    apiFetch('/imports/run', { method: 'POST', body: JSON.stringify(body) }, token()),
+};
+
+// ──────────────────────────────────────────
+// System Administration
+// ──────────────────────────────────────────
+export interface SystemResetResult {
+  counts: Record<string, number>;
+  resetAt: string;
+}
+
+export const systemApi = {
+  reset: (confirmText: string, password: string): Promise<SystemResetResult> =>
+    apiFetch<SystemResetResult>('/system/reset', {
+      method: 'POST',
+      body: JSON.stringify({ confirmText, password }),
+    }, token()),
 };

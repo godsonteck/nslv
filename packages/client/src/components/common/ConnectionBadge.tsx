@@ -1,11 +1,10 @@
 // ============================================
 // NS LUXURY VILLA — Connection Status Indicator
-// Requirement #29: Network and Sync Status
+// Restrained Operational Network Status
 // ============================================
 
 import React from 'react';
 import { useConnectionStore } from '../../stores/connectionStore';
-import { Wifi, WifiOff, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export const ConnectionBadge: React.FC = () => {
   const { mode, pendingSyncCount } = useConnectionStore();
@@ -14,27 +13,27 @@ export const ConnectionBadge: React.FC = () => {
     switch (mode) {
       case 'ONLINE':
         return {
-          icon: <Wifi size={14} className="text-emerald-400" />,
-          label: 'Online — Synced',
-          badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+          dotClass: 'bg-emerald-400',
+          label: 'Online',
+          textClass: 'text-[#A0A5AD]',
         };
       case 'OFFLINE':
         return {
-          icon: <WifiOff size={14} className="text-amber-400" />,
-          label: pendingSyncCount > 0 ? `Offline — ${pendingSyncCount} queued` : 'Offline Mode',
-          badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+          dotClass: 'bg-amber-400',
+          label: pendingSyncCount > 0 ? `Offline (${pendingSyncCount} queued)` : 'Offline',
+          textClass: 'text-amber-300',
         };
       case 'SYNCING':
         return {
-          icon: <RefreshCw size={14} className="animate-spin text-blue-400" />,
-          label: `Syncing ${pendingSyncCount} items...`,
-          badgeClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+          dotClass: 'bg-blue-400 animate-pulse',
+          label: `Syncing ${pendingSyncCount}...`,
+          textClass: 'text-blue-300',
         };
       case 'SYNC_ERROR':
         return {
-          icon: <AlertTriangle size={14} className="text-red-400" />,
-          label: 'Sync Failed — Retry',
-          badgeClass: 'bg-red-500/10 text-red-400 border-red-500/20 cursor-pointer',
+          dotClass: 'bg-red-400',
+          label: 'Sync Error',
+          textClass: 'text-red-300',
         };
     }
   };
@@ -43,11 +42,11 @@ export const ConnectionBadge: React.FC = () => {
 
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-medium rounded-full border transition-all ${status.badgeClass}`}
-      title="NS Villa Network & Sync Status"
+      className="flex items-center gap-2 text-xs select-none"
+      title="NS Villa System Connection Status"
     >
-      {status.icon}
-      <span>{status.label}</span>
+      <span className={`w-2 h-2 rounded-full ${status.dotClass}`} />
+      <span className={`font-medium ${status.textClass}`}>{status.label}</span>
     </div>
   );
 };

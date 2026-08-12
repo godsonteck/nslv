@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: nsvilla-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nsvilla
+      POSTGRES_USER: nslv_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env (must match DATABASE_URL)}
+    ports:
+      # Loopback-only: never expose Postgres to the LAN/public.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - nsvilla_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nslv_app -d nsvilla"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nsvilla_postgres_data:

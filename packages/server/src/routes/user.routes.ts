@@ -5,20 +5,20 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
-import { authenticate, requirePermission, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, requirePermission, requireAnyPermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { createUserSchema, updateUserSchema, userFilterSchema, PERMISSIONS } from '@nslv/shared';
 
 const router = Router();
+router.use(authenticate, verifyActiveUser);
 
 /**
  * GET /api/v1/users
- * List all users with filtering/search
+ * List all users with filtering/search (Supports users.view or staff.view permission)
  */
 router.get(
   '/',
-  authenticate,
-  requirePermission(PERMISSIONS.USERS_VIEW),
+  requireAnyPermission(PERMISSIONS.USERS_VIEW, PERMISSIONS.STAFF_VIEW),
   validateQuery(userFilterSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -39,8 +39,7 @@ router.get(
  */
 router.get(
   '/:id',
-  authenticate,
-  requirePermission(PERMISSIONS.USERS_VIEW),
+  requireAnyPermission(PERMISSIONS.USERS_VIEW, PERMISSIONS.STAFF_VIEW),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!;
@@ -61,7 +60,6 @@ router.get(
  */
 router.post(
   '/',
-  authenticate,
   requirePermission(PERMISSIONS.USERS_CREATE),
   validateBody(createUserSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -85,7 +83,6 @@ router.post(
  */
 router.put(
   '/:id',
-  authenticate,
   requirePermission(PERMISSIONS.USERS_EDIT),
   validateBody(updateUserSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -97,6 +94,29 @@ router.put(
         success: true,
         data: updated,
         message: 'User account updated successfully.',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * DELETE /api/v1/users/:id
+ * Permanently delete a non-admin user account
+ */
+router.delete(
+  '/:id',
+  requirePermission(PERMISSIONS.USERS_DELETE),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!;
+      const result = await UserService.deleteUser(idParam, authReq.user.userId);
+      res.status(200).json({
+        success: true,
+        data: result,
+        message: 'User account deleted successfully.',
       });
     } catch (error) {
       next(error);

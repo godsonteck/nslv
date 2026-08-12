@@ -8,13 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// ──────────────────────────────────────────
-// Users & Authentication
-// ──────────────────────────────────────────
 
 model User {
   id            String    @id @default(uuid())
@@ -38,6 +34,7 @@ model User {
   sessions      Session[]
   auditLogs     AuditLog[]
   settingsUpdated SystemSetting[] @relation("SettingUpdater")
+  eventBookings EventBooking[]
 
   @@map("users")
 }
@@ -273,6 +270,7 @@ model Guest {
 model Reservation {
   id              String   @id @default(uuid())
   confirmationNo  String   @unique @map("confirmation_no") // e.g., NSLV-20260807-0001
+  bookingId       String?  @map("booking_id") // Links multi-room reservations from one request into a party
   roomId          String   @map("room_id")
   status          String   @default("PENDING") // PENDING | CONFIRMED | CHECKED_IN | CHECKED_OUT | CANCELLED | NO_SHOW
   source          String   @default("WALK_IN") // WALK_IN | PHONE | EMAIL | WEBSITE | WHATSAPP | OTA | REFERRAL | OTHER
@@ -304,6 +302,7 @@ model Reservation {
 
   @@index([roomId])
   @@index([status])
+  @@index([bookingId])
   @@index([checkInDate])
   @@index([checkOutDate])
   @@index([confirmationNo])
@@ -379,7 +378,7 @@ model CheckOut {
 
 model Folio {
   id              String   @id @default(uuid())
-  reservationId   String   @map("reservation_id")
+  reservationId   String   @unique @map("reservation_id")
   guestId         String   @map("guest_id")
   status          String   @default("OPEN") // OPEN | CLOSED | DISPUTED
   balance         Decimal  @default(0)
@@ -455,4 +454,277 @@ model Payment {
   @@index([status])
   @@index([processedAt])
   @@map("payments")
+}
+
+// ──────────────────────────────────────────
+// POS — Restaurant
+// ──────────────────────────────────────────
+
+model RestaurantItem {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  category    String   // STARTERS | MAINS | DESSERTS | BEVERAGES | SPECIALS
+  description String?
+  price       Decimal
+  isAvailable Boolean  @default(true) @map("is_available")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  orderItems  RestaurantOrderItem[]
+
+  @@index([category])
+  @@map("restaurant_items")
+}
+
+model RestaurantOrder {
+  id            String   @id @default(uuid())
+  orderNo       String   @unique @map("order_no") // e.g. RES-20260809-001
+  guestId       String?  @map("guest_id")
+  roomId        String?  @map("room_id")
+  tableNo       String?  @map("table_no")
+  status        String   @default("PENDING") // PENDING | PREPARING | SERVED | COMPLETED | CANCELLED
+  totalAmount   Decimal  @map("total_amount")
+  paymentMethod String   @default("ROOM_CHARGE") // ROOM_CHARGE | CASH | CARD | MOBILE_MONEY
+  paymentStatus String   @default("PENDING") // PENDING | PAID | CHARGED_TO_FOLIO
+  folioItemId   String?  @map("folio_item_id")
+  notes         String?
+  createdBy     String   @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  orderItems    RestaurantOrderItem[]
+
+  @@index([guestId])
+  @@index([roomId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("restaurant_orders")
+}
+
+model RestaurantOrderItem {
+  id          String   @id @default(uuid())
+  orderId     String   @map("order_id")
+  itemId      String   @map("item_id")
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @map("unit_price")
+  totalPrice  Decimal  @map("total_price")
+  notes       String?
+
+  order       RestaurantOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item        RestaurantItem  @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([itemId])
+  @@map("restaurant_order_items")
+}
+
+// ──────────────────────────────────────────
+// POS — Bar
+// ──────────────────────────────────────────
+
+model BarItem {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  category    String   // COCKTAILS | WINES | BEERS | SPIRITS | SOFT_DRINKS | SNACKS
+  description String?
+  price       Decimal
+  isAvailable Boolean  @default(true) @map("is_available")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  orderItems  BarOrderItem[]
+
+  @@index([category])
+  @@map("bar_items")
+}
+
+model BarOrder {
+  id            String   @id @default(uuid())
+  orderNo       String   @unique @map("order_no") // e.g. BAR-20260809-001
+  guestId       String?  @map("guest_id")
+  roomId        String?  @map("room_id")
+  status        String   @default("COMPLETED") // PENDING | SERVED | COMPLETED | CANCELLED
+  totalAmount   Decimal  @map("total_amount")
+  paymentMethod String   @default("ROOM_CHARGE") // ROOM_CHARGE | CASH | CARD | MOBILE_MONEY
+  paymentStatus String   @default("PENDING") // PENDING | PAID | CHARGED_TO_FOLIO
+  folioItemId   String?  @map("folio_item_id")
+  notes         String?
+  createdBy     String   @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  orderItems    BarOrderItem[]
+
+  @@index([guestId])
+  @@index([roomId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("bar_orders")
+}
+
+model BarOrderItem {
+  id          String   @id @default(uuid())
+  orderId     String   @map("order_id")
+  itemId      String   @map("item_id")
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @map("unit_price")
+  totalPrice  Decimal  @map("total_price")
+  notes       String?
+
+  order       BarOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item        BarItem  @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([itemId])
+  @@map("bar_order_items")
+}
+
+// ──────────────────────────────────────────
+// POS — Pool
+// ──────────────────────────────────────────
+
+model PoolService {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  category    String   // DAY_PASS | CABANA_RENTAL | TOWEL_RENTAL | POOL_SNACKS | BEVERAGES
+  description String?
+  price       Decimal
+  isAvailable Boolean  @default(true) @map("is_available")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  transactions PoolTransaction[]
+
+  @@index([category])
+  @@map("pool_services")
+}
+
+model PoolTransaction {
+  id            String   @id @default(uuid())
+  transactionNo String   @unique @map("transaction_no") // e.g. POL-20260809-001
+  guestId       String?  @map("guest_id")
+  roomId        String?  @map("room_id")
+  serviceId     String   @map("service_id")
+  quantity      Int      @default(1)
+  unitPrice     Decimal  @map("unit_price")
+  totalAmount   Decimal  @map("total_amount")
+  paymentMethod String   @default("ROOM_CHARGE") // ROOM_CHARGE | CASH | CARD | MOBILE_MONEY
+  paymentStatus String   @default("PENDING") // PENDING | PAID | CHARGED_TO_FOLIO
+  folioItemId   String?  @map("folio_item_id")
+  notes         String?
+  processedBy   String   @map("processed_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  service       PoolService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([guestId])
+  @@index([roomId])
+  @@index([serviceId])
+  @@index([createdAt])
+  @@map("pool_transactions")
+}
+
+// Pool attendants record attendance only. Pool services and payments remain
+// separate administrative workflows and are never created at the entry desk.
+model PoolAttendance {
+  id           String   @id @default(uuid())
+  visitorName  String   @map("visitor_name")
+  phone        String?
+  partySize    Int      @default(1) @map("party_size")
+  notes        String?
+  recordedBy   String   @map("recorded_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("pool_attendance")
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  expenseNo   String   @unique @map("expense_no") // e.g. EXP-20260810-ABC123
+  category    String // UTILITIES | SUPPLIES | MAINTENANCE | STAFF | MARKETING | FOOD | BEVERAGES | OTHER
+  description String
+  amount      Decimal
+  incurredOn  DateTime @map("incurred_on")
+  paymentMethod String? @map("payment_method") // CASH | CARD | MOBILE_MONEY | BANK_TRANSFER
+  vendor      String?
+  receiptRef  String?  @map("receipt_ref")
+  status      String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  approvedBy  String?  @map("approved_by")
+  approvedAt  DateTime? @map("approved_at")
+  notes       String?
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([status])
+  @@index([incurredOn])
+  @@map("expenses")
+}
+
+model InventoryItem {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  category    String // RESTAURANT | BAR | POOL | HOUSEKEEPING | MAINTENANCE | OFFICE
+  unit        String // pcs | bottles | kg | liters | packs | boxes
+  quantity    Int      @default(0)
+  minQuantity Int      @default(0) @map("min_quantity")
+  costPrice   Decimal? @map("cost_price")
+  isActive    Boolean  @default(true) @map("is_active")
+  notes       String?
+  createdBy   String?  @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([isActive])
+  @@map("inventory_items")
+}
+
+// ──────────────────────────────────────────
+// Events
+// ──────────────────────────────────────────
+
+model EventSpace {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  description  String?
+  location     String?
+  capacity     Int      @default(0)
+  pricePerHour Float    @default(0) @map("price_per_hour")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  bookings EventBooking[]
+
+  @@map("event_spaces")
+}
+
+model EventBooking {
+  id           String    @id @default(uuid())
+  title        String
+  description  String?
+  eventSpaceId String?   @map("event_space_id")
+  startAt      DateTime  @map("start_at")
+  endAt        DateTime  @map("end_at")
+  status       String    @default("CONFIRMED") // PLANNED | CONFIRMED | COMPLETED | CANCELLED
+  guestCount   Int       @default(0) @map("guest_count")
+  contactName  String?   @map("contact_name")
+  contactPhone String?   @map("contact_phone")
+  contactEmail String?   @map("contact_email")
+  notes        String?
+  createdById  String?   @map("created_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  eventSpace EventSpace? @relation(fields: [eventSpaceId], references: [id], onDelete: SetNull)
+  createdBy  User?       @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([startAt])
+  @@index([status])
+  @@index([eventSpaceId])
+  @@map("event_bookings")
 }
