@@ -5,6 +5,14 @@
 import { Router } from 'express';
 import { RoomService } from '../services/rooms.service';
 import { authenticate, requirePermission, verifyActiveUser } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import {
+  createRoomTypeSchema,
+  updateRoomTypeSchema,
+  createRoomSchema,
+  updateRoomSchema,
+  updateRoomStatusSchema,
+} from '@nslv/shared';
 
 
 const router = Router();
@@ -21,7 +29,7 @@ router.get('/types', requirePermission('rooms.view'), async (_req, res, next) =>
 });
 
 // Create room type
-router.post('/types', requirePermission('rooms.manage'), async (req, res, next) => {
+router.post('/types', requirePermission('rooms.manage'), validateBody(createRoomTypeSchema), async (req, res, next) => {
   try {
     const data = await RoomService.createRoomType(req.body);
     res.status(201).json({ success: true, data });
@@ -31,7 +39,7 @@ router.post('/types', requirePermission('rooms.manage'), async (req, res, next) 
 });
 
 // Update room type
-router.patch('/types/:id', requirePermission('rooms.manage'), async (req, res, next) => {
+router.patch('/types/:id', requirePermission('rooms.manage'), validateBody(updateRoomTypeSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await RoomService.updateRoomType(id, req.body);
@@ -78,7 +86,7 @@ router.get('/', requirePermission('rooms.view'), async (req, res, next) => {
 });
 
 // Create room
-router.post('/', requirePermission('rooms.manage'), async (req, res, next) => {
+router.post('/', requirePermission('rooms.manage'), validateBody(createRoomSchema), async (req, res, next) => {
   try {
     const data = await RoomService.createRoom(req.body);
     res.status(201).json({ success: true, data });
@@ -88,7 +96,7 @@ router.post('/', requirePermission('rooms.manage'), async (req, res, next) => {
 });
 
 // Update room status
-router.patch('/:id/status', requirePermission('rooms.status'), async (req, res, next) => {
+router.patch('/:id/status', requirePermission('rooms.status'), validateBody(updateRoomStatusSchema), async (req, res, next) => {
   try {
     const roomId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const { status, notes } = req.body;
@@ -101,7 +109,7 @@ router.patch('/:id/status', requirePermission('rooms.status'), async (req, res, 
 });
 
 // Update room details
-router.patch('/:id', requirePermission('rooms.manage'), async (req, res, next) => {
+router.patch('/:id', requirePermission('rooms.manage'), validateBody(updateRoomSchema), async (req, res, next) => {
   try {
     const roomId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await RoomService.updateRoom(roomId, req.body);

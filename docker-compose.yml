@@ -1,4 +1,35 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile
+    container_name: nsvilla-app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 3001
+      DATABASE_URL: postgresql://nslv_app:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/nsvilla?schema=public
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET}
+      # Number of trusted proxy hops in front of the app (1 behind nginx/CF).
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3001}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3001}
+      VILLA_NAME: ${VILLA_NAME:-NS Luxury Villa}
+      VILLA_CURRENCY: ${VILLA_CURRENCY:-GHS}
+      VILLA_TIMEZONE: ${VILLA_TIMEZONE:-Africa/Accra}
+      VILLA_PHONE: ${VILLA_PHONE:-}
+      VILLA_EMAIL: ${VILLA_EMAIL:-}
+      VILLA_COUNTRY: ${VILLA_COUNTRY:-Ghana}
+      VILLA_ADDRESS: ${VILLA_ADDRESS:-}
+      VILLA_WEBSITE: ${VILLA_WEBSITE:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: postgres:17-alpine
     container_name: nsvilla-postgres
@@ -17,6 +48,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    # Only expose Postgres to the docker network; service works on the LAN via `app`.
+    expose:
+      - "5432"
 
 volumes:
   nsvilla_postgres_data:

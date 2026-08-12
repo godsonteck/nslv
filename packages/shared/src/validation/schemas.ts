@@ -139,6 +139,280 @@ export const updateSettingSchema = z.object({
 });
 
 // ──────────────────────────────────────────
+// Domain Schemas — write endpoints across the API
+// ──────────────────────────────────────────
+
+const positiveNumber = z.coerce.number({ invalid_type_error: 'Must be a number' }).positive('Must be greater than zero');
+const nonNegativeNumber = z.coerce.number({ invalid_type_error: 'Must be a number' }).nonnegative('Cannot be negative');
+const wholeNumber = z.coerce.number({ invalid_type_error: 'Must be a number' }).int('Must be a whole number').nonnegative('Cannot be negative');
+const positiveInt = z.coerce.number({ invalid_type_error: 'Must be a number' }).int('Must be a whole number').positive('Must be at least 1');
+const isoDateString = z.string().min(1, 'A date is required').max(40);
+const optionalString = z.string().max(2000).trim().optional().nullable();
+
+// ── Rooms ──
+export const createRoomTypeSchema = z.object({
+  name: nameSchema,
+  description: optionalString,
+  basePrice: positiveNumber,
+  maxAdults: wholeNumber.optional(),
+  maxChildren: wholeNumber.optional(),
+  amenityIds: z.array(uuidSchema).optional(),
+});
+export const updateRoomTypeSchema = createRoomTypeSchema.partial();
+
+export const createRoomSchema = z.object({
+  number: z.string().min(1, 'Room number is required').max(20).trim(),
+  name: z.string().max(100).trim().optional(),
+  roomTypeId: uuidSchema,
+  floor: wholeNumber.optional(),
+  notes: optionalString,
+});
+export const updateRoomSchema = createRoomSchema.partial();
+
+export const updateRoomStatusSchema = z.object({
+  status: z.enum(['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'BLOCKED', 'CLEANING']),
+  notes: z.string().max(500).trim().optional(),
+});
+
+// ── Guests ──
+export const createGuestSchema = z.object({
+  firstName: nameSchema,
+  lastName: nameSchema,
+  email: emailSchema.optional().nullable(),
+  phone: phoneSchema,
+  address: optionalString,
+  city: optionalString,
+  country: optionalString,
+  idDocumentType: z.string().max(50).trim().optional(),
+  idDocumentNumber: z.string().max(100).trim().optional(),
+  dateOfBirth: isoDateString.optional(),
+  nationality: optionalString,
+  preferences: optionalString,
+  notes: optionalString,
+  isVip: z.boolean().optional(),
+});
+export const updateGuestSchema = createGuestSchema.partial();
+
+// ── Stays ──
+export const checkInSchema = z.object({
+  reservationId: uuidSchema,
+  idVerified: z.boolean().optional(),
+  idDocumentType: z.string().max(50).trim().optional(),
+  idDocumentNumber: z.string().max(100).trim().optional(),
+  notes: optionalString,
+});
+export const checkOutSchema = z.object({
+  reservationId: uuidSchema,
+  roomCondition: z.enum(['DIRTY', 'CLEAN', 'DAMAGED']).optional(),
+  paymentMethod: z.string().max(50).optional(),
+  notes: optionalString,
+});
+
+// ── Payments ──
+export const processPaymentSchema = z.object({
+  folioId: uuidSchema.optional(),
+  reservationId: uuidSchema.optional(),
+  guestId: uuidSchema.optional(),
+  amount: positiveNumber,
+  currency: z.string().max(10).optional(),
+  method: z.string().min(1, 'Payment method is required').max(50).trim(),
+  reference: z.string().max(100).trim().optional(),
+  description: z.string().max(500).trim().optional(),
+});
+
+// ── POS ──
+const paymentMethodEnum = z.enum(['ROOM_CHARGE', 'CASH', 'CARD', 'MOBILE_MONEY']);
+export const createPOSItemSchema = z.object({
+  name: z.string().min(1, 'Item name is required').max(100).trim(),
+  category: z.string().min(1, 'Category is required').max(50).trim(),
+  price: positiveNumber,
+  description: optionalString,
+});
+export const updatePOSItemSchema = createPOSItemSchema.partial();
+export const setAvailabilitySchema = z.object({
+  isAvailable: z.boolean().default(true),
+});
+
+export const createOrderSchema = z.object({
+  guestId: uuidSchema.optional(),
+  roomId: uuidSchema.optional(),
+  tableNo: z.string().max(20).trim().optional(),
+  paymentMethod: paymentMethodEnum,
+  notes: optionalString,
+  items: z
+    .array(z.object({ itemId: uuidSchema, quantity: positiveInt, notes: optionalString }))
+    .min(1, 'At least one item is required'),
+});
+
+export const createPoolAttendanceSchema = z.object({
+  visitorName: z.string().min(1, 'Visitor name is required').max(100).trim(),
+  phone: z.string().max(20).optional(),
+  partySize: positiveInt,
+  notes: optionalString,
+});
+
+export const createPoolTransactionSchema = z.object({
+  guestId: uuidSchema.optional(),
+  roomId: uuidSchema.optional(),
+  serviceId: uuidSchema,
+  quantity: positiveInt,
+  paymentMethod: paymentMethodEnum,
+  notes: optionalString,
+});
+
+// ── Reservations ──
+const reservationCommon = {
+  checkInDate: isoDateString,
+  checkOutDate: isoDateString,
+  source: z.string().max(50).trim().optional(),
+  specialRequests: optionalString,
+  notes: optionalString,
+};
+export const createReservationSchema = z.object({
+  ...reservationCommon,
+  guestId: uuidSchema,
+  roomId: uuidSchema,
+  adults: wholeNumber.optional(),
+  children: wholeNumber.optional(),
+  baseRate: positiveNumber.optional(),
+  discountAmount: nonNegativeNumber.optional(),
+  taxAmount: nonNegativeNumber.optional(),
+  depositAmount: nonNegativeNumber.optional(),
+  bookingId: uuidSchema.optional(),
+  additionalGuestIds: z.array(uuidSchema).optional(),
+});
+export const createMultiReservationSchema = z.object({
+  ...reservationCommon,
+  rooms: z
+    .array(
+      z.object({
+        roomId: uuidSchema,
+        guestId: uuidSchema,
+        adults: wholeNumber.optional(),
+        children: wholeNumber.optional(),
+        additionalGuestIds: z.array(uuidSchema).optional(),
+      }),
+    )
+    .min(1, 'At least one room is required'),
+});
+export const attachGuestsSchema = z.object({
+  guestIds: z.array(uuidSchema).min(1, 'At least one guest is required'),
+});
+export const cancelReservationSchema = z.object({
+  reason: z.string().max(500).trim().optional(),
+});
+
+// ── Folios ──
+export const createFolioChargeSchema = z.object({
+  type: z.enum(['ACCOMMODATION', 'RESTAURANT', 'BAR', 'POOL', 'SERVICE', 'DISCOUNT', 'TAX']),
+  description: z.string().min(1, 'Description is required').max(500).trim(),
+  amount: positiveNumber,
+  quantity: positiveInt.optional(),
+  unitPrice: nonNegativeNumber,
+  department: z.string().min(1, 'Department is required').max(50).trim(),
+  referenceId: z.string().max(100).optional(),
+  referenceType: z.string().max(50).optional(),
+});
+export const voidFolioChargeSchema = z.object({
+  reason: z.string().max(500).trim().optional(),
+});
+
+// ── Expenses ──
+export const createExpenseSchema = z.object({
+  category: z.string().min(1, 'Category is required').max(50).trim(),
+  description: z.string().min(1, 'Description is required').max(500).trim(),
+  amount: positiveNumber,
+  incurredOn: isoDateString.optional(),
+  paymentMethod: z.string().max(50).optional(),
+  vendor: z.string().max(100).trim().optional(),
+  receiptRef: z.string().max(100).trim().optional(),
+  notes: optionalString,
+});
+export const updateExpenseSchema = createExpenseSchema.partial();
+export const setStatusSchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
+});
+
+// ── Inventory ──
+export const createInventoryItemSchema = z.object({
+  sku: z.string().max(100).trim().optional(),
+  name: z.string().min(1, 'Item name is required').max(100).trim(),
+  category: z.string().min(1, 'Category is required').max(50).trim(),
+  unit: z.string().min(1, 'Unit is required').max(30).trim(),
+  quantity: wholeNumber.optional(),
+  minQuantity: wholeNumber.optional(),
+  costPrice: z.coerce.number().nonnegative().nullable().optional(),
+  notes: optionalString,
+});
+export const updateInventoryItemSchema = createInventoryItemSchema.partial();
+export const adjustStockSchema = z.object({
+  quantityChange: z.coerce.number({ invalid_type_error: 'Must be a number' }).int('Must be a whole number').refine((v) => v !== 0, 'Cannot be zero'),
+  reason: z.string().max(500).trim().optional(),
+});
+
+// ── Events ──
+export const createEventSpaceSchema = z.object({
+  name: z.string().min(1, 'Space name is required').max(100).trim(),
+  description: optionalString,
+  location: z.string().max(100).trim().optional(),
+  capacity: positiveInt.optional(),
+  pricePerHour: nonNegativeNumber.optional(),
+  isActive: z.boolean().optional(),
+});
+export const updateEventSpaceSchema = createEventSpaceSchema.partial();
+
+export const createEventBookingSchema = z.object({
+  title: z.string().min(1, 'Event title is required').max(120).trim(),
+  description: optionalString,
+  eventSpaceId: uuidSchema.nullable().optional(),
+  startAt: isoDateString,
+  endAt: isoDateString,
+  status: z.enum(['PLANNED', 'CONFIRMED', 'COMPLETED', 'CANCELLED']).optional(),
+  guestCount: wholeNumber.optional(),
+  contactName: z.string().max(100).trim().optional(),
+  contactPhone: z.string().max(30).optional(),
+  contactEmail: emailSchema.optional().nullable(),
+  notes: optionalString,
+});
+export const updateEventBookingSchema = createEventBookingSchema.partial();
+
+// ── System ──
+export const resetSystemSchema = z.object({
+  confirmText: z.literal('RESET', { invalid_type_error: 'Type RESET to confirm' }),
+  password: z.string().min(1, 'Your password is required'),
+});
+
+// ── Imports ──
+export const runImportSchema = z.object({
+  target: z.enum(['MENU', 'BAR', 'POOL', 'INVENTORY', 'STOCK']),
+  columns: z.array(z.string().max(100)),
+  rows: z.array(z.array(z.string().max(500))),
+  mapping: z
+    .object({
+      name: z.string().optional(),
+      price: z.string().optional(),
+      category: z.string().optional(),
+      description: z.string().optional(),
+      sku: z.string().optional(),
+      unit: z.string().optional(),
+      quantity: z.string().optional(),
+      minQuantity: z.string().optional(),
+      costPrice: z.string().optional(),
+      notes: z.string().optional(),
+    })
+    .optional(),
+  defaults: z
+    .object({
+      category: z.string().optional(),
+      unit: z.string().optional(),
+      quantity: z.string().optional(),
+      minQuantity: z.string().optional(),
+      costPrice: z.string().optional(),
+    })
+    .optional(),
+});
+
+// ──────────────────────────────────────────
 // Pagination Schema
 // ──────────────────────────────────────────
 

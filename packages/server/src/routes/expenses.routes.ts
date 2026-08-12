@@ -5,6 +5,8 @@
 import { Router } from 'express';
 import { ExpenseService } from '../services/expense.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { createExpenseSchema, updateExpenseSchema, setStatusSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -27,7 +29,7 @@ router.get('/', requirePermission('expenses.view'), async (req, res, next) => {
 });
 
 // Create expense
-router.post('/', requirePermission('expenses.create'), async (req, res, next) => {
+router.post('/', requirePermission('expenses.create'), validateBody(createExpenseSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await ExpenseService.createExpense(req.body, userId);
@@ -38,7 +40,7 @@ router.post('/', requirePermission('expenses.create'), async (req, res, next) =>
 });
 
 // Update expense
-router.put('/:id', requirePermission('expenses.create'), async (req, res, next) => {
+router.put('/:id', requirePermission('expenses.create'), validateBody(updateExpenseSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -50,7 +52,7 @@ router.put('/:id', requirePermission('expenses.create'), async (req, res, next) 
 });
 
 // Approve / reject expense
-router.patch('/:id/status', requirePermission('expenses.approve'), async (req, res, next) => {
+router.patch('/:id/status', requirePermission('expenses.approve'), validateBody(setStatusSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

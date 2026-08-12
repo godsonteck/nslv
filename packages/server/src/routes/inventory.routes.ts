@@ -5,6 +5,8 @@
 import { Router } from 'express';
 import { InventoryService } from '../services/inventory.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { createInventoryItemSchema, updateInventoryItemSchema, adjustStockSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -26,7 +28,7 @@ router.get('/', requirePermission('inventory.view'), async (req, res, next) => {
 });
 
 // Create item
-router.post('/', requirePermission('inventory.manage'), async (req, res, next) => {
+router.post('/', requirePermission('inventory.manage'), validateBody(createInventoryItemSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await InventoryService.createItem(req.body, userId);
@@ -37,7 +39,7 @@ router.post('/', requirePermission('inventory.manage'), async (req, res, next) =
 });
 
 // Update item
-router.put('/:id', requirePermission('inventory.manage'), async (req, res, next) => {
+router.put('/:id', requirePermission('inventory.manage'), validateBody(updateInventoryItemSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await InventoryService.updateItem(id, req.body);
@@ -48,7 +50,7 @@ router.put('/:id', requirePermission('inventory.manage'), async (req, res, next)
 });
 
 // Adjust stock
-router.patch('/:id/stock', requirePermission('inventory.adjust'), async (req, res, next) => {
+router.patch('/:id/stock', requirePermission('inventory.adjust'), validateBody(adjustStockSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

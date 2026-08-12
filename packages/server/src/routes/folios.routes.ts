@@ -5,6 +5,8 @@
 import { Router } from 'express';
 import { FolioService } from '../services/folios.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { createFolioChargeSchema, voidFolioChargeSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -22,7 +24,7 @@ router.get('/:id', requirePermission('folios.view'), async (req, res, next) => {
 });
 
 // Add Charge to Folio
-router.post('/:id/charges', requirePermission('folios.manage'), async (req, res, next) => {
+router.post('/:id/charges', requirePermission('folios.manage'), validateBody(createFolioChargeSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -34,7 +36,7 @@ router.post('/:id/charges', requirePermission('folios.manage'), async (req, res,
 });
 
 // Void Charge Item
-router.post('/items/:itemId/void', requirePermission('folios.adjust'), async (req, res, next) => {
+router.post('/items/:itemId/void', requirePermission('folios.adjust'), validateBody(voidFolioChargeSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const { reason } = req.body;

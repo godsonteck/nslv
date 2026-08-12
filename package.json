@@ -25,6 +25,7 @@
     "lint": "eslint packages/*/src --ext .ts,.tsx",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,css}\"",
     "db:migrate": "npm run db:migrate --workspace=packages/server",
+    "db:migrate:prod": "npm run db:migrate:prod --workspace=packages/server",
     "db:seed": "npm run db:seed --workspace=packages/server",
     "db:studio": "npm run db:studio --workspace=packages/server",
     "clean": "rimraf packages/*/dist packages/*/node_modules/.cache",

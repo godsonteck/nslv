@@ -8,15 +8,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import fs from 'fs';
 import { config, prisma } from './config';
 import routes from './routes';
 import { errorHandler } from './middleware/error';
 
 const app = express();
 
-// Behind a trusted reverse proxy, preserve the real client IP for
-// rate limiting and audit logging. (1 hop — adjust if nested proxies.)
-app.set('trust proxy', config.isProd ? 1 : false);
+// Trust the configured number of proxy hops so rate limiting and audit
+// logging see the real client IP behind a reverse proxy / load balancer.
+app.set('trust proxy', config.trustProxy);
 
 // Simple request logging (method, path, status, duration)
 app.use((req, res, next) => {
@@ -83,7 +85,22 @@ app.use(cookieParser());
 // Mount API v1 Routes
 app.use('/api/v1', routes);
 
-// 404 Route Handler
+// Serve the built client app (SPA) in production so a single process runs both.
+const clientDist = path.resolve(__dirname, '../../client/dist');
+const serveClient = config.isProd && fs.existsSync(clientDist);
+if (serveClient) {
+  app.use(express.static(clientDist));
+  // SPA fallback — hand every non-API GET the client index.html.
+  app.get(/^\/(?!api(?:\/|$)).*/, (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+  console.log(`[STATIC] Serving client from ${clientDist}`);
+} else if (config.isProd) {
+  console.warn(`[STATIC] Client build not found at ${clientDist} — running API-only.`);
+}
+
+// 404 Route Handler — API endpoints get a JSON 404; everything else already
+// went to the SPA fallback above (or was a static asset).
 app.use((_req, res) => {
   res.status(404).json({
     success: false,

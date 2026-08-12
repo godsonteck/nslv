@@ -5,6 +5,8 @@
 import { Router } from 'express';
 import { PaymentService } from '../services/payments.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { processPaymentSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -25,7 +27,7 @@ router.get('/', requirePermission('payments.view'), async (req, res, next) => {
 });
 
 // Process Payment
-router.post('/', requirePermission('payments.create'), async (req, res, next) => {
+router.post('/', requirePermission('payments.create'), validateBody(processPaymentSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await PaymentService.processPayment({ ...req.body, processedBy: userId });

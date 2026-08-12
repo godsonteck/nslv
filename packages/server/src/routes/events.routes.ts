@@ -6,6 +6,13 @@
 import { Router } from 'express';
 import { EventsService } from '../services/events.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import {
+  createEventSpaceSchema,
+  updateEventSpaceSchema,
+  createEventBookingSchema,
+  updateEventBookingSchema,
+} from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);

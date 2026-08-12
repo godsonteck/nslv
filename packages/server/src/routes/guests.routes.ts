@@ -5,6 +5,8 @@
 import { Router } from 'express';
 import { GuestService } from '../services/guests.service';
 import { authenticate, requirePermission, verifyActiveUser } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { createGuestSchema, updateGuestSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -33,7 +35,7 @@ router.get('/:id', requirePermission('guests.view'), async (req, res, next) => {
   }
 });
 
-router.post('/', requirePermission('guests.create'), async (req, res, next) => {
+router.post('/', requirePermission('guests.create'), validateBody(createGuestSchema), async (req, res, next) => {
   try {
     const data = await GuestService.createGuest(req.body);
     res.status(201).json({ success: true, data });
@@ -42,7 +44,7 @@ router.post('/', requirePermission('guests.create'), async (req, res, next) => {
   }
 });
 
-router.patch('/:id', requirePermission('guests.edit'), async (req, res, next) => {
+router.patch('/:id', requirePermission('guests.edit'), validateBody(updateGuestSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await GuestService.updateGuest(id, req.body);

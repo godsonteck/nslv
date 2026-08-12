@@ -45,6 +45,10 @@ export const config = {
   // Client
   clientUrl: requireEnv('CLIENT_URL', 'http://localhost:5173'),
 
+  // Set to the number of trusted proxy hops in front of the API (1 behind a
+  // single reverse proxy / load balancer). 0 means no proxy — direct clients.
+  trustProxy: parseInt(requireEnv('TRUST_PROXY', '0'), 10),
+
   // Database
   databaseUrl: requireEnv('DATABASE_URL'),
 

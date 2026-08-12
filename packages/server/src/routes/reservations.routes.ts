@@ -5,6 +5,13 @@
 import { Router } from 'express';
 import { ReservationService } from '../services/reservations.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import {
+  createReservationSchema,
+  createMultiReservationSchema,
+  attachGuestsSchema,
+  cancelReservationSchema,
+} from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -43,7 +50,7 @@ router.get('/', requirePermission('reservations.view'), async (req, res, next) =
 });
 
 // Create reservation
-router.post('/', requirePermission('reservations.create'), async (req, res, next) => {
+router.post('/', requirePermission('reservations.create'), validateBody(createReservationSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await ReservationService.createReservation({ ...req.body, createdBy: userId });
@@ -54,7 +61,7 @@ router.post('/', requirePermission('reservations.create'), async (req, res, next
 });
 
 // Book multiple rooms as one party
-router.post('/multi', requirePermission('reservations.create'), async (req, res, next) => {
+router.post('/multi', requirePermission('reservations.create'), validateBody(createMultiReservationSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await ReservationService.createMultiReservation({ ...req.body, createdBy: userId });
@@ -76,7 +83,7 @@ router.get('/parties/:bookingId', requirePermission('reservations.view'), async 
 });
 
 // Attach additional guests to a reservation
-router.post('/:id/guests', requirePermission('reservations.edit'), async (req, res, next) => {
+router.post('/:id/guests', requirePermission('reservations.edit'), validateBody(attachGuestsSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await ReservationService.addGuestsToReservation(id, req.body.guestIds);
@@ -87,7 +94,7 @@ router.post('/:id/guests', requirePermission('reservations.edit'), async (req, r
 });
 
 // Cancel reservation
-router.post('/:id/cancel', requirePermission('reservations.cancel'), async (req, res, next) => {
+router.post('/:id/cancel', requirePermission('reservations.cancel'), validateBody(cancelReservationSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const { reason } = req.body;
