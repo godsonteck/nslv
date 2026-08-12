@@ -5,8 +5,9 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // Relative asset paths so the built app also works from file:// (Electron desktop) and sub-paths.
-  base: './',
+  // Use root-relative assets in Vercel so SPA routes such as /login load the
+  // same bundles as /. Keep relative paths for the packaged Electron app.
+  base: process.env.VERCEL ? '/' : './',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
