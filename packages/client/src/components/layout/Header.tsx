@@ -1,17 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+import { useNotificationStore } from '../../stores/notificationStore';
 import { villaAssets } from '../../assets';
 import { Bell, ChevronDown, LogOut, Search, Settings2 } from 'lucide-react';
+import { NotificationPanel } from './NotificationPanel';
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const [open, setOpen] = React.useState(false);
+  const { unreadCount, getUnreadCount } = useNotificationStore();
+  const [openDropdown, setOpenDropdown] = React.useState(false);
+  const [showNotifications, setShowNotifications] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
   const canSearchGuests = user?.permissions?.includes('guests.view') ?? false;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => void getUnreadCount(), 30000);
+    void getUnreadCount();
+    return () => clearInterval(interval);
+  }, [getUnreadCount]);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,15 +49,30 @@ export const Header: React.FC = () => {
         )}
 
         <div className="ml-auto flex items-center gap-1.5">
-          <button className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex" aria-label="Notifications"><Bell size={17} /></button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative h-9 w-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex"
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <Bell size={17} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+            {showNotifications && <NotificationPanel onClose={() => setShowNotifications(false)} />}
+          </div>
           {canSettings && <button className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex" onClick={() => navigate('/admin/settings')} aria-label="Settings"><Settings2 size={17} /></button>}
           <div className="relative">
-            <button onClick={() => setOpen(v => !v)} className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-slate-50">
+            <button onClick={() => setOpenDropdown(v => !v)} className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-slate-50">
               <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#174b59] text-[11px] font-extrabold text-white ring-2 ring-[#eef3f2]">{user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}</span>
               <span className="hidden text-left lg:block"><span className="block max-w-[120px] truncate text-[11px] font-extrabold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</span><span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-400">{user?.roles?.[0]?.name ?? 'User'}</span></span>
               <ChevronDown size={13} className="hidden text-slate-400 lg:block" />
             </button>
-            {open && <div className="absolute right-0 top-12 w-52 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_50px_rgba(20,35,43,.14)]">
+            {openDropdown && <div className="absolute right-0 top-12 w-52 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_50px_rgba(20,35,43,.14)]">
               <div className="border-b border-slate-100 px-3 py-2.5"><div className="text-xs font-bold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</div><div className="mt-0.5 text-[10px] text-slate-400">{user?.roles?.[0]?.name ?? 'User'} access</div></div>
               <button onClick={() => navigate('/account')} className="mt-1 w-full rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-50">Account & settings</button>
               <button onClick={() => void logout()} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50"><LogOut size={14} /> Sign out</button>

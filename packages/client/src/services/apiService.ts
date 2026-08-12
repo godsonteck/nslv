@@ -85,8 +85,14 @@ export const usersApi = {
     if (params?.pageSize) qs.set('pageSize', String(params.pageSize));
     if (params?.status) qs.set('status', params.status);
     if (params?.search) qs.set('search', params.search);
-    const data = await apiFetch<PaginatedResult<UserRecord>>(`/users?${qs}`, {}, token());
-    return { success: true, data };
+    try {
+      const data = await apiFetch<PaginatedResult<UserRecord>>(`/users?${qs}`, {}, token());
+      console.log('[Staff Directory] Users loaded:', data);
+      return { success: true, data };
+    } catch (error) {
+      console.error('[Staff Directory API Error]', error);
+      throw error;
+    }
   },
 
   getById: async (id: string): Promise<UserRecord> =>
@@ -235,6 +241,54 @@ export const auditApi = {
     const data = await apiFetch<PaginatedResult<AuditLogRecord>>(`/audit?${qs}`, {}, token());
     return { success: true, data };
   },
+};
+
+// ──────────────────────────────────────────
+// Notifications
+// ──────────────────────────────────────────
+export interface NotificationRecord {
+  id: string;
+  userId: string;
+  type: 'RESERVATION' | 'PAYMENT' | 'ALERT' | 'SYSTEM' | 'INFO';
+  title: string;
+  message: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  data: Record<string, unknown> | null;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+  expiresAt: string | null;
+}
+
+export const notificationsApi = {
+  list: async (params?: {
+    page?: number;
+    pageSize?: number;
+    isRead?: boolean;
+    type?: string;
+  }): Promise<{ success: true; data: PaginatedResult<NotificationRecord> }> => {
+    const qs = new URLSearchParams();
+    if (params?.page) qs.set('page', String(params.page));
+    if (params?.pageSize) qs.set('pageSize', String(params.pageSize));
+    if (params?.isRead !== undefined) qs.set('isRead', String(params.isRead));
+    if (params?.type) qs.set('type', params.type);
+    const data = await apiFetch<PaginatedResult<NotificationRecord>>(`/notifications?${qs}`, {}, token());
+    return { success: true, data };
+  },
+
+  getUnreadCount: async (): Promise<{ success: true; data: { unreadCount: number } }> => {
+    const data = await apiFetch<{ unreadCount: number }>('/notifications/unread/count', {}, token());
+    return { success: true, data };
+  },
+
+  markAsRead: async (id: string): Promise<NotificationRecord> =>
+    apiFetch<NotificationRecord>(`/notifications/${id}/read`, { method: 'PATCH' }, token()),
+
+  markAllAsRead: async (): Promise<any> =>
+    apiFetch<any>('/notifications/mark-all-read', { method: 'PATCH' }, token()),
+
+  delete: async (id: string): Promise<any> =>
+    apiFetch<any>(`/notifications/${id}`, { method: 'DELETE' }, token()),
 };
 
 // ──────────────────────────────────────────

@@ -23,6 +23,7 @@ import reportsRoutes from './reports.routes';
 import eventsRoutes from './events.routes';
 import importsRoutes from './imports.routes';
 import systemRoutes from './system.routes';
+import notificationsRoutes from './notifications.routes';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/audit', auditRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/notifications', notificationsRoutes);
 router.use('/rooms', roomsRoutes);
 router.use('/guests', guestsRoutes);
 router.use('/reservations', reservationsRoutes);

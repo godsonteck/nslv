@@ -40,6 +40,13 @@ export const EventsPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EventBookingRecord | null>(null);
   const [spaceModalOpen, setSpaceModalOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; message: string; onConfirm: () => Promise<void>; isDeleting: boolean }>({
+    open: false,
+    title: '',
+    message: '',
+    onConfirm: async () => {},
+    isDeleting: false,
+  });
 
   const [title, setTitle] = useState('');
   const [eventSpaceId, setEventSpaceId] = useState('');
@@ -182,14 +189,23 @@ export const EventsPage: React.FC = () => {
   };
 
   const handleDeleteSpace = async (space: EventSpaceRecord) => {
-    if (!window.confirm(`Delete "${space.name}" permanently? This action cannot be undone.`)) return;
-    try {
-      await eventsApi.deleteSpace(space.id);
-      showToast('success', 'Event space deleted.');
-      await fetchAll();
-    } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to delete the event space.');
-    }
+    setConfirmModal({
+      open: true,
+      title: 'Delete Event Space',
+      message: `Are you sure you want to permanently delete "${space.name}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await eventsApi.deleteSpace(space.id);
+          showToast('success', 'Event space deleted.');
+          setConfirmModal({ ...confirmModal, open: false, isDeleting: false });
+          await fetchAll();
+        } catch (err: any) {
+          showToast('error', err?.message ?? 'Failed to delete the event space.');
+          setConfirmModal({ ...confirmModal, open: false, isDeleting: false });
+        }
+      },
+      isDeleting: false,
+    });
   };
 
   const filtered = events.filter((ev) => {
@@ -461,6 +477,33 @@ export const EventsPage: React.FC = () => {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal open={confirmModal.open} onClose={() => setConfirmModal({ ...confirmModal, open: false })} title={confirmModal.title} size="sm">
+        <div className="space-y-4">
+          <p className="text-[#A0A5AD]">{confirmModal.message}</p>
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#2B303E]">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setConfirmModal({ ...confirmModal, open: false })}
+              disabled={confirmModal.isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              onClick={async () => {
+                setConfirmModal({ ...confirmModal, isDeleting: true });
+                await confirmModal.onConfirm();
+              }}
+              disabled={confirmModal.isDeleting}
+            >
+              {confirmModal.isDeleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

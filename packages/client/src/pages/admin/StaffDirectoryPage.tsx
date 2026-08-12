@@ -72,10 +72,18 @@ export const StaffDirectoryPage: React.FC = () => {
       const res = await usersApi.list({ pageSize: 200 });
       if (res.success && res.data) {
         const users = res.data.data ?? res.data.items ?? [];
-        setAllUsers(users);
+        if (Array.isArray(users)) {
+          setAllUsers(users);
+        } else {
+          console.warn('Users data is not an array:', users);
+          setAllUsers([]);
+        }
+      } else {
+        console.warn('Invalid response structure:', res);
       }
-    } catch {
-      showToast('error', 'Failed to load staff directory.');
+    } catch (error) {
+      console.error('Failed to load staff directory:', error);
+      showToast('error', error instanceof Error ? error.message : 'Failed to load staff directory.');
     } finally {
       setLoading(false);
     }
