@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
+import { useThemeStore } from '../../stores/themeStore';
 import { villaAssets } from '../../assets';
 import { Bell, ChevronDown, LogOut, Search, Settings2 } from 'lucide-react';
 import { NotificationPanel } from './NotificationPanel';
@@ -10,12 +11,17 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { unreadCount, getUnreadCount } = useNotificationStore();
+  const { theme } = useThemeStore();
   const [openDropdown, setOpenDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
   const canSearchGuests = user?.permissions?.includes('guests.view') ?? false;
+
+  const villaName = theme?.villaName || 'NSVilla';
+  const villaTagline = theme?.villaTagline || 'Property Operations';
+  const villaLogo = theme?.logoUrl || villaAssets.logo;
 
   React.useEffect(() => {
     const interval = setInterval(() => void getUnreadCount(), 30000);
@@ -32,10 +38,10 @@ export const Header: React.FC = () => {
     <header className="sticky top-0 z-40 border-b border-[#e5e8e5] bg-white/95 backdrop-blur-xl">
       <div className="flex h-[72px] items-center gap-3 px-4 sm:px-6 lg:px-7">
         <button onClick={() => navigate('/dashboard')} className="flex shrink-0 items-center gap-3 text-left">
-          <img src={villaAssets.logo} alt="NSVilla" className="h-10 w-10 rounded-xl object-cover ring-1 ring-black/5" />
+          <img src={villaLogo} alt={villaName} className="h-10 w-10 rounded-xl object-cover ring-1 ring-black/5" />
           <div className="hidden sm:block">
-            <div className="font-['Manrope'] text-[16px] font-extrabold tracking-[-0.03em] text-[#14232b]">NSVilla</div>
-            <div className="text-[9px] font-bold uppercase tracking-[.18em] text-[#b18a55]">Property Operations</div>
+            <div className="font-['Manrope'] text-[16px] font-extrabold tracking-[-0.03em] text-[#14232b]">{villaName}</div>
+            <div className="text-[9px] font-bold uppercase tracking-[.18em] text-[#b18a55]">{villaTagline}</div>
           </div>
         </button>
 
