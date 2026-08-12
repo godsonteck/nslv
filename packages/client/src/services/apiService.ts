@@ -622,6 +622,8 @@ export const eventsApi = {
 
   createSpace: (body: { name: string; description?: string; location?: string; capacity?: number; pricePerHour?: number; isActive?: boolean }): Promise<EventSpaceRecord> =>
     apiFetch<EventSpaceRecord>('/events/spaces', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  deleteSpace: (id: string): Promise<any> => apiFetch<any>(`/events/spaces/${id}`, { method: 'DELETE' }, token()),
 };
 
 // ──────────────────────────────────────────

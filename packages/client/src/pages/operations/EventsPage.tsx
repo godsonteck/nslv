@@ -181,6 +181,17 @@ export const EventsPage: React.FC = () => {
     }
   };
 
+  const handleDeleteSpace = async (space: EventSpaceRecord) => {
+    if (!window.confirm(`Delete "${space.name}" permanently? This action cannot be undone.`)) return;
+    try {
+      await eventsApi.deleteSpace(space.id);
+      showToast('success', 'Event space deleted.');
+      await fetchAll();
+    } catch (err: any) {
+      showToast('error', err?.message ?? 'Failed to delete the event space.');
+    }
+  };
+
   const filtered = events.filter((ev) => {
     if (statusFilter && ev.status !== statusFilter) return false;
     if (searchQuery) {
@@ -344,10 +355,21 @@ export const EventsPage: React.FC = () => {
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {spaces.map((sp) => (
-                <div key={sp.id} className="border border-[#2B303E] rounded-md p-4">
+                <div key={sp.id} className="border border-[#2B303E] rounded-md p-4 relative group">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#F4F4F2]">{sp.name}</span>
-                    <span className={`text-[10px] font-bold uppercase ${sp.isActive ? 'text-emerald-400' : 'text-slate-500'}`}>{sp.isActive ? 'Active' : 'Inactive'}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-bold uppercase ${sp.isActive ? 'text-emerald-400' : 'text-slate-500'}`}>{sp.isActive ? 'Active' : 'Inactive'}</span>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleDeleteSpace(sp)}
+                          className="p-1 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Delete event space"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {sp.location && <div className="text-[11px] text-[#A0A5AD] mt-0.5">{sp.location}</div>}
                   <div className="text-[11px] text-[#A0A5AD] mt-2">Capacity {sp.capacity} · {sp._count?.bookings ?? 0} bookings</div>
