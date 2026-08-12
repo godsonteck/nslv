@@ -1,6 +1,6 @@
 // ============================================
-// NS LUXURY VILLA — Expense Management
-// Section #23: Property Expenses & Operational Outflows
+// NS LUXURY VILLA — Expenditure Management
+// Section #23: Property Expenditures & Operational Outflows
 // ============================================
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -52,7 +52,7 @@ export const ExpensesPage: React.FC = () => {
       });
       setExpenses(res.data.items);
     } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to load expenses.');
+      showToast('error', err?.message ?? 'Failed to load expenditures.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export const ExpensesPage: React.FC = () => {
   const handleCreateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || parseFloat(amount) <= 0) {
-      showToast('error', 'Please enter a valid expense description and amount');
+      showToast('error', 'Please enter a valid expenditure description and amount');
       return;
     }
     try {
@@ -78,7 +78,7 @@ export const ExpensesPage: React.FC = () => {
         incurredOn,
         notes: notes || undefined,
       });
-      showToast('success', 'Expense voucher created and submitted for approval');
+      showToast('success', 'Expenditure voucher created and submitted for approval');
       setCreateModalOpen(false);
       setDescription('');
       setAmount('');
@@ -86,35 +86,35 @@ export const ExpensesPage: React.FC = () => {
       setNotes('');
       fetchExpenses();
     } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to create expense.');
+      showToast('error', err?.message ?? 'Failed to create expenditure.');
     }
   };
 
   const handleApprove = async (exp: ExpenseRecord, status: string) => {
     try {
       await expensesApi.setStatus(exp.id, status);
-      showToast('success', status === 'APPROVED' ? 'Expense approved.' : 'Expense rejected.');
+      showToast('success', status === 'APPROVED' ? 'Expenditure approved.' : 'Expenditure rejected.');
       fetchExpenses();
     } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to update expense status.');
+      showToast('error', err?.message ?? 'Failed to update expenditure status.');
     }
   };
 
   const handleDelete = async (exp: ExpenseRecord) => {
-    if (!window.confirm(`Delete expense ${exp.expenseNo} (${exp.description})?`)) return;
+    if (!window.confirm(`Delete expenditure ${exp.expenseNo} (${exp.description})?`)) return;
     try {
       await expensesApi.remove(exp.id);
-      showToast('success', 'Expense record deleted.');
+      showToast('success', 'Expenditure record deleted.');
       fetchExpenses();
     } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to delete expense.');
+      showToast('error', err?.message ?? 'Failed to delete expenditure.');
     }
   };
 
   const columns = [
     {
       key: 'category',
-      header: 'Expense Category',
+      header: 'Expenditure Category',
       render: (row: ExpenseRecord) => (
         <div>
           <div className="font-semibold text-[#F4F4F2]">{row.category}</div>
@@ -182,12 +182,12 @@ export const ExpensesPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Expense Management"
+        title="Expenditure Management"
         subtitle="Property operational outflows, supplier vouchers & department expenses"
         actions={
           canCreate && (
             <Button variant="primary" size="sm" onClick={() => setCreateModalOpen(true)}>
-              <Plus size={14} /> New Expense Voucher
+              <Plus size={14} /> New Expenditure Voucher
             </Button>
           )
         }
@@ -217,12 +217,12 @@ export const ExpensesPage: React.FC = () => {
         columns={columns}
         data={expenses}
         loading={loading}
-        emptyTitle="No expense vouchers recorded"
-        emptySubtitle="Create an expense voucher to log operational costs."
+        emptyTitle="No expenditure vouchers recorded"
+        emptySubtitle="Create an expenditure voucher to log operational costs."
         keyFn={(e) => e.id}
       />
 
-      <Modal open={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Record Operational Expense" size="md">
+      <Modal open={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Record Operational Expenditure" size="md">
         <form onSubmit={handleCreateExpense} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Category" required>
@@ -237,7 +237,7 @@ export const ExpensesPage: React.FC = () => {
             </FormField>
           </div>
 
-          <FormField label="Expense Description" required>
+          <FormField label="Expenditure Description" required>
             <TextInput
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -280,7 +280,7 @@ export const ExpensesPage: React.FC = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Submit Expense Voucher
+              Submit Expenditure Voucher
             </Button>
           </div>
         </form>

@@ -27,7 +27,7 @@ const ALL_SECTIONS: NavSection[] = [
   { title: 'Finance & insight', items: [
     { label: 'Payments', to: '/payments', icon: CreditCard, perms: ['payments.view'] },
     { label: 'Reports', to: '/reports', icon: BarChart3, perms: ['reports.view'] },
-    { label: 'Expenses', to: '/expenses', icon: ReceiptText, perms: ['expenses.view'] },
+    { label: 'Expenditure', to: '/expenses', icon: ReceiptText, perms: ['expenses.view'] },
     { label: 'Inventory', to: '/inventory', icon: ClipboardList, perms: ['inventory.view'] },
   ] },
   { title: 'Administration', items: [
