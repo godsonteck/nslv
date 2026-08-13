@@ -85,7 +85,6 @@ const QUICK_LINKS: QuickTile[] = [
   { label: 'Event spaces', to: '/admin/event-spaces', icon: <CalendarClock size={18} />, desc: 'Venue locations, capacity & rates' },
   { label: 'Categories', to: '/admin/categories', icon: <Tags size={18} />, desc: 'Classify menus, stock, rooms & expenses' },
   { label: 'Menu & POS', to: '/admin/menus', icon: <Utensils size={18} />, desc: 'Catalog & department pricing' },
-  { label: 'Data import', to: '/admin/imports', icon: <Upload size={18} />, desc: 'Documents → menu & inventory' },
   { label: 'System settings', to: '/admin/settings', icon: <Settings size={18} />, desc: 'Property-wide configuration' },
   { label: 'Audit logs', to: '/admin/audit', icon: <ScrollText size={18} />, desc: 'Immutable activity trail' },
 ];
