@@ -195,8 +195,8 @@ export const RoomsPage: React.FC = () => {
             <RefreshCw size={14} /> Refresh
           </Button>
           {canManage && (
-            <Button size="sm" onClick={openAdd}>
-              <Plus size={14} /> Add room
+            <Button size="sm" onClick={() => window.location.href = '/admin/rooms'}>
+              <Layers size={14} /> Manage Room Configuration
             </Button>
           )}
         </>

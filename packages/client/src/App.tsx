@@ -42,6 +42,8 @@ const MenuManagementPage = lazy(() => import('./pages/admin/MenuManagementPage')
 const ImportPage = lazy(() => import('./pages/admin/ImportPage'));
 const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminConsolePage = lazy(() => import('./pages/admin/AdminConsolePage'));
+const RoomConfigPage = lazy(() => import('./pages/admin/RoomConfigPage'));
+const EventSpacesPage = lazy(() => import('./pages/admin/EventSpacesPage'));
 
 const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
 const UnauthorizedPage = lazy(() => import('./pages/error/UnauthorizedPage'));
@@ -131,6 +133,8 @@ export const App: React.FC = () => {
           <Route path="admin/branding" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.edit']}><BrandingSettingsPage /></RequirePermission></Suspense>} />
           <Route path="admin/menus" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage']}><MenuManagementPage /></RequirePermission></Suspense>} />
           <Route path="admin/categories" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['categories.view']}><CategoriesPage /></RequirePermission></Suspense>} />
+          <Route path="admin/rooms" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['rooms.manage']}><RoomConfigPage /></RequirePermission></Suspense>} />
+          <Route path="admin/event-spaces" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['events.edit']}><EventSpacesPage /></RequirePermission></Suspense>} />
           <Route path="admin/imports" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage', 'inventory.manage', 'inventory.adjust']}><ImportPage /></RequirePermission></Suspense>} />
 
           {/* Error pages */}

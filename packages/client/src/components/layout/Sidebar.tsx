@@ -34,6 +34,8 @@ const ALL_SECTIONS: NavSection[] = [
     { label: 'Admin console', to: '/admin', icon: ShieldCheck, perms: ['users.view'] },
     { label: 'Users', to: '/admin/users', icon: ShieldCheck, perms: ['users.view'] },
     { label: 'Roles & access', to: '/admin/roles', icon: KeyRound, perms: ['roles.view'] },
+    { label: 'Room config', to: '/admin/rooms', icon: BedDouble, perms: ['rooms.manage'] },
+    { label: 'Event spaces', to: '/admin/event-spaces', icon: CalendarClock, perms: ['events.edit'] },
     { label: 'Menus & POS', to: '/admin/menus', icon: Utensils, perms: ['restaurant.menu', 'bar.menu', 'pool.manage'] },
     { label: 'Categories', to: '/admin/categories', icon: Tags, perms: ['categories.view'] },
     { label: 'Data imports', to: '/admin/imports', icon: Upload, perms: ['restaurant.menu', 'bar.menu', 'pool.manage', 'inventory.manage'] },

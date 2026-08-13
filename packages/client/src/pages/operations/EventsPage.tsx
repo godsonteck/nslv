@@ -361,8 +361,8 @@ export const EventsPage: React.FC = () => {
               <h3 className="text-sm font-bold text-[#F4F4F2]">Event Spaces</h3>
             </div>
             {canEdit && (
-              <Button variant="secondary" size="sm" onClick={() => setSpaceModalOpen(true)}>
-                <Plus size={13} /> Add Space
+              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/admin/event-spaces'}>
+                <Building2 size={13} /> Manage Spaces
               </Button>
             )}
           </div>

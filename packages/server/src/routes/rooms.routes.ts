@@ -70,6 +70,38 @@ router.get('/amenities', requirePermission('rooms.view'), async (_req, res, next
   }
 });
 
+// Create room amenity
+router.post('/amenities', requirePermission('rooms.manage'), async (req, res, next) => {
+  try {
+    const data = await RoomService.createAmenity(req.body);
+    res.status(201).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update room amenity
+router.patch('/amenities/:id', requirePermission('rooms.manage'), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await RoomService.updateAmenity(id, req.body);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Delete room amenity
+router.delete('/amenities/:id', requirePermission('rooms.manage'), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await RoomService.deleteAmenity(id);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get rooms
 router.get('/', requirePermission('rooms.view'), async (req, res, next) => {
   try {

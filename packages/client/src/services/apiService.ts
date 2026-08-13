@@ -420,6 +420,12 @@ export const roomsApi = {
     const data = await apiFetch<any[]>('/rooms/amenities', {}, token());
     return { success: true, data };
   },
+  createAmenity: async (body: { name: string; icon?: string; category?: string }): Promise<any> =>
+    apiFetch<any>('/rooms/amenities', { method: 'POST', body: JSON.stringify(body) }, token()),
+  updateAmenity: async (id: string, body: { name?: string; icon?: string; category?: string }): Promise<any> =>
+    apiFetch<any>(`/rooms/amenities/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+  deleteAmenity: async (id: string): Promise<any> =>
+    apiFetch<any>(`/rooms/amenities/${id}`, { method: 'DELETE' }, token()),
 
   getRooms: async (params?: { status?: string; roomTypeId?: string; search?: string }): Promise<{ success: true; data: any[] }> => {
     const qs = new URLSearchParams();
@@ -784,6 +790,9 @@ export const eventsApi = {
 
   createSpace: (body: { name: string; description?: string; location?: string; capacity?: number; pricePerHour?: number; isActive?: boolean }): Promise<EventSpaceRecord> =>
     apiFetch<EventSpaceRecord>('/events/spaces', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  updateSpace: (id: string, body: Partial<{ name: string; description?: string; location?: string; capacity?: number; pricePerHour?: number; isActive?: boolean }>): Promise<EventSpaceRecord> =>
+    apiFetch<EventSpaceRecord>(`/events/spaces/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
 
   deleteSpace: (id: string): Promise<any> => apiFetch<any>(`/events/spaces/${id}`, { method: 'DELETE' }, token()),
 };

@@ -16,10 +16,11 @@ import {
   SelectInput,
   showToast,
 } from '../../components/ui';
-import { Receipt, Plus, RefreshCw, Trash2, Check, X, Pencil } from 'lucide-react';
+import { Receipt, Plus, RefreshCw, Trash2, Check, X, Pencil, Settings } from 'lucide-react';
 import { categoriesApi, expensesApi, ExpenseRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
+import { CategoryManager } from '../../components/admin/CategoryManager';
 
 const EXPENSE_CATEGORIES = ['UTILITIES', 'SUPPLIES', 'MAINTENANCE', 'STAFF', 'MARKETING', 'FOOD', 'BEVERAGES', 'OTHER'];
 
@@ -27,10 +28,12 @@ export const ExpensesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [expenseCategories, setExpenseCategories] = useState<string[]>([]);
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const { hasPermission } = useAuthStore();
   const canCreate = hasPermission(PERMISSIONS.EXPENSES_CREATE);
   const canApprove = hasPermission(PERMISSIONS.EXPENSES_APPROVE);
   const canDelete = hasPermission(PERMISSIONS.EXPENSES_DELETE);
+  const canManageCategories = hasPermission(PERMISSIONS.CATEGORIES_MANAGE);
 
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -64,20 +67,18 @@ export const ExpensesPage: React.FC = () => {
     fetchExpenses();
   }, [fetchExpenses]);
 
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const result = await categoriesApi.listAll({ type: 'EXPENDITURE' });
-        setExpenseCategories(result.data.map((item) => item.name));
-      } catch {
-        // Existing installations may not yet have managed categories. The
-        // fallback keeps historical expenditure records usable until Admin
-        // creates the first EXPENDITURE category.
-        setExpenseCategories([]);
-      }
-    };
-    void loadCategories();
+  const loadCategories = useCallback(async () => {
+    try {
+      const result = await categoriesApi.listAll({ type: 'EXPENDITURE' });
+      setExpenseCategories(result.data.map((item) => item.name));
+    } catch {
+      setExpenseCategories([]);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadCategories();
+  }, [loadCategories]);
 
   const categoryOptions = expenseCategories.length > 0 ? expenseCategories : EXPENSE_CATEGORIES;
 
@@ -240,11 +241,18 @@ export const ExpensesPage: React.FC = () => {
         title="Expenditure Management"
         subtitle="Property operational outflows, supplier vouchers & department expenses"
         actions={
-          canCreate && (
-            <Button variant="primary" size="sm" onClick={openCreate}>
-              <Plus size={14} /> New Expenditure Voucher
-            </Button>
-          )
+          <div className="flex items-center gap-2">
+            {canManageCategories && (
+              <Button variant="outline" size="sm" onClick={() => setCategoryManagerOpen(true)}>
+                <Settings size={14} /> Categories
+              </Button>
+            )}
+            {canCreate && (
+              <Button variant="primary" size="sm" onClick={openCreate}>
+                <Plus size={14} /> New Expenditure Voucher
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -340,6 +348,17 @@ export const ExpensesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {categoryManagerOpen && (
+        <CategoryManager
+          type="EXPENDITURE"
+          title="Manage Expenditure Categories"
+          onClose={() => {
+            setCategoryManagerOpen(false);
+            void loadCategories();
+          }}
+        />
+      )}
     </div>
   );
 };

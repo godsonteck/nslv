@@ -56,6 +56,37 @@ export class RoomService {
     return prisma.roomAmenity.findMany({ orderBy: { name: 'asc' } });
   }
 
+  /** Create a new room amenity */
+  static async createAmenity(data: { name: string; icon?: string; category?: string }) {
+    const existing = await prisma.roomAmenity.findUnique({ where: { name: data.name } });
+    if (existing) throw new Error(`Amenity "${data.name}" already exists.`);
+    return prisma.roomAmenity.create({ data });
+  }
+
+  /** Update a room amenity */
+  static async updateAmenity(id: string, data: { name?: string; icon?: string; category?: string }) {
+    const existing = await prisma.roomAmenity.findUnique({ where: { id } });
+    if (!existing) throw new Error('Amenity not found.');
+    if (data.name && data.name !== existing.name) {
+      const duplicate = await prisma.roomAmenity.findUnique({ where: { name: data.name } });
+      if (duplicate) throw new Error(`Amenity "${data.name}" already exists.`);
+    }
+    return prisma.roomAmenity.update({ where: { id }, data });
+  }
+
+  /** Delete a room amenity */
+  static async deleteAmenity(id: string) {
+    const existing = await prisma.roomAmenity.findUnique({
+      where: { id },
+      include: { _count: { select: { roomTypes: true } } },
+    });
+    if (!existing) throw new Error('Amenity not found.');
+    if (existing._count.roomTypes > 0) {
+      throw new Error(`Cannot delete amenity "${existing.name}" because it is currently assigned to ${existing._count.roomTypes} room type(s).`);
+    }
+    return prisma.roomAmenity.delete({ where: { id } });
+  }
+
   /** Update a room type, optionally replacing its amenities */
   static async updateRoomType(
     id: string,

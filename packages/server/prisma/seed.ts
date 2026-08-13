@@ -132,6 +132,23 @@ async function main() {
     skipDuplicates: true,
   });
 
+  // 3b. Seed default expenditure categories
+  console.log('🏷️ Seeding default expenditure categories...');
+  const defaultExpenseCategories = [
+    { name: 'UTILITIES', type: 'EXPENDITURE', description: 'Electricity, water, gas, internet & telecom' },
+    { name: 'SUPPLIES', type: 'EXPENDITURE', description: 'Guest amenities, cleaning chemicals & paper products' },
+    { name: 'MAINTENANCE', type: 'EXPENDITURE', description: 'Repairs, hardware, plumbing & electrical fittings' },
+    { name: 'STAFF', type: 'EXPENDITURE', description: 'Wages, overtime, uniforms & staff welfare' },
+    { name: 'MARKETING', type: 'EXPENDITURE', description: 'Advertising, social media, print & promotional items' },
+    { name: 'FOOD', type: 'EXPENDITURE', description: 'Raw food items, produce, meat & ingredients' },
+    { name: 'BEVERAGES', type: 'EXPENDITURE', description: 'Alcoholic & non-alcoholic beverages stock' },
+    { name: 'OTHER', type: 'EXPENDITURE', description: 'Miscellaneous operational expenses' },
+  ];
+  await prisma.itemCategory.createMany({
+    data: defaultExpenseCategories,
+    skipDuplicates: true,
+  });
+
   // 4. Seed room amenities
   console.log('🏨 Seeding room amenities...');
   const amenityNames = [
