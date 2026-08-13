@@ -93,8 +93,9 @@ export function requirePermission(...requiredPermissions: PermissionCode[]) {
       return;
     }
 
+    const isAdmin = authReq.user.roles.some((role) => role.toLowerCase() === 'admin');
     const userPermissions = new Set(authReq.user.permissions);
-    const hasAll = requiredPermissions.every((p) => userPermissions.has(p));
+    const hasAll = isAdmin || requiredPermissions.every((p) => userPermissions.has(p));
 
     if (!hasAll) {
       res.status(403).json({
@@ -126,8 +127,9 @@ export function requireAnyPermission(...permissions: PermissionCode[]) {
       return;
     }
 
+    const isAdmin = authReq.user.roles.some((role) => role.toLowerCase() === 'admin');
     const userPermissions = new Set(authReq.user.permissions);
-    const hasAny = permissions.some((p) => userPermissions.has(p));
+    const hasAny = isAdmin || permissions.some((p) => userPermissions.has(p));
 
     if (!hasAny) {
       res.status(403).json({
