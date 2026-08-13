@@ -6,11 +6,11 @@ import { prisma } from '../config';
 import { AppError } from '../middleware/error';
 
 /**
- * Ordered list of models to wipe, deepest dependencies first.
- * User, Role, Permission, RolePermission, UserRole and SystemSetting are
- * deliberately kept so the platform remains usable after a reset.
+ * Ordered list of operational and catalog models to wipe, deepest dependencies
+ * first. Admin identity and authorization records are intentionally preserved so
+ * the platform can be reset without deleting the administrator account.
  */
-const WIPE_ORDER = [
+export const RESET_WIPE_ORDER = [
   'barOrderItem',
   'restaurantOrderItem',
   'barOrder',
@@ -32,6 +32,8 @@ const WIPE_ORDER = [
   'eventSpace',
   'expense',
   'inventoryItem',
+  'itemCategory',
+  'notification',
   'session',
   'auditLog',
   'roomTypeAmenity',
@@ -39,6 +41,8 @@ const WIPE_ORDER = [
   'roomAmenity',
   'roomType',
 ] as const;
+
+const WIPE_ORDER = RESET_WIPE_ORDER;
 
 export class SystemService {
   /**
