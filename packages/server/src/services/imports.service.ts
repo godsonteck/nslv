@@ -114,13 +114,16 @@ export class ImportService {
     }
 
     const rows = lines.map((l) => splitLine(l, delimiter));
-    const filteredRows = rows.filter((row) => row.some((cell) => cell && cell.trim().length > 0));
+    const filteredRows = rows.filter((row) => Array.isArray(row) && row.some((cell) => cell && cell.trim().length > 0));
     if (filteredRows.length === 0) throw new Error('The document contains no rows.');
     if (filteredRows[0].length > IMPORT_LIMITS.maxColumns) {
       throw new Error(`The document has too many columns (max ${IMPORT_LIMITS.maxColumns}).`);
     }
-    const columns = filteredRows[0].map((c, i) => c.trim() || `Column ${i + 1}`);
-    const data = filteredRows.slice(1).map((r) => r.map((c) => c.trim()));
+    const columns = filteredRows[0].map((c, i) => String(c ?? '').trim() || `Column ${i + 1}`);
+    const data = filteredRows.slice(1).map((r) => {
+      const cells = Array.isArray(r) ? r : [];
+      return cells.map((c) => String(c ?? '').trim());
+    });
 
     return { columns, rows: data };
   }

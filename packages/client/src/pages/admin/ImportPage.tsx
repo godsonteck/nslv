@@ -118,7 +118,8 @@ const AUTOMAP_RULES: Array<{ field: string; patterns: RegExp[] }> = [
 
 const autoMap = (columns: string[]): Record<string, string> => {
   const mapping: Record<string, string> = {};
-  for (const col of columns) {
+  const safeColumns = Array.isArray(columns) ? columns.filter((col) => typeof col === 'string' && col.trim().length > 0) : [];
+  for (const col of safeColumns) {
     const key = normalize(col);
     for (const rule of AUTOMAP_RULES) {
       if (rule.patterns.some((p) => p.test(key))) {
@@ -188,12 +189,25 @@ export const ImportPage: React.FC = () => {
         ext === 'docx' ? 'docx' :
         'text';
       const res = await importsApi.parse(inputText, format as any);
-      const p = res.data;
-      setParsed(p);
-      setMapping(autoMap(p.columns));
+      const p = res?.data;
+      if (!p || !Array.isArray(p.columns) || !Array.isArray(p.rows)) {
+        throw new Error('This document does not contain a readable table. Please upload a PDF, Word, Excel, CSV, or another tabular file with clear column headers.');
+      }
+      const safeColumns = p.columns.filter((col: unknown) => typeof col === 'string' && col.trim().length > 0);
+      if (safeColumns.length === 0) {
+        throw new Error('No usable column headers were detected. Please check that the document includes a proper table header row.');
+      }
+      const safeRows = p.rows
+        .map((row) => (Array.isArray(row) ? row.map((cell) => String(cell ?? '')) : []))
+        .filter((row) => row.some((cell) => cell.trim().length > 0));
+      if (safeRows.length === 0) {
+        throw new Error('The document contains no data rows after the header. Please add at least one row with values.');
+      }
+      setParsed({ columns: safeColumns, rows: safeRows });
+      setMapping(autoMap(safeColumns));
       setDefaults({});
       setResult(null);
-      showToast('success', `Parsed ${p.rows.length} rows and ${p.columns.length} columns.`);
+      showToast('success', `Parsed ${safeRows.length} rows and ${safeColumns.length} columns.`);
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to parse the document');
     } finally {
