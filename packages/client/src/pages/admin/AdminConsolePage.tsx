@@ -14,8 +14,8 @@ import {
   ShieldCheck,
   Users,
   KeyRound,
-  UserCog,
   Utensils,
+  Tags,
   Settings,
   ScrollText,
   Activity,
@@ -79,7 +79,7 @@ interface QuickTile { label: string; to: string; icon: React.ReactNode; desc: st
 const QUICK_LINKS: QuickTile[] = [
   { label: 'User accounts', to: '/admin/users', icon: <Users size={18} />, desc: 'Create, suspend & assign roles' },
   { label: 'Roles & permissions', to: '/admin/roles', icon: <KeyRound size={18} />, desc: 'Define the access model' },
-  { label: 'Staff directory', to: '/admin/staff', icon: <UserCog size={18} />, desc: 'Team & employment records' },
+  { label: 'Categories', to: '/admin/categories', icon: <Tags size={18} />, desc: 'Classify menus, stock, rooms & services' },
   { label: 'Menu & POS', to: '/admin/menus', icon: <Utensils size={18} />, desc: 'Catalog & department pricing' },
   { label: 'Data import', to: '/admin/imports', icon: <Upload size={18} />, desc: 'Documents → menu & inventory' },
   { label: 'System settings', to: '/admin/settings', icon: <Settings size={18} />, desc: 'Property-wide configuration' },

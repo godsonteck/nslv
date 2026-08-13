@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
-import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, UserCog, CalendarClock, Palette } from 'lucide-react';
+import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, CalendarClock, Palette, KeyRound, ScrollText, Upload, Tags } from 'lucide-react';
 import type { PermissionCode } from '@nslv/shared';
 
 interface NavItem { label: string; to: string; icon: typeof LayoutDashboard; perms: PermissionCode[]; }
@@ -33,9 +33,13 @@ const ALL_SECTIONS: NavSection[] = [
   { title: 'Administration', items: [
     { label: 'Admin console', to: '/admin', icon: ShieldCheck, perms: ['users.view'] },
     { label: 'Users', to: '/admin/users', icon: ShieldCheck, perms: ['users.view'] },
+    { label: 'Roles & access', to: '/admin/roles', icon: KeyRound, perms: ['roles.view'] },
     { label: 'Menus & POS', to: '/admin/menus', icon: Utensils, perms: ['restaurant.menu', 'bar.menu', 'pool.manage'] },
+    { label: 'Categories', to: '/admin/categories', icon: Tags, perms: ['categories.view'] },
+    { label: 'Data imports', to: '/admin/imports', icon: Upload, perms: ['restaurant.menu', 'bar.menu', 'pool.manage', 'inventory.manage'] },
     { label: 'Settings', to: '/admin/settings', icon: Settings, perms: ['settings.view'] },
     { label: 'Branding', to: '/admin/branding', icon: Palette, perms: ['settings.edit'] },
+    { label: 'Audit logs', to: '/admin/audit', icon: ScrollText, perms: ['audit.view'] },
   ] },
 ];
 

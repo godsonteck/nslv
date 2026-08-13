@@ -16,8 +16,8 @@ import {
   SelectInput,
   showToast,
 } from '../../components/ui';
-import { Receipt, Plus, RefreshCw, Trash2, Check, X } from 'lucide-react';
-import { expensesApi, ExpenseRecord } from '../../services/apiService';
+import { Receipt, Plus, RefreshCw, Trash2, Check, X, Pencil } from 'lucide-react';
+import { categoriesApi, expensesApi, ExpenseRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
 
@@ -26,6 +26,7 @@ const EXPENSE_CATEGORIES = ['UTILITIES', 'SUPPLIES', 'MAINTENANCE', 'STAFF', 'MA
 export const ExpensesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
+  const [expenseCategories, setExpenseCategories] = useState<string[]>([]);
   const { hasPermission } = useAuthStore();
   const canCreate = hasPermission(PERMISSIONS.EXPENSES_CREATE);
   const canApprove = hasPermission(PERMISSIONS.EXPENSES_APPROVE);
@@ -35,6 +36,7 @@ export const ExpensesPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<ExpenseRecord | null>(null);
   const [category, setCategory] = useState('UTILITIES');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -62,6 +64,51 @@ export const ExpensesPage: React.FC = () => {
     fetchExpenses();
   }, [fetchExpenses]);
 
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const result = await categoriesApi.listAll({ type: 'EXPENDITURE' });
+        setExpenseCategories(result.data.map((item) => item.name));
+      } catch {
+        // Existing installations may not yet have managed categories. The
+        // fallback keeps historical expenditure records usable until Admin
+        // creates the first EXPENDITURE category.
+        setExpenseCategories([]);
+      }
+    };
+    void loadCategories();
+  }, []);
+
+  const categoryOptions = expenseCategories.length > 0 ? expenseCategories : EXPENSE_CATEGORIES;
+
+  const resetExpenseForm = () => {
+    setEditingExpense(null);
+    setCategory(categoryOptions[0] ?? 'OTHER');
+    setDescription('');
+    setAmount('');
+    setVendor('');
+    setPaymentMethod('CASH');
+    setIncurredOn(new Date().toISOString().slice(0, 10));
+    setNotes('');
+  };
+
+  const openCreate = () => {
+    resetExpenseForm();
+    setCreateModalOpen(true);
+  };
+
+  const openEdit = (expense: ExpenseRecord) => {
+    setEditingExpense(expense);
+    setCategory(expense.category);
+    setDescription(expense.description);
+    setAmount(String(expense.amount));
+    setVendor(expense.vendor ?? '');
+    setPaymentMethod(expense.paymentMethod ?? 'CASH');
+    setIncurredOn(new Date(expense.incurredOn).toISOString().slice(0, 10));
+    setNotes(expense.notes ?? '');
+    setCreateModalOpen(true);
+  };
+
   const handleCreateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || parseFloat(amount) <= 0) {
@@ -69,7 +116,7 @@ export const ExpensesPage: React.FC = () => {
       return;
     }
     try {
-      await expensesApi.create({
+      const payload = {
         category,
         description,
         amount: parseFloat(amount),
@@ -77,13 +124,16 @@ export const ExpensesPage: React.FC = () => {
         paymentMethod,
         incurredOn,
         notes: notes || undefined,
-      });
-      showToast('success', 'Expenditure voucher created and submitted for approval');
+      };
+      if (editingExpense) {
+        await expensesApi.update(editingExpense.id, payload);
+        showToast('success', 'Expenditure voucher updated.');
+      } else {
+        await expensesApi.create(payload);
+        showToast('success', 'Expenditure voucher created and submitted for approval');
+      }
       setCreateModalOpen(false);
-      setDescription('');
-      setAmount('');
-      setVendor('');
-      setNotes('');
+      resetExpenseForm();
       fetchExpenses();
     } catch (err: any) {
       showToast('error', err?.message ?? 'Failed to create expenditure.');
@@ -169,6 +219,11 @@ export const ExpensesPage: React.FC = () => {
               </button>
             </>
           )}
+          {canCreate && row.status !== 'APPROVED' && (
+            <button onClick={() => openEdit(row)} className="p-1.5 hover:bg-blue-500/10 rounded text-[#A0A5AD] hover:text-blue-400" title="Edit">
+              <Pencil size={14} />
+            </button>
+          )}
           {canDelete && (
             <button onClick={() => handleDelete(row)} className="p-1.5 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete">
               <Trash2 size={14} />
@@ -186,7 +241,7 @@ export const ExpensesPage: React.FC = () => {
         subtitle="Property operational outflows, supplier vouchers & department expenses"
         actions={
           canCreate && (
-            <Button variant="primary" size="sm" onClick={() => setCreateModalOpen(true)}>
+            <Button variant="primary" size="sm" onClick={openCreate}>
               <Plus size={14} /> New Expenditure Voucher
             </Button>
           )
@@ -197,7 +252,7 @@ export const ExpensesPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <SelectInput value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-44">
             <option value="">All Categories</option>
-            {EXPENSE_CATEGORIES.map((c) => (
+            {categoryOptions.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </SelectInput>
@@ -222,12 +277,12 @@ export const ExpensesPage: React.FC = () => {
         keyFn={(e) => e.id}
       />
 
-      <Modal open={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Record Operational Expenditure" size="md">
+      <Modal open={createModalOpen} onClose={() => { setCreateModalOpen(false); resetExpenseForm(); }} title={editingExpense ? `Edit Expenditure — ${editingExpense.expenseNo}` : 'Record Operational Expenditure'} size="md">
         <form onSubmit={handleCreateExpense} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Category" required>
               <SelectInput value={category} onChange={(e) => setCategory(e.target.value)} required>
-                {EXPENSE_CATEGORIES.map((c) => (
+                {categoryOptions.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </SelectInput>
@@ -280,7 +335,7 @@ export const ExpensesPage: React.FC = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Submit Expenditure Voucher
+              {editingExpense ? 'Save Changes' : 'Submit Expenditure Voucher'}
             </Button>
           </div>
         </form>

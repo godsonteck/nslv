@@ -21,9 +21,9 @@ router.get('/', authenticate, verifyActiveUser, requirePermission('categories.vi
     });
 
     void authReq.user;
-    res.json(categories);
+    res.json({ success: true, data: categories });
   } catch (err: any) {
-    res.status(err.status || 500).json({ error: err.message });
+    res.status(err.status || 500).json({ success: false, error: { code: 'CATEGORIES_LIST_FAILED', message: err.message } });
   }
 });
 
@@ -35,9 +35,9 @@ router.get('/:type', authenticate, verifyActiveUser, requirePermission('categori
   try {
     const type = Array.isArray(req.params.type) ? req.params.type[0] : req.params.type;
     const categories = await CategoryService.listByType(String(type).toUpperCase());
-    res.json(categories);
+    res.json({ success: true, data: categories });
   } catch (err: any) {
-    res.status(err.status || 500).json({ error: err.message });
+    res.status(err.status || 500).json({ success: false, error: { code: 'CATEGORIES_LIST_FAILED', message: err.message } });
   }
 });
 
@@ -53,7 +53,7 @@ router.post('/', authenticate, verifyActiveUser, requirePermission('categories.m
     const { name, type, description, color, order } = req.body;
 
     if (!name || !type) {
-      res.status(400).json({ error: 'Name and type are required' });
+      res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Name and type are required' } });
       return;
     }
 
@@ -62,12 +62,12 @@ router.post('/', authenticate, verifyActiveUser, requirePermission('categories.m
       authReq.user.userId
     );
 
-    res.status(201).json(category);
+    res.status(201).json({ success: true, data: category });
   } catch (err: any) {
     if (err.code === 'P2002') {
-      res.status(409).json({ error: `Category "${req.body.name}" already exists for type ${req.body.type}` });
+      res.status(409).json({ success: false, error: { code: 'CATEGORY_EXISTS', message: `Category "${req.body.name}" already exists for type ${req.body.type}` } });
     } else {
-      res.status(err.status || 500).json({ error: err.message });
+      res.status(err.status || 500).json({ success: false, error: { code: 'CATEGORY_CREATE_FAILED', message: err.message } });
     }
   }
 });
@@ -87,14 +87,14 @@ router.put('/:id', authenticate, verifyActiveUser, requirePermission('categories
       authReq.user.userId
     );
 
-    res.json(category);
+    res.json({ success: true, data: category });
   } catch (err: any) {
     if (err.message === 'Category not found') {
-      res.status(404).json({ error: err.message });
+      res.status(404).json({ success: false, error: { code: 'CATEGORY_NOT_FOUND', message: err.message } });
     } else if (err.code === 'P2002') {
-      res.status(409).json({ error: `Category name already exists for this type` });
+      res.status(409).json({ success: false, error: { code: 'CATEGORY_EXISTS', message: 'Category name already exists for this type' } });
     } else {
-      res.status(err.status || 500).json({ error: err.message });
+      res.status(err.status || 500).json({ success: false, error: { code: 'CATEGORY_UPDATE_FAILED', message: err.message } });
     }
   }
 });
@@ -112,12 +112,12 @@ router.delete('/:id', authenticate, verifyActiveUser, requirePermission('categor
       authReq.user.userId
     );
 
-    res.json({ success: true, category });
+    res.json({ success: true, data: category });
   } catch (err: any) {
     if (err.message === 'Category not found') {
-      res.status(404).json({ error: err.message });
+      res.status(404).json({ success: false, error: { code: 'CATEGORY_NOT_FOUND', message: err.message } });
     } else {
-      res.status(err.status || 500).json({ error: err.message });
+      res.status(err.status || 500).json({ success: false, error: { code: 'CATEGORY_DELETE_FAILED', message: err.message } });
     }
   }
 });
@@ -133,14 +133,14 @@ router.post('/reorder', authenticate, verifyActiveUser, requirePermission('categ
     const authReq = req as AuthenticatedRequest;
     const { updates } = req.body;
     if (!Array.isArray(updates)) {
-      res.status(400).json({ error: 'Updates must be an array' });
+      res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Updates must be an array' } });
       return;
     }
 
     const result = await CategoryService.reorder(updates, authReq.user.userId);
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err: any) {
-    res.status(err.status || 500).json({ error: err.message });
+    res.status(err.status || 500).json({ success: false, error: { code: 'CATEGORIES_REORDER_FAILED', message: err.message } });
   }
 });
 

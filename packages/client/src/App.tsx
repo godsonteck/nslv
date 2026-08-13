@@ -40,6 +40,7 @@ const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const BrandingSettingsPage = lazy(() => import('./pages/admin/BrandingSettingsPage'));
 const MenuManagementPage = lazy(() => import('./pages/admin/MenuManagementPage'));
 const ImportPage = lazy(() => import('./pages/admin/ImportPage'));
+const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminConsolePage = lazy(() => import('./pages/admin/AdminConsolePage'));
 
 const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
@@ -129,6 +130,7 @@ export const App: React.FC = () => {
           <Route path="admin/settings" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.view']}><SettingsPage /></RequirePermission></Suspense>} />
           <Route path="admin/branding" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.edit']}><BrandingSettingsPage /></RequirePermission></Suspense>} />
           <Route path="admin/menus" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage']}><MenuManagementPage /></RequirePermission></Suspense>} />
+          <Route path="admin/categories" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['categories.view']}><CategoriesPage /></RequirePermission></Suspense>} />
           <Route path="admin/imports" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage', 'inventory.manage', 'inventory.adjust']}><ImportPage /></RequirePermission></Suspense>} />
 
           {/* Error pages */}
