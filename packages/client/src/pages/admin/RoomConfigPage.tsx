@@ -96,25 +96,40 @@ export const RoomConfigPage: React.FC = () => {
 
   const saveType = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!typeForm.name.trim() || !typeForm.basePrice) {
-      showToast('error', 'Room type name and base price are required');
+    const basePrice = Number(typeForm.basePrice);
+    const maxAdults = Number(typeForm.maxAdults);
+    const maxChildren = Number(typeForm.maxChildren);
+
+    if (!typeForm.name.trim()) {
+      showToast('error', 'Room type name is required');
+      return;
+    }
+    if (!Number.isFinite(basePrice) || basePrice <= 0) {
+      showToast('error', 'Base rate must be greater than zero');
+      return;
+    }
+    if (!Number.isInteger(maxAdults) || maxAdults < 0 || !Number.isInteger(maxChildren) || maxChildren < 0) {
+      showToast('error', 'Maximum adults and children must be whole numbers of zero or more');
+      return;
+    }
+    if (typeSaving) {
       return;
     }
     try {
       setTypeSaving(true);
       const body = {
-        name: typeForm.name,
+        name: typeForm.name.trim(),
         description: typeForm.description || undefined,
-        basePrice: Number(typeForm.basePrice),
-        maxAdults: Number(typeForm.maxAdults),
-        maxChildren: Number(typeForm.maxChildren),
+        basePrice,
+        maxAdults,
+        maxChildren,
         amenityIds: typeForm.amenityIds,
       };
       if (editingType) await roomsApi.updateRoomType(editingType.id, body);
       else await roomsApi.createRoomType(body);
       showToast('success', editingType ? 'Room type updated' : 'Room type created');
       setTypeOpen(false);
-      void loadAll();
+      await loadAll();
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Unable to save room type');
     } finally {
@@ -412,14 +427,14 @@ export const RoomConfigPage: React.FC = () => {
             <TextInput value={typeForm.name} onChange={(e) => setTypeForm({ ...typeForm, name: e.target.value })} placeholder="e.g. Executive Suite" required />
           </FormField>
           <FormField label="Base Rate (GHS / Night)" required>
-            <TextInput type="number" step="0.01" value={typeForm.basePrice} onChange={(e) => setTypeForm({ ...typeForm, basePrice: e.target.value })} placeholder="0.00" required />
+            <TextInput type="number" min="0.01" step="0.01" value={typeForm.basePrice} onChange={(e) => setTypeForm({ ...typeForm, basePrice: e.target.value })} placeholder="0.00" required />
           </FormField>
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Max Adults">
-              <TextInput type="number" value={typeForm.maxAdults} onChange={(e) => setTypeForm({ ...typeForm, maxAdults: e.target.value })} />
+              <TextInput type="number" min="0" step="1" value={typeForm.maxAdults} onChange={(e) => setTypeForm({ ...typeForm, maxAdults: e.target.value })} />
             </FormField>
             <FormField label="Max Children">
-              <TextInput type="number" value={typeForm.maxChildren} onChange={(e) => setTypeForm({ ...typeForm, maxChildren: e.target.value })} />
+              <TextInput type="number" min="0" step="1" value={typeForm.maxChildren} onChange={(e) => setTypeForm({ ...typeForm, maxChildren: e.target.value })} />
             </FormField>
           </div>
           <FormField label="Description">

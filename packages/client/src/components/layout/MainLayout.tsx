@@ -41,12 +41,12 @@ export const MainLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F5F6F4] text-[#14232B]">
+    <div className="flex h-[100dvh] min-h-screen flex-col overflow-hidden bg-[#F5F6F4] text-[#14232B]">
       <Header />
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <Sidebar />
-        <main className="min-w-0 flex-1 overflow-y-visible">
-          <div key={location.pathname} className="ns-page mx-auto w-full max-w-[1680px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
+          <div key={location.pathname} className="ns-page mx-auto min-h-full w-full max-w-[1680px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
             <Outlet />
           </div>
         </main>

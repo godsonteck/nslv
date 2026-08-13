@@ -507,17 +507,17 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, size = 'md',
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      <div className={`w-full ${sizes[size]} bg-white border border-slate-300 rounded-xl shadow-2xl flex flex-col max-h-[90vh]`}>
+      <div role="dialog" aria-modal="true" aria-label={title} className={`my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-xl border border-slate-300 bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)]`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0 bg-slate-50">
           <h2 className="text-base font-bold text-[#1A202C] font-['Outfit']">{title}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded text-slate-500">
+          <button type="button" onClick={onClose} className="p-1 hover:bg-slate-200 rounded text-slate-500" aria-label={`Close ${title}`}>
             <X size={16} />
           </button>
         </div>
-        <div className="overflow-y-auto p-6">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
       </div>
     </div>
   );
