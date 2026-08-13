@@ -89,7 +89,7 @@ function detectDelimiter(firstLine: string): string {
 }
 
 export class ImportService {
-  /** Parse a raw document into a header row + data rows. */
+  /** Parse a raw document into a header row + data rows. Accept nearly any structure. */
   static parse(content: string, format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx' | 'auto' = 'auto') {
     const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
     if (!normalized) throw new Error('The document is empty.');
@@ -119,11 +119,52 @@ export class ImportService {
     if (filteredRows[0].length > IMPORT_LIMITS.maxColumns) {
       throw new Error(`The document has too many columns (max ${IMPORT_LIMITS.maxColumns}).`);
     }
-    const columns = filteredRows[0].map((c, i) => String(c ?? '').trim() || `Column ${i + 1}`);
-    const data = filteredRows.slice(1).map((r) => {
-      const cells = Array.isArray(r) ? r : [];
-      return cells.map((c) => String(c ?? '').trim());
-    });
+
+    // If we only have one row and one column, treat it as a single-item fallback.
+    // Otherwise, use first row as header and rest as data.
+    let columns: string[];
+    let data: string[][];
+
+    if (filteredRows.length === 1 && filteredRows[0].length === 1) {
+      // Single item case: user uploaded a single item, treat as import-ready
+      columns = ['Item Name'];
+      data = [[filteredRows[0][0]]];
+    } else if (filteredRows.length >= 1) {
+      // Multi-row or multi-column: use standard header + data separation
+      const firstRow = filteredRows[0];
+      // Check if first row looks like a header (contains common keywords or non-numeric values)
+      const likelyHeader = firstRow.some((c) => {
+        const s = String(c).toLowerCase();
+        return /^(name|item|product|id|sku|code|price|qty|quantity|category|desc|type|status)/.test(s) ||
+               /[a-z]{3,}/.test(s); // has word characters, likely text header
+      });
+
+      if (likelyHeader || filteredRows.length >= 2) {
+        // First row is probably a header
+        columns = firstRow.map((c, i) => String(c ?? '').trim() || `Column ${i + 1}`);
+        data = filteredRows.slice(1).map((r) => {
+          const cells = Array.isArray(r) ? r : [];
+          return cells.map((c) => String(c ?? '').trim());
+        });
+      } else {
+        // First row is probably data; auto-generate header
+        columns = firstRow.map((_, i) => `Column ${i + 1}`);
+        data = filteredRows.map((r) => {
+          const cells = Array.isArray(r) ? r : [];
+          return cells.map((c) => String(c ?? '').trim());
+        });
+      }
+    } else {
+      columns = ['Item Name'];
+      data = [];
+    }
+
+    // Ensure we have at least one data row (otherwise a header-only file is not useful)
+    if (data.length === 0) {
+      // If user uploaded a header-only file, treat it as a single-row import with the header values
+      data = [columns];
+      columns = columns.map((_, i) => `Column ${i + 1}`);
+    }
 
     return { columns, rows: data };
   }
@@ -147,7 +188,7 @@ export class ImportService {
     if (!Array.isArray(rows) || !Array.isArray(columns)) {
       throw new Error('Invalid import payload — rows and columns must be arrays.');
     }
-    if (rows.length === 0) throw new Error('The document contains no data rows to import.');
+    if (rows.length === 0) throw new Error('No data rows were found to import. Please check the document and try again.');
     if (rows.length > IMPORT_LIMITS.maxRows) {
       throw new Error(`Too many rows (${rows.length}). Maximum allowed is ${IMPORT_LIMITS.maxRows} per import.`);
     }

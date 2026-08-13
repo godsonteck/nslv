@@ -202,17 +202,17 @@ export const ImportPage: React.FC = () => {
       const res = await importsApi.parse(inputText, format as any);
       const p = res?.data;
       if (!p || !Array.isArray(p.columns) || !Array.isArray(p.rows)) {
-        throw new Error('This document does not contain a readable table. Please upload a PDF, Word, Excel, CSV, or another tabular file with clear column headers.');
+        throw new Error('Unable to parse the document. Please ensure it contains at least one line of text or data.');
       }
       const safeColumns = p.columns.filter((col: unknown) => typeof col === 'string' && col.trim().length > 0);
       if (safeColumns.length === 0) {
-        throw new Error('No usable column headers were detected. Please check that the document includes a proper table header row.');
+        throw new Error('The document appears to be empty or contains no usable data. Please try a different file.');
       }
       const safeRows = p.rows
         .map((row) => (Array.isArray(row) ? row.map((cell) => String(cell ?? '')) : []))
         .filter((row) => row.some((cell) => cell.trim().length > 0));
       if (safeRows.length === 0) {
-        throw new Error('The document contains no data rows after the header. Please add at least one row with values.');
+        throw new Error('The document contains no data. Please add content and try again.');
       }
       setParsed({ columns: safeColumns, rows: safeRows });
       setMapping(autoMap(safeColumns));

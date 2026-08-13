@@ -56,8 +56,11 @@ describe('import document parser', () => {
     ]);
   });
 
-  it('rejects empty or header-only documents', () => {
+  it('accepts header-only documents by treating them as data', () => {
     expect(() => ImportService.parse('   ', 'csv')).toThrow(/empty/);
-    expect(ImportService.parse('Name, Price\n\n', 'csv').rows).toEqual([]);
+    const result = ImportService.parse('Name, Price\n\n', 'csv');
+    // Header-only documents are now accepted: the header becomes a data row
+    expect(result.rows).toEqual([['Name', 'Price']]);
+    expect(result.columns).toEqual(['Column 1', 'Column 2']);
   });
 });
