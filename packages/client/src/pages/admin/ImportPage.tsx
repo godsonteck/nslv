@@ -12,6 +12,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mi
 
 const detectDocumentKind = (file: File, mime: string, ext: string): 'excel' | 'pdf' | 'docx' | 'doc' | 'csv' | 'tsv' | 'text' | null => {
   const lowerMime = mime.toLowerCase();
+  const fileName = file.name.toLowerCase();
   const knownExcelTypes = [
     'application/vnd.ms-excel',
     'application/vnd.ms-excel.sheet.macroenabled.12',
@@ -28,7 +29,7 @@ const detectDocumentKind = (file: File, mime: string, ext: string): 'excel' | 'p
     'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
   ];
 
-  if (['xls', 'xlsx', 'xlsm', 'xlsb', 'csv', 'tsv'].includes(ext)) {
+  if (['xls', 'xlsx', 'xlsm', 'xlsb', 'csv', 'tsv'].includes(ext) || ['.xls', '.xlsx', '.xlsm', '.xlsb', '.csv', '.tsv'].some((suffix) => fileName.endsWith(suffix))) {
     return ext === 'tsv' ? 'tsv' : 'excel';
   }
 
@@ -36,9 +37,12 @@ const detectDocumentKind = (file: File, mime: string, ext: string): 'excel' | 'p
     return 'excel';
   }
 
-  if (lowerMime === 'application/pdf' || ext === 'pdf') return 'pdf';
-  if (knownWordTypes.includes(lowerMime) || ext === 'doc' || ext === 'docx' || ext === 'rtf') return ext === 'doc' ? 'doc' : 'docx';
-  if (['txt', 'log'].includes(ext) || lowerMime.includes('text')) return 'text';
+  if (lowerMime === 'application/pdf' || ext === 'pdf' || fileName.endsWith('.pdf')) return 'pdf';
+  if (knownWordTypes.includes(lowerMime) || ext === 'doc' || ext === 'docx' || ext === 'rtf' || ['.doc', '.docx', '.rtf'].some((suffix) => fileName.endsWith(suffix))) {
+    return ext === 'doc' ? 'doc' : 'docx';
+  }
+
+  if (['txt', 'log'].includes(ext) || lowerMime.includes('text') || fileName.endsWith('.txt')) return 'text';
 
   return null;
 };
@@ -50,12 +54,19 @@ const extractDocumentText = async (file: File): Promise<{ text: string; format: 
 
   if (kind === 'excel') {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
-    const firstSheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[firstSheetName];
-    if (!sheet) return { text: '', format: 'csv' };
-    const csv = XLSX.utils.sheet_to_csv(sheet, { FS: ',', RS: '\n', blankrows: false });
-    return { text: csv || '', format: 'csv' };
+    try {
+      const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+      const firstSheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[firstSheetName];
+      if (!sheet) return { text: '', format: 'csv' };
+      const csv = XLSX.utils.sheet_to_csv(sheet, { FS: ',', RS: '\n', blankrows: false });
+      if (csv && csv.trim().length > 0) {
+        return { text: csv, format: 'csv' };
+      }
+    } catch {
+      // fall through to generic text parsing below when the file is not a valid spreadsheet
+    }
+    return { text: await file.text(), format: 'csv' };
   }
 
   if (kind === 'pdf') {
@@ -271,12 +282,12 @@ export const ImportPage: React.FC = () => {
         )}
       </Section>
 
-      <Section title="2 · Paste your table or upload a file" subtitle="CSV, Excel-export or copy-pasted table. Tip: if the source is a PDF, copy the table from it and paste it here.">
+      <Section title="2 · Paste your table or upload a file" subtitle="CSV, Excel-export, PDF, Word, or copy-pasted table. The parser accepts real spreadsheet and document exports with clear column headers.">
         <div className="space-y-3 p-5">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#cfd8d3] bg-white px-4 py-3 text-[11px] font-extrabold text-[#174b59] transition hover:border-[#174b59]">
               <UploadCloud size={15} />
-              {fileName || 'Choose a PDF / Word / CSV / Excel / text file'}
+              {fileName || 'Choose a PDF / Word / Excel / CSV / text file'}
               <input
                 type="file"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.xlsb,.csv,.tsv,.txt,.rtf,text/csv,text/plain,application/pdf,application/msword,application/vnd.ms-excel,application/vnd.ms-excel.sheet.macroenabled.12,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template"
@@ -289,7 +300,12 @@ export const ImportPage: React.FC = () => {
                 }}
               />
             </label>
-            {fileName && <span className="text-[10px] text-[#8a9598]">{fileName}</span>}
+            {fileName && <span className="text-[10px] text-[#8a9598]">Loaded: {fileName}</span>}
+          </div>
+          <div className="flex flex-wrap gap-2 text-[10px] text-[#8a9598]">
+            {['PDF', 'DOCX', 'DOC', 'XLSX', 'CSV', 'TSV', 'TXT'].map((format) => (
+              <span key={format} className="rounded-full border border-[#e7ebe8] bg-[#f7f8f6] px-2 py-1">{format}</span>
+            ))}
           </div>
           <textarea
             value={inputText}
@@ -298,7 +314,9 @@ export const ImportPage: React.FC = () => {
             placeholder={'Item Name, Category, Price\nStar Lager, BEERS, 15\nCastle Milk Stout, BEERS, 18\n…'}
             className="w-full rounded-2xl border border-[#e7ebe8] bg-[#fbfcfa] p-3 font-mono text-[11px] leading-5 text-[#26363e] outline-none focus:border-[#174b59]"
           />
-          <div className="text-[10px] text-[#8a9598]">Supported formats: PDF, DOCX, DOC, CSV, TSV, TXT and pasted tables.</div>
+          <div className="text-[10px] text-[#8a9598]">
+            {inputText.trim() ? 'Table content is ready to parse.' : 'No document loaded yet. Accepts PDF, Excel, Word, CSV, TSV, TXT, or paste a table directly.'}
+          </div>
           <div className="flex justify-end">
             <Button onClick={() => void parse()} loading={parsing}>
               <Wand2 size={14} /> Parse document
