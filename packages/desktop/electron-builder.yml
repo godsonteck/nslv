@@ -11,6 +11,10 @@ extraResources:
     to: client-dist
     filter:
       - "**/*"
+publish:
+  provider: github
+  owner: your-github-org
+  repo: nslv-management-system
 win:
   target: nsis
 nsis:

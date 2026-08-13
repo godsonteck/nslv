@@ -4,9 +4,26 @@
 // ============================================
 
 import { app, BrowserWindow, shell } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
+
+// Auto-update configuration
+autoUpdater.checkForUpdatesAndNotify();
+
+// Auto-update event handlers
+autoUpdater.on('update-available', () => {
+  console.log('[AUTO-UPDATE] Update available, downloading...');
+});
+
+autoUpdater.on('update-downloaded', () => {
+  console.log('[AUTO-UPDATE] Update downloaded, will install on restart');
+});
+
+autoUpdater.on('error', (error) => {
+  console.error('[AUTO-UPDATE] Error checking for updates:', error);
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
