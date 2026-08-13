@@ -1,5 +1,8 @@
 /**
  * @type {import('electron-builder').Configuration}
+ * NS Luxury Villa — Cloud Desktop Shell
+ * Packages the Electron shell that connects to the live Vercel deployment.
+ * No local client or server bundling needed — the app is 100% cloud-connected.
  */
 module.exports = {
   appId: 'com.nsvilla.management',
@@ -8,22 +11,11 @@ module.exports = {
   directories: {
     output: 'release',
   },
-  files: ['dist/**/*', 'package.json'],
-  extraResources: [
-    {
-      from: '../client/dist',
-      to: 'client-dist',
-      filter: ['**/*'],
-    },
-    {
-      from: '../server/dist',
-      to: 'server-dist',
-      filter: ['**/*'],
-    },
-  ],
+  // Only ship the compiled Electron main/preload and package.json
+  files: ['dist/**/*', 'package.json', 'assets/**/*'],
   win: {
     icon: 'assets/icon.png',
-    target: ['portable', 'zip', 'dir'],
+    target: ['nsis', 'portable'],
     signAndEditExecutable: false,
     verifyUpdateCodeSignature: false,
     sign: async () => {},
@@ -33,10 +25,8 @@ module.exports = {
     allowToChangeInstallationDirectory: true,
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
-    shortcutName: 'NS Luxury Villa Management',
+    shortcutName: 'NS Luxury Villa',
     installerIcon: 'assets/icon.png',
     uninstallerIcon: 'assets/icon.png',
-    installerHeader: 'assets/icon.png',
-    installerSidebar: 'assets/icon.png',
   },
 };

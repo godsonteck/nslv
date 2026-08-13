@@ -4,7 +4,7 @@
 // ============================================
 
 import React, { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useThemeStore } from './stores/themeStore';
 import { MainLayout } from './components/layout/MainLayout';
@@ -81,7 +81,7 @@ const HomeRedirect: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AppInitializer>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
         {/* Public Authentication Route */}
         <Route path="/login" element={<Login />} />
@@ -140,7 +140,7 @@ export const App: React.FC = () => {
           <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense>} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
     </AppInitializer>
   );
 };

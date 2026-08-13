@@ -13,6 +13,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // Ensure modules load without crossorigin attribute issues on file://
+    // This is required for Electron packaged apps
+    target: 'es2020',
+    modulePreload: {
+      polyfill: false,
+    },
+  },
   server: {
     port: 5173,
     proxy: {
@@ -23,3 +31,4 @@ export default defineConfig({
     },
   },
 });
+

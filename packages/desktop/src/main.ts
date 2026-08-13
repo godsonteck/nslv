@@ -1,21 +1,20 @@
 // ============================================
 // NS LUXURY VILLA — Electron Main Process
-// Application window lifecycle, cloud connectivity & offline handling
+// Live Cloud Desktop Shell — connects to Vercel deployment
 // ============================================
 
 import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
-import fs from 'fs';
-import { ChildProcess, fork } from 'child_process';
+
+// The live production URL — always loads the Vercel cloud deployment
+const LIVE_APP_URL = 'https://nslv.vercel.app';
 
 let mainWindow: BrowserWindow | null = null;
-let serverProcess: ChildProcess | null = null;
 
 // Auto-update configuration
 autoUpdater.checkForUpdatesAndNotify();
 
-// Auto-update event handlers
 autoUpdater.on('update-available', () => {
   console.log('[AUTO-UPDATE] Update available, downloading...');
 });
@@ -28,24 +27,6 @@ autoUpdater.on('error', (error) => {
   console.error('[AUTO-UPDATE] Error checking for updates:', error);
 });
 
-function startLocalServerIfNeeded() {
-  const serverPath = path.join(process.resourcesPath, 'server-dist', 'index.js');
-  if (app.isPackaged && fs.existsSync(serverPath)) {
-    console.log('[DESKTOP] Starting embedded local Express server process...');
-    try {
-      serverProcess = fork(serverPath, [], {
-        env: { ...process.env, PORT: '3001', NODE_ENV: 'production' },
-        silent: false,
-      });
-      serverProcess.on('error', (err) => {
-        console.error('[DESKTOP-SERVER] Server process error:', err);
-      });
-    } catch (e) {
-      console.error('[DESKTOP-SERVER] Failed to start local server process:', e);
-    }
-  }
-}
-
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1440,
@@ -53,11 +34,12 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 600,
     title: 'NS Luxury Villa Management System',
+    icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: false,
+      webSecurity: true,
     },
     autoHideMenuBar: true,
     show: false,
@@ -67,7 +49,7 @@ function createWindow() {
     mainWindow?.show();
   });
 
-  // Open external links in default OS browser
+  // Open external links (e.g. payment portals) in OS browser, not in-app
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http:') || url.startsWith('https:')) {
       shell.openExternal(url);
@@ -76,22 +58,24 @@ function createWindow() {
     return { action: 'allow' };
   });
 
-  // Priority logic for Desktop App URL:
-  // 1. Remote App URL (if configured via env, e.g. Vercel deployment URL)
-  // 2. Local dev server (if unpackaged `electron .`)
-  // 3. Built local HTML bundle (extraResources client-dist)
-  const remoteUrl = process.env.REMOTE_APP_URL || process.env.VITE_APP_URL;
-
-  if (remoteUrl) {
-    console.log(`[DESKTOP] Loading remote live cloud URL: ${remoteUrl}`);
-    mainWindow.loadURL(remoteUrl);
-  } else if (!app.isPackaged) {
-    console.log('[DESKTOP] Loading local development server: http://localhost:5173');
+  // In development, load local vite dev server; in production, always go LIVE
+  if (!app.isPackaged) {
+    console.log('[DESKTOP] DEV: Loading local development server: http://localhost:5173');
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    console.log('[DESKTOP] Loading packaged production client assets');
-    mainWindow.loadFile(path.join(process.resourcesPath, 'client-dist', 'index.html'));
+    // Always connect to the live cloud deployment — no local server needed
+    console.log(`[DESKTOP] PRODUCTION: Connecting to live cloud → ${LIVE_APP_URL}`);
+    mainWindow.loadURL(LIVE_APP_URL).catch((err) => {
+      console.error('[DESKTOP] Failed to connect to live app:', err);
+    });
+
+    // Ctrl+Shift+I opens DevTools for diagnostics
+    mainWindow.webContents.on('before-input-event', (_event, input) => {
+      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+        mainWindow?.webContents.openDevTools();
+      }
+    });
   }
 
   mainWindow.on('closed', () => {
@@ -100,7 +84,6 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  startLocalServerIfNeeded();
   createWindow();
 
   app.on('activate', () => {
@@ -110,17 +93,8 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('before-quit', () => {
-  if (serverProcess) {
-    console.log('[DESKTOP] Terminating embedded server process...');
-    serverProcess.kill();
-    serverProcess = null;
-  }
-});
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
-
