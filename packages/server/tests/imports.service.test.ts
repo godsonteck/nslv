@@ -25,6 +25,21 @@ describe('import document parser', () => {
     expect(semicolon.rows).toEqual([['Wine', '30']]);
   });
 
+  it('parses whitespace-delimited document text from PDFs and Word exports', () => {
+    const extracted = [
+      'Name                    Category                  Price',
+      'Star Lager              BEERS                     15',
+      'Castle Milk Stout       BEERS                     18',
+    ].join('\n');
+
+    const parsed = ImportService.parse(extracted, 'pdf');
+    expect(parsed.columns).toEqual(['Name', 'Category', 'Price']);
+    expect(parsed.rows).toEqual([
+      ['Star Lager', 'BEERS', '15'],
+      ['Castle Milk Stout', 'BEERS', '18'],
+    ]);
+  });
+
   it('rejects empty or header-only documents', () => {
     expect(() => ImportService.parse('   ', 'csv')).toThrow(/empty/);
     expect(ImportService.parse('Name, Price\n\n', 'csv').rows).toEqual([]);

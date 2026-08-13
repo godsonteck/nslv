@@ -38,7 +38,11 @@ router.post(
           error: { code: 'INVALID_INPUT', message: 'Paste or upload a document to parse.' },
         });
       }
-      const data = ImportService.parse(content, format === 'tsv' ? 'tsv' : format === 'text' ? 'text' : 'csv');
+      const normalizedFormat =
+        format === 'tsv' ? 'tsv' :
+        format === 'text' ? 'text' :
+        format === 'pdf' || format === 'doc' || format === 'docx' ? format : 'csv';
+      const data = ImportService.parse(content, normalizedFormat);
       res.json({ success: true, data });
     } catch (error) {
       next(error);

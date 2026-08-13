@@ -1,9 +1,53 @@
 import React, { useMemo, useState } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
 import { importsApi, IMPORT_TARGETS } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { UploadCloud, FileSpreadsheet, Wand2, CheckCircle2, XCircle, RotateCcw, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Button, FormField, TextInput, SelectInput, showToast } from '../../components/ui';
 import { ShellPage, Section } from '../../components/common/WorkspaceUI';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+
+const extractDocumentText = async (file: File): Promise<{ text: string; format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx' }> => {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  const fileType = file.type.toLowerCase();
+
+  if (fileType === 'application/pdf' || ext === 'pdf') {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
+    const pages: string[] = [];
+    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo += 1) {
+      const page = await pdf.getPage(pageNo);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => ('str' in item ? item.str : ''))
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (pageText) pages.push(pageText);
+    }
+    return { text: pages.join('\n'), format: 'pdf' };
+  }
+
+  if (fileType.includes('word') || ext === 'docx' || ext === 'doc') {
+    const buffer = await file.arrayBuffer();
+    if (ext === 'docx' || fileType.includes('wordprocessingml')) {
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+      return { text: result.value || '', format: 'docx' };
+    }
+    return {
+      text: new TextDecoder('windows-1252').decode(new Uint8Array(buffer)).replace(/\0/g, '').replace(/\s+/g, ' '),
+      format: 'text',
+    };
+  }
+
+  if (fileType.includes('csv') || ext === 'csv') return { text: await file.text(), format: 'csv' };
+  if (fileType.includes('tsv') || ext === 'tsv') return { text: await file.text(), format: 'tsv' };
+  if (fileType.includes('plain') || ext === 'txt' || ext === 'log') return { text: await file.text(), format: 'text' };
+
+  return { text: await file.text(), format: 'text' };
+};
 
 const TARGET_PERMISSION: Record<string, string> = {
   MENU: 'restaurant.menu',
@@ -69,15 +113,18 @@ export const ImportPage: React.FC = () => {
     setResult(null);
   };
 
-  const handleFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      setInputText(String(reader.result ?? ''));
+  const handleFile = async (file: File) => {
+    try {
+      const extracted = await extractDocumentText(file);
+      setInputText(extracted.text);
       setFileName(file.name);
       setResult(null);
       setParsed(null);
-    };
-    reader.readAsText(file);
+      showToast('success', `Read ${file.name} as ${extracted.format.toUpperCase()} text and ready to parse.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to read the uploaded document.';
+      showToast('error', `Could not extract text from ${file.name}: ${message}`);
+    }
   };
 
   const parse = async () => {
@@ -88,7 +135,13 @@ export const ImportPage: React.FC = () => {
     try {
       setParsing(true);
       const ext = fileName.split('.').pop()?.toLowerCase();
-      const format = ext === 'tsv' ? 'tsv' : 'csv';
+      const format =
+        ext === 'tsv' ? 'tsv' :
+        ext === 'csv' ? 'csv' :
+        ext === 'pdf' ? 'pdf' :
+        ext === 'doc' ? 'doc' :
+        ext === 'docx' ? 'docx' :
+        'text';
       const res = await importsApi.parse(inputText, format as any);
       const p = res.data;
       setParsed(p);
@@ -164,14 +217,16 @@ export const ImportPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#cfd8d3] bg-white px-4 py-3 text-[11px] font-extrabold text-[#174b59] transition hover:border-[#174b59]">
               <UploadCloud size={15} />
-              {fileName || 'Choose a CSV / Excel / text file'}
+              {fileName || 'Choose a PDF / Word / CSV / Excel / text file'}
               <input
                 type="file"
-                accept=".csv,.tsv,.txt,text/csv,text/plain"
+                accept=".pdf,.doc,.docx,.csv,.tsv,.txt,text/csv,text/plain,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) handleFile(f);
+                  if (f) {
+                    void handleFile(f);
+                  }
                 }}
               />
             </label>
@@ -184,6 +239,7 @@ export const ImportPage: React.FC = () => {
             placeholder={'Item Name, Category, Price\nStar Lager, BEERS, 15\nCastle Milk Stout, BEERS, 18\n…'}
             className="w-full rounded-2xl border border-[#e7ebe8] bg-[#fbfcfa] p-3 font-mono text-[11px] leading-5 text-[#26363e] outline-none focus:border-[#174b59]"
           />
+          <div className="text-[10px] text-[#8a9598]">Supported formats: PDF, DOCX, DOC, CSV, TSV, TXT and pasted tables.</div>
           <div className="flex justify-end">
             <Button onClick={() => void parse()} loading={parsing}>
               <Wand2 size={14} /> Parse document

@@ -881,7 +881,7 @@ export const IMPORT_TARGETS: Record<string, ImportTargetMeta> = {
 };
 
 export const importsApi = {
-  parse: (content: string, format: 'csv' | 'tsv' | 'text'): Promise<{ success: true; data: { columns: string[]; rows: string[][] } }> =>
+  parse: (content: string, format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx'): Promise<{ success: true; data: { columns: string[]; rows: string[][] } }> =>
     apiFetch('/imports/parse', { method: 'POST', body: JSON.stringify({ content, format }) }, token()),
 
   run: (body: { target: string; columns: string[]; rows: string[][]; mapping: Record<string, string>; defaults: Record<string, string> }): Promise<any> =>

@@ -38,6 +38,13 @@ export interface ImportDefaults {
 
 /** Split one logical line into cells, honouring quoted CSV fields. */
 function splitLine(line: string, delimiter: string): string[] {
+  if (delimiter === 'WHITESPACE') {
+    return line
+      .split(/\s{2,}|\t+/)
+      .map((cell) => cell.trim())
+      .filter((cell) => cell.length > 0);
+  }
+
   const cells: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -83,13 +90,25 @@ function detectDelimiter(firstLine: string): string {
 
 export class ImportService {
   /** Parse a raw document into a header row + data rows. */
-  static parse(content: string, format: 'csv' | 'tsv' | 'text' = 'csv') {
+  static parse(content: string, format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx' = 'csv') {
     const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
     if (!normalized) throw new Error('The document is empty.');
-    const lines = normalized.split('\n').filter((l) => l.trim().length > 0);
+    const lines = normalized
+      .replace(/\u00a0/g, ' ')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((l) => l.length > 0);
     if (lines.length === 0) throw new Error('The document contains no rows.');
 
-    const delimiter = format === 'tsv' ? '\t' : detectDelimiter(lines[0]);
+    let delimiter: string;
+    if (format === 'tsv') delimiter = '\t';
+    else if (format === 'pdf' || format === 'doc' || format === 'docx') {
+      const first = lines[0];
+      delimiter = /\s{2,}/.test(first) ? 'WHITESPACE' : detectDelimiter(first);
+    } else {
+      delimiter = detectDelimiter(lines[0]);
+    }
+
     const rows = lines.map((l) => splitLine(l, delimiter));
     if (rows[0].length > IMPORT_LIMITS.maxColumns) {
       throw new Error(`The document has too many columns (max ${IMPORT_LIMITS.maxColumns}).`);
