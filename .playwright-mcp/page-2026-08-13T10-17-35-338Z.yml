@@ -1,0 +1,92 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - button "NS Luxury Villa NS Luxury Villa Property Operations" [ref=e6] [cursor=pointer]:
+        - img "NS Luxury Villa" [ref=e7]
+        - generic [ref=e8]:
+          - generic [ref=e9]: NS Luxury Villa
+          - generic [ref=e10]: Property Operations
+      - textbox "Search guests, reservations, rooms…" [ref=e16]
+      - generic [ref=e17]:
+        - button "Notifications" [ref=e19] [cursor=pointer]
+        - button "Settings" [ref=e23] [cursor=pointer]
+        - button "SA System Administrator Admin" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: SA
+          - generic [ref=e30]:
+            - generic [ref=e31]: System Administrator
+            - generic [ref=e32]: Admin
+  - generic [ref=e35]:
+    - complementary [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e40]:
+            - generic [ref=e41]: NS Luxury Villa
+            - generic [ref=e42]: Admin operations
+          - generic [ref=e44]: Connected to the live NS Luxury Villa property workspace.
+        - generic [ref=e45]:
+          - generic [ref=e46]: Workspace
+          - generic [ref=e47]:
+            - link "Overview" [ref=e48] [cursor=pointer]:
+              - /url: /dashboard
+            - link "Front desk" [ref=e55] [cursor=pointer]:
+              - /url: /frontdesk
+            - link "Guest bills" [ref=e60] [cursor=pointer]:
+              - /url: /bills
+            - link "Reservations" [ref=e64] [cursor=pointer]:
+              - /url: /reservations
+            - link "Guests" [ref=e68] [cursor=pointer]:
+              - /url: /guests
+            - link "Rooms" [ref=e75] [cursor=pointer]:
+              - /url: /rooms
+            - link "Events" [ref=e80] [cursor=pointer]:
+              - /url: /events
+        - generic [ref=e86]:
+          - generic [ref=e87]: Departments
+          - generic [ref=e88]:
+            - link "F&B workspace" [ref=e89] [cursor=pointer]:
+              - /url: /fnb
+            - link "Restaurant POS" [ref=e96] [cursor=pointer]:
+              - /url: /restaurant/pos
+            - link "Bar POS" [ref=e103] [cursor=pointer]:
+              - /url: /bar/pos
+            - link "Pool services" [ref=e107] [cursor=pointer]:
+              - /url: /pool/services
+        - generic [ref=e113]:
+          - generic [ref=e114]: Finance & insight
+          - generic [ref=e115]:
+            - link "Payments" [ref=e116] [cursor=pointer]:
+              - /url: /payments
+            - link "Reports" [ref=e120] [cursor=pointer]:
+              - /url: /reports
+            - link "Expenditure" [ref=e124] [cursor=pointer]:
+              - /url: /expenses
+            - link "Inventory" [ref=e128] [cursor=pointer]:
+              - /url: /inventory
+        - generic [ref=e133]:
+          - generic [ref=e134]: Administration
+          - generic [ref=e135]:
+            - link "Admin console" [ref=e136] [cursor=pointer]:
+              - /url: /admin
+            - link "Users" [ref=e141] [cursor=pointer]:
+              - /url: /admin/users
+            - link "Roles & access" [ref=e146] [cursor=pointer]:
+              - /url: /admin/roles
+            - link "Room config" [ref=e151] [cursor=pointer]:
+              - /url: /admin/rooms
+            - link "Event spaces" [ref=e156] [cursor=pointer]:
+              - /url: /admin/event-spaces
+            - link "Menus & POS" [ref=e162] [cursor=pointer]:
+              - /url: /admin/menus
+            - link "Data imports" [ref=e167] [cursor=pointer]:
+              - /url: /admin/imports
+            - link "Settings" [ref=e172] [cursor=pointer]:
+              - /url: /admin/settings
+            - link "Branding" [ref=e177] [cursor=pointer]:
+              - /url: /admin/branding
+            - link "Audit logs" [ref=e185] [cursor=pointer]:
+              - /url: /admin/audit
+        - generic [ref=e190]:
+          - generic [ref=e191]: NS Luxury Villa
+          - generic [ref=e192]: Property Operations
+          - generic [ref=e193]: Ho, Volta Region · Ghana
+    - main [ref=e194]
