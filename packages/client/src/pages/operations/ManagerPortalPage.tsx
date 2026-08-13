@@ -24,7 +24,6 @@ import {
   Wine,
   Waves,
   FileBarChart,
-  FileUp,
   ArrowRight,
   ShieldAlert,
 } from 'lucide-react';
@@ -159,9 +158,6 @@ export const ManagerPortalPage: React.FC = () => {
         subtitle="Real-time occupancy oversight, departmental revenue breakdown, and operational audit"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm" onClick={() => navigate('/admin/imports')}>
-              <FileUp size={14} /> Import menu & stock
-            </Button>
             <Button variant="secondary" size="sm" onClick={() => navigate('/reports')}>
               <FileBarChart size={14} /> Full Executive Reports
             </Button>
