@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import * as XLSX from 'xlsx';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 import { importsApi, IMPORT_TARGETS } from '../../services/apiService';
@@ -9,11 +10,55 @@ import { ShellPage, Section } from '../../components/common/WorkspaceUI';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
+const detectDocumentKind = (file: File, mime: string, ext: string): 'excel' | 'pdf' | 'docx' | 'doc' | 'csv' | 'tsv' | 'text' | null => {
+  const lowerMime = mime.toLowerCase();
+  const knownExcelTypes = [
+    'application/vnd.ms-excel',
+    'application/vnd.ms-excel.sheet.macroenabled.12',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
+    'application/xls',
+    'application/xlsx',
+    'application/octet-stream',
+  ];
+  const knownWordTypes = [
+    'application/msword',
+    'application/vnd.ms-word',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+  ];
+
+  if (['xls', 'xlsx', 'xlsm', 'xlsb', 'csv', 'tsv'].includes(ext)) {
+    return ext === 'tsv' ? 'tsv' : 'excel';
+  }
+
+  if (lowerMime.includes('sheet') || lowerMime.includes('excel') || knownExcelTypes.includes(lowerMime)) {
+    return 'excel';
+  }
+
+  if (lowerMime === 'application/pdf' || ext === 'pdf') return 'pdf';
+  if (knownWordTypes.includes(lowerMime) || ext === 'doc' || ext === 'docx' || ext === 'rtf') return ext === 'doc' ? 'doc' : 'docx';
+  if (['txt', 'log'].includes(ext) || lowerMime.includes('text')) return 'text';
+
+  return null;
+};
+
 const extractDocumentText = async (file: File): Promise<{ text: string; format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx' }> => {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-  const fileType = file.type.toLowerCase();
+  const mime = file.type.toLowerCase();
+  const kind = detectDocumentKind(file, mime, ext) ?? 'text';
 
-  if (fileType === 'application/pdf' || ext === 'pdf') {
+  if (kind === 'excel') {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+    const firstSheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[firstSheetName];
+    if (!sheet) return { text: '', format: 'csv' };
+    const csv = XLSX.utils.sheet_to_csv(sheet, { FS: ',', RS: '\n', blankrows: false });
+    return { text: csv || '', format: 'csv' };
+  }
+
+  if (kind === 'pdf') {
     const buffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
     const pages: string[] = [];
@@ -30,9 +75,9 @@ const extractDocumentText = async (file: File): Promise<{ text: string; format: 
     return { text: pages.join('\n'), format: 'pdf' };
   }
 
-  if (fileType.includes('word') || ext === 'docx' || ext === 'doc') {
+  if (kind === 'docx' || kind === 'doc') {
     const buffer = await file.arrayBuffer();
-    if (ext === 'docx' || fileType.includes('wordprocessingml')) {
+    if (kind === 'docx' || ext === 'docx' || mime.includes('wordprocessingml')) {
       const result = await mammoth.extractRawText({ arrayBuffer: buffer });
       return { text: result.value || '', format: 'docx' };
     }
@@ -42,9 +87,8 @@ const extractDocumentText = async (file: File): Promise<{ text: string; format: 
     };
   }
 
-  if (fileType.includes('csv') || ext === 'csv') return { text: await file.text(), format: 'csv' };
-  if (fileType.includes('tsv') || ext === 'tsv') return { text: await file.text(), format: 'tsv' };
-  if (fileType.includes('plain') || ext === 'txt' || ext === 'log') return { text: await file.text(), format: 'text' };
+  if (kind === 'tsv') return { text: await file.text(), format: 'tsv' };
+  if (kind === 'csv') return { text: await file.text(), format: 'csv' };
 
   return { text: await file.text(), format: 'text' };
 };
@@ -138,6 +182,7 @@ export const ImportPage: React.FC = () => {
       const format =
         ext === 'tsv' ? 'tsv' :
         ext === 'csv' ? 'csv' :
+        ext === 'xls' || ext === 'xlsx' ? 'csv' :
         ext === 'pdf' ? 'pdf' :
         ext === 'doc' ? 'doc' :
         ext === 'docx' ? 'docx' :
@@ -220,7 +265,7 @@ export const ImportPage: React.FC = () => {
               {fileName || 'Choose a PDF / Word / CSV / Excel / text file'}
               <input
                 type="file"
-                accept=".pdf,.doc,.docx,.csv,.tsv,.txt,text/csv,text/plain,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.xlsb,.csv,.tsv,.txt,.rtf,text/csv,text/plain,application/pdf,application/msword,application/vnd.ms-excel,application/vnd.ms-excel.sheet.macroenabled.12,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.wordprocessingml.template"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];

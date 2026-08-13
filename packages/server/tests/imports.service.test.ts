@@ -40,6 +40,22 @@ describe('import document parser', () => {
     ]);
   });
 
+  it('auto-detects tables across real document exports and unknown formats', () => {
+    const autoCsv = ImportService.parse('name;price\nStar Lager;15\n', 'auto');
+    expect(autoCsv.columns).toEqual(['name', 'price']);
+    expect(autoCsv.rows).toEqual([['Star Lager', '15']]);
+
+    const autoWhitespace = ImportService.parse(
+      'Name                    Category                  Price\nStar Lager              BEERS                     15\nCastle Milk Stout       BEERS                     18\n',
+      'auto',
+    );
+    expect(autoWhitespace.columns).toEqual(['Name', 'Category', 'Price']);
+    expect(autoWhitespace.rows).toEqual([
+      ['Star Lager', 'BEERS', '15'],
+      ['Castle Milk Stout', 'BEERS', '18'],
+    ]);
+  });
+
   it('rejects empty or header-only documents', () => {
     expect(() => ImportService.parse('   ', 'csv')).toThrow(/empty/);
     expect(ImportService.parse('Name, Price\n\n', 'csv').rows).toEqual([]);

@@ -41,7 +41,7 @@ router.post(
       const normalizedFormat =
         format === 'tsv' ? 'tsv' :
         format === 'text' ? 'text' :
-        format === 'pdf' || format === 'doc' || format === 'docx' ? format : 'csv';
+        format === 'pdf' || format === 'doc' || format === 'docx' ? format : 'auto';
       const data = ImportService.parse(content, normalizedFormat);
       res.json({ success: true, data });
     } catch (error) {

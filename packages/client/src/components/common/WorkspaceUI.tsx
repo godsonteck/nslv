@@ -30,7 +30,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
 );
 
 export const Section: React.FC<{title:string; subtitle?:string; action?:React.ReactNode; children:React.ReactNode; className?:string}> = ({title,subtitle,action,children,className=''}) => (
-  <section className={`ns-card overflow-hidden ${className}`}>
+  <section className={`ns-card ${className}`}>
     <div className="flex flex-col gap-2 border-b border-[#e8ebe8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div><h2 className="text-[14px] font-extrabold text-[#20343e]">{title}</h2>{subtitle&&<p className="mt-0.5 text-[11px] text-[#8a9598]">{subtitle}</p>}</div>
       {action}

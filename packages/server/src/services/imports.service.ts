@@ -90,7 +90,7 @@ function detectDelimiter(firstLine: string): string {
 
 export class ImportService {
   /** Parse a raw document into a header row + data rows. */
-  static parse(content: string, format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx' = 'csv') {
+  static parse(content: string, format: 'csv' | 'tsv' | 'text' | 'pdf' | 'doc' | 'docx' | 'auto' = 'auto') {
     const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
     if (!normalized) throw new Error('The document is empty.');
     const lines = normalized
@@ -102,19 +102,25 @@ export class ImportService {
 
     let delimiter: string;
     if (format === 'tsv') delimiter = '\t';
-    else if (format === 'pdf' || format === 'doc' || format === 'docx') {
+    else if (format === 'csv') delimiter = ',';
+    else if (format === 'text') delimiter = detectDelimiter(lines[0]);
+    else if (format === 'pdf' || format === 'doc' || format === 'docx' || format === 'auto') {
       const first = lines[0];
-      delimiter = /\s{2,}/.test(first) ? 'WHITESPACE' : detectDelimiter(first);
+      if (first.includes('\t')) delimiter = '\t';
+      else if (/\s{2,}/.test(first)) delimiter = 'WHITESPACE';
+      else delimiter = detectDelimiter(first);
     } else {
       delimiter = detectDelimiter(lines[0]);
     }
 
     const rows = lines.map((l) => splitLine(l, delimiter));
-    if (rows[0].length > IMPORT_LIMITS.maxColumns) {
+    const filteredRows = rows.filter((row) => row.some((cell) => cell && cell.trim().length > 0));
+    if (filteredRows.length === 0) throw new Error('The document contains no rows.');
+    if (filteredRows[0].length > IMPORT_LIMITS.maxColumns) {
       throw new Error(`The document has too many columns (max ${IMPORT_LIMITS.maxColumns}).`);
     }
-    const columns = rows[0].map((c, i) => c.trim() || `Column ${i + 1}`);
-    const data = rows.slice(1).map((r) => r.map((c) => c.trim()));
+    const columns = filteredRows[0].map((c, i) => c.trim() || `Column ${i + 1}`);
+    const data = filteredRows.slice(1).map((r) => r.map((c) => c.trim()));
 
     return { columns, rows: data };
   }
