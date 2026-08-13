@@ -3,6 +3,7 @@
 
 import { prisma } from '../config';
 import { randomBytes } from 'node:crypto';
+import { CategoryService } from './categories.service';
 
 const makeNumber = (prefix: string) => `${prefix}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -59,8 +60,9 @@ export class POSService {
     return prisma.restaurantItem.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
   }
 
-  static createRestaurantItem(data: { name: string; category: string; price: number; description?: string }) {
+  static async createRestaurantItem(data: { name: string; category: string; price: number; description?: string }) {
     assertPositiveMoney(data.price, 'Price');
+    await CategoryService.assertConfiguredValue('RESTAURANT', data.category);
     return prisma.restaurantItem.create({ data });
   }
 
@@ -68,6 +70,7 @@ export class POSService {
     const existing = await prisma.restaurantItem.findUnique({ where: { id } });
     if (!existing) throw new Error('Restaurant item not found.');
     if (data.price !== undefined) assertPositiveMoney(data.price, 'Price');
+    if (data.category) await CategoryService.assertConfiguredValue('RESTAURANT', data.category);
     return prisma.restaurantItem.update({ where: { id }, data });
   }
 
@@ -137,8 +140,9 @@ export class POSService {
     return prisma.barItem.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
   }
 
-  static createBarItem(data: { name: string; category: string; price: number; description?: string }) {
+  static async createBarItem(data: { name: string; category: string; price: number; description?: string }) {
     assertPositiveMoney(data.price, 'Price');
+    await CategoryService.assertConfiguredValue('BAR', data.category);
     return prisma.barItem.create({ data });
   }
 
@@ -146,6 +150,7 @@ export class POSService {
     const existing = await prisma.barItem.findUnique({ where: { id } });
     if (!existing) throw new Error('Bar item not found.');
     if (data.price !== undefined) assertPositiveMoney(data.price, 'Price');
+    if (data.category) await CategoryService.assertConfiguredValue('BAR', data.category);
     return prisma.barItem.update({ where: { id }, data });
   }
 
@@ -205,8 +210,9 @@ export class POSService {
     return prisma.poolService.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
   }
 
-  static createPoolService(data: { name: string; category: string; price: number; description?: string }) {
+  static async createPoolService(data: { name: string; category: string; price: number; description?: string }) {
     assertPositiveMoney(data.price, 'Price');
+    await CategoryService.assertConfiguredValue('POOL', data.category);
     return prisma.poolService.create({ data });
   }
 
@@ -214,6 +220,7 @@ export class POSService {
     const existing = await prisma.poolService.findUnique({ where: { id } });
     if (!existing) throw new Error('Pool service not found.');
     if (data.price !== undefined) assertPositiveMoney(data.price, 'Price');
+    if (data.category) await CategoryService.assertConfiguredValue('POOL', data.category);
     return prisma.poolService.update({ where: { id }, data });
   }
 

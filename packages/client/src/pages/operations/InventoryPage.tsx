@@ -16,10 +16,11 @@ import {
   TextInput,
   showToast,
 } from '../../components/ui';
-import { Boxes, Plus, AlertTriangle, RefreshCw, Trash2 } from 'lucide-react';
-import { inventoryApi, InventoryItemRecord } from '../../services/apiService';
+import { Boxes, Plus, AlertTriangle, RefreshCw, Trash2, Settings } from 'lucide-react';
+import { categoriesApi, inventoryApi, InventoryItemRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
+import { CategoryManager } from '../../components/admin/CategoryManager';
 
 const INVENTORY_CATEGORIES = ['RESTAURANT', 'BAR', 'POOL', 'HOUSEKEEPING', 'MAINTENANCE', 'OFFICE'];
 const UNITS = ['pcs', 'bottles', 'kg', 'liters', 'packs', 'boxes'];
@@ -31,9 +32,12 @@ export const InventoryPage: React.FC = () => {
   const [lowStockOnly, setLowStockOnly] = useState(false);
 
   const [inventory, setInventory] = useState<InventoryItemRecord[]>([]);
+  const [managedCategories, setManagedCategories] = useState<string[]>([]);
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const { hasPermission } = useAuthStore();
   const canManage = hasPermission(PERMISSIONS.INVENTORY_MANAGE);
   const canAdjust = hasPermission(PERMISSIONS.INVENTORY_ADJUST);
+  const canManageCategories = hasPermission(PERMISSIONS.CATEGORIES_MANAGE);
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [sku, setSku] = useState('');
@@ -68,6 +72,19 @@ export const InventoryPage: React.FC = () => {
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const result = await categoriesApi.listAll({ type: 'INVENTORY' });
+      setManagedCategories(result.data.map((item) => item.name));
+    } catch {
+      setManagedCategories([]);
+    }
+  }, []);
+
+  useEffect(() => { void loadCategories(); }, [loadCategories]);
+
+  const categoryOptions = managedCategories.length > 0 ? managedCategories : INVENTORY_CATEGORIES;
 
   const handleCreateStockItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,13 +225,10 @@ export const InventoryPage: React.FC = () => {
       <PageHeader
         title="Inventory & Stock Tracking"
         subtitle="Operational supplies, housekeeping stock levels, reorder thresholds & movement"
-        actions={
-          canManage && (
-            <Button variant="primary" size="sm" onClick={() => setCreateModalOpen(true)}>
-              <Plus size={14} /> Add Stock Item
-            </Button>
-          )
-        }
+        actions={<div className="flex items-center gap-2">
+          {canManageCategories && <Button variant="outline" size="sm" onClick={() => setCategoryManagerOpen(true)}><Settings size={14} /> Categories</Button>}
+          {canManage && <Button variant="primary" size="sm" onClick={() => { setCategory(categoryOptions[0] ?? ''); setCreateModalOpen(true); }}><Plus size={14} /> Add Stock Item</Button>}
+        </div>}
       />
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-[#1C1F28] border border-[#2B303E] rounded-md">
@@ -222,7 +236,7 @@ export const InventoryPage: React.FC = () => {
           <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search item name or SKU..." className="w-72" />
           <SelectInput value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-44">
             <option value="">All Categories</option>
-            {INVENTORY_CATEGORIES.map((c) => (
+            {categoryOptions.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </SelectInput>
@@ -252,7 +266,7 @@ export const InventoryPage: React.FC = () => {
             </FormField>
             <FormField label="Category" required>
               <SelectInput value={category} onChange={(e) => setCategory(e.target.value)} required>
-                {INVENTORY_CATEGORIES.map((c) => (
+                {categoryOptions.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </SelectInput>
@@ -324,6 +338,8 @@ export const InventoryPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {categoryManagerOpen && <CategoryManager type="INVENTORY" title="Manage Inventory Categories" onClose={() => { setCategoryManagerOpen(false); void loadCategories(); }} />}
     </div>
   );
 };

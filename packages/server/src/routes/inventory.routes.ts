@@ -42,7 +42,8 @@ router.post('/', requirePermission('inventory.manage'), validateBody(createInven
 router.put('/:id', requirePermission('inventory.manage'), validateBody(updateInventoryItemSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const data = await InventoryService.updateItem(id, req.body);
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const data = await InventoryService.updateItem(id, req.body, userId);
     res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -71,7 +72,8 @@ router.patch('/:id/stock', requirePermission('inventory.adjust'), validateBody(a
 router.delete('/:id', requirePermission('inventory.manage'), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const data = await InventoryService.deleteItem(id);
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const data = await InventoryService.deleteItem(id, userId);
     res.json({ success: true, data });
   } catch (error) {
     next(error);

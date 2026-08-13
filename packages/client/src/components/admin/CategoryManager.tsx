@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash2, GripVertical, X } from 'lucide-react';
 import { Modal, Button, TextInput, FormField, showToast } from '../../components/ui';
 import { useCategoryStore } from '../../stores/categoryStore';
 import type { ItemCategory } from '../../services/apiService';
 
 interface CategoryManagerProps {
-  type: string; // RESTAURANT | BAR | POOL | INVENTORY | EXPENSE
+  type: string; // RESTAURANT | BAR | POOL | INVENTORY | EXPENDITURE
   title: string;
   onClose?: () => void;
 }
@@ -86,9 +86,10 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-[#14232b]">{title}</h3>
-        <Button size="sm" variant="primary" onClick={handleOpenAdd}>
-          <Plus size={14} /> Add
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="primary" onClick={handleOpenAdd}><Plus size={14} /> Add</Button>
+          {onClose && <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#718086] hover:bg-[#f0f2ef]" title="Close category manager"><X size={15} /></button>}
+        </div>
       </div>
 
       {isLoading ? (

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { posApi, staysApi } from '../../services/apiService';
+import { categoriesApi, posApi, staysApi } from '../../services/apiService';
 import { Plus, Minus, ShoppingBag, RefreshCw, Receipt, Search, Printer, Pencil, Trash2, Power } from 'lucide-react';
 import { Button, SelectInput, TextInput, showToast, LoadingState, statusBadge, Modal, FormField } from '../../components/ui';
 import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
@@ -17,6 +17,7 @@ const emptyForm = { name: '', category: '', price: '', description: '' };
 
 export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   const [items, setItems] = useState<any[]>([]);
+  const [managedCategories, setManagedCategories] = useState<string[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [stays, setStays] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
@@ -49,9 +50,20 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       setLoading(false);
     }
   };
+  const loadCategories = async () => {
+    try {
+      const result = await categoriesApi.listByType(kind === 'restaurant' ? 'RESTAURANT' : 'BAR');
+      setManagedCategories(result.data.map((item) => item.name));
+    } catch {
+      setManagedCategories([]);
+    }
+  };
   useEffect(() => {
     void load();
-  }, []);
+    void loadCategories();
+  }, [kind]);
+
+  const categoryOptions = managedCategories.length > 0 ? managedCategories : CATEGORIES[kind];
 
   const cats = ['ALL', ...Array.from(new Set(items.map((i) => i.category?.name || i.category || 'General')))];
   const visible = items.filter(
@@ -94,7 +106,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
   const openAddItem = () => {
     setEditingItem(null);
-    setMForm({ ...emptyForm, category: CATEGORIES[kind][0] || '' });
+    setMForm({ ...emptyForm, category: categoryOptions[0] || '' });
     setManageOpen(true);
   };
 
@@ -396,7 +408,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Category" required>
               <SelectInput required value={mForm.category} onChange={(e) => setMForm({ ...mForm, category: e.target.value })}>
-                {CATEGORIES[kind].map((c) => (
+                {categoryOptions.map((c) => (
                   <option key={c} value={c}>
                     {c.replaceAll('_', ' ')}
                   </option>

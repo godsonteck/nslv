@@ -5,6 +5,8 @@
 
 import { prisma } from '../config';
 import { randomBytes } from 'node:crypto';
+import { AuditService } from './audit.service';
+import { CategoryService } from './categories.service';
 
 const makeExpenseNo = () => `EXP-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -38,7 +40,9 @@ export class ExpenseService {
     if (!Number.isFinite(amount) || amount <= 0) throw new Error('Expense amount must be greater than zero.');
     if (!input.description?.trim()) throw new Error('Expense description is required.');
 
-    return prisma.expense.create({
+    await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
+
+    const expense = await prisma.expense.create({
       data: {
         expenseNo: makeExpenseNo(),
         category: input.category,
@@ -52,14 +56,17 @@ export class ExpenseService {
         createdBy,
       },
     });
+    await AuditService.log({ userId: createdBy, action: 'expense.created', resource: 'expense', resourceId: expense.id, afterData: expense as unknown as Record<string, unknown> });
+    return expense;
   }
 
   static async updateExpense(id: string, input: Partial<{ category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: string; vendor?: string; receiptRef?: string; notes?: string }>, updatedBy: string) {
     const existing = await prisma.expense.findUnique({ where: { id } });
     if (!existing) throw new Error('Expense not found.');
     if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be edited.');
+    if (input.category) await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
 
-    return prisma.expense.update({
+    const expense = await prisma.expense.update({
       where: { id },
       data: {
         category: input.category,
@@ -72,13 +79,15 @@ export class ExpenseService {
         notes: input.notes,
       },
     });
+    await AuditService.log({ userId: updatedBy, action: 'expense.updated', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
+    return expense;
   }
 
   static async setStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED', approvedBy: string) {
     const existing = await prisma.expense.findUnique({ where: { id } });
     if (!existing) throw new Error('Expense not found.');
 
-    return prisma.expense.update({
+    const expense = await prisma.expense.update({
       where: { id },
       data: {
         status,
@@ -86,6 +95,8 @@ export class ExpenseService {
         approvedAt: status === 'APPROVED' ? new Date() : null,
       },
     });
+    await AuditService.log({ userId: approvedBy, action: `expense.${status.toLowerCase()}`, resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
+    return expense;
   }
 
   static async deleteExpense(id: string, deletedBy: string) {
@@ -94,6 +105,7 @@ export class ExpenseService {
     if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be deleted.');
 
     await prisma.expense.delete({ where: { id } });
+    await AuditService.log({ userId: deletedBy, action: 'expense.deleted', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown> });
     return { id, deleted: true };
   }
 }

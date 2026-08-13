@@ -5,7 +5,7 @@ import { categoriesApi, type ItemCategory } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
 
-type CategoryType = 'ROOM_TYPE' | 'MENU_ITEM' | 'EXPENDITURE' | 'INVENTORY' | 'SERVICE' | 'OTHER';
+type CategoryType = 'RESTAURANT' | 'BAR' | 'POOL' | 'EXPENDITURE' | 'INVENTORY' | 'ROOM_TYPE' | 'OTHER';
 
 export const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<ItemCategory[]>([]);
@@ -17,7 +17,7 @@ export const CategoriesPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<CategoryType | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', type: 'MENU_ITEM' as CategoryType, description: '', color: '#b18a55', order: 0 });
+  const [formData, setFormData] = useState({ name: '', type: 'EXPENDITURE' as CategoryType, description: '', color: '#b18a55', order: 0 });
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -54,7 +54,7 @@ export const CategoriesPage: React.FC = () => {
       }
       setModalOpen(false);
       setEditingId(null);
-      setFormData({ name: '', type: 'MENU_ITEM', description: '', color: '#b18a55', order: 0 });
+      setFormData({ name: '', type: 'EXPENDITURE', description: '', color: '#b18a55', order: 0 });
       fetchCategories();
     } catch (err: any) {
       showToast('error', err?.message ?? 'Failed to save category');
@@ -86,7 +86,7 @@ export const CategoriesPage: React.FC = () => {
 
   const handleOpenCreate = () => {
     setEditingId(null);
-    setFormData({ name: '', type: 'MENU_ITEM', description: '', color: '#b18a55', order: 0 });
+    setFormData({ name: '', type: 'EXPENDITURE', description: '', color: '#b18a55', order: 0 });
     setModalOpen(true);
   };
 
@@ -161,11 +161,12 @@ export const CategoriesPage: React.FC = () => {
       <div className="flex gap-3 items-center">
         <SelectInput value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as CategoryType | '')}>
           <option value="">All Types</option>
-          <option value="ROOM_TYPE">Room Types</option>
-          <option value="MENU_ITEM">Menu Items</option>
+          <option value="RESTAURANT">Restaurant</option>
+          <option value="BAR">Bar</option>
+          <option value="POOL">Pool</option>
           <option value="EXPENDITURE">Expenditures</option>
           <option value="INVENTORY">Inventory</option>
-          <option value="SERVICE">Services</option>
+          <option value="ROOM_TYPE">Room Types</option>
           <option value="OTHER">Other</option>
         </SelectInput>
       </div>
@@ -196,11 +197,12 @@ export const CategoriesPage: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, type: e.target.value as CategoryType })}
               required
             >
-              <option value="ROOM_TYPE">Room Types</option>
-              <option value="MENU_ITEM">Menu Items</option>
+              <option value="RESTAURANT">Restaurant</option>
+              <option value="BAR">Bar</option>
+              <option value="POOL">Pool</option>
               <option value="EXPENDITURE">Expenditures</option>
               <option value="INVENTORY">Inventory</option>
-              <option value="SERVICE">Services</option>
+              <option value="ROOM_TYPE">Room Types</option>
               <option value="OTHER">Other</option>
             </SelectInput>
           </FormField>

@@ -33,6 +33,24 @@ export class CategoryService {
   }
 
   /**
+   * Ensures a catalog value is one the Administrator has configured. Existing
+   * installations that have not created any categories of this type retain
+   * their legacy values until the first managed category is added.
+   */
+  static async assertConfiguredValue(type: string, name: string) {
+    const normalizedType = type.toUpperCase();
+    const configuredCount = await prisma.itemCategory.count({ where: { type: normalizedType } });
+    if (configuredCount === 0) return;
+
+    const category = await prisma.itemCategory.findFirst({
+      where: { type: normalizedType, name, isActive: true },
+    });
+    if (!category) {
+      throw new Error(`Select an active ${normalizedType.toLowerCase()} category configured by an administrator.`);
+    }
+  }
+
+  /**
    * Create new category
    */
   static async create(

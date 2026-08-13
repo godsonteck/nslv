@@ -464,7 +464,7 @@ model Payment {
 model ItemCategory {
   id          String   @id @default(uuid())
   name        String
-  type        String   // RESTAURANT | BAR | POOL | INVENTORY | EXPENSE
+  type        String   // RESTAURANT | BAR | POOL | INVENTORY | EXPENDITURE
   description String?
   color       String?  // Optional hex color for UI display
   order       Int      @default(0) // Sort order
