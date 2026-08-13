@@ -1,19 +1,18 @@
 // ============================================
 // NS LUXURY VILLA — Room Configuration Page
-// /admin/rooms — Admin management of Room Types, Room Inventory, & Amenities
+// /admin/rooms — Admin management of Room Types and Room Inventory
 // ============================================
 
 import React, { useEffect, useState } from 'react';
 import { roomsApi } from '../../services/apiService';
-import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers, Sparkles, Building } from 'lucide-react';
+import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers, Building } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, Badge, DataTable } from '../../components/ui';
 import { formatCurrency } from '@nslv/shared';
 
 const emptyRoomForm = { number: '', name: '', roomTypeId: '', floor: '', notes: '' };
-const emptyTypeForm = { name: '', description: '', basePrice: '', maxAdults: '2', maxChildren: '0', amenityIds: [] as string[] };
-const emptyAmenityForm = { name: '', category: 'comfort' };
+const emptyTypeForm = { name: '', description: '', basePrice: '', maxAdults: '2', maxChildren: '0' };
 
-type Tab = 'types' | 'rooms' | 'amenities';
+type Tab = 'types' | 'rooms';
 
 export const RoomConfigPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('types');
@@ -22,7 +21,6 @@ export const RoomConfigPage: React.FC = () => {
 
   const [rooms, setRooms] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
-  const [amenities, setAmenities] = useState<any[]>([]);
 
   // Room Type Modal
   const [typeOpen, setTypeOpen] = useState(false);
@@ -36,26 +34,18 @@ export const RoomConfigPage: React.FC = () => {
   const [editingRoom, setEditingRoom] = useState<any | null>(null);
   const [roomForm, setRoomForm] = useState(emptyRoomForm);
 
-  // Amenity Modal
-  const [amenityOpen, setAmenityOpen] = useState(false);
-  const [amenitySaving, setAmenitySaving] = useState(false);
-  const [editingAmenity, setEditingAmenity] = useState<any | null>(null);
-  const [amenityForm, setAmenityForm] = useState(emptyAmenityForm);
-
   const loadAll = async (isInitial = false) => {
     try {
       if (isInitial) setLoading(true);
       else setRefreshing(true);
 
-      const [rRes, tRes, aRes] = await Promise.all([
+      const [rRes, tRes] = await Promise.all([
         roomsApi.getRooms(),
         roomsApi.getRoomTypes(),
-        roomsApi.getAmenities(),
       ]);
 
       setRooms(rRes.data || []);
       setTypes(tRes.data || []);
-      setAmenities(aRes.data || []);
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to load room configuration');
     } finally {
@@ -83,16 +73,9 @@ export const RoomConfigPage: React.FC = () => {
       basePrice: String(t.basePrice ?? ''),
       maxAdults: String(t.maxAdults ?? 2),
       maxChildren: String(t.maxChildren ?? 0),
-      amenityIds: (t.amenities || []).map((x: any) => x.amenityId),
     });
     setTypeOpen(true);
   };
-
-  const toggleAmenityInType = (id: string) =>
-    setTypeForm((f) => ({
-      ...f,
-      amenityIds: f.amenityIds.includes(id) ? f.amenityIds.filter((x) => x !== id) : [...f.amenityIds, id],
-    }));
 
   const saveType = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +106,6 @@ export const RoomConfigPage: React.FC = () => {
         basePrice,
         maxAdults,
         maxChildren,
-        amenityIds: typeForm.amenityIds,
       };
       if (editingType) await roomsApi.updateRoomType(editingType.id, body);
       else await roomsApi.createRoomType(body);
@@ -154,6 +136,11 @@ export const RoomConfigPage: React.FC = () => {
 
   // ── ROOM HANDLERS ──
   const openAddRoom = () => {
+    if (types.length === 0) {
+      showToast('error', 'Create a room type before adding a room');
+      setActiveTab('types');
+      return;
+    }
     setEditingRoom(null);
     setRoomForm({ ...emptyRoomForm, roomTypeId: types[0]?.id || '' });
     setRoomOpen(true);
@@ -173,24 +160,30 @@ export const RoomConfigPage: React.FC = () => {
 
   const saveRoom = async (e: React.FormEvent) => {
     e.preventDefault();
+    const floor = roomForm.floor === '' ? undefined : Number(roomForm.floor);
     if (!roomForm.number.trim() || !roomForm.roomTypeId) {
       showToast('error', 'Room number and room type are required');
       return;
     }
+    if (floor !== undefined && (!Number.isInteger(floor) || floor < 0)) {
+      showToast('error', 'Floor must be a whole number of zero or more');
+      return;
+    }
+    if (roomSaving) return;
     try {
       setRoomSaving(true);
       const payload = {
-        number: roomForm.number,
-        name: roomForm.name || undefined,
+        number: roomForm.number.trim(),
+        name: roomForm.name.trim() || undefined,
         roomTypeId: roomForm.roomTypeId,
-        floor: roomForm.floor === '' ? undefined : Number(roomForm.floor),
-        notes: roomForm.notes || undefined,
+        floor,
+        notes: roomForm.notes.trim() || undefined,
       };
       if (editingRoom) await roomsApi.updateRoom(editingRoom.id, payload);
       else await roomsApi.createRoom(payload);
       showToast('success', editingRoom ? 'Room updated' : 'Room created');
       setRoomOpen(false);
-      void loadAll();
+      await loadAll();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to save room');
     } finally {
@@ -209,50 +202,6 @@ export const RoomConfigPage: React.FC = () => {
     }
   };
 
-  // ── AMENITY HANDLERS ──
-  const openAddAmenity = () => {
-    setEditingAmenity(null);
-    setAmenityForm(emptyAmenityForm);
-    setAmenityOpen(true);
-  };
-
-  const openEditAmenity = (a: any) => {
-    setEditingAmenity(a);
-    setAmenityForm({ name: a.name, category: a.category || 'comfort' });
-    setAmenityOpen(true);
-  };
-
-  const saveAmenity = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!amenityForm.name.trim()) {
-      showToast('error', 'Amenity name is required');
-      return;
-    }
-    try {
-      setAmenitySaving(true);
-      if (editingAmenity) await roomsApi.updateAmenity(editingAmenity.id, amenityForm);
-      else await roomsApi.createAmenity(amenityForm);
-      showToast('success', editingAmenity ? 'Amenity updated' : 'Amenity created');
-      setAmenityOpen(false);
-      void loadAll();
-    } catch (e) {
-      showToast('error', e instanceof Error ? e.message : 'Unable to save amenity');
-    } finally {
-      setAmenitySaving(false);
-    }
-  };
-
-  const removeAmenity = async (a: any) => {
-    if (!window.confirm(`Delete amenity "${a.name}"?`)) return;
-    try {
-      await roomsApi.deleteAmenity(a.id);
-      showToast('success', 'Amenity deleted');
-      void loadAll();
-    } catch (e) {
-      showToast('error', e instanceof Error ? e.message : 'Unable to delete amenity');
-    }
-  };
-
   if (loading) return <LoadingState message="Loading room configuration..." />;
 
   return (
@@ -264,10 +213,10 @@ export const RoomConfigPage: React.FC = () => {
             <Building size={13} className="text-[#b18a55]" /> Administration · Room Configuration
           </div>
           <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">
-            Room & Amenity Configuration
+            Room Configuration
           </h1>
           <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">
-            Manage property room categories, rate defaults, room inventory units, and guest amenities.
+            Manage room types, rate defaults, occupancy, and the property room inventory.
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -282,11 +231,6 @@ export const RoomConfigPage: React.FC = () => {
           {activeTab === 'rooms' && (
             <Button size="sm" onClick={openAddRoom}>
               <Plus size={14} /> Add Room
-            </Button>
-          )}
-          {activeTab === 'amenities' && (
-            <Button size="sm" onClick={openAddAmenity}>
-              <Plus size={14} /> Add Amenity
             </Button>
           )}
         </div>
@@ -314,16 +258,6 @@ export const RoomConfigPage: React.FC = () => {
         >
           <BedDouble size={15} /> Rooms ({rooms.length})
         </button>
-        <button
-          onClick={() => setActiveTab('amenities')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-extrabold transition border-b-2 ${
-            activeTab === 'amenities'
-              ? 'border-[#174b59] text-[#174b59]'
-              : 'border-transparent text-[#7c8a95] hover:text-[#1a2b3c]'
-          }`}
-        >
-          <Sparkles size={15} /> Room Amenities ({amenities.length})
-        </button>
       </div>
 
       {/* TAB 1: ROOM TYPES */}
@@ -345,15 +279,6 @@ export const RoomConfigPage: React.FC = () => {
               <div className="text-[11px] text-[#7c8a95]">
                 Max Occupancy: <span className="font-semibold text-[#1a2b3c]">{t.maxAdults} Adults, {t.maxChildren} Children</span>
               </div>
-              {t.amenities?.length > 0 && (
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {t.amenities.map((a: any) => (
-                    <span key={a.amenityId} className="rounded bg-[#f0f4f7] px-2 py-0.5 text-[10px] font-semibold text-[#2c3e50]">
-                      {a.amenity?.name}
-                    </span>
-                  ))}
-                </div>
-              )}
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f0f4f7]">
                 <Button variant="outline" size="sm" onClick={() => openEditType(t)}>
                   <Pencil size={13} /> Edit
@@ -398,28 +323,6 @@ export const RoomConfigPage: React.FC = () => {
         />
       )}
 
-      {/* TAB 3: AMENITIES */}
-      {activeTab === 'amenities' && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {amenities.map((a) => (
-            <div key={a.id} className="flex items-center justify-between rounded-xl border border-[#e2e7ea] bg-white p-3.5 shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <Sparkles size={16} className="text-[#b18a55]" />
-                <span className="text-xs font-extrabold text-[#1a2b3c]">{a.name}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => openEditAmenity(a)} className="p-1 text-[#7c8a95] hover:text-[#174b59]">
-                  <Pencil size={13} />
-                </button>
-                <button onClick={() => removeAmenity(a)} className="p-1 text-[#7c8a95] hover:text-red-600">
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* ROOM TYPE MODAL */}
       <Modal open={typeOpen} onClose={() => setTypeOpen(false)} title={editingType ? 'Edit Room Type' : 'Add Room Type'}>
         <form onSubmit={saveType} className="space-y-4">
@@ -439,16 +342,6 @@ export const RoomConfigPage: React.FC = () => {
           </div>
           <FormField label="Description">
             <TextInput value={typeForm.description} onChange={(e) => setTypeForm({ ...typeForm, description: e.target.value })} placeholder="Brief details about this room type" />
-          </FormField>
-          <FormField label="Included Amenities">
-            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border border-[#e2e7ea] rounded-xl">
-              {amenities.map((a) => (
-                <label key={a.id} className="flex items-center gap-2 text-xs text-[#2c3e50] cursor-pointer">
-                  <input type="checkbox" checked={typeForm.amenityIds.includes(a.id)} onChange={() => toggleAmenityInType(a.id)} />
-                  {a.name}
-                </label>
-              ))}
-            </div>
           </FormField>
           <div className="flex justify-end gap-2 pt-3 border-t">
             <Button type="button" variant="ghost" onClick={() => setTypeOpen(false)}>Cancel</Button>
@@ -486,26 +379,6 @@ export const RoomConfigPage: React.FC = () => {
         </form>
       </Modal>
 
-      {/* AMENITY MODAL */}
-      <Modal open={amenityOpen} onClose={() => setAmenityOpen(false)} title={editingAmenity ? 'Edit Amenity' : 'Add Amenity'}>
-        <form onSubmit={saveAmenity} className="space-y-4">
-          <FormField label="Amenity Name" required>
-            <TextInput value={amenityForm.name} onChange={(e) => setAmenityForm({ ...amenityForm, name: e.target.value })} placeholder="e.g. Jacuzzi, Mini Bar" required />
-          </FormField>
-          <FormField label="Category">
-            <SelectInput value={amenityForm.category} onChange={(e) => setAmenityForm({ ...amenityForm, category: e.target.value })}>
-              <option value="comfort">Comfort & Bedding</option>
-              <option value="bathroom">Bathroom & Toiletries</option>
-              <option value="entertainment">Media & Electronics</option>
-              <option value="view">View & Outdoor</option>
-            </SelectInput>
-          </FormField>
-          <div className="flex justify-end gap-2 pt-3 border-t">
-            <Button type="button" variant="ghost" onClick={() => setAmenityOpen(false)}>Cancel</Button>
-            <Button type="submit" loading={amenitySaving}>{editingAmenity ? 'Save Changes' : 'Create Amenity'}</Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 };
