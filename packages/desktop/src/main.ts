@@ -8,24 +8,39 @@ import { autoUpdater } from 'electron-updater';
 import path from 'path';
 
 // The live production URL — always loads the Vercel cloud deployment
-const LIVE_APP_URL = 'https://nslv.vercel.app';
+const LIVE_APP_URL = 'https://nsluxury.vercel.app';
 
 let mainWindow: BrowserWindow | null = null;
 
-// Auto-update configuration
-autoUpdater.checkForUpdatesAndNotify();
+function startAutoUpdates() {
+  if (!app.isPackaged) return;
 
-autoUpdater.on('update-available', () => {
-  console.log('[AUTO-UPDATE] Update available, downloading...');
-});
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
 
-autoUpdater.on('update-downloaded', () => {
-  console.log('[AUTO-UPDATE] Update downloaded, will install on restart');
-});
+  const checkForUpdate = () => {
+    void autoUpdater.checkForUpdates().catch((error: Error) => {
+      // Network/feed failures must never prevent the live system from opening.
+      console.warn('[AUTO-UPDATE] Update check skipped:', error.message);
+    });
+  };
 
-autoUpdater.on('error', (error) => {
-  console.error('[AUTO-UPDATE] Error checking for updates:', error);
-});
+  autoUpdater.on('update-available', () => {
+    console.log('[AUTO-UPDATE] Update available, downloading...');
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    console.log('[AUTO-UPDATE] Update downloaded; it will install when the app closes.');
+  });
+
+  autoUpdater.on('error', (error) => {
+    console.warn('[AUTO-UPDATE] Updater error:', error.message);
+  });
+
+  checkForUpdate();
+  const updateTimer = setInterval(checkForUpdate, 6 * 60 * 60 * 1000);
+  updateTimer.unref();
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -85,6 +100,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
+  startAutoUpdates();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

@@ -1,6 +1,6 @@
 # ==============================================================================
 # NS LUXURY VILLA MANAGEMENT SYSTEM — NATIVE WINDOWS BUILD & SETUP SCRIPT
-# Builds shared libraries, frontend client, backend server, and Electron installer (.exe)
+# Builds the cloud-connected Electron installer (.exe).
 # ==============================================================================
 
 $ErrorActionPreference = "Stop"
@@ -17,27 +17,13 @@ if (-not $nodeVersion) {
 }
 Write-Host "✔️ Node.js Version: $nodeVersion" -ForegroundColor Green
 
-# 1. Build Shared Package
-Write-Host "`n[1/4] Building @nslv/shared..." -ForegroundColor Cyan
-npm run build:shared
-if ($LASTEXITCODE -ne 0) { Write-Error "Failed to build @nslv/shared"; exit $LASTEXITCODE }
-
-# 2. Build Frontend Client
-Write-Host "`n[2/4] Building @nslv/client (Vite Production Assets)..." -ForegroundColor Cyan
-npm run build:client
-if ($LASTEXITCODE -ne 0) { Write-Error "Failed to build @nslv/client"; exit $LASTEXITCODE }
-
-# 3. Build Backend Server
-Write-Host "`n[3/4] Building @nslv/server (TypeScript Backend API)..." -ForegroundColor Cyan
-npm run build:server
-if ($LASTEXITCODE -ne 0) { Write-Error "Failed to build @nslv/server"; exit $LASTEXITCODE }
-
-# 4. Build Desktop Electron Installer
-Write-Host "`n[4/4] Building Native Windows Installer (.exe) with Electron Builder..." -ForegroundColor Cyan
-npm run build:desktop
+# Build Desktop Electron Installer
+Write-Host "`n[1/1] Building Native Windows Installer (.exe) with Electron Builder..." -ForegroundColor Cyan
+npm.cmd run build:desktop
 if ($LASTEXITCODE -ne 0) { Write-Error "Failed to build @nslv/desktop installer"; exit $LASTEXITCODE }
 
 Write-Host "`n======================================================================" -ForegroundColor Gold
 Write-Host " 🎉 BUILD SUCCESSFUL! NATIVE WINDOWS SETUP PACKAGE IS READY." -ForegroundColor Green
 Write-Host " 📦 Installer location: packages\desktop\release\" -ForegroundColor Yellow
+Write-Host " 📤 Publish Setup.exe, its .blockmap, and latest.yml to the HTTPS update directory for each release." -ForegroundColor Yellow
 Write-Host "======================================================================" -ForegroundColor Gold
