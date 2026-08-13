@@ -22,7 +22,7 @@ import expensesRoutes from './expenses.routes';
 import inventoryRoutes from './inventory.routes';
 import reportsRoutes from './reports.routes';
 import eventsRoutes from './events.routes';
-import importsRoutes from './imports.routes';
+
 import systemRoutes from './system.routes';
 import notificationsRoutes from './notifications.routes';
 import categoriesRoutes from './categories.routes';
@@ -49,7 +49,6 @@ router.use('/expenses', expensesRoutes);
 router.use('/inventory', inventoryRoutes);
 router.use('/reports', reportsRoutes);
 router.use('/events', eventsRoutes);
-router.use('/imports', importsRoutes);
 router.use('/system', systemRoutes);
 
 export default router;
