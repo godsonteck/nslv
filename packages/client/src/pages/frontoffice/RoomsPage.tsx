@@ -69,7 +69,11 @@ export const RoomsPage: React.FC = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      const payload = { ...form, floor: form.floor === '' ? null : Number(form.floor) };
+      const payload = {
+        ...form,
+        floor: form.floor === '' ? (editing ? null : undefined) : Number(form.floor),
+        notes: form.notes.trim() || undefined,
+      };
       if (editing) {
         await roomsApi.updateRoom(editing.id, payload);
       } else {

@@ -102,7 +102,7 @@ export const RoomConfigPage: React.FC = () => {
       setTypeSaving(true);
       const body = {
         name: typeForm.name.trim(),
-        description: typeForm.description || undefined,
+        description: typeForm.description.trim() || null,
         basePrice,
         maxAdults,
         maxChildren,
@@ -174,10 +174,10 @@ export const RoomConfigPage: React.FC = () => {
       setRoomSaving(true);
       const payload = {
         number: roomForm.number.trim(),
-        name: roomForm.name.trim() || undefined,
+        name: roomForm.name.trim() || (editingRoom ? null : undefined),
         roomTypeId: roomForm.roomTypeId,
-        floor,
-        notes: roomForm.notes.trim() || undefined,
+        floor: floor ?? (editingRoom ? null : undefined),
+        notes: roomForm.notes.trim() || (editingRoom ? null : undefined),
       };
       if (editingRoom) await roomsApi.updateRoom(editingRoom.id, payload);
       else await roomsApi.createRoom(payload);

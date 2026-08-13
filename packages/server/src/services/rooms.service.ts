@@ -192,7 +192,10 @@ export class RoomService {
   }
 
   /** Update room details (number, name, type, floor, notes) */
-  static async updateRoom(id: string, data: Partial<CreateRoomDTO>) {
+  static async updateRoom(
+    id: string,
+    data: Partial<CreateRoomDTO> & { name?: string | null; floor?: number | null; notes?: string | null },
+  ) {
     return prisma.room.update({
       where: { id },
       data,

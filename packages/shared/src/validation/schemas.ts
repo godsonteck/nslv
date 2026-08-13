@@ -167,7 +167,15 @@ export const createRoomSchema = z.object({
   floor: wholeNumber.optional(),
   notes: optionalString,
 });
-export const updateRoomSchema = createRoomSchema.partial();
+// Updates distinguish an omitted property (leave unchanged) from a deliberate
+// clear (store null). Create validation intentionally remains stricter.
+export const updateRoomSchema = z.object({
+  number: z.string().min(1, 'Room number is required').max(20).trim().optional(),
+  name: z.string().max(100).trim().nullable().optional(),
+  roomTypeId: uuidSchema.optional(),
+  floor: wholeNumber.nullable().optional(),
+  notes: optionalString,
+});
 
 export const updateRoomStatusSchema = z.object({
   status: z.enum(['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'BLOCKED', 'CLEANING']),
