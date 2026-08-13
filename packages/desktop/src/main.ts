@@ -6,8 +6,11 @@
 import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
+import fs from 'fs';
+import { ChildProcess, fork } from 'child_process';
 
 let mainWindow: BrowserWindow | null = null;
+let serverProcess: ChildProcess | null = null;
 
 // Auto-update configuration
 autoUpdater.checkForUpdatesAndNotify();
@@ -25,6 +28,24 @@ autoUpdater.on('error', (error) => {
   console.error('[AUTO-UPDATE] Error checking for updates:', error);
 });
 
+function startLocalServerIfNeeded() {
+  const serverPath = path.join(process.resourcesPath, 'server-dist', 'index.js');
+  if (app.isPackaged && fs.existsSync(serverPath)) {
+    console.log('[DESKTOP] Starting embedded local Express server process...');
+    try {
+      serverProcess = fork(serverPath, [], {
+        env: { ...process.env, PORT: '3001', NODE_ENV: 'production' },
+        silent: false,
+      });
+      serverProcess.on('error', (err) => {
+        console.error('[DESKTOP-SERVER] Server process error:', err);
+      });
+    } catch (e) {
+      console.error('[DESKTOP-SERVER] Failed to start local server process:', e);
+    }
+  }
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1440,
@@ -36,7 +57,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true,
+      webSecurity: false,
     },
     autoHideMenuBar: true,
     show: false,
@@ -79,6 +100,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  startLocalServerIfNeeded();
   createWindow();
 
   app.on('activate', () => {
@@ -88,8 +110,17 @@ app.whenReady().then(() => {
   });
 });
 
+app.on('before-quit', () => {
+  if (serverProcess) {
+    console.log('[DESKTOP] Terminating embedded server process...');
+    serverProcess.kill();
+    serverProcess = null;
+  }
+});
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
+

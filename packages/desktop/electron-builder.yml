@@ -11,9 +11,16 @@ extraResources:
     to: client-dist
     filter:
       - "**/*"
+  - from: ../server/dist
+    to: server-dist
+    filter:
+      - "**/*"
 win:
   icon: assets/icon.png
   target: nsis
+  verifyUpdateCodeSignature: false
+  forceCodeSigning: false
+  sign: null
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

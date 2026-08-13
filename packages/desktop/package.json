@@ -7,7 +7,7 @@
   "main": "./dist/main.js",
   "scripts": {
     "dev": "tsc && electron .",
-    "build": "tsc && electron-builder",
+    "build": "tsc && electron-builder --config electron-builder.config.js",
     "compile": "tsc"
   },
   "dependencies": {
