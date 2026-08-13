@@ -4,6 +4,7 @@
 // ============================================
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   PageHeader,
   DataTable,
@@ -26,6 +27,7 @@ const EVENT_STATUSES = ['PLANNED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 const toLocalInput = (iso: string) => new Date(iso).toISOString().slice(0, 16);
 
 export const EventsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<EventBookingRecord[]>([]);
   const [spaces, setSpaces] = useState<EventSpaceRecord[]>([]);
@@ -361,7 +363,7 @@ export const EventsPage: React.FC = () => {
               <h3 className="text-sm font-bold text-[#F4F4F2]">Event Spaces</h3>
             </div>
             {canEdit && (
-              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/admin/event-spaces'}>
+              <Button variant="secondary" size="sm" onClick={() => navigate('/admin/event-spaces')}>
                 <Building2 size={13} /> Manage Spaces
               </Button>
             )}

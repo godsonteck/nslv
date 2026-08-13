@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { roomsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers } from 'lucide-react';
@@ -12,6 +13,7 @@ const emptyForm = { number: '', roomTypeId: '', floor: '', notes: '' };
 const emptyTypeForm = { name: '', description: '', basePrice: '', maxAdults: '2', maxChildren: '0', amenityIds: [] as string[] };
 
 export const RoomsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
   const [amenities, setAmenities] = useState<any[]>([]);
@@ -199,7 +201,7 @@ export const RoomsPage: React.FC = () => {
             <RefreshCw size={14} /> Refresh
           </Button>
           {canManage && (
-            <Button size="sm" onClick={() => window.location.href = '/admin/rooms'}>
+            <Button size="sm" onClick={() => navigate('/admin/rooms')}>
               <Layers size={14} /> Manage Room Configuration
             </Button>
           )}
