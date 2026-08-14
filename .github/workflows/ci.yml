@@ -30,3 +30,4 @@ jobs:
       - run: npm run build:server
       - run: npm run build:client
       - run: npm run compile --workspace=packages/desktop
+      - run: npm run test:vercel-runtime

@@ -3,8 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    // The Vercel function entrypoint (`api/index.js`) is CommonJS and loads
+    // this compiled application with `require`. Emit matching CommonJS output
+    // so Node does not attempt to resolve extensionless ESM directory imports.
+    "module": "commonjs",
+    "moduleResolution": "node",
     "types": ["node"],
     "declaration": false,
     "declarationMap": false,
@@ -14,6 +17,5 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests", "prisma"]
 }
-
 
 

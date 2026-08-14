@@ -1,5 +1,18 @@
 # Final production readiness report
 
+## Vercel failure and repair
+
+**Symptom:** `node -e "require('./api/index.js')"` failed with
+`ERR_UNSUPPORTED_DIR_IMPORT` while resolving `packages/server/dist/config`.
+
+**Root cause:** `api/index.js` is intentionally CommonJS, but the server
+TypeScript configuration emitted ES module output with bundler resolution.
+Node's serverless loader could not load that output correctly through `require`.
+
+**Fix:** `packages/server/tsconfig.json` now emits CommonJS with Node module
+resolution. `scripts/verify-vercel-entrypoint.cjs` loads the exact function
+entrypoint and calls health; CI runs it after the build.
+
 ## Executive summary
 
 This repository has received a code-level hardening pass on 2026-08-14. It is
@@ -35,6 +48,10 @@ historical evidence.
 | `npm.cmd run build:shared` | TypeScript build passed. | PASS |
 | `npm.cmd run build:server` | Prisma generation and TypeScript build passed. | PASS |
 | `npm.cmd run build:client` | TypeScript and Vite production build passed. | PASS |
+| `VERCEL=1 node -e "require('./api/index.js')"` after the server build | Loaded the Express app through the actual Vercel entrypoint. | PASS |
+| Local `/api/v1/health` through that entrypoint | HTTP 200; database `AVAILABLE`. | PASS |
+| `npm.cmd ci --legacy-peer-deps` | Completed from the lockfile; npm reported 19 dependency vulnerabilities. | PASS with security follow-up |
+| Clean-install Vite/Vitest config loading in this managed sandbox | esbuild was denied access while traversing parent directories; configuration files themselves were readable. | Environment-blocked |
 
 ## Production verification
 

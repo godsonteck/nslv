@@ -2,6 +2,17 @@
 
 Last code review: 2026-08-14.
 
+## Vercel recovery
+
+The Vercel function failure was reproduced locally before repair. `api/index.js`
+uses CommonJS `require`, while `packages/server/tsconfig.json` previously emitted
+ES module syntax and extensionless directory imports. Node therefore failed when
+loading the Vercel entrypoint with `ERR_UNSUPPORTED_DIR_IMPORT` for
+`packages/server/dist/config`. The server compiler now emits CommonJS with Node
+module resolution, matching the function entrypoint. `npm run test:vercel-runtime`
+loads that exact entrypoint and calls `/api/v1/health` without starting the
+standalone listener.
+
 ## Architecture
 
 The application is an npm workspace: React/Vite client, Express/Prisma API,
@@ -48,3 +59,12 @@ do not run destructive migration commands or test restores against production.
 `.github/workflows/ci.yml` installs dependencies, generates Prisma, lints,
 tests, builds shared/server/client packages, and compiles the desktop shell.
 It intentionally does not run database migrations or resets.
+
+## Verification limitation
+
+After a clean `npm ci`, the managed local sandbox denied esbuild access while it
+traversed parent directories to load Vite and Vitest configuration files. This
+is an execution-environment restriction, not a source loading error: the same
+build and test commands passed before that restriction was applied, and the
+Vercel entrypoint smoke test still passed after the clean installation. CI must
+run the commands in its normal GitHub-hosted filesystem before release.

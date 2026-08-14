@@ -20,6 +20,7 @@
     "build:client": "npm run build --workspace=packages/client",
     "build:desktop": "npm run build --workspace=packages/desktop",
     "typecheck": "npm run build:shared && npm run build:server && npm run build:client && npm run compile --workspace=packages/desktop",
+    "test:vercel-runtime": "node scripts/verify-vercel-entrypoint.cjs",
     "test": "npm run test --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:integration": "npm run test:integration --workspaces --if-present",
