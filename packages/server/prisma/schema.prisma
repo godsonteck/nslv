@@ -434,6 +434,9 @@ model Payment {
   currency        String   @default("GHS")
   method          String   // CASH | MOBILE_MONEY | CARD | BANK_TRANSFER | ROOM_CHARGE | OTHER
   reference       String?  // Transaction reference from payment provider
+  source          String?  // RESTAURANT_ORDER | BAR_ORDER | POOL_TRANSACTION | FOLIO
+  sourceId        String?  @map("source_id")
+  idempotencyKey  String?  @unique @map("idempotency_key")
   status          String   @default("COMPLETED") // PENDING | COMPLETED | FAILED | REFUNDED | PARTIALLY_REFUNDED
   type            String   @default("PAYMENT") // PAYMENT | REFUND | DEPOSIT | ADJUSTMENT
   description     String?
@@ -454,6 +457,7 @@ model Payment {
   @@index([folioId])
   @@index([status])
   @@index([processedAt])
+  @@index([source, sourceId])
   @@map("payments")
 }
 
@@ -509,6 +513,7 @@ model RestaurantOrder {
   paymentMethod String   @default("ROOM_CHARGE") // ROOM_CHARGE | CASH | CARD | MOBILE_MONEY
   paymentStatus String   @default("PENDING") // PENDING | PAID | CHARGED_TO_FOLIO
   folioItemId   String?  @map("folio_item_id")
+  idempotencyKey String? @unique @map("idempotency_key")
   notes         String?
   createdBy     String   @map("created_by")
   createdAt     DateTime @default(now()) @map("created_at")
@@ -570,6 +575,7 @@ model BarOrder {
   paymentMethod String   @default("ROOM_CHARGE") // ROOM_CHARGE | CASH | CARD | MOBILE_MONEY
   paymentStatus String   @default("PENDING") // PENDING | PAID | CHARGED_TO_FOLIO
   folioItemId   String?  @map("folio_item_id")
+  idempotencyKey String? @unique @map("idempotency_key")
   notes         String?
   createdBy     String   @map("created_by")
   createdAt     DateTime @default(now()) @map("created_at")
@@ -633,6 +639,7 @@ model PoolTransaction {
   paymentMethod String   @default("ROOM_CHARGE") // ROOM_CHARGE | CASH | CARD | MOBILE_MONEY
   paymentStatus String   @default("PENDING") // PENDING | PAID | CHARGED_TO_FOLIO
   folioItemId   String?  @map("folio_item_id")
+  idempotencyKey String? @unique @map("idempotency_key")
   notes         String?
   processedBy   String   @map("processed_by")
   createdAt     DateTime @default(now()) @map("created_at")

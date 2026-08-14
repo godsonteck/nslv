@@ -23,7 +23,8 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   const [cart, setCart] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [paymentType, setPaymentType] = useState('DIRECT');
+  const [paymentType, setPaymentType] = useState('CASH');
+  const [idempotencyKey, setIdempotencyKey] = useState<string | null>(null);
   const [selectedStay, setSelectedStay] = useState('');
   const [q, setQ] = useState('');
   const [category, setCategory] = useState('ALL');
@@ -72,30 +73,38 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       (!q || i.name?.toLowerCase().includes(q.toLowerCase())),
   );
 
-  const add = (item: any) =>
+  const add = (item: any) => {
+    setIdempotencyKey(null);
     setCart((c) => {
       const x = c.find((i) => i.id === item.id);
       return x ? c.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)) : [...c, { ...item, quantity: 1 }];
     });
-  const dec = (id: string) =>
+  };
+  const dec = (id: string) => {
+    setIdempotencyKey(null);
     setCart((c) => c.flatMap((i) => (i.id === id ? (i.quantity > 1 ? [{ ...i, quantity: i.quantity - 1 }] : []) : [i])));
+  };
   const total = useMemo(() => cart.reduce((s, i) => s + Number(i.price || 0) * i.quantity, 0), [cart]);
 
   const submit = async () => {
     if (!cart.length) return;
     try {
       setSubmitting(true);
+      const requestKey = idempotencyKey ?? crypto.randomUUID();
+      setIdempotencyKey(requestKey);
       const stay = stays.find((s) => s.id === selectedStay);
       const body = {
         items: cart.map((i) => ({ itemId: i.id, quantity: i.quantity })),
         guestId: stay?.guestId,
         roomId: paymentType === 'ROOM_CHARGE' ? stay?.roomId || undefined : undefined,
-        paymentMethod: paymentType === 'DIRECT' ? 'CASH' : 'ROOM_CHARGE',
+        paymentMethod: paymentType,
+        idempotencyKey: requestKey,
       };
       if (kind === 'restaurant') await posApi.createRestaurantOrder(body);
       else await posApi.createBarOrder(body);
       showToast('success', paymentType === 'ROOM_CHARGE' ? 'Order posted to the guest folio' : 'Order recorded successfully');
       setCart([]);
+      setIdempotencyKey(null);
       load();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to submit order');
@@ -330,7 +339,10 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                     </div>
                     <div className="mt-4 space-y-3">
                       <SelectInput value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
-                        <option value="DIRECT">Direct payment · Cash</option>
+                        <option value="CASH">Direct payment · Cash</option>
+                        <option value="CARD">Direct payment · Card</option>
+                        <option value="MOBILE_MONEY">Direct payment · Mobile Money</option>
+                        <option value="BANK_TRANSFER">Direct payment · Bank transfer</option>
                         <option value="ROOM_CHARGE">Charge to guest folio</option>
                       </SelectInput>
                       {paymentType === 'ROOM_CHARGE' && (

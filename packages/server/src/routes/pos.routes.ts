@@ -5,6 +5,8 @@
 import { Router } from 'express';
 import { POSService } from '../services/pos.service';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { createOrderSchema, createPOSItemSchema, createPoolAttendanceSchema, createPoolTransactionSchema, setAvailabilitySchema, updatePOSItemSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -19,7 +21,7 @@ router.get('/restaurant/items', requirePermission('restaurant.view'), async (_re
   }
 });
 
-router.post('/restaurant/items', requirePermission('restaurant.menu'), async (req, res, next) => {
+router.post('/restaurant/items', requirePermission('restaurant.menu'), validateBody(createPOSItemSchema), async (req, res, next) => {
   try {
     const data = await POSService.createRestaurantItem(req.body);
     res.status(201).json({ success: true, data });
@@ -28,7 +30,7 @@ router.post('/restaurant/items', requirePermission('restaurant.menu'), async (re
   }
 });
 
-router.patch('/restaurant/items/:id', requirePermission('restaurant.menu'), async (req, res, next) => {
+router.patch('/restaurant/items/:id', requirePermission('restaurant.menu'), validateBody(updatePOSItemSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await POSService.updateRestaurantItem(id, req.body);
@@ -38,7 +40,7 @@ router.patch('/restaurant/items/:id', requirePermission('restaurant.menu'), asyn
   }
 });
 
-router.patch('/restaurant/items/:id/availability', requirePermission('restaurant.menu'), async (req, res, next) => {
+router.patch('/restaurant/items/:id/availability', requirePermission('restaurant.menu'), validateBody(setAvailabilitySchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await POSService.toggleRestaurantItem(id, Boolean(req.body.isAvailable));
@@ -67,7 +69,7 @@ router.get('/restaurant/orders', requirePermission('restaurant.orders'), async (
   }
 });
 
-router.post('/restaurant/orders', requirePermission('restaurant.orders'), async (req, res, next) => {
+router.post('/restaurant/orders', requirePermission('restaurant.orders'), validateBody(createOrderSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createRestaurantOrder({ ...req.body, createdBy: userId });
@@ -87,7 +89,7 @@ router.get('/bar/items', requirePermission('bar.view'), async (_req, res, next) 
   }
 });
 
-router.post('/bar/items', requirePermission('bar.menu'), async (req, res, next) => {
+router.post('/bar/items', requirePermission('bar.menu'), validateBody(createPOSItemSchema), async (req, res, next) => {
   try {
     const data = await POSService.createBarItem(req.body);
     res.status(201).json({ success: true, data });
@@ -96,7 +98,7 @@ router.post('/bar/items', requirePermission('bar.menu'), async (req, res, next) 
   }
 });
 
-router.patch('/bar/items/:id', requirePermission('bar.menu'), async (req, res, next) => {
+router.patch('/bar/items/:id', requirePermission('bar.menu'), validateBody(updatePOSItemSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await POSService.updateBarItem(id, req.body);
@@ -106,7 +108,7 @@ router.patch('/bar/items/:id', requirePermission('bar.menu'), async (req, res, n
   }
 });
 
-router.patch('/bar/items/:id/availability', requirePermission('bar.menu'), async (req, res, next) => {
+router.patch('/bar/items/:id/availability', requirePermission('bar.menu'), validateBody(setAvailabilitySchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await POSService.toggleBarItem(id, Boolean(req.body.isAvailable));
@@ -135,7 +137,7 @@ router.get('/bar/orders', requirePermission('bar.orders'), async (_req, res, nex
   }
 });
 
-router.post('/bar/orders', requirePermission('bar.orders'), async (req, res, next) => {
+router.post('/bar/orders', requirePermission('bar.orders'), validateBody(createOrderSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createBarOrder({ ...req.body, createdBy: userId });
@@ -152,7 +154,7 @@ router.get('/pool/attendance', requirePermission('pool.view'), async (_req, res,
   } catch (error) { next(error); }
 });
 
-router.post('/pool/attendance', requirePermission('pool.manage'), async (req, res, next) => {
+router.post('/pool/attendance', requirePermission('pool.manage'), validateBody(createPoolAttendanceSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createPoolAttendance({ ...req.body, partySize: Number(req.body.partySize), recordedBy: userId });
@@ -169,7 +171,7 @@ router.get('/pool/services', requirePermission('pool.view'), async (_req, res, n
   }
 });
 
-router.post('/pool/services', requirePermission('pool.manage'), async (req, res, next) => {
+router.post('/pool/services', requirePermission('pool.manage'), validateBody(createPOSItemSchema), async (req, res, next) => {
   try {
     const data = await POSService.createPoolService(req.body);
     res.status(201).json({ success: true, data });
@@ -178,7 +180,7 @@ router.post('/pool/services', requirePermission('pool.manage'), async (req, res,
   }
 });
 
-router.patch('/pool/services/:id', requirePermission('pool.manage'), async (req, res, next) => {
+router.patch('/pool/services/:id', requirePermission('pool.manage'), validateBody(updatePOSItemSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await POSService.updatePoolService(id, req.body);
@@ -188,7 +190,7 @@ router.patch('/pool/services/:id', requirePermission('pool.manage'), async (req,
   }
 });
 
-router.patch('/pool/services/:id/availability', requirePermission('pool.manage'), async (req, res, next) => {
+router.patch('/pool/services/:id/availability', requirePermission('pool.manage'), validateBody(setAvailabilitySchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await POSService.togglePoolService(id, Boolean(req.body.isAvailable));
@@ -217,7 +219,7 @@ router.get('/pool/transactions', requirePermission('pool.view'), async (_req, re
   }
 });
 
-router.post('/pool/transactions', requirePermission('pool.manage'), async (req, res, next) => {
+router.post('/pool/transactions', requirePermission('pool.manage'), validateBody(createPoolTransactionSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createPoolTransaction({ ...req.body, processedBy: userId });

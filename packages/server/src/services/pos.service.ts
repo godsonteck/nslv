@@ -2,8 +2,10 @@
 // All totals and room-charge decisions are calculated server-side.
 
 import { prisma } from '../config';
+import { Prisma } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { CategoryService } from './categories.service';
+import { AuditService } from './audit.service';
 
 const makeNumber = (prefix: string) => `${prefix}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -15,23 +17,53 @@ const assertPositiveMoney = (value: number, label: string) => {
   if (!Number.isFinite(value) || value <= 0) throw new Error(`${label} must be greater than zero.`);
 };
 
-async function findOpenFolio(tx: any, roomId: string) {
+async function findOpenFolio(tx: Prisma.TransactionClient, roomId: string, guestId?: string) {
   const stay = await tx.checkIn.findFirst({
     where: { roomId, reservation: { status: 'CHECKED_IN' } },
     include: { reservation: { include: { folios: { where: { status: 'OPEN' } } } } },
   });
   const folio = stay?.reservation.folios[0];
   if (!folio) throw new Error('No active guest stay or open folio was found for this room.');
-  return folio;
+  if (guestId && stay.guestId !== guestId) throw new Error('The selected guest is not the active guest for this room.');
+  return { folio, guestId: stay.guestId };
+}
+
+async function recordDirectPayment(
+  tx: Prisma.TransactionClient,
+  data: { amount: Prisma.Decimal; method: string; source: string; sourceId: string; idempotencyKey: string; processedBy: string; description: string },
+) {
+  const payment = await tx.payment.create({
+    data: {
+      amount: data.amount,
+      currency: 'GHS',
+      method: data.method,
+      source: data.source,
+      sourceId: data.sourceId,
+      idempotencyKey: data.idempotencyKey,
+      status: 'COMPLETED',
+      type: 'PAYMENT',
+      description: data.description,
+      processedBy: data.processedBy,
+    },
+  });
+  await AuditService.logInTransaction(tx, {
+    userId: data.processedBy,
+    action: 'payment.created',
+    resource: 'payment',
+    resourceId: payment.id,
+    afterData: { amount: payment.amount.toString(), method: payment.method, source: payment.source, sourceId: payment.sourceId },
+  });
+  return payment;
 }
 
 export interface RestaurantOrderDTO {
   guestId?: string;
   roomId?: string;
   tableNo?: string;
-  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY';
+  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER';
   notes?: string;
   createdBy: string;
+  idempotencyKey: string;
   items: { itemId: string; quantity: number; notes?: string }[];
 }
 
@@ -42,9 +74,10 @@ export interface PoolTransactionDTO {
   roomId?: string;
   serviceId: string;
   quantity: number;
-  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY';
+  paymentMethod: 'ROOM_CHARGE' | 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER';
   notes?: string;
   processedBy: string;
+  idempotencyKey: string;
 }
 
 export interface PoolAttendanceDTO {
@@ -97,6 +130,11 @@ export class POSService {
 
   static async createRestaurantOrder(data: RestaurantOrderDTO) {
     if (!data.items?.length) throw new Error('At least one restaurant item is required.');
+    const existing = await prisma.restaurantOrder.findUnique({
+      where: { idempotencyKey: data.idempotencyKey },
+      include: { orderItems: { include: { item: true } } },
+    });
+    if (existing) return existing;
     return prisma.$transaction(async tx => {
       const ids = [...new Set(data.items.map(i => i.itemId))];
       const catalog = await tx.restaurantItem.findMany({ where: { id: { in: ids }, isAvailable: true } });
@@ -106,33 +144,37 @@ export class POSService {
       const resolved = data.items.map(i => {
         assertPositiveInteger(i.quantity, 'Quantity');
         const item = byId.get(i.itemId)!;
-        const unitPrice = Number(item.price);
-        return { ...i, unitPrice, totalPrice: i.quantity * unitPrice };
+        const unitPrice = new Prisma.Decimal(item.price);
+        return { ...i, unitPrice, totalPrice: unitPrice.mul(i.quantity) };
       });
-      const totalAmount = resolved.reduce((sum, i) => sum + i.totalPrice, 0);
-      assertPositiveMoney(totalAmount, 'Order total');
-
-      let folioItemId: string | undefined;
-      if (data.paymentMethod === 'ROOM_CHARGE') {
-        if (!data.roomId) throw new Error('A room is required when charging an order to a guest folio.');
-        const folio = await findOpenFolio(tx, data.roomId);
-        const summary = resolved.map(i => `${i.quantity}× ${byId.get(i.itemId)!.name}`).join(', ');
-        const folioItem = await tx.folioItem.create({ data: { folioId: folio.id, type: 'RESTAURANT', description: `Restaurant order · ${summary}`, amount: totalAmount, quantity: 1, unitPrice: totalAmount, department: 'RESTAURANT', referenceType: 'ORDER', postedBy: data.createdBy } });
-        await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: totalAmount } } });
-        folioItemId = folioItem.id;
-      }
+      const totalAmount = resolved.reduce((sum, i) => sum.plus(i.totalPrice), new Prisma.Decimal(0));
+      assertPositiveMoney(totalAmount.toNumber(), 'Order total');
 
       const order = await tx.restaurantOrder.create({
         data: {
           orderNo: makeNumber('RES'), guestId: data.guestId, roomId: data.roomId, tableNo: data.tableNo,
-          status: 'COMPLETED', totalAmount, paymentMethod: data.paymentMethod,
-          paymentStatus: data.paymentMethod === 'ROOM_CHARGE' ? 'CHARGED_TO_FOLIO' : 'PAID',
-          folioItemId, notes: data.notes, createdBy: data.createdBy,
+          status: 'SERVED', totalAmount, paymentMethod: data.paymentMethod, paymentStatus: 'PENDING',
+          notes: data.notes, createdBy: data.createdBy, idempotencyKey: data.idempotencyKey,
           orderItems: { create: resolved.map(i => ({ itemId: i.itemId, quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice, notes: i.notes })) },
         },
         include: { orderItems: { include: { item: true } } },
       });
-      return order;
+
+      let folioItemId: string | undefined;
+      if (data.paymentMethod === 'ROOM_CHARGE') {
+        if (!data.roomId) throw new Error('A room is required when charging an order to a guest folio.');
+        const { folio, guestId } = await findOpenFolio(tx, data.roomId, data.guestId);
+        const summary = resolved.map(i => `${i.quantity}× ${byId.get(i.itemId)!.name}`).join(', ');
+        const folioItem = await tx.folioItem.create({ data: { folioId: folio.id, type: 'RESTAURANT', description: `Restaurant order · ${summary}`, amount: totalAmount, quantity: 1, unitPrice: totalAmount, department: 'RESTAURANT', referenceId: order.id, referenceType: 'ORDER', postedBy: data.createdBy } });
+        await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: totalAmount } } });
+        folioItemId = folioItem.id;
+        await tx.restaurantOrder.update({ where: { id: order.id }, data: { guestId, folioItemId, paymentStatus: 'CHARGED_TO_FOLIO', status: 'COMPLETED' } });
+        await AuditService.logInTransaction(tx, { userId: data.createdBy, action: 'folio.charge_posted', resource: 'restaurant_order', resourceId: order.id, afterData: { folioId: folio.id, folioItemId, amount: totalAmount.toString() } });
+      } else {
+        await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'RESTAURANT_ORDER', sourceId: order.id, idempotencyKey: data.idempotencyKey, processedBy: data.createdBy, description: `Restaurant order ${order.orderNo}` });
+        await tx.restaurantOrder.update({ where: { id: order.id }, data: { paymentStatus: 'PAID', status: 'COMPLETED' } });
+      }
+      return tx.restaurantOrder.findUniqueOrThrow({ where: { id: order.id }, include: { orderItems: { include: { item: true } } } });
     });
   }
 
@@ -176,33 +218,44 @@ export class POSService {
 
   static async createBarOrder(data: BarOrderDTO) {
     if (!data.items?.length) throw new Error('At least one bar item is required.');
+    const existing = await prisma.barOrder.findUnique({
+      where: { idempotencyKey: data.idempotencyKey },
+      include: { orderItems: { include: { item: true } } },
+    });
+    if (existing) return existing;
     return prisma.$transaction(async tx => {
       const ids = [...new Set(data.items.map(i => i.itemId))];
       const catalog = await tx.barItem.findMany({ where: { id: { in: ids }, isAvailable: true } });
       const byId = new Map(catalog.map(item => [item.id, item]));
       if (catalog.length !== ids.length) throw new Error('One or more selected bar items are unavailable.');
-      const resolved = data.items.map(i => { assertPositiveInteger(i.quantity, 'Quantity'); const item = byId.get(i.itemId)!; const unitPrice = Number(item.price); return { ...i, unitPrice, totalPrice: i.quantity * unitPrice }; });
-      const totalAmount = resolved.reduce((sum, i) => sum + i.totalPrice, 0);
-      assertPositiveMoney(totalAmount, 'Order total');
+      const resolved = data.items.map(i => { assertPositiveInteger(i.quantity, 'Quantity'); const item = byId.get(i.itemId)!; const unitPrice = new Prisma.Decimal(item.price); return { ...i, unitPrice, totalPrice: unitPrice.mul(i.quantity) }; });
+      const totalAmount = resolved.reduce((sum, i) => sum.plus(i.totalPrice), new Prisma.Decimal(0));
+      assertPositiveMoney(totalAmount.toNumber(), 'Order total');
+
+      const order = await tx.barOrder.create({
+        data: {
+          orderNo: makeNumber('BAR'), guestId: data.guestId, roomId: data.roomId, status: 'SERVED', totalAmount,
+          paymentMethod: data.paymentMethod, paymentStatus: 'PENDING', notes: data.notes, createdBy: data.createdBy,
+          idempotencyKey: data.idempotencyKey,
+          orderItems: { create: resolved.map(i => ({ itemId: i.itemId, quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice, notes: i.notes })) },
+        }, include: { orderItems: { include: { item: true } } },
+      });
 
       let folioItemId: string | undefined;
       if (data.paymentMethod === 'ROOM_CHARGE') {
         if (!data.roomId) throw new Error('A room is required when charging an order to a guest folio.');
-        const folio = await findOpenFolio(tx, data.roomId);
+        const { folio, guestId } = await findOpenFolio(tx, data.roomId, data.guestId);
         const summary = resolved.map(i => `${i.quantity}× ${byId.get(i.itemId)!.name}`).join(', ');
-        const item = await tx.folioItem.create({ data: { folioId: folio.id, type: 'BAR', description: `Bar order · ${summary}`, amount: totalAmount, quantity: 1, unitPrice: totalAmount, department: 'BAR', referenceType: 'ORDER', postedBy: data.createdBy } });
+        const item = await tx.folioItem.create({ data: { folioId: folio.id, type: 'BAR', description: `Bar order · ${summary}`, amount: totalAmount, quantity: 1, unitPrice: totalAmount, department: 'BAR', referenceId: order.id, referenceType: 'ORDER', postedBy: data.createdBy } });
         await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: totalAmount } } });
         folioItemId = item.id;
+        await tx.barOrder.update({ where: { id: order.id }, data: { guestId, folioItemId, paymentStatus: 'CHARGED_TO_FOLIO', status: 'COMPLETED' } });
+        await AuditService.logInTransaction(tx, { userId: data.createdBy, action: 'folio.charge_posted', resource: 'bar_order', resourceId: order.id, afterData: { folioId: folio.id, folioItemId, amount: totalAmount.toString() } });
+      } else {
+        await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'BAR_ORDER', sourceId: order.id, idempotencyKey: data.idempotencyKey, processedBy: data.createdBy, description: `Bar order ${order.orderNo}` });
+        await tx.barOrder.update({ where: { id: order.id }, data: { paymentStatus: 'PAID', status: 'COMPLETED' } });
       }
-
-      return tx.barOrder.create({
-        data: {
-          orderNo: makeNumber('BAR'), guestId: data.guestId, roomId: data.roomId, status: 'COMPLETED', totalAmount,
-          paymentMethod: data.paymentMethod, paymentStatus: data.paymentMethod === 'ROOM_CHARGE' ? 'CHARGED_TO_FOLIO' : 'PAID',
-          folioItemId, notes: data.notes, createdBy: data.createdBy,
-          orderItems: { create: resolved.map(i => ({ itemId: i.itemId, quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice, notes: i.notes })) },
-        }, include: { orderItems: { include: { item: true } } },
-      });
+      return tx.barOrder.findUniqueOrThrow({ where: { id: order.id }, include: { orderItems: { include: { item: true } } } });
     });
   }
 
@@ -259,29 +312,35 @@ export class POSService {
 
   static async createPoolTransaction(data: PoolTransactionDTO) {
     assertPositiveInteger(data.quantity, 'Quantity');
+    const existing = await prisma.poolTransaction.findUnique({ where: { idempotencyKey: data.idempotencyKey }, include: { service: true } });
+    if (existing) return existing;
     return prisma.$transaction(async tx => {
       const service = await tx.poolService.findFirst({ where: { id: data.serviceId, isAvailable: true } });
       if (!service) throw new Error('The selected pool service is unavailable.');
-      const unitPrice = Number(service.price);
-      const totalAmount = data.quantity * unitPrice;
+      const unitPrice = new Prisma.Decimal(service.price);
+      const totalAmount = unitPrice.mul(data.quantity);
+      const transaction = await tx.poolTransaction.create({
+        data: {
+          transactionNo: makeNumber('POL'), guestId: data.guestId, roomId: data.roomId, serviceId: data.serviceId,
+          quantity: data.quantity, unitPrice, totalAmount, paymentMethod: data.paymentMethod,
+          paymentStatus: 'PENDING', notes: data.notes, processedBy: data.processedBy, idempotencyKey: data.idempotencyKey,
+        }, include: { service: true },
+      });
       let folioItemId: string | undefined;
 
       if (data.paymentMethod === 'ROOM_CHARGE') {
         if (!data.roomId) throw new Error('A room is required when charging a pool service to a guest folio.');
-        const folio = await findOpenFolio(tx, data.roomId);
-        const item = await tx.folioItem.create({ data: { folioId: folio.id, type: 'POOL', description: service.name, amount: totalAmount, quantity: data.quantity, unitPrice, department: 'POOL', referenceType: 'TRANSACTION', postedBy: data.processedBy } });
+        const { folio, guestId } = await findOpenFolio(tx, data.roomId, data.guestId);
+        const item = await tx.folioItem.create({ data: { folioId: folio.id, type: 'POOL', description: service.name, amount: totalAmount, quantity: data.quantity, unitPrice, department: 'POOL', referenceId: transaction.id, referenceType: 'TRANSACTION', postedBy: data.processedBy } });
         await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: totalAmount } } });
         folioItemId = item.id;
+        await tx.poolTransaction.update({ where: { id: transaction.id }, data: { guestId, folioItemId, paymentStatus: 'CHARGED_TO_FOLIO' } });
+        await AuditService.logInTransaction(tx, { userId: data.processedBy, action: 'folio.charge_posted', resource: 'pool_transaction', resourceId: transaction.id, afterData: { folioId: folio.id, folioItemId, amount: totalAmount.toString() } });
+      } else {
+        await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'POOL_TRANSACTION', sourceId: transaction.id, idempotencyKey: data.idempotencyKey, processedBy: data.processedBy, description: `Pool transaction ${transaction.transactionNo}` });
+        await tx.poolTransaction.update({ where: { id: transaction.id }, data: { paymentStatus: 'PAID' } });
       }
-
-      return tx.poolTransaction.create({
-        data: {
-          transactionNo: makeNumber('POL'), guestId: data.guestId, roomId: data.roomId, serviceId: data.serviceId,
-          quantity: data.quantity, unitPrice, totalAmount, paymentMethod: data.paymentMethod,
-          paymentStatus: data.paymentMethod === 'ROOM_CHARGE' ? 'CHARGED_TO_FOLIO' : 'PAID', folioItemId,
-          notes: data.notes, processedBy: data.processedBy,
-        }, include: { service: true },
-      });
+      return tx.poolTransaction.findUniqueOrThrow({ where: { id: transaction.id }, include: { service: true } });
     });
   }
 }

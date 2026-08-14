@@ -4,6 +4,7 @@
 // ============================================
 
 import { prisma } from '../config';
+import type { Prisma } from '@prisma/client';
 
 export interface CreateAuditLogParams {
   userId?: string | null;
@@ -17,6 +18,25 @@ export interface CreateAuditLogParams {
 }
 
 export class AuditService {
+  /**
+   * Write an audit record as part of the caller's transaction. Use this for
+   * financial mutations so a committed payment/charge cannot lack its audit
+   * record because a separate best-effort write failed.
+   */
+  static async logInTransaction(tx: Prisma.TransactionClient, params: CreateAuditLogParams): Promise<void> {
+    await tx.auditLog.create({
+      data: {
+        userId: params.userId || null,
+        action: params.action,
+        resource: params.resource,
+        resourceId: params.resourceId || null,
+        beforeData: params.beforeData ? JSON.stringify(params.beforeData) : null,
+        afterData: params.afterData ? JSON.stringify(params.afterData) : null,
+        ipAddress: params.ipAddress || null,
+        deviceInfo: params.deviceInfo || null,
+      },
+    });
+  }
   /**
    * Log an auditable system action
    */

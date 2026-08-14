@@ -2,7 +2,7 @@
   "name": "nslv-management-system",
   "version": "1.0.0",
   "private": true,
-  "description": "NS Luxury Villa Management System \u2014 Production hospitality management platform",
+  "description": "NS Luxury Villa Management System — Production hospitality management platform",
   "workspaces": [
     "packages/shared",
     "packages/server",
@@ -22,7 +22,7 @@
     "test": "npm run test --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:integration": "npm run test:integration --workspaces --if-present",
-    "lint": "eslint packages/*/src --ext .ts,.tsx",
+    "lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,css}\"",
     "db:migrate": "npm run db:migrate --workspace=packages/server",
     "db:migrate:prod": "npm run db:migrate:prod --workspace=packages/server",
@@ -36,5 +36,11 @@
     "node": ">=20.0.0"
   },
   "author": "NS Luxury Villa",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "typescript-eslint": "^8.67.0"
+  }
 }

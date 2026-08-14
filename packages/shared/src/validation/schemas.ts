@@ -223,13 +223,14 @@ export const processPaymentSchema = z.object({
   guestId: uuidSchema.optional(),
   amount: positiveNumber,
   currency: z.string().max(10).optional(),
-  method: z.string().min(1, 'Payment method is required').max(50).trim(),
+  method: z.enum(['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']),
   reference: z.string().max(100).trim().optional(),
+  idempotencyKey: uuidSchema.optional(),
   description: z.string().max(500).trim().optional(),
 });
 
 // ── POS ──
-const paymentMethodEnum = z.enum(['ROOM_CHARGE', 'CASH', 'CARD', 'MOBILE_MONEY']);
+const paymentMethodEnum = z.enum(['ROOM_CHARGE', 'CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']);
 export const createPOSItemSchema = z.object({
   name: z.string().min(1, 'Item name is required').max(100).trim(),
   category: z.string().min(1, 'Category is required').max(50).trim(),
@@ -247,6 +248,7 @@ export const createOrderSchema = z.object({
   tableNo: z.string().max(20).trim().optional(),
   paymentMethod: paymentMethodEnum,
   notes: optionalString,
+  idempotencyKey: uuidSchema,
   items: z
     .array(z.object({ itemId: uuidSchema, quantity: positiveInt, notes: optionalString }))
     .min(1, 'At least one item is required'),
@@ -266,6 +268,7 @@ export const createPoolTransactionSchema = z.object({
   quantity: positiveInt,
   paymentMethod: paymentMethodEnum,
   notes: optionalString,
+  idempotencyKey: uuidSchema,
 });
 
 // ── Reservations ──

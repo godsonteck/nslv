@@ -46,6 +46,15 @@ interface BillStay {
   };
 }
 
+type DirectPaymentMethod = 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER';
+interface PaymentForm {
+  stayId: string;
+  amount: string;
+  method: DirectPaymentMethod;
+  reference: string;
+  description: string;
+}
+
 const money = (v: number | string | undefined | null) => Number(v ?? 0);
 
 export const PaymentsPage: React.FC = () => {
@@ -54,8 +63,9 @@ export const PaymentsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [idempotencyKey, setIdempotencyKey] = useState('');
   const [q, setQ] = useState('');
-  const [form, setForm] = useState({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+  const [form, setForm] = useState<PaymentForm>({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
 
   const load = async () => {
     try {
@@ -86,6 +96,7 @@ export const PaymentsPage: React.FC = () => {
 
   const openModal = () => {
     setForm({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+    setIdempotencyKey(crypto.randomUUID());
     setOpen(true);
   };
 
@@ -106,6 +117,7 @@ export const PaymentsPage: React.FC = () => {
         folioId: folio.id,
         amount,
         method: form.method,
+        idempotencyKey: idempotencyKey || crypto.randomUUID(),
         reference: form.reference || undefined,
         description: form.description || undefined,
       });
@@ -265,10 +277,11 @@ export const PaymentsPage: React.FC = () => {
               />
             </FormField>
             <FormField label="Method" required>
-              <SelectInput value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
+              <SelectInput value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value as DirectPaymentMethod })}>
                 <option>CASH</option>
                 <option>CARD</option>
                 <option>MOBILE_MONEY</option>
+                <option>BANK_TRANSFER</option>
                 <option>BANK_TRANSFER</option>
               </SelectInput>
             </FormField>

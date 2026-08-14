@@ -2,6 +2,8 @@
 // Payments are persistent, transactional and never trusted from client totals alone.
 
 import { prisma } from '../config';
+import { Prisma } from '@prisma/client';
+import { AuditService } from './audit.service';
 
 export interface ProcessPaymentDTO {
   folioId?: string;
@@ -11,6 +13,7 @@ export interface ProcessPaymentDTO {
   currency?: string;
   method: string;
   reference?: string;
+  idempotencyKey?: string;
   description?: string;
   processedBy: string;
 }
@@ -29,6 +32,11 @@ export class PaymentService {
     if (!data.method?.trim()) throw new Error('Payment method is required.');
     if (!data.folioId && !data.reservationId) throw new Error('A folio or reservation is required for a payment.');
 
+    if (data.idempotencyKey) {
+      const existing = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
+      if (existing) return existing;
+    }
+
     return prisma.$transaction(async tx => {
       const targetFolio = data.folioId
         ? await tx.folio.findUnique({ where: { id: data.folioId } })
@@ -37,9 +45,9 @@ export class PaymentService {
       if (!targetFolio) throw new Error('Open folio not found.');
       if (targetFolio.status !== 'OPEN') throw new Error('This folio is already closed.');
 
-      const amount = Number(data.amount);
-      const balance = Number(targetFolio.balance);
-      if (amount > balance) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
+      const amount = new Prisma.Decimal(data.amount);
+      const balance = new Prisma.Decimal(targetFolio.balance);
+      if (amount.gt(balance)) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
 
       const payment = await tx.payment.create({
         data: {
@@ -50,6 +58,7 @@ export class PaymentService {
           currency: data.currency || 'GHS',
           method: data.method,
           reference: data.reference,
+          idempotencyKey: data.idempotencyKey,
           status: 'COMPLETED',
           type: 'PAYMENT',
           description: data.description || 'Guest payment settlement',
@@ -73,6 +82,13 @@ export class PaymentService {
       });
 
       await tx.folio.update({ where: { id: targetFolio.id }, data: { balance: { decrement: amount } } });
+      await AuditService.logInTransaction(tx, {
+        userId: data.processedBy,
+        action: 'payment.created',
+        resource: 'payment',
+        resourceId: payment.id,
+        afterData: { folioId: targetFolio.id, amount: amount.toString(), method: payment.method, source: 'FOLIO' },
+      });
       return payment;
     });
   }

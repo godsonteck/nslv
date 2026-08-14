@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "tsc && electron .",
     "build": "tsc && electron-builder --config electron-builder.config.js",
+    "build:signed": "set NSLV_SIGN_WINDOWS_EXECUTABLE=true&& npm run build",
     "compile": "tsc"
   },
   "dependencies": {

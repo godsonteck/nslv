@@ -24,9 +24,11 @@ module.exports = {
     // Generated from packages/client/src/assets/images/ns-logo.jpeg.
     icon: 'assets/ns-luxury-villa.ico',
     target: ['nsis'],
-    // Embed the NS logo into the installed executable so Windows shortcuts and
-    // the taskbar use it instead of Electron's fallback icon.
-    signAndEditExecutable: true,
+    // Editing/signing the executable downloads the Windows signing helper,
+    // which cannot be unpacked on many local Windows installations without
+    // symlink privilege. Keep local builds reproducible; release CI enables
+    // this explicitly after signing credentials are configured.
+    signAndEditExecutable: process.env.NSLV_SIGN_WINDOWS_EXECUTABLE === 'true',
     verifyUpdateCodeSignature: false,
   },
   nsis: {
