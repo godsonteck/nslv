@@ -11,6 +11,17 @@ import { createFolioChargeSchema, voidFolioChargeSchema } from '@nslv/shared';
 const router = Router();
 router.use(authenticate, verifyActiveUser);
 
+// Reconciliation is read-only: it exposes discrepancies without rewriting the ledger.
+router.get('/:id/reconciliation', requirePermission('folios.view'), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await FolioService.reconcileFolio(id);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get Folio details
 router.get('/:id', requirePermission('folios.view'), async (req, res, next) => {
   try {

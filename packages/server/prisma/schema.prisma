@@ -436,6 +436,7 @@ model Payment {
   reference       String?  // Transaction reference from payment provider
   source          String?  // RESTAURANT_ORDER | BAR_ORDER | POOL_TRANSACTION | FOLIO
   sourceId        String?  @map("source_id")
+  originalPaymentId String? @map("original_payment_id")
   idempotencyKey  String?  @unique @map("idempotency_key")
   status          String   @default("COMPLETED") // PENDING | COMPLETED | FAILED | REFUNDED | PARTIALLY_REFUNDED
   type            String   @default("PAYMENT") // PAYMENT | REFUND | DEPOSIT | ADJUSTMENT
@@ -451,6 +452,8 @@ model Payment {
   reservation     Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
   guest           Guest?       @relation(fields: [guestId], references: [id], onDelete: SetNull)
   folio           Folio?       @relation(fields: [folioId], references: [id], onDelete: SetNull)
+  originalPayment Payment?     @relation("PaymentRefunds", fields: [originalPaymentId], references: [id], onDelete: Restrict)
+  refunds         Payment[]    @relation("PaymentRefunds")
 
   @@index([reservationId])
   @@index([guestId])
@@ -458,6 +461,7 @@ model Payment {
   @@index([status])
   @@index([processedAt])
   @@index([source, sourceId])
+  @@index([originalPaymentId])
   @@map("payments")
 }
 

@@ -229,6 +229,14 @@ export const processPaymentSchema = z.object({
   description: z.string().max(500).trim().optional(),
 });
 
+export const refundPaymentSchema = z.object({
+  amount: positiveNumber,
+  method: z.enum(['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']).optional(),
+  reference: z.string().max(100).trim().optional(),
+  reason: z.string().min(3, 'A refund reason is required').max(500).trim(),
+  idempotencyKey: uuidSchema,
+});
+
 // ── POS ──
 const paymentMethodEnum = z.enum(['ROOM_CHARGE', 'CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']);
 export const createPOSItemSchema = z.object({
