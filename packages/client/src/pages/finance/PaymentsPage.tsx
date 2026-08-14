@@ -6,7 +6,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { paymentsApi, staysApi } from '../../services/apiService';
-import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText } from 'lucide-react';
+import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2 } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
@@ -64,8 +65,13 @@ export const PaymentsPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState('');
+  const [refundTarget, setRefundTarget] = useState<PaymentRecord | null>(null);
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundReason, setRefundReason] = useState('');
+  const [refundReference, setRefundReference] = useState('');
   const [q, setQ] = useState('');
   const [form, setForm] = useState<PaymentForm>({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+  const canRefund = useAuthStore((s) => s.hasPermission('payments.refund'));
 
   const load = async () => {
     try {
@@ -132,6 +138,23 @@ export const PaymentsPage: React.FC = () => {
   };
 
   const total = data.reduce((s, p) => s + (p.type === 'REFUND' ? -money(p.amount) : money(p.amount)), 0);
+  const openRefund = (payment: PaymentRecord) => {
+    setRefundTarget(payment); setRefundAmount(money(payment.amount).toFixed(2)); setRefundReason(''); setRefundReference('');
+  };
+  const submitRefund = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!refundTarget) return;
+    const amount = Number(refundAmount);
+    if (!Number.isFinite(amount) || amount <= 0) return showToast('error', 'Enter a positive refund amount.');
+    if (!refundReason.trim()) return showToast('error', 'A refund reason is required.');
+    try {
+      setBusy(true);
+      await paymentsApi.refund(refundTarget.id, { amount, method: refundTarget.method as DirectPaymentMethod, reference: refundReference || undefined, reason: refundReason.trim(), idempotencyKey: crypto.randomUUID() });
+      showToast('success', 'Refund recorded as an immutable ledger reversal.');
+      setRefundTarget(null); void load();
+    } catch (error) { showToast('error', error instanceof Error ? error.message : 'Unable to issue refund'); }
+    finally { setBusy(false); }
+  };
   const visible = data.filter(
     (p) =>
       !q ||
@@ -176,9 +199,11 @@ export const PaymentsPage: React.FC = () => {
                   <th className="px-5 py-3">Reference</th>
                   <th className="px-5 py-3">Payer</th>
                   <th className="px-5 py-3">Method</th>
+                  <th className="px-5 py-3">Type</th>
                   <th className="px-5 py-3">Date</th>
                   <th className="px-5 py-3 text-right">Amount</th>
                   <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#edf0ed]">
@@ -191,13 +216,15 @@ export const PaymentsPage: React.FC = () => {
                       {p.guest ? `${p.guest.firstName} ${p.guest.lastName}` : p.description || 'General payment'}
                     </td>
                     <td className="px-5 py-4 text-[10px] font-bold text-[#667278]">{p.method || '—'}</td>
+                    <td className="px-5 py-4 text-[10px] font-extrabold text-[#667278]">{p.type === 'REFUND' ? 'REFUND' : p.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT'}</td>
                     <td className="px-5 py-4 text-[10px] text-[#899397]">
                       {(() => { const ts = p.processedAt || p.createdAt; return ts ? new Date(ts).toLocaleString() : '—'; })()}
                     </td>
                     <td className="px-5 py-4 text-right text-xs font-extrabold text-[#20343e]">
-                      {formatCurrency(money(p.amount))}
+                      {p.type === 'REFUND' ? '− ' : ''}{formatCurrency(money(p.amount))}
                     </td>
                     <td className="px-5 py-4">{statusBadge(p.status || 'PAID')}</td>
+                    <td className="px-5 py-4 text-right">{canRefund && ['PAYMENT', 'DEPOSIT'].includes(p.type) && ['COMPLETED', 'PARTIALLY_REFUNDED'].includes(p.status) ? <Button variant="outline" size="sm" onClick={() => openRefund(p)}><Undo2 size={13} /> Refund</Button> : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -304,6 +331,16 @@ export const PaymentsPage: React.FC = () => {
               <ReceiptText size={14} /> Record payment
             </Button>
           </div>
+        </form>
+      </Modal>
+
+      <Modal open={!!refundTarget} onClose={() => setRefundTarget(null)} title="Issue refund">
+        <form onSubmit={submitRefund} className="space-y-4 p-6">
+          <p className="rounded-xl bg-[#fdf4e8] p-3 text-xs text-[#6a4d26]">This creates an immutable reversal; it never edits the original payment. The server prevents over-refunds.</p>
+          <FormField label="Refund amount (GHS)" required><TextInput required type="number" min="0.01" step="0.01" max={refundTarget ? money(refundTarget.amount) : undefined} value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} /></FormField>
+          <FormField label="Reason" required><TextInput required value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="Reason for refund" /></FormField>
+          <FormField label="Refund reference"><TextInput value={refundReference} onChange={(e) => setRefundReference(e.target.value)} /></FormField>
+          <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setRefundTarget(null)}>Cancel</Button><Button type="submit" loading={busy}><Undo2 size={14} /> Issue refund</Button></div>
         </form>
       </Modal>
     </ShellPage>
