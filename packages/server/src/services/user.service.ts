@@ -7,7 +7,7 @@ import { prisma } from '../config';
 import { AppError } from '../middleware/error';
 import { AuthService } from './auth.service';
 import { AuditService } from './audit.service';
-import type { CreateUserInput, UpdateUserInput } from '@nslv/shared';
+import { SYSTEM_ROLES, type CreateUserInput, type UpdateUserInput } from '@nslv/shared';
 
 const ADMIN_ROLE_NAME = 'Admin';
 
@@ -16,6 +16,10 @@ export class UserService {
    * Create a new user account (Admin only)
    */
   static async createUser(input: CreateUserInput, createdByUserId: string) {
+    const assignedRole = await prisma.role.findUnique({ where: { id: input.roleId }, select: { name: true, isSystem: true } });
+    if (!assignedRole || !assignedRole.isSystem || !Object.values(SYSTEM_ROLES).includes(assignedRole.name as typeof SYSTEM_ROLES[keyof typeof SYSTEM_ROLES])) {
+      throw new AppError('Users can only be assigned one of the four official system roles.', 400, 'INVALID_SYSTEM_ROLE');
+    }
     // Check email uniqueness
     const existingEmail = await prisma.user.findUnique({
       where: { email: input.email },
@@ -126,6 +130,13 @@ export class UserService {
       phone: existing.phone,
       status: existing.status,
     };
+
+    if (input.roleId) {
+      const assignedRole = await prisma.role.findUnique({ where: { id: input.roleId }, select: { name: true, isSystem: true } });
+      if (!assignedRole || !assignedRole.isSystem || !Object.values(SYSTEM_ROLES).includes(assignedRole.name as typeof SYSTEM_ROLES[keyof typeof SYSTEM_ROLES])) {
+        throw new AppError('Users can only be assigned one of the four official system roles.', 400, 'INVALID_SYSTEM_ROLE');
+      }
+    }
 
     await prisma.$transaction(async (tx) => {
       const adminRole = await tx.role.findUnique({ where: { name: ADMIN_ROLE_NAME } });
@@ -313,30 +324,9 @@ export class UserService {
    * Create a new role with permissions
    */
   static async createRole(input: { name: string; description?: string | null; permissionCodes: string[] }, createdByUserId: string) {
-    const existing = await prisma.role.findFirst({ where: { name: input.name } });
-    if (existing) throw new AppError('A role with this name already exists.', 409, 'ROLE_EXISTS');
-
-    const permissionIds = await this.resolvePermissionIds(input.permissionCodes);
-
-    const role = await prisma.$transaction(async (tx) => {
-      const created = await tx.role.create({
-        data: { name: input.name, description: input.description || null, isSystem: false },
-      });
-      for (const permissionId of permissionIds) {
-        await tx.rolePermission.create({ data: { roleId: created.id, permissionId } });
-      }
-      return created;
-    });
-
-    await AuditService.log({
-      userId: createdByUserId,
-      action: 'role.created',
-      resource: 'role',
-      resourceId: role.id,
-      afterData: { name: role.name, permissionCodes: input.permissionCodes },
-    });
-
-    return this.listRoles().then((roles) => roles.find((r) => r.id === role.id));
+    void input;
+    void createdByUserId;
+    throw new AppError('NS Luxury Villa uses the four official system roles. Configure their permissions instead of creating a new role.', 400, 'SYSTEM_ROLES_ONLY');
   }
 
   /**
@@ -345,6 +335,12 @@ export class UserService {
   static async updateRole(id: string, input: { name?: string; description?: string | null; permissionCodes?: string[] }, updatedByUserId: string) {
     const existing = await prisma.role.findUnique({ where: { id } });
     if (!existing) throw new AppError('Role not found.', 404, 'ROLE_NOT_FOUND');
+    if (!existing.isSystem || !Object.values(SYSTEM_ROLES).includes(existing.name as typeof SYSTEM_ROLES[keyof typeof SYSTEM_ROLES])) {
+      throw new AppError('Only the four official system roles can be configured.', 400, 'SYSTEM_ROLES_ONLY');
+    }
+    if (input.name && input.name !== existing.name) {
+      throw new AppError('Official system role names cannot be changed.', 400, 'SYSTEM_ROLE_NAME_IMMUTABLE');
+    }
 
     if (input.name && input.name !== existing.name) {
       const dup = await prisma.role.findFirst({ where: { name: input.name, id: { not: id } } });

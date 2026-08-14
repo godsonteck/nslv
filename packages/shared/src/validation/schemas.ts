@@ -178,7 +178,7 @@ export const updateRoomSchema = z.object({
 });
 
 export const updateRoomStatusSchema = z.object({
-  status: z.enum(['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'BLOCKED', 'CLEANING']),
+  status: z.enum(['AVAILABLE', 'RESERVED', 'OCCUPIED', 'DIRTY', 'CLEANING', 'MAINTENANCE', 'OUT_OF_SERVICE']),
   notes: z.string().max(500).trim().optional(),
 });
 

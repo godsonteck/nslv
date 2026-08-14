@@ -72,7 +72,10 @@ export class ReservationService {
 
   /** Find available rooms for date range */
   static async getAvailableRooms(checkInDate: Date, checkOutDate: Date, roomTypeId?: string) {
-    const where: any = { isActive: true };
+    const where: any = {
+      isActive: true,
+      status: { notIn: ['MAINTENANCE', 'OUT_OF_SERVICE'] },
+    };
     if (roomTypeId) where.roomTypeId = roomTypeId;
 
     const allRooms = await prisma.room.findMany({
@@ -152,7 +155,9 @@ export class ReservationService {
       tx.room.findUnique({ where: { id: data.roomId }, include: { roomType: true } }),
       tx.guest.findUnique({ where: { id: data.guestId }, select: { id: true } }),
     ]);
-    if (!room || !room.isActive) throw new Error('Selected room is not available.');
+    if (!room || !room.isActive || ['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)) {
+      throw new Error('Selected room is not available.');
+    }
     if (!guest) throw new Error('Guest not found.');
 
     // Pricing is authoritative on the server. The client cannot override the room rate.
@@ -344,11 +349,27 @@ export class ReservationService {
         },
       });
 
-      // Set room back to AVAILABLE if no other active reservation today
-      await tx.room.update({
-        where: { id: reservation.roomId },
-        data: { status: 'AVAILABLE' },
+      // Never overwrite operational room states. A cancelled reservation only
+      // releases a room when it was the current reservation marker and no
+      // other active arrival/stay still needs the room today.
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const otherActiveToday = await tx.reservation.findFirst({
+        where: {
+          roomId: reservation.roomId,
+          id: { not: reservation.id },
+          status: { in: ['PENDING', 'CONFIRMED', 'CHECKED_IN'] },
+          checkInDate: { lt: tomorrow },
+          checkOutDate: { gt: today },
+        },
+        select: { id: true },
       });
+      const room = await tx.room.findUnique({ where: { id: reservation.roomId }, select: { status: true } });
+      if (room?.status === 'RESERVED' && !otherActiveToday) {
+        await tx.room.update({ where: { id: reservation.roomId }, data: { status: 'AVAILABLE' } });
+      }
 
       return updated;
     });

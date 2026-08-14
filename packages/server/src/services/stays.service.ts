@@ -60,6 +60,17 @@ export class StayService {
       if (!reservation) throw new Error('Reservation not found');
       if (reservation.status === 'CHECKED_IN') throw new Error('Guest is already checked in');
       if (reservation.status === 'CANCELLED') throw new Error('Cannot check in a cancelled reservation');
+      if (!['PENDING', 'CONFIRMED'].includes(reservation.status)) throw new Error('Reservation is not eligible for check-in');
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const checkoutDay = new Date(reservation.checkOutDate);
+      checkoutDay.setHours(0, 0, 0, 0);
+      const checkinDay = new Date(reservation.checkInDate);
+      checkinDay.setHours(0, 0, 0, 0);
+      if (today < checkinDay || today >= checkoutDay) throw new Error('Check-in is outside the reservation stay dates.');
+      if (!reservation.room.isActive || ['MAINTENANCE', 'OUT_OF_SERVICE', 'OCCUPIED'].includes(reservation.room.status)) {
+        throw new Error('The assigned room is not available for check-in.');
+      }
 
       const primaryGuestId = reservation.guests[0]?.guestId;
       if (!primaryGuestId) throw new Error('No primary guest linked to reservation');

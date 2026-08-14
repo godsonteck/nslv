@@ -5,7 +5,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import {
   loginSchema,
@@ -69,7 +69,7 @@ router.post(
  * POST /api/v1/auth/logout
  * Invalidate session refresh token
  */
-router.post('/logout', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/logout', authenticate, verifyActiveUser, validateBody(refreshTokenSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const refreshToken = req.body.refreshToken;
     const authReq = req as AuthenticatedRequest;
@@ -90,7 +90,7 @@ router.post('/logout', async (req: Request, res: Response, next: NextFunction): 
  * GET /api/v1/auth/me
  * Get current authenticated user profile
  */
-router.get('/me', authenticate, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/me', authenticate, verifyActiveUser, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authReq = req as AuthenticatedRequest;
     const user = await AuthService.getProfile(authReq.user.userId);
@@ -108,6 +108,7 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
 router.patch(
   '/me',
   authenticate,
+  verifyActiveUser,
   validateBody(updateProfileSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -124,6 +125,7 @@ router.patch(
 router.post(
   '/change-password',
   authenticate,
+  verifyActiveUser,
   validateBody(changePasswordSchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -140,7 +142,7 @@ router.post(
  * POST /api/v1/auth/2fa/setup
  * Initiate 2FA setup (returns QR code)
  */
-router.post('/2fa/setup', authenticate, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/2fa/setup', authenticate, verifyActiveUser, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authReq = req as AuthenticatedRequest;
     const result = await AuthService.setup2FA(authReq.user.userId);
@@ -160,6 +162,7 @@ router.post('/2fa/setup', authenticate, async (req: Request, res: Response, next
 router.post(
   '/2fa/verify',
   authenticate,
+  verifyActiveUser,
   validateBody(totpVerifySchema),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

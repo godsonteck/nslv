@@ -165,7 +165,19 @@ export async function verifyActiveUser(
   try {
     const user = await prisma.user.findUnique({
       where: { id: authReq.user.userId },
-      select: { status: true },
+      select: {
+        status: true,
+        userRoles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+                rolePermissions: { select: { permission: { select: { code: true } } } },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user || user.status !== 'ACTIVE') {
@@ -178,6 +190,18 @@ export async function verifyActiveUser(
       });
       return;
     }
+
+    // The access token identifies the session, but it is deliberately not the
+    // authority for current access. Rehydrate roles and permissions so a role
+    // or permission change takes effect on the next protected request.
+    const permissions = new Set<PermissionCode>();
+    for (const assignment of user.userRoles) {
+      for (const rolePermission of assignment.role.rolePermissions) {
+        permissions.add(rolePermission.permission.code as PermissionCode);
+      }
+    }
+    authReq.user.roles = user.userRoles.map((assignment) => assignment.role.name);
+    authReq.user.permissions = [...permissions];
 
     next();
   } catch {

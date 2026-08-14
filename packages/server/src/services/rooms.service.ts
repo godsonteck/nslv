@@ -184,6 +184,12 @@ export class RoomService {
 
   /** Update room status (AVAILABLE, RESERVED, OCCUPIED, DIRTY, READY, OUT_OF_SERVICE) */
   static async updateRoomStatus(id: string, status: string, notes?: string) {
+    // Reservation and stay workflows exclusively own these states. Allowing a
+    // generic room-status form to set them would create an inconsistent room,
+    // reservation and folio lifecycle.
+    if (status === 'OCCUPIED' || status === 'RESERVED') {
+      throw new Error('Occupied and reserved states are managed by the reservation and stay workflows.');
+    }
     return prisma.room.update({
       where: { id },
       data: { status, notes },

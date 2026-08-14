@@ -4,7 +4,7 @@
 // ============================================
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Shield, Lock, Unlock, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Shield, Lock, Unlock, ChevronDown, ChevronRight, Pencil } from 'lucide-react';
 import {
   PageHeader, Button, Spinner, Badge, showToast, Modal, FormField, TextInput,
 } from '../../components/ui';
@@ -133,14 +133,6 @@ export const RolesPage: React.FC = () => {
     fetchRoles();
   }, [fetchRoles]);
 
-  const openCreate = () => {
-    setEditing(null);
-    setName('');
-    setDescription('');
-    setSelectedCodes(new Set(['dashboard.view']));
-    setModalOpen(true);
-  };
-
   const openEdit = (role: RoleRecord) => {
     setEditing(role);
     setName(role.name);
@@ -165,28 +157,13 @@ export const RolesPage: React.FC = () => {
     }
     const body = { name, description, permissionCodes: [...selectedCodes] };
     try {
-      if (editing) {
-        await rolesApi.update(editing.id, body);
-        showToast('success', `Role ${name} updated.`);
-      } else {
-        await rolesApi.create(body);
-        showToast('success', `Role ${name} created.`);
-      }
+      if (!editing) return;
+      await rolesApi.update(editing.id, body);
+      showToast('success', `Role ${name} updated.`);
       setModalOpen(false);
       fetchRoles();
     } catch (err: any) {
       showToast('error', err?.message ?? 'Failed to save role.');
-    }
-  };
-
-  const handleDelete = async (role: RoleRecord) => {
-    if (!window.confirm(`Delete role "${role.name}"? This cannot be undone.`)) return;
-    try {
-      await rolesApi.remove(role.id);
-      showToast('success', `Role ${role.name} deleted.`);
-      fetchRoles();
-    } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to delete role.');
     }
   };
 
@@ -195,13 +172,7 @@ export const RolesPage: React.FC = () => {
       <PageHeader
         title="Roles & Access Control"
         subtitle="Structured role definitions and permission matrix across all villa modules"
-        actions={
-          canManage && (
-            <Button variant="primary" size="sm" onClick={openCreate}>
-              <Plus size={14} /> New Role
-            </Button>
-          )
-        }
+        actions={undefined}
       />
 
       {/* Role Cards */}
@@ -224,11 +195,6 @@ export const RolesPage: React.FC = () => {
                 <button onClick={() => openEdit(role)} className="p-1.5 hover:bg-[#232733] rounded text-[#A0A5AD] hover:text-[#F4F4F2]" title="Edit Role">
                   <Pencil size={14} />
                 </button>
-                {!role.isSystem && (
-                  <button onClick={() => handleDelete(role)} className="p-1.5 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete Role">
-                    <Trash2 size={14} />
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -241,11 +207,11 @@ export const RolesPage: React.FC = () => {
         <PermissionMatrix roles={roles} permissions={permissions} modules={modules} />
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? `Edit Role — ${editing.name}` : 'Create New Role'} size="lg">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? `Configure role — ${editing.name}` : 'Configure role'} size="lg">
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="Role Name" required>
-              <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Housekeeping" required minLength={2} maxLength={50} />
+              <TextInput value={name} disabled required minLength={2} maxLength={50} />
             </FormField>
             <FormField label="Description">
               <TextInput value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" maxLength={255} />
@@ -287,7 +253,7 @@ export const RolesPage: React.FC = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              {editing ? 'Save Changes' : 'Create Role'}
+              Save Changes
             </Button>
           </div>
         </form>
