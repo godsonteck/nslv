@@ -102,7 +102,8 @@ export const AdminConsolePage: React.FC = () => {
       initial ? setLoading(true) : setRefreshing(true);
       setError('');
       const [usersRes, rolesRes, permsRes, auditRes] = await Promise.allSettled([
-        usersApi.list({ pageSize: 200 }),
+        // The API deliberately caps page size at 100.
+        usersApi.list({ pageSize: 100 }),
         rolesApi.list(),
         rolesApi.permissions(),
         auditApi.list({ pageSize: 8 }),

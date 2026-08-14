@@ -70,6 +70,19 @@ export function errorHandler(
       });
       return;
     }
+    // A new server build can reach Vercel before its separately managed
+    // database migrations are deployed. Do not disguise that operational
+    // condition as an application bug in every dashboard widget.
+    if (prismaErr.code === 'P2021' || prismaErr.code === 'P2022') {
+      res.status(503).json({
+        success: false,
+        error: {
+          code: 'DATABASE_SCHEMA_OUTDATED',
+          message: 'The application database schema is awaiting its safe migration. Please contact an administrator.',
+        },
+      });
+      return;
+    }
   }
 
   // Default fallback internal server error
