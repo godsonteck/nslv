@@ -53,7 +53,12 @@ router.get('/', requirePermission('reservations.view'), async (req, res, next) =
 router.post('/', requirePermission('reservations.create'), validateBody(createReservationSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
-    const data = await ReservationService.createReservation({ ...req.body, createdBy: userId });
+    const auth = (req as AuthenticatedRequest).user;
+    const discountAmount = Number(req.body.discountAmount || 0);
+    if (discountAmount > 0 && !auth.permissions.includes('folios.adjust')) {
+      return res.status(403).json({ success: false, error: { code: 'DISCOUNT_NOT_AUTHORIZED', message: 'Discounts require folio-adjustment authorization.' } });
+    }
+    const data = await ReservationService.createReservation({ ...req.body, createdBy: userId, discountApprovedBy: discountAmount > 0 ? userId : undefined });
     res.status(201).json({ success: true, data });
   } catch (error) {
     next(error);
@@ -64,6 +69,11 @@ router.post('/', requirePermission('reservations.create'), validateBody(createRe
 router.post('/multi', requirePermission('reservations.create'), validateBody(createMultiReservationSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
+    const auth = (req as AuthenticatedRequest).user;
+    const discountAmount = Number(req.body.discountAmount || 0);
+    if (discountAmount > 0 && !auth.permissions.includes('folios.adjust')) {
+      return res.status(403).json({ success: false, error: { code: 'DISCOUNT_NOT_AUTHORIZED', message: 'Discounts require folio-adjustment authorization.' } });
+    }
     const data = await ReservationService.createMultiReservation({ ...req.body, createdBy: userId });
     res.status(201).json({ success: true, data });
   } catch (error) {

@@ -6,6 +6,8 @@ import { Prisma } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { CategoryService } from './categories.service';
 import { AuditService } from './audit.service';
+import { DailyCloseService, lockBusinessDay } from './daily-close.service';
+import { RecipeService } from './recipes.service';
 
 const makeNumber = (prefix: string) => `${prefix}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -32,6 +34,8 @@ async function recordDirectPayment(
   tx: Prisma.TransactionClient,
   data: { amount: Prisma.Decimal; method: string; source: string; sourceId: string; idempotencyKey: string; processedBy: string; description: string },
 ) {
+  await lockBusinessDay(tx, new Date());
+  await DailyCloseService.assertBusinessDayOpen(new Date());
   const payment = await tx.payment.create({
     data: {
       amount: data.amount,
@@ -159,6 +163,9 @@ export class POSService {
         },
         include: { orderItems: { include: { item: true } } },
       });
+      // An order becomes authoritative only as this creation transaction is
+      // finalised. Draft/cancelled orders never reach this path.
+      for (const line of resolved) await RecipeService.consumeForSale(tx, 'RESTAURANT', line.itemId, order.id, line.quantity, data.createdBy);
 
       let folioItemId: string | undefined;
       if (data.paymentMethod === 'ROOM_CHARGE') {
@@ -175,7 +182,7 @@ export class POSService {
         await tx.restaurantOrder.update({ where: { id: order.id }, data: { paymentStatus: 'PAID', status: 'COMPLETED' } });
       }
       return tx.restaurantOrder.findUniqueOrThrow({ where: { id: order.id }, include: { orderItems: { include: { item: true } } } });
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
   static getBarItems() {
@@ -240,6 +247,7 @@ export class POSService {
           orderItems: { create: resolved.map(i => ({ itemId: i.itemId, quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice, notes: i.notes })) },
         }, include: { orderItems: { include: { item: true } } },
       });
+      for (const line of resolved) await RecipeService.consumeForSale(tx, 'BAR', line.itemId, order.id, line.quantity, data.createdBy);
 
       let folioItemId: string | undefined;
       if (data.paymentMethod === 'ROOM_CHARGE') {
@@ -256,7 +264,7 @@ export class POSService {
         await tx.barOrder.update({ where: { id: order.id }, data: { paymentStatus: 'PAID', status: 'COMPLETED' } });
       }
       return tx.barOrder.findUniqueOrThrow({ where: { id: order.id }, include: { orderItems: { include: { item: true } } } });
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
   static getPoolServices() {
@@ -326,6 +334,7 @@ export class POSService {
           paymentStatus: 'PENDING', notes: data.notes, processedBy: data.processedBy, idempotencyKey: data.idempotencyKey,
         }, include: { service: true },
       });
+      await RecipeService.consumeForSale(tx, 'POOL', data.serviceId, transaction.id, data.quantity, data.processedBy);
       let folioItemId: string | undefined;
 
       if (data.paymentMethod === 'ROOM_CHARGE') {
@@ -341,6 +350,6 @@ export class POSService {
         await tx.poolTransaction.update({ where: { id: transaction.id }, data: { paymentStatus: 'PAID' } });
       }
       return tx.poolTransaction.findUniqueOrThrow({ where: { id: transaction.id }, include: { service: true } });
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 }

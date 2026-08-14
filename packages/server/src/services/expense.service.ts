@@ -7,6 +7,7 @@ import { prisma } from '../config';
 import { randomBytes } from 'node:crypto';
 import { AuditService } from './audit.service';
 import { CategoryService } from './categories.service';
+import { DailyCloseService } from './daily-close.service';
 
 const makeExpenseNo = () => `EXP-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -42,13 +43,15 @@ export class ExpenseService {
 
     await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
 
+    const incurredOn = input.incurredOn ? new Date(input.incurredOn) : new Date();
+    await DailyCloseService.assertBusinessDayOpen(incurredOn);
     const expense = await prisma.expense.create({
       data: {
         expenseNo: makeExpenseNo(),
         category: input.category,
         description: input.description.trim(),
         amount,
-        incurredOn: input.incurredOn ? new Date(input.incurredOn) : new Date(),
+        incurredOn,
         paymentMethod: input.paymentMethod,
         vendor: input.vendor,
         receiptRef: input.receiptRef,
@@ -64,6 +67,7 @@ export class ExpenseService {
     const existing = await prisma.expense.findUnique({ where: { id } });
     if (!existing) throw new Error('Expense not found.');
     if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be edited.');
+    await DailyCloseService.assertBusinessDayOpen(input.incurredOn ? new Date(input.incurredOn) : existing.incurredOn);
     if (input.category) await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
 
     const expense = await prisma.expense.update({
@@ -86,6 +90,8 @@ export class ExpenseService {
   static async setStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED', approvedBy: string) {
     const existing = await prisma.expense.findUnique({ where: { id } });
     if (!existing) throw new Error('Expense not found.');
+    if (existing.status === 'APPROVED') throw new Error('Approved expenses are immutable. Record a correcting expense instead.');
+    await DailyCloseService.assertBusinessDayOpen(existing.incurredOn);
 
     const expense = await prisma.expense.update({
       where: { id },
@@ -103,6 +109,7 @@ export class ExpenseService {
     const existing = await prisma.expense.findUnique({ where: { id } });
     if (!existing) throw new Error('Expense not found.');
     if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be deleted.');
+    await DailyCloseService.assertBusinessDayOpen(existing.incurredOn);
 
     await prisma.expense.delete({ where: { id } });
     await AuditService.log({ userId: deletedBy, action: 'expense.deleted', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown> });

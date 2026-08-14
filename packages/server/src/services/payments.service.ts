@@ -5,6 +5,7 @@ import { prisma } from '../config';
 import { Prisma } from '@prisma/client';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
+import { DailyCloseService, lockBusinessDay } from './daily-close.service';
 
 export interface ProcessPaymentDTO {
   folioId?: string;
@@ -16,6 +17,7 @@ export interface ProcessPaymentDTO {
   reference?: string;
   idempotencyKey: string;
   description?: string;
+  paymentType?: 'PAYMENT' | 'DEPOSIT';
   processedBy: string;
 }
 
@@ -42,62 +44,65 @@ export class PaymentService {
     if (!data.method?.trim()) throw new Error('Payment method is required.');
     if (!data.folioId && !data.reservationId) throw new Error('A folio or reservation is required for a payment.');
 
+    const paymentType = data.paymentType || 'PAYMENT';
     const existing = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
-    if (existing) return existing;
-
+    if (existing) {
+      if (existing.type !== paymentType) throw new AppError('This idempotency key belongs to a different transaction.', 409, 'IDEMPOTENCY_KEY_REUSED');
+      return existing;
+    }
     try {
       return await prisma.$transaction(async tx => {
+        await lockBusinessDay(tx, new Date());
+        await DailyCloseService.assertBusinessDayOpen(new Date());
         const targetFolio = data.folioId
           ? await tx.folio.findUnique({ where: { id: data.folioId } })
           : await tx.folio.findFirst({ where: { reservationId: data.reservationId, status: 'OPEN' } });
-
-        if (!targetFolio) throw new Error('Open folio not found.');
-        if (targetFolio.status !== 'OPEN') throw new Error('This folio is already closed.');
+        const reservationId = data.reservationId || targetFolio?.reservationId;
+        const reservation = reservationId ? await tx.reservation.findUnique({
+          where: { id: reservationId }, include: { guests: { where: { isPrimary: true }, select: { guestId: true } } },
+        }) : null;
+        if (!reservation) throw new Error('Reservation not found.');
+        if (data.folioId && targetFolio?.reservationId !== reservation.id) throw new Error('The folio does not belong to the supplied reservation.');
+        const expectedGuestId = targetFolio?.guestId || reservation.guests[0]?.guestId;
+        if (data.guestId && data.guestId !== expectedGuestId) throw new Error('The supplied guest does not belong to this reservation.');
+        if (targetFolio && targetFolio.status !== 'OPEN') throw new Error('This folio is already closed.');
+        if (paymentType === 'PAYMENT' && !targetFolio) throw new Error('Open folio not found.');
 
         const amount = new Prisma.Decimal(data.amount);
-        const balance = new Prisma.Decimal(targetFolio.balance);
-        if (amount.gt(balance)) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
+        if (paymentType === 'PAYMENT') {
+          const balance = new Prisma.Decimal(targetFolio!.balance);
+          if (amount.gt(balance)) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
+        } else {
+          const priorDeposits = await tx.payment.aggregate({
+            where: { reservationId: reservation.id, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null }, _sum: { amount: true },
+          });
+          if (new Prisma.Decimal(priorDeposits._sum.amount || 0).plus(amount).gt(reservation.totalAmount)) {
+            throw new Error('Deposits cannot exceed the reservation total.');
+          }
+        }
 
-        const payment = await tx.payment.create({
-          data: {
-            folioId: targetFolio.id,
-            reservationId: data.reservationId || targetFolio.reservationId,
-            guestId: data.guestId || targetFolio.guestId,
-            amount,
-            currency: data.currency || 'GHS',
-            method: data.method,
-            reference: data.reference,
-            idempotencyKey: data.idempotencyKey,
-            status: 'COMPLETED',
-            type: 'PAYMENT',
-            description: data.description || 'Guest payment settlement',
-            processedBy: data.processedBy,
-          },
-        });
+        const payment = await tx.payment.create({ data: {
+          folioId: targetFolio?.id, reservationId: reservation.id,
+          guestId: expectedGuestId,
+          amount, currency: data.currency || 'GHS', method: data.method, reference: data.reference,
+          idempotencyKey: data.idempotencyKey, status: 'COMPLETED', type: paymentType,
+          description: data.description || (paymentType === 'DEPOSIT' ? 'Reservation deposit collected' : 'Guest payment settlement'),
+          processedBy: data.processedBy,
+        } });
 
-        await tx.folioItem.create({
-        data: {
-          folioId: targetFolio.id,
-          type: 'PAYMENT',
-          description: `Payment received (${data.method}${data.reference ? ` · ${data.reference}` : ''})`,
-          amount: -amount,
-          quantity: 1,
-          unitPrice: -amount,
-          department: 'FRONT_DESK',
-          referenceId: payment.id,
-          referenceType: 'PAYMENT',
-          postedBy: data.processedBy,
-        },
-      });
-
-        await tx.folio.update({ where: { id: targetFolio.id }, data: { balance: { decrement: amount } } });
+        if (targetFolio) {
+          await tx.folioItem.create({ data: {
+            folioId: targetFolio.id, type: paymentType === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
+            description: `${paymentType === 'DEPOSIT' ? 'Deposit collected' : 'Payment received'} (${data.method}${data.reference ? ` · ${data.reference}` : ''})`,
+            amount: -amount, quantity: 1, unitPrice: -amount, department: 'FRONT_DESK',
+            referenceId: payment.id, referenceType: 'PAYMENT', postedBy: data.processedBy,
+          } });
+          await tx.folio.update({ where: { id: targetFolio.id }, data: { balance: { decrement: amount } } });
+        }
         await AuditService.logInTransaction(tx, {
-        userId: data.processedBy,
-        action: 'payment.created',
-        resource: 'payment',
-        resourceId: payment.id,
-        afterData: { folioId: targetFolio.id, amount: amount.toString(), method: payment.method, source: 'FOLIO' },
-      });
+          userId: data.processedBy, action: 'payment.created', resource: 'payment', resourceId: payment.id,
+          afterData: { folioId: targetFolio?.id, reservationId: reservation.id, amount: amount.toString(), method: payment.method, type: paymentType },
+        });
         return payment;
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } catch (error) {
@@ -106,7 +111,7 @@ export class PaymentService {
       // second payment or presenting a spurious server error.
       if ((error as { code?: string }).code === 'P2002') {
         const duplicate = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
-        if (duplicate) return duplicate;
+        if (duplicate?.type === paymentType) return duplicate;
       }
       if ((error as { code?: string }).code === 'P2034') {
         throw new AppError('The folio changed while this payment was being processed. Please retry.', 409, 'PAYMENT_CONFLICT');
@@ -134,8 +139,10 @@ export class PaymentService {
 
     try {
       return await prisma.$transaction(async tx => {
+        await lockBusinessDay(tx, new Date());
+        await DailyCloseService.assertBusinessDayOpen(new Date());
         const original = await tx.payment.findUnique({ where: { id: originalPaymentId } });
-        if (!original || original.type !== 'PAYMENT' || original.status === 'FAILED' || original.voidedAt) {
+        if (!original || !['PAYMENT', 'DEPOSIT'].includes(original.type) || original.status === 'FAILED' || original.voidedAt) {
           throw new AppError('Only completed, non-voided payments can be refunded.', 422, 'PAYMENT_NOT_REFUNDABLE');
         }
         if (!['COMPLETED', 'PARTIALLY_REFUNDED'].includes(original.status)) {
@@ -222,6 +229,10 @@ export class PaymentService {
         return refund;
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } catch (error) {
+      if ((error as { code?: string }).code === 'P2002') {
+        const duplicate = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
+        if (duplicate?.type === 'REFUND' && duplicate.originalPaymentId === originalPaymentId) return duplicate;
+      }
       if ((error as { code?: string }).code === 'P2034') {
         throw new AppError('The payment changed while the refund was being processed. Please retry.', 409, 'REFUND_CONFLICT');
       }

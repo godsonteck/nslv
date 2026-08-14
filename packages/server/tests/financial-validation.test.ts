@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createOrderSchema, createPoolTransactionSchema, processPaymentSchema } from '@nslv/shared';
+import { createFolioChargeSchema, createOrderSchema, createPoolTransactionSchema, processPaymentSchema } from '@nslv/shared';
 
 const idempotencyKey = '9dd18b1a-47f7-42dc-931c-1eb1a644628b';
 const itemId = '74d7cf44-224e-47ca-82f0-0fa9342ddb5c';
@@ -21,5 +21,13 @@ describe('financial request validation', () => {
     expect(processPaymentSchema.safeParse({ folioId: itemId, amount: 125.5, method: 'CASH' }).success).toBe(false);
     expect(processPaymentSchema.safeParse({ ...payment, method: 'ROOM_CHARGE' }).success).toBe(false);
     expect(processPaymentSchema.safeParse({ ...payment, method: 'CRYPTO' }).success).toBe(false);
+    expect(processPaymentSchema.safeParse({ ...payment, paymentType: 'DEPOSIT' }).success).toBe(true);
+  });
+
+  it('requires discounts to be negative ledger adjustments, never positive charges', () => {
+    const base = { description: 'Manager-approved goodwill discount', quantity: 1, unitPrice: 25, department: 'FRONT_DESK' };
+    expect(createFolioChargeSchema.safeParse({ ...base, type: 'DISCOUNT', amount: -25 }).success).toBe(true);
+    expect(createFolioChargeSchema.safeParse({ ...base, type: 'DISCOUNT', amount: 25 }).success).toBe(false);
+    expect(createFolioChargeSchema.safeParse({ ...base, type: 'SERVICE', amount: -25 }).success).toBe(false);
   });
 });

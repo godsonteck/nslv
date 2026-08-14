@@ -122,13 +122,45 @@ export class ReportService {
     const checkInsCount = await prisma.checkIn.count({ where: { actualCheckIn: whereDate } });
     const checkOutsCount = await prisma.checkOut.count({ where: { actualCheckOut: whereDate } });
 
+    const [cashPayments, refunds, cashRefunds, cashExpenses, accommodationRevenue, openReceivables, requiredDeposits, collectedDeposits] = await Promise.all([
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'PAYMENT', method: 'CASH', voidedAt: null }, _sum: { amount: true } }),
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'REFUND', voidedAt: null }, _sum: { amount: true } }),
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'REFUND', method: 'CASH', voidedAt: null }, _sum: { amount: true } }),
+      prisma.expense.aggregate({ where: { incurredOn: whereDate, status: 'APPROVED', paymentMethod: 'CASH' }, _sum: { amount: true } }),
+      prisma.folioItem.aggregate({ where: { postedAt: whereDate, voidedAt: null, type: 'ACCOMMODATION' }, _sum: { amount: true } }),
+      prisma.folio.aggregate({ where: { status: 'OPEN' }, _sum: { balance: true } }),
+      prisma.reservation.aggregate({ where: { createdAt: whereDate }, _sum: { depositAmount: true } }),
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'DEPOSIT', voidedAt: null }, _sum: { amount: true } }),
+    ]);
+
+    const restaurant = Number(restaurantSales._sum.totalAmount || 0);
+    const bar = Number(barSales._sum.totalAmount || 0);
+    const pool = Number(poolSales._sum.totalAmount || 0);
+    const accommodation = Number(accommodationRevenue._sum.amount || 0);
+
     return {
       period: { startDate, endDate },
       totalCollectedRevenue: Number(totalPayments._sum.amount || 0),
+      // Revenue is earned by accommodation/POS service delivery; room charges
+      // are receivables, never cash. Collections are reported separately.
+      accruedRevenue: accommodation + restaurant + bar + pool,
+      cash: {
+        payments: Number(cashPayments._sum.amount || 0),
+        refunds: Number(cashRefunds._sum.amount || 0),
+        approvedExpenses: Number(cashExpenses._sum.amount || 0),
+        netMovement: Number(cashPayments._sum.amount || 0) - Number(cashRefunds._sum.amount || 0) - Number(cashExpenses._sum.amount || 0),
+      },
+      refunds: Number(refunds._sum.amount || 0),
+      receivables: Number(openReceivables._sum.balance || 0),
+      deposits: {
+        required: Number(requiredDeposits._sum.depositAmount || 0),
+        collected: Number(collectedDeposits._sum.amount || 0),
+      },
       departmentRevenue: {
-        restaurant: Number(restaurantSales._sum.totalAmount || 0),
-        bar: Number(barSales._sum.totalAmount || 0),
-        pool: Number(poolSales._sum.totalAmount || 0),
+        accommodation,
+        restaurant,
+        bar,
+        pool,
       },
       operations: {
         reservationsCount,

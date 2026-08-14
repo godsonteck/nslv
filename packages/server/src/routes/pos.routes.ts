@@ -4,9 +4,11 @@
 
 import { Router } from 'express';
 import { POSService } from '../services/pos.service';
+import { RecipeService } from '../services/recipes.service';
+import { prisma } from '../config';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
-import { createOrderSchema, createPOSItemSchema, createPoolAttendanceSchema, createPoolTransactionSchema, setAvailabilitySchema, updatePOSItemSchema } from '@nslv/shared';
+import { createOrderSchema, createPOSItemSchema, createPoolAttendanceSchema, createPoolTransactionSchema, replaceRecipeSchema, setAvailabilitySchema, updatePOSItemSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
@@ -79,6 +81,10 @@ router.post('/restaurant/orders', requirePermission('restaurant.orders'), valida
   }
 });
 
+router.put('/restaurant/items/:id/recipe', requirePermission('restaurant.menu'), validateBody(replaceRecipeSchema), async (req, res, next) => {
+  try { const userId = (req as AuthenticatedRequest).user.userId; const id = String(req.params.id); const data = await prisma.$transaction(tx => RecipeService.replaceRecipe(tx, 'RESTAURANT', id, req.body, userId)); res.json({ success: true, data }); } catch (error) { next(error); }
+});
+
 // ── BAR ──
 router.get('/bar/items', requirePermission('bar.view'), async (_req, res, next) => {
   try {
@@ -145,6 +151,10 @@ router.post('/bar/orders', requirePermission('bar.orders'), validateBody(createO
   } catch (error) {
     next(error);
   }
+});
+
+router.put('/bar/items/:id/recipe', requirePermission('bar.menu'), validateBody(replaceRecipeSchema), async (req, res, next) => {
+  try { const userId = (req as AuthenticatedRequest).user.userId; const id = String(req.params.id); const data = await prisma.$transaction(tx => RecipeService.replaceRecipe(tx, 'BAR', id, req.body, userId)); res.json({ success: true, data }); } catch (error) { next(error); }
 });
 
 // ── POOL ──
@@ -227,6 +237,10 @@ router.post('/pool/transactions', requirePermission('pool.manage'), validateBody
   } catch (error) {
     next(error);
   }
+});
+
+router.put('/pool/services/:id/recipe', requirePermission('pool.manage'), validateBody(replaceRecipeSchema), async (req, res, next) => {
+  try { const userId = (req as AuthenticatedRequest).user.userId; const id = String(req.params.id); const data = await prisma.$transaction(tx => RecipeService.replaceRecipe(tx, 'POOL', id, req.body, userId)); res.json({ success: true, data }); } catch (error) { next(error); }
 });
 
 export default router;

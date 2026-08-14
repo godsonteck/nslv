@@ -85,8 +85,8 @@ export class FolioService {
     const amount = Number(data.amount);
     const unitPrice = Number(data.unitPrice ?? 0);
     const quantity = Number(data.quantity ?? 1);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      throw new Error('Charge amount must be a positive number.');
+    if (!Number.isFinite(amount) || (data.type === 'DISCOUNT' ? amount >= 0 : amount <= 0)) {
+      throw new Error(data.type === 'DISCOUNT' ? 'A discount must reduce the folio balance.' : 'Charge amount must be a positive number.');
     }
     if (!Number.isFinite(unitPrice) || unitPrice < 0) {
       throw new Error('Unit price cannot be negative.');

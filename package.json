@@ -24,6 +24,7 @@
     "test": "npm run test --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:integration": "npm run test:integration --workspaces --if-present",
+    "test:postgres-concurrency": "node scripts/run-postgres-integration.cjs",
     "lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,css}\"",
     "db:migrate": "npm run db:migrate --workspace=packages/server",

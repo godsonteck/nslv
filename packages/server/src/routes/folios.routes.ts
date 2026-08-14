@@ -38,6 +38,10 @@ router.get('/:id', requirePermission('folios.view'), async (req, res, next) => {
 router.post('/:id/charges', requirePermission('folios.manage'), validateBody(createFolioChargeSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
+    const auth = (req as AuthenticatedRequest).user;
+    if (req.body.type === 'DISCOUNT' && !auth.permissions.includes('folios.adjust')) {
+      return res.status(403).json({ success: false, error: { code: 'DISCOUNT_NOT_AUTHORIZED', message: 'Discounts require folio-adjustment authorization.' } });
+    }
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await FolioService.addCharge({ ...req.body, folioId: id, postedBy: userId });
     res.status(201).json({ success: true, data });

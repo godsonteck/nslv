@@ -6,6 +6,7 @@
 import { prisma } from '../config';
 import { Prisma } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
+import { AppError } from '../middleware/error';
 
 export interface CreateReservationDTO {
   guestId: string;
@@ -16,6 +17,8 @@ export interface CreateReservationDTO {
   children?: number;
   baseRate?: number;
   discountAmount?: number;
+  discountReason?: string;
+  discountApprovedBy?: string;
   taxAmount?: number;
   depositAmount?: number;
   source?: string;
@@ -133,12 +136,17 @@ export class ReservationService {
     }
 
     // Atomic transaction for double booking protection
-    const reservation = await prisma.$transaction(
-      (tx) => this.createReservationInTx(tx, data, checkIn, checkOut),
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-    );
-
-    return reservation;
+    try {
+      return await prisma.$transaction(
+        (tx) => this.createReservationInTx(tx, data, checkIn, checkOut),
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') {
+        throw new AppError('The room was booked or changed concurrently. Refresh availability and retry.', 409, 'RESERVATION_CONFLICT');
+      }
+      throw error;
+    }
   }
 
   /** Per-room reservation creation inside a transaction (shared by single & multi booking) */
@@ -164,6 +172,9 @@ export class ReservationService {
     const baseRate = Number(room.roomType.basePrice);
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
     const discountAmount = Math.max(0, Number(data.discountAmount || 0));
+    if (discountAmount > 0 && (!data.discountReason?.trim() || !data.discountApprovedBy)) {
+      throw new Error('A discount requires an approval reason and an authorized approver.');
+    }
     const taxAmount = Math.max(0, Number(data.taxAmount || 0));
     const totalAmount = Math.max(0, baseRate * nights - discountAmount + taxAmount);
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -191,6 +202,8 @@ export class ReservationService {
         children: data.children || 0,
         baseRate,
         discountAmount,
+        discountReason: discountAmount > 0 ? data.discountReason!.trim() : null,
+        discountApprovedBy: discountAmount > 0 ? data.discountApprovedBy : null,
         taxAmount,
         depositAmount: Math.max(0, Number(data.depositAmount || 0)),
         totalAmount,
@@ -245,6 +258,7 @@ export class ReservationService {
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const bookingId = `BK-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
+    try {
     const reservations = await prisma.$transaction(
       async (tx) => {
         const created: any[] = [];
@@ -272,6 +286,12 @@ export class ReservationService {
     );
 
     return { bookingId, reservations };
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') {
+        throw new AppError('One or more rooms changed concurrently. Refresh availability and retry.', 409, 'RESERVATION_CONFLICT');
+      }
+      throw error;
+    }
   }
 
   /** Return all reservations that share a booking (one party / multi-room request) */

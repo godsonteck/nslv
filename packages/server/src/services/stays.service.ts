@@ -3,6 +3,9 @@
 // ============================================
 
 import { prisma } from '../config';
+import { Prisma } from '@prisma/client';
+import { AuditService } from './audit.service';
+import { AppError } from '../middleware/error';
 
 export interface CheckInDTO {
   reservationId: string;
@@ -48,7 +51,8 @@ export class StayService {
 
   /** Execute Check-In workflow */
   static async checkInGuest(data: CheckInDTO) {
-    return prisma.$transaction(async (tx) => {
+    try {
+      return await prisma.$transaction(async (tx) => {
       const reservation = await tx.reservation.findUnique({
         where: { id: data.reservationId },
         include: {
@@ -129,15 +133,58 @@ export class StayService {
             postedBy: data.checkedInBy,
           },
         });
+
+        // Deposits collected before arrival have no folio yet.  Materialise
+        // their immutable payment history into the new folio so the cached
+        // balance and the ledger agree from the first moment of the stay.
+        const depositActivity = await tx.payment.findMany({
+          where: {
+            reservationId: reservation.id,
+            status: 'COMPLETED',
+            voidedAt: null,
+            OR: [
+              { type: 'DEPOSIT' },
+              { type: 'REFUND', originalPayment: { type: 'DEPOSIT' } },
+            ],
+          },
+          select: { id: true, type: true, amount: true, method: true, reference: true },
+        });
+        for (const activity of depositActivity) {
+          const amount = new Prisma.Decimal(activity.amount);
+          const isDeposit = activity.type === 'DEPOSIT';
+          await tx.folioItem.create({ data: {
+            folioId: folio.id, type: isDeposit ? 'DEPOSIT' : 'REFUND',
+            description: `${isDeposit ? 'Deposit collected' : 'Deposit refunded'} (${activity.method}${activity.reference ? ` · ${activity.reference}` : ''})`,
+            amount: isDeposit ? amount.negated() : amount, quantity: 1,
+            unitPrice: isDeposit ? amount.negated() : amount, department: 'FRONT_DESK',
+            referenceId: activity.id, referenceType: isDeposit ? 'PAYMENT' : 'REFUND', postedBy: data.checkedInBy,
+          } });
+          await tx.payment.update({ where: { id: activity.id }, data: { folioId: folio.id } });
+          await tx.folio.update({ where: { id: folio.id }, data: { balance: isDeposit ? { decrement: amount } : { increment: amount } } });
+        }
       }
 
+      await AuditService.logInTransaction(tx, {
+        userId: data.checkedInBy,
+        action: 'stay.checked_in',
+        resource: 'reservation',
+        resourceId: reservation.id,
+        afterData: { checkInId: checkIn.id, roomId: reservation.roomId, folioId: folio.id },
+      });
       return { checkIn, folio };
-    });
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') {
+        throw new AppError('The reservation changed while check-in was being processed. Please retry.', 409, 'CHECKIN_CONFLICT');
+      }
+      throw error;
+    }
   }
 
   /** Execute Check-Out workflow */
   static async checkOutGuest(data: CheckOutDTO) {
-    return prisma.$transaction(async (tx) => {
+    try {
+      return await prisma.$transaction(async (tx) => {
       const reservation = await tx.reservation.findUnique({
         where: { id: data.reservationId },
         include: {
@@ -155,10 +202,13 @@ export class StayService {
       if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
 
       const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
-      const finalBalance = folio ? Number(folio.balance) : 0;
+      const ledger = folio
+        ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
+        : null;
+      const finalBalance = ledger ? Number(ledger._sum.amount || 0) : 0;
 
-      if (finalBalance > 0) {
-        throw new Error(`Outstanding balance of GHS ${finalBalance.toFixed(2)} must be paid before check-out.`);
+      if (!new Prisma.Decimal(finalBalance).isZero()) {
+        throw new Error(`Folio balance of GHS ${finalBalance.toFixed(2)} must be settled to zero before check-out.`);
       }
 
       // Create CheckOut record
@@ -184,18 +234,31 @@ export class StayService {
       // Update room status
       await tx.room.update({
         where: { id: reservation.roomId },
-        data: { status: data.roomCondition === 'DIRTY' ? 'DIRTY' : 'AVAILABLE' },
+        data: { status: data.roomCondition === 'DAMAGED' ? 'MAINTENANCE' : data.roomCondition === 'DIRTY' ? 'DIRTY' : 'AVAILABLE' },
       });
 
       // Close Folio
       if (folio) {
         await tx.folio.update({
           where: { id: folio.id },
-          data: { status: 'CLOSED', closedAt: new Date() },
+          data: { status: 'CLOSED', closedAt: new Date(), balance: new Prisma.Decimal(finalBalance) },
         });
       }
 
+      await AuditService.logInTransaction(tx, {
+        userId: data.checkedOutBy,
+        action: 'stay.checked_out',
+        resource: 'reservation',
+        resourceId: reservation.id,
+        afterData: { checkOutId: checkOut.id, roomId: reservation.roomId, folioId: folio?.id, finalBalance },
+      });
       return { checkOut, folio };
-    });
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') {
+        throw new AppError('The stay changed while check-out was being processed. Please retry.', 409, 'CHECKOUT_CONFLICT');
+      }
+      throw error;
+    }
   }
 }

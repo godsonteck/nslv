@@ -230,6 +230,9 @@ export const processPaymentSchema = z.object({
   // second settlement entry.
   idempotencyKey: uuidSchema,
   description: z.string().max(500).trim().optional(),
+  // A reservation deposit can be collected before a folio exists.  It is still
+  // a payment-ledger entry, but is kept distinct from settlement collections.
+  paymentType: z.enum(['PAYMENT', 'DEPOSIT']).default('PAYMENT'),
 });
 
 export const refundPaymentSchema = z.object({
@@ -238,6 +241,13 @@ export const refundPaymentSchema = z.object({
   reference: z.string().max(100).trim().optional(),
   reason: z.string().min(3, 'A refund reason is required').max(500).trim(),
   idempotencyKey: uuidSchema,
+});
+
+export const dailyCloseSchema = z.object({
+  businessDate: isoDateString,
+  openingCash: nonNegativeNumber,
+  actualCash: nonNegativeNumber,
+  varianceNote: z.string().min(3).max(500).trim().optional(),
 });
 
 // ── POS ──
@@ -298,6 +308,7 @@ export const createReservationSchema = z.object({
   children: wholeNumber.optional(),
   baseRate: positiveNumber.optional(),
   discountAmount: nonNegativeNumber.optional(),
+  discountReason: z.string().min(3).max(500).trim().optional(),
   taxAmount: nonNegativeNumber.optional(),
   depositAmount: nonNegativeNumber.optional(),
   bookingId: uuidSchema.optional(),
@@ -328,12 +339,29 @@ export const cancelReservationSchema = z.object({
 export const createFolioChargeSchema = z.object({
   type: z.enum(['ACCOMMODATION', 'RESTAURANT', 'BAR', 'POOL', 'SERVICE', 'DISCOUNT', 'TAX']),
   description: z.string().min(1, 'Description is required').max(500).trim(),
-  amount: positiveNumber,
+  amount: z.coerce.number().finite(),
   quantity: positiveInt.optional(),
   unitPrice: nonNegativeNumber,
   department: z.string().min(1, 'Department is required').max(50).trim(),
   referenceId: z.string().max(100).optional(),
   referenceType: z.string().max(50).optional(),
+}).superRefine((value, context) => {
+  if (value.type === 'DISCOUNT') {
+    if (value.amount >= 0) context.addIssue({ code: z.ZodIssueCode.custom, path: ['amount'], message: 'A discount must reduce the folio balance.' });
+  } else if (value.amount <= 0) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['amount'], message: 'Charge amount must be greater than zero.' });
+  }
+});
+
+export const replaceRecipeSchema = z.object({
+  name: z.string().min(1).max(100).trim(),
+  isActive: z.boolean().optional(),
+  items: z.array(z.object({
+    inventoryItemId: uuidSchema,
+    quantity: positiveNumber,
+    unit: z.string().min(1).max(30).trim(),
+    conversionFactor: positiveNumber.optional(),
+  })).min(1),
 });
 export const voidFolioChargeSchema = z.object({
   reason: z.string().max(500).trim().optional(),
