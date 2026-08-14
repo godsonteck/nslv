@@ -320,18 +320,31 @@ async function main() {
 
   // 7. Create administrator account
   console.log('👤 Creating initial administrator...');
-  const adminEmail = process.env['ADMIN_DEFAULT_EMAIL'] || 'admin@nsvilla.com';
-  const adminUsername = process.env['ADMIN_DEFAULT_USERNAME'] || 'admin';
-  const adminPassword = process.env['ADMIN_DEFAULT_PASSWORD'] || 'Admin@NSVilla2026!';
-
-  const passwordHash = await argon2.hash(adminPassword, { type: argon2.argon2id });
+  const adminEmail = process.env['ADMIN_DEFAULT_EMAIL']?.trim().toLowerCase();
+  const adminUsername = process.env['ADMIN_DEFAULT_USERNAME']?.trim();
+  const adminPassword = process.env['ADMIN_DEFAULT_PASSWORD'];
   const adminRole = await prisma.role.findUnique({ where: { name: SYSTEM_ROLES.ADMIN } });
   if (!adminRole) throw new Error('Admin role not found during seed.');
 
-  const adminUser = await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: { username: adminUsername, passwordHash, status: 'ACTIVE' },
-    create: {
+  // Bootstrapping must be explicit. A seed rerun must never reset an existing
+  // administrator's password or silently create a predictable account.
+  let adminUser = adminEmail ? await prisma.user.findUnique({ where: { email: adminEmail } }) : null;
+  if (!adminUser) {
+    if (!adminEmail || !adminUsername || !adminPassword) {
+      throw new Error(
+        'ADMIN_DEFAULT_EMAIL, ADMIN_DEFAULT_USERNAME, and ADMIN_DEFAULT_PASSWORD are required to create the initial administrator.',
+      );
+    }
+    if (adminPassword.length < 12) {
+      throw new Error('ADMIN_DEFAULT_PASSWORD must be at least 12 characters long.');
+    }
+    const usernameOwner = await prisma.user.findUnique({ where: { username: adminUsername } });
+    if (usernameOwner) {
+      throw new Error('ADMIN_DEFAULT_USERNAME is already assigned to a different account.');
+    }
+    const passwordHash = await argon2.hash(adminPassword, { type: argon2.argon2id });
+    adminUser = await prisma.user.create({
+      data: {
       email: adminEmail,
       username: adminUsername,
       passwordHash,
@@ -339,8 +352,9 @@ async function main() {
       lastName: 'Administrator',
       status: 'ACTIVE',
       mustChangePassword: true,
-    },
-  });
+      },
+    });
+  }
 
   await prisma.userRole.upsert({
     where: { userId_roleId: { userId: adminUser.id, roleId: adminRole.id } },
@@ -349,8 +363,7 @@ async function main() {
   });
 
   console.log('✅ Database seed completed successfully!');
-  console.log(`🔑 Administrator Email: ${adminEmail}`);
-  console.log(`🔑 Administrator Username: ${adminUsername}`);
+  console.log(`Administrator account ready: ${adminUser.email}`);
 }
 
 main()

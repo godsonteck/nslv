@@ -1,71 +1,45 @@
-# Final production readiness report
+# Final production-readiness report
 
-## Vercel failure and repair
+Date: 2026-08-14
 
-**Symptom:** `node -e "require('./api/index.js')"` failed with
-`ERR_UNSUPPORTED_DIR_IMPORT` while resolving `packages/server/dist/config`.
+## Current Vercel failure
 
-**Root cause:** `api/index.js` is intentionally CommonJS, but the server
-TypeScript configuration emitted ES module output with bundler resolution.
-Node's serverless loader could not load that output correctly through `require`.
+None reproduced. `npm run test:vercel-runtime` passed against the current code: the compiled CommonJS entrypoint loaded, Express initialized, Prisma queried successfully, and `/api/v1/health` returned HTTP 200/database `AVAILABLE`.
 
-**Fix:** `packages/server/tsconfig.json` now emits CommonJS with Node module
-resolution. `scripts/verify-vercel-entrypoint.cjs` loads the exact function
-entrypoint and calls health; CI runs it after the build.
+## Root cause and fix implemented
 
-## Executive summary
+The confirmed P0 was unsafe administrator bootstrap behavior. `packages/server/prisma/seed.ts` had fallback administrator credentials and its upsert rewrote the password of an existing account on every seed run. The seed now requires explicitly configured bootstrap values only when no account exists, rejects weak bootstrap passwords, preserves an existing account, and does not print credentials.
 
-This repository has received a code-level hardening pass on 2026-08-14. It is
-not signed off for production: material financial-control workflows and
-integration coverage remain. See `remediation-matrix.md` for the authoritative
-per-requirement state.
+## Files changed
 
-## Architecture and permission model
+- `packages/server/prisma/seed.ts`
+- `docs/remediation-matrix.md`
+- `docs/production-readiness.md`
+- `docs/final-production-readiness-report.md`
 
-The workspace uses React/Vite, Express/Prisma/PostgreSQL, a shared validation
-package and optional Electron client. The four system roles are Admin, Manager,
-Reception and F&B. Backend permission middleware is authoritative; frontend
-controls are presentation only. Guest-sensitive access is explicitly assigned
-to Admin, Manager and Reception, not F&B.
+## Tests run
 
-## Verified workflows
+| Check | Result |
+| --- | --- |
+| `npm run build:shared` | PASS |
+| `npm run db:generate` | PASS |
+| `npm run build:server` | PASS |
+| `npm run build:client` | PASS |
+| `npm run typecheck` | PASS |
+| `npm ci --legacy-peer-deps` | PASS; npm reported 19 dependency vulnerabilities (3 moderate, 14 high, 2 critical) requiring dependency remediation. |
+| `npm run lint` | PASS with 13 warnings, 0 errors |
+| `npm test` | PASS: 4 files, 8 tests |
+| `npm run test:vercel-runtime` | PASS |
+| Live homepage, SPA fallback, asset MIME, health, unauthenticated guest endpoint | PASS |
 
-Reservations check date overlap in serializable transactions. Check-in opens a
-folio and checkout prevents a positive outstanding balance. Payments require
-idempotency keys; refunds are immutable linked records with over-refund checks,
-serializable transactions and audit entries. Direct F&B settlements and room
-charges derive values from server-side catalog records. Inventory adjustments
-are now transactional and append movement records; archived items preserve
-historical evidence.
+## Security and RBAC result
 
-## Commands executed
+Security controls present in code include JWT verification, active-user rehydration, rate limiting, Helmet, CORS allow-listing, validation, and error handling. The four-role model is enforced in shared constants and role management; guest-sensitive access is assigned to Admin, Manager, and Reception, not F&B. Live 401 was verified. Full authenticated 403/IDOR coverage was not performed because no test identities were supplied.
 
-| Command | Result | Status |
-| --- | --- | --- |
-| `npm.cmd run db:generate` | Prisma Client generated from the current schema. | PASS |
-| `npm.cmd run lint` | Completed with 13 pre-existing warnings and no errors. | PASS |
-| `npm.cmd run test` | Server Vitest: 4 files, 8 tests passed. | PASS |
-| `npm.cmd run build:shared` | TypeScript build passed. | PASS |
-| `npm.cmd run build:server` | Prisma generation and TypeScript build passed. | PASS |
-| `npm.cmd run build:client` | TypeScript and Vite production build passed. | PASS |
-| `VERCEL=1 node -e "require('./api/index.js')"` after the server build | Loaded the Express app through the actual Vercel entrypoint. | PASS |
-| Local `/api/v1/health` through that entrypoint | HTTP 200; database `AVAILABLE`. | PASS |
-| `npm.cmd ci --legacy-peer-deps` | Completed from the lockfile; npm reported 19 dependency vulnerabilities. | PASS with security follow-up |
-| Clean-install Vite/Vitest config loading in this managed sandbox | esbuild was denied access while traversing parent directories; configuration files themselves were readable. | Environment-blocked |
+## Hotel, financial, inventory, and deployment result
 
-## Production verification
+Code review and existing unit tests support basic reservations, stays, folios, payments, refunds, POS settlement, and inventory behavior. They do not provide adequate proof for concurrent bookings/payments/refunds, end-to-end hotel lifecycle, daily cash reconciliation, complete inventory movements, or reconciled reports. Vercel runtime and unauthenticated live API smoke checks pass; privileged live workflow verification remains pending.
 
-Production was not accessed in this pass. No claim is made for live
-authentication, migration state, database connectivity, backup/restore,
-monitoring, or endpoint behavior.
+## Remaining blockers
 
-# REMAINING ISSUES
-
-| Severity | Description | Why it remains | Production blocker | Exact required action |
-| --- | --- | --- | --- | --- |
-| P0 | Daily close, cash reconciliation, and reconciled reporting are absent. | They require a reviewed financial domain and forward migration. | Yes | Implement immutable close/reconciliation records and mathematical integration tests. |
-| P0 | Discounts/deposits are not a controlled, auditable payment workflow. | Current reservation fields do not establish authorization, reason, payment linkage, or reporting correctness. | Yes | Implement authorised backend commands, audit records, payment linkage and tests. |
-| P0 | Inventory sales/waste/damage/transfer lifecycle is incomplete. | The opening/adjustment ledger is now safe, but operational movement types are not wired to POS/receiving. | Yes | Implement each movement source in a transaction and test rollback/concurrency. |
-| P1 | Order and pool operational lifecycles are incomplete. | Orders currently settle immediately; pool lacks sessions/capacity policy. | Yes | Define operational states and implement server-authorised transitions. |
-| P1 | RBAC, IDOR, concurrency and hotel lifecycle tests are incomplete. | Current unit suite covers validation/middleware only. | Yes | Add disposable-PostgreSQL API/integration tests and full workflows. |
-| P1 | Live production, backup/restore and monitoring are unverified. | They require external approved access and must not be simulated. | Yes | Verify live health/migration/configuration and document provider retention, restoration and monitoring. |
+The project is **not production-ready**. P0/P1 blockers are documented in [remediation-matrix.md](remediation-matrix.md), especially daily close/reconciliation, discounts/deposits, complete inventory lifecycle, full F&B/pool operational workflows, database-backed security/concurrency/E2E tests, and the dependency vulnerabilities reported by the clean install.

@@ -1,21 +1,22 @@
 # Production remediation matrix
 
-This matrix reflects inspection of the current workspace on 2026-08-14. It is
-an implementation tracker, not a claim that production has been verified.
+Current-state review performed 2026-08-14. This is evidence-based: passing
+builds do not close the items marked incomplete.
 
-| Requirement | Existing implementation | Gap | Severity | Files involved | Required change | Test required | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Exactly four roles | Migration and shared constants define Admin, Manager, Reception and F&B; legacy outlet roles are consolidated. | Live migration state still needs production verification. | P1 | `permissions.ts`, seed, `20260814000000_consolidate_four_roles` | Deploy migration through the approved production workflow. | Migration inspection and authenticated role check. | Code complete; live verification pending |
-| Guest privacy | Admin, Manager and Reception receive sensitive-guest permission; F&B is not assigned guest profile permission. | Direct route/RBAC integration coverage is limited. | P1 | permissions, guest routes, auth middleware | Add authenticated endpoint coverage using a disposable database. | RBAC API tests. | Incomplete |
-| Reservations | Date-overlap availability check and serializable transactions exist; unavailable room states are excluded. | Concurrency test and controlled discounts/deposits remain incomplete. | P0 | reservation service/routes/schema | Add authorized discount/deposit workflow and concurrency suite. | Concurrent booking test. | Incomplete |
-| Check-in/out and folios | Transactional check-in creates a folio; checkout rejects an outstanding balance and closes the folio. | Post-checkout correction/refund workflow is not implemented. | P1 | stays, folios, payments | Implement an authorized correction workflow with immutable audit records. | Lifecycle integration test. | Incomplete |
-| Payments | Payments are server-recorded, Decimal-backed, balance-limited and appended to folios. | Payment idempotency key was optional. | P0 | validation, payment service, client API | Require idempotency keys for every payment write. | Validation and retry tests. | Fixed in this pass |
-| Refunds | Linked append-only refund records, serializable transaction, over-refund check and audit entry exist. | Closed-folio refund workflow is intentionally rejected until an authorised correction model exists. | P1 | payment service/routes | Implement policy-approved post-checkout refund/correction flow. | Concurrency and lifecycle test. | Incomplete |
-| Restaurant and bar | Catalog, server-calculated totals, direct payments/room charges and ledger entries exist. | Operational lifecycle is collapsed into immediate service/completion. | P1 | POS service/routes/client | Implement order state transitions and inventory consumption. | F&B lifecycle test. | Incomplete |
-| Pool | Attendance and paid services are separate, server-persisted flows. | Session/capacity model and complete visitor workflow are absent. | P1 | pool service/routes/client | Define and implement session/capacity policy before migration. | Pool lifecycle test. | Incomplete |
-| Inventory | Inventory routes/service exist. | Full atomic movement ledger, receive/waste/damage/transfer and concurrency proof require review. | P0 | inventory service/schema/routes | Extend only after auditing current movement invariants. | Transaction rollback and concurrency tests. | Incomplete |
-| Daily close and cash reconciliation | No complete model/workflow found. | Required financial-control feature is missing. | P0 | schema, finance services/routes/client | Design immutable daily close and reconciliation domain with reviewed migration. | Mathematical E2E. | Missing |
-| Reports | Reporting service/routes exist. | No verified reconciliation against payment/refund/room-charge controls. | P1 | reports service/routes | Reconcile report queries against immutable ledger semantics. | Financial reporting integration tests. | Incomplete |
-| Security | Helmet, CORS, rate limiting, authentication, DB-backed active-user refresh and error sanitisation are implemented. | Endpoint-level IDOR/RBAC attack suite is incomplete. | P0 | auth middleware and protected routers | Add protected-route integration tests. | 401/403 endpoint tests. | Incomplete |
-| CI and quality | Workspace build and test commands exist; Vercel builds shared/server/client. | CI workflow and full lint/test matrix have not been verified. | P1 | root package, CI config | Add CI only after clean local commands are established. | CI run. | Incomplete |
-| Operations | Health route/configuration exists. | Production health, monitoring, backup schedule and restore test have not been verified. | P1 | health/config/deployment docs | Verify with production access and database-provider controls. | Live health and restore drill. | External verification required |
+| Area | Current result | Severity | Evidence / next action |
+| --- | --- | --- | --- |
+| Vercel entrypoint | Pass | — | `npm run test:vercel-runtime` loads `api/index.js`, calls health, and reports database AVAILABLE. |
+| Live deployment | Pass for smoke checks | — | Homepage, SPA fallback, JavaScript MIME type, health, and unauthenticated guest 401 verified at `nsluxury.vercel.app`. |
+| Initial admin seed | Fixed | P0 resolved | Seed no longer supplies predictable credentials or overwrites an existing administrator password. Explicit bootstrap values are required only when creating the first account. |
+| Four official roles | Code enforced | P1 live verification pending | Constants and role service restrict creation/renaming to Admin, Manager, Reception, and F&B. Verify actual production role records after an approved deployment. |
+| Guest privacy | Code enforced | P1 test gap | Admin, Manager and Reception have `guests.view_sensitive`; F&B lacks guest-profile permissions. Add database-backed endpoint tests. |
+| Reservation concurrency | Implementation present | P1 test gap | Serializable availability transaction exists; add a real concurrent PostgreSQL test. |
+| Payments/refunds | Partial | P1 | Payment/refund validation and basic idempotency tests pass, but concurrent payment, post-checkout correction, and full lifecycle coverage are absent. |
+| Discounts/deposits | Incomplete | P0 | Reservation fields are not a complete permission-controlled, audited financial workflow. |
+| Restaurant, bar, pool | Partial | P1 | Server derives prices and records settlement; complete operational state lifecycles and pool session/capacity policy are absent. |
+| Inventory | Partial | P0 | Further movement types and concurrent stock-deduction proof remain required. |
+| Daily close/reconciliation | Missing | P0 | No complete immutable daily-close and cash-variance workflow was verified. |
+| Reports/audit | Partial | P1 | Audit service is used by core operations, but financial report reconciliation needs integration evidence. |
+| Security/RBAC testing | Partial | P0 | JWT, rate limiting, Helmet, CORS, active-user rehydration and middleware exist; endpoint-level 401/403/IDOR test matrix is missing. |
+
+The P0/P1 items above block a production-ready sign-off.
