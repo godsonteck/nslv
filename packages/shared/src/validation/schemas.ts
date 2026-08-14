@@ -225,7 +225,10 @@ export const processPaymentSchema = z.object({
   currency: z.string().max(10).optional(),
   method: z.enum(['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']),
   reference: z.string().max(100).trim().optional(),
-  idempotencyKey: uuidSchema.optional(),
+  // Every write to the payments ledger must be retry-safe.  This is required
+  // rather than optional so a repeated browser submission cannot become a
+  // second settlement entry.
+  idempotencyKey: uuidSchema,
   description: z.string().max(500).trim().optional(),
 });
 

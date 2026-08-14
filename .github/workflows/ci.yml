@@ -1,0 +1,32 @@
+name: Verify workspace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # Prisma generation only; CI never migrates or accesses a real database.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/nslv_ci
+      JWT_ACCESS_SECRET: ci-only-access-secret-must-never-be-deployed
+      JWT_REFRESH_SECRET: ci-only-refresh-secret-must-never-be-deployed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run db:generate
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build:shared
+      - run: npm run build:server
+      - run: npm run build:client
+      - run: npm run compile --workspace=packages/desktop

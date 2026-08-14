@@ -18,6 +18,7 @@ describe('financial request validation', () => {
   it('accepts only supported direct settlement methods', () => {
     const payment = { folioId: itemId, amount: 125.5, method: 'CASH', idempotencyKey };
     expect(processPaymentSchema.safeParse(payment).success).toBe(true);
+    expect(processPaymentSchema.safeParse({ folioId: itemId, amount: 125.5, method: 'CASH' }).success).toBe(false);
     expect(processPaymentSchema.safeParse({ ...payment, method: 'ROOM_CHARGE' }).success).toBe(false);
     expect(processPaymentSchema.safeParse({ ...payment, method: 'CRYPTO' }).success).toBe(false);
   });

@@ -7,6 +7,7 @@ import { prisma } from '../config';
 import { AuditService } from './audit.service';
 import { CategoryService } from './categories.service';
 import { randomBytes } from 'node:crypto';
+import { Prisma } from '@prisma/client';
 
 const makeSku = (prefix: string) => `${prefix.toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -43,21 +44,28 @@ export class InventoryService {
     const existing = await prisma.inventoryItem.findUnique({ where: { sku } });
     if (existing) throw new Error(`An item with SKU '${sku}' already exists.`);
 
-    const item = await prisma.inventoryItem.create({
-      data: {
-        sku,
-        name: input.name.trim(),
-        category: input.category.trim(),
-        unit: input.unit.trim(),
-        quantity,
-        minQuantity: Math.max(0, Number(input.minQuantity || 0)),
-        costPrice: input.costPrice != null ? Number(input.costPrice) : null,
-        notes: input.notes,
-        createdBy,
-      },
+    return prisma.$transaction(async (tx) => {
+      const item = await tx.inventoryItem.create({
+        data: {
+          sku,
+          name: input.name.trim(),
+          category: input.category.trim(),
+          unit: input.unit.trim(),
+          quantity,
+          minQuantity: Math.max(0, Number(input.minQuantity || 0)),
+          costPrice: input.costPrice != null ? Number(input.costPrice) : null,
+          notes: input.notes,
+          createdBy,
+        },
+      });
+      if (quantity > 0) {
+        await tx.inventoryMovement.create({
+          data: { inventoryItemId: item.id, type: 'OPENING_BALANCE', quantityChange: quantity, quantityBefore: 0, quantityAfter: quantity, reason: 'Initial stock balance', recordedBy: createdBy },
+        });
+      }
+      await AuditService.logInTransaction(tx, { userId: createdBy, action: 'inventory.created', resource: 'inventory_item', resourceId: item.id, afterData: { sku: item.sku, quantity: item.quantity } });
+      return item;
     });
-    if (createdBy) await AuditService.log({ userId: createdBy, action: 'inventory.created', resource: 'inventory_item', resourceId: item.id, afterData: item as unknown as Record<string, unknown> });
-    return item;
   }
 
   static async updateItem(id: string, input: Partial<{ name: string; category: string; unit: string; minQuantity: number; costPrice: number | null; notes: string }>, updatedBy?: string) {
@@ -81,26 +89,35 @@ export class InventoryService {
   }
 
   static async adjustStock(id: string, quantityChange: number, reason: string | undefined, updatedBy: string) {
-    const existing = await prisma.inventoryItem.findUnique({ where: { id } });
-    if (!existing) throw new Error('Inventory item not found.');
     if (!Number.isInteger(quantityChange) || quantityChange === 0) throw new Error('Stock adjustment must be a non-zero whole number.');
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const existing = await tx.inventoryItem.findUnique({ where: { id } });
+        if (!existing) throw new Error('Inventory item not found.');
+        if (!existing.isActive) throw new Error('Archived inventory items cannot be adjusted.');
 
-    const newQuantity = existing.quantity + quantityChange;
-    if (newQuantity < 0) throw new Error('Stock adjustment would result in a negative quantity.');
-
-    const item = await prisma.inventoryItem.update({
-      where: { id },
-      data: { quantity: newQuantity },
-    });
-    await AuditService.log({ userId: updatedBy, action: 'inventory.stock_adjusted', resource: 'inventory_item', resourceId: id, beforeData: { quantity: existing.quantity }, afterData: { quantity: item.quantity, quantityChange, reason } });
-    return item;
+        const newQuantity = existing.quantity + quantityChange;
+        if (newQuantity < 0) throw new Error('Stock adjustment would result in a negative quantity.');
+        const item = await tx.inventoryItem.update({ where: { id }, data: { quantity: newQuantity } });
+        await tx.inventoryMovement.create({
+          data: { inventoryItemId: id, type: quantityChange > 0 ? 'ADJUSTMENT_IN' : 'ADJUSTMENT_OUT', quantityChange, quantityBefore: existing.quantity, quantityAfter: newQuantity, reason: reason?.trim() || null, recordedBy: updatedBy },
+        });
+        await AuditService.logInTransaction(tx, { userId: updatedBy, action: 'inventory.stock_adjusted', resource: 'inventory_item', resourceId: id, beforeData: { quantity: existing.quantity }, afterData: { quantity: item.quantity, quantityChange, reason } });
+        return item;
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') throw new Error('Inventory changed while this adjustment was being processed. Please retry.');
+      throw error;
+    }
   }
 
   static async deleteItem(id: string, deletedBy?: string) {
     const existing = await prisma.inventoryItem.findUnique({ where: { id } });
     if (!existing) throw new Error('Inventory item not found.');
-    await prisma.inventoryItem.delete({ where: { id } });
-    if (deletedBy) await AuditService.log({ userId: deletedBy, action: 'inventory.deleted', resource: 'inventory_item', resourceId: id, beforeData: existing as unknown as Record<string, unknown> });
-    return { id, deleted: true };
+    // Preserve stock and financial history. "Delete" is an archive operation
+    // for an operational item that may already be referenced by its ledger.
+    await prisma.inventoryItem.update({ where: { id }, data: { isActive: false } });
+    if (deletedBy) await AuditService.log({ userId: deletedBy, action: 'inventory.archived', resource: 'inventory_item', resourceId: id, beforeData: { isActive: existing.isActive }, afterData: { isActive: false } });
+    return { id, archived: true };
   }
 }

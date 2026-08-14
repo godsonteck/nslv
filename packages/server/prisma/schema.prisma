@@ -711,9 +711,31 @@ model InventoryItem {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  movements   InventoryMovement[]
+
   @@index([category])
   @@index([isActive])
   @@map("inventory_items")
+}
+
+// Append-only stock ledger. The current quantity is a projection that is
+// updated in the same transaction as each recorded movement.
+model InventoryMovement {
+  id              String        @id @default(uuid())
+  inventoryItemId String        @map("inventory_item_id")
+  type            String
+  quantityChange  Int           @map("quantity_change")
+  quantityBefore  Int           @map("quantity_before")
+  quantityAfter   Int           @map("quantity_after")
+  reason          String?
+  recordedBy      String?       @map("recorded_by")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@index([inventoryItemId, createdAt])
+  @@index([type, createdAt])
+  @@map("inventory_movements")
 }
 
 // ──────────────────────────────────────────

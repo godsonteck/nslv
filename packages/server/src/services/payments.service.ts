@@ -14,7 +14,7 @@ export interface ProcessPaymentDTO {
   currency?: string;
   method: string;
   reference?: string;
-  idempotencyKey?: string;
+  idempotencyKey: string;
   description?: string;
   processedBy: string;
 }
@@ -42,10 +42,8 @@ export class PaymentService {
     if (!data.method?.trim()) throw new Error('Payment method is required.');
     if (!data.folioId && !data.reservationId) throw new Error('A folio or reservation is required for a payment.');
 
-    if (data.idempotencyKey) {
-      const existing = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
-      if (existing) return existing;
-    }
+    const existing = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
+    if (existing) return existing;
 
     return prisma.$transaction(async tx => {
       const targetFolio = data.folioId

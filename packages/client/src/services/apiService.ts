@@ -538,7 +538,7 @@ export const paymentsApi = {
     const data = await apiFetch<any[]>(`/payments?${qs}`, {}, token());
     return { success: true, data };
   },
-  processPayment: async (body: { folioId?: string; reservationId?: string; guestId?: string; amount: number; method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; idempotencyKey?: string; description?: string }): Promise<any> =>
+  processPayment: async (body: { folioId?: string; reservationId?: string; guestId?: string; amount: number; method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; idempotencyKey: string; description?: string }): Promise<any> =>
     apiFetch<any>('/payments', { method: 'POST', body: JSON.stringify(body) }, token()),
 };
 
