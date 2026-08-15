@@ -127,6 +127,17 @@ router.post('/', requirePermission('rooms.manage'), validateBody(createRoomSchem
   }
 });
 
+// Correct rooms created before reservation and stay workflows owned these states.
+// Only AVAILABLE rooms are changed; operational staff overrides are preserved.
+router.post('/sync-booking-statuses', requirePermission('rooms.status'), async (_req, res, next) => {
+  try {
+    const data = await RoomService.syncBookingStatuses();
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Update room status
 router.patch('/:id/status', requirePermission('rooms.status'), validateBody(updateRoomStatusSchema), async (req, res, next) => {
   try {

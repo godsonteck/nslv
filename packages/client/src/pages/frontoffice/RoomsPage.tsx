@@ -118,6 +118,19 @@ export const RoomsPage: React.FC = () => {
     }
   };
 
+  const syncBookingStatuses = async () => {
+    try {
+      setSaving(true);
+      const result = await roomsApi.syncBookingStatuses();
+      showToast('success', `Booking states synced: ${result.data.reserved} reserved, ${result.data.occupied} occupied`);
+      load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to sync booking states');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const counts = Object.fromEntries(statuses.slice(1).map((s) => [s, rooms.filter((r) => r.status === s).length]));
 
   const openAddType = () => {
@@ -200,6 +213,11 @@ export const RoomsPage: React.FC = () => {
           <Button variant="outline" size="sm" onClick={load}>
             <RefreshCw size={14} /> Refresh
           </Button>
+          {canStatus && (
+            <Button variant="outline" size="sm" loading={saving} onClick={syncBookingStatuses}>
+              <RefreshCw size={14} /> Sync booking states
+            </Button>
+          )}
           {canManage && (
             <Button size="sm" onClick={() => navigate('/admin/rooms')}>
               <Layers size={14} /> Manage Room Configuration

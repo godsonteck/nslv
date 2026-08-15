@@ -447,6 +447,9 @@ export const roomsApi = {
 
   updateStatus: async (id: string, status: string, notes?: string): Promise<any> =>
     apiFetch<any>(`/rooms/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }, token()),
+
+  syncBookingStatuses: async (): Promise<{ success: true; data: { occupied: number; reserved: number } }> =>
+    apiFetch<{ occupied: number; reserved: number }>('/rooms/sync-booking-statuses', { method: 'POST' }, token()).then((data) => ({ success: true, data })),
 };
 
 // ──────────────────────────────────────────

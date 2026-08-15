@@ -197,6 +197,31 @@ export class RoomService {
     });
   }
 
+  /** Repair legacy AVAILABLE room markers without overwriting staff overrides. */
+  static async syncBookingStatuses() {
+    return prisma.$transaction(async (tx) => {
+      const activeStays = await tx.checkIn.findMany({
+        where: { reservation: { status: 'CHECKED_IN' }, room: { status: 'AVAILABLE' } },
+        select: { roomId: true },
+      });
+      const occupiedIds = [...new Set(activeStays.map((stay: { roomId: string }) => stay.roomId))];
+      const occupied = occupiedIds.length
+        ? await tx.room.updateMany({ where: { id: { in: occupiedIds }, status: 'AVAILABLE' }, data: { status: 'OCCUPIED' } })
+        : { count: 0 };
+
+      const activeReservations = await tx.reservation.findMany({
+        where: { status: { in: ['PENDING', 'CONFIRMED'] }, room: { status: 'AVAILABLE' } },
+        select: { roomId: true },
+      });
+      const reservedIds = [...new Set(activeReservations.map((reservation: { roomId: string }) => reservation.roomId))];
+      const reserved = reservedIds.length
+        ? await tx.room.updateMany({ where: { id: { in: reservedIds }, status: 'AVAILABLE' }, data: { status: 'RESERVED' } })
+        : { count: 0 };
+
+      return { occupied: occupied.count, reserved: reserved.count };
+    });
+  }
+
   /** Update room details (number, name, type, floor, notes) */
   static async updateRoom(
     id: string,
