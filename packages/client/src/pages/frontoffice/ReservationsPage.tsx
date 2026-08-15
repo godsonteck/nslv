@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { reservationsApi, roomsApi, guestsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2 } from 'lucide-react';
@@ -29,7 +30,7 @@ export const ReservationsPage: React.FC = () => {
   const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing');
   const [guestFilter, setGuestFilter] = useState('');
   const [newGuest, setNewGuest] = useState({ firstName: '', lastName: '', phone: '', email: '' });
-  const [form, setForm] = useState({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', additionalGuestIds: [] as string[] });
+  const [form, setForm] = useState({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] as string[] });
 
   // Multi-room (one party) booking
   const [multi, setMulti] = useState(false);
@@ -43,6 +44,8 @@ export const ReservationsPage: React.FC = () => {
   const [manageRes, setManageRes] = useState<any>(null);
   const [manageIds, setManageIds] = useState<string[]>([]);
   const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
+  const canDiscount = useAuthStore((s) => s.hasPermission('folios.adjust'));
+  const navigate = useNavigate();
 
   const load = async () => {
     try {
@@ -92,7 +95,7 @@ export const ReservationsPage: React.FC = () => {
     setGuestMode('existing');
     setGuestFilter('');
     setNewGuest({ firstName: '', lastName: '', phone: '', email: '' });
-    setForm({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', additionalGuestIds: [] });
+    setForm({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] });
   };
 
   const startMulti = () => {
@@ -184,6 +187,8 @@ export const ReservationsPage: React.FC = () => {
           checkOutDate: form.checkOutDate,
           adults: Number(form.adults),
           children: Number(form.children),
+          discountAmount: Number(form.discountAmount) || 0,
+          discountReason: form.discountAmount ? form.discountReason.trim() : undefined,
           additionalGuestIds: form.additionalGuestIds,
         });
         showToast('success', guestMode === 'new' ? 'Guest created and reservation booked' : 'Reservation created');
@@ -275,6 +280,9 @@ export const ReservationsPage: React.FC = () => {
         <>
           <Button variant="outline" size="sm" onClick={load}>
             <RefreshCw size={14} /> Refresh
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/payments')}>
+            Payments & refunds
           </Button>
           <Button size="sm" onClick={() => setOpen(true)}>
             <Plus size={14} /> New reservation
@@ -426,6 +434,16 @@ export const ReservationsPage: React.FC = () => {
                   <TextInput type="date" required value={bookingDates.checkOutDate} onChange={(e) => setBookingDates({ ...bookingDates, checkOutDate: e.target.value })} />
                 </FormField>
               </div>
+              {canDiscount && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField label="Approved discount (GHS)">
+                    <TextInput type="number" min="0" step="0.01" value={form.discountAmount} onChange={(e) => setForm({ ...form, discountAmount: e.target.value })} placeholder="0.00" />
+                  </FormField>
+                  <FormField label="Discount reason" required={Number(form.discountAmount) > 0}>
+                    <TextInput required={Number(form.discountAmount) > 0} value={form.discountReason} onChange={(e) => setForm({ ...form, discountReason: e.target.value })} placeholder="Reason for approved discount" />
+                  </FormField>
+                </div>
+              )}
 
               <div className="rounded-2xl border border-[#e7ebe8] p-4">
                 <div className="flex items-center justify-between">
