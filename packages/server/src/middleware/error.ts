@@ -35,6 +35,20 @@ export function errorHandler(
   // Log technical details for server diagnostics
   console.error('[SERVER ERROR]', err);
 
+  // A database connection failure is operational, not a bad reservation. Give
+  // the reception team an honest retryable message instead of an opaque 500.
+  const prismaCode = (err as { code?: string }).code;
+  if (prismaCode === 'P1001' || prismaCode === 'P1002') {
+    res.status(503).json({
+      success: false,
+      error: {
+        code: 'DATABASE_UNAVAILABLE',
+        message: 'The property database is temporarily unavailable. Please retry in a moment; no booking was created.',
+      },
+    });
+    return;
+  }
+
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       success: false,
