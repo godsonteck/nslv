@@ -11,6 +11,7 @@ import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceU
 import { staysApi } from '../../services/apiService';
 import { formatCurrency } from '@nslv/shared';
 import { villaAssets } from '../../assets';
+import { receiptCompanyBlock } from '../../lib/company';
 
 interface BillStay {
   id: string;
@@ -119,7 +120,7 @@ export const GuestBillsPage: React.FC = () => {
 
     win.document.write(`<!DOCTYPE html><html><head><title>Guest bill</title><style>
       body{font-family:'Courier New',monospace;font-size:12px;color:#111;padding:24px;width:320px;margin:0 auto}
-      h1{font-size:15px;text-align:center;margin:0 0 4px} .sub{text-align:center;font-size:10px;color:#555;margin-bottom:16px}
+      h1{font-size:15px;text-align:center;margin:0 0 4px} .company{text-align:center;font-size:10px;line-height:1.45;color:#444;margin-bottom:8px}.sub{text-align:center;font-size:10px;color:#555;margin-bottom:16px}
       .logo{display:block;margin:0 auto 10px;width:56px;height:56px;border-radius:12px;object-fit:cover}
       .row{display:flex;justify-content:space-between;font-size:11px;margin:2px 0}
       table{width:100%;border-collapse:collapse;margin:12px 0} th{font-size:10px;text-align:left;border-bottom:1px solid #999;padding:4px 0}
@@ -129,7 +130,7 @@ export const GuestBillsPage: React.FC = () => {
       .foot{text-align:center;font-size:10px;color:#555;margin-top:18px;border-top:1px dashed #999;padding-top:8px}
       @media print{.noprint{display:none}}</style></head><body>
       <img src="${logoUrl}" alt="NS Luxury Villa" class="logo"/>
-      <h1>NS LUXURY VILLA</h1><div class="sub">GUEST BILL · ROOM ${stay.room?.number ?? '—'}</div>
+      ${receiptCompanyBlock()}<div class="sub">GUEST BILL · ROOM ${stay.room?.number ?? '—'}</div>
       <div class="row"><span>Guest</span><span>${guestName}</span></div>
       <div class="row"><span>Checked in</span><span>${new Date(stay.actualCheckIn).toLocaleDateString()}</span></div>
       <div class="row"><span>Folio</span><span>${folio.id.slice(0, 8).toUpperCase()}</span></div>
@@ -138,7 +139,7 @@ export const GuestBillsPage: React.FC = () => {
       ${items ? `<table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Amount</th></tr></thead><tbody>${items}</tbody></table>` : '<div style="text-align:center;font-size:11px;color:#777;margin:6px 0">No charges recorded</div>'}
       ${payments ? `<div class="sec">PAYMENTS</div><table><thead><tr><th>Method</th><th class="r">Date</th><th class="r">Amount</th></tr></thead><tbody>${payments}</tbody></table>` : ''}
       <div class="total"><span>Balance due</span><span>${formatCurrency(money(folio.balance))}</span></div>
-      <div class="foot">Thank you for staying at NS Luxury Villa</div>
+      <div class="foot">Currency: GHS · Check-in 2:00 PM · Check-out 12:00 PM<br/>Thank you for staying at NS Luxury Villa.</div>
       <div class="noprint" style="text-align:center;margin-top:16px"><button onclick="window.print()" style="padding:8px 24px;font-size:12px">Print bill</button></div>
       </body></html>`);
     win.document.close();

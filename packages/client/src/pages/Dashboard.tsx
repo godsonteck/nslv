@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/authStore';
 import { formatCurrency } from '@nslv/shared';
 import { ArrowRight, BedDouble, CalendarCheck, CreditCard, LogIn, LogOut, RefreshCw, Users, UtensilsCrossed, Wine, Waves, Printer } from 'lucide-react';
 import { villaAssets } from '../assets';
+import { receiptCompanyBlock } from '../lib/company';
 import { Button, LoadingState, statusBadge } from '../components/ui';
 import { ShellPage, StatTile, Section } from '../components/common/WorkspaceUI';
 
@@ -31,7 +32,7 @@ const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
   const logoUrl = new URL(villaAssets.logo, window.location.href).href;
   win.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>
     body{font-family:'Courier New',monospace;font-size:12px;color:#111;padding:24px;width:320px;margin:0 auto}
-    h1{font-size:15px;text-align:center;margin:0 0 4px} .sub{text-align:center;font-size:10px;color:#555;margin-bottom:16px}
+    h1{font-size:15px;text-align:center;margin:0 0 4px} .company{text-align:center;font-size:10px;line-height:1.45;color:#444;margin-bottom:8px}.sub{text-align:center;font-size:10px;color:#555;margin-bottom:16px}
     .logo{display:block;margin:0 auto 10px;width:56px;height:56px;border-radius:12px;object-fit:cover}
     .row{display:flex;justify-content:space-between;font-size:11px;margin:2px 0}
     table{width:100%;border-collapse:collapse;margin:12px 0} th{font-size:10px;text-align:left;border-bottom:1px solid #999;padding:4px 0}
@@ -40,13 +41,13 @@ const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
     .foot{text-align:center;font-size:10px;color:#555;margin-top:18px;border-top:1px dashed #999;padding-top:8px}
     @media print{.noprint{display:none}}</style></head><body>
     <img src="${logoUrl}" alt="NS Luxury Villa" class="logo"/>
-    <h1>NS LUXURY VILLA</h1><div class="sub">${title}</div>
+    ${receiptCompanyBlock()}<div class="sub">${title} · OFFICIAL RECEIPT</div>
     <div class="row"><span>Order No</span><span>${no}</span></div>
     <div class="row"><span>Date</span><span>${new Date(order.createdAt).toLocaleString()}</span></div>
     <div class="row"><span>Payment</span><span>${paymentLabel}</span></div>
     <table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Total</th></tr></thead><tbody>${lines}</tbody></table>
-    <div class="total"><span>Total</span><span>${formatCurrency(Number(order.totalAmount || 0))}</span></div>
-    <div class="foot">Thank you for visiting NS Luxury Villa</div>
+    <div class="total"><span>Amount paid</span><span>${formatCurrency(Number(order.totalAmount || 0))}</span></div>
+    <div class="foot">Currency: GHS · This is a computer-generated receipt.<br/>Thank you for visiting NS Luxury Villa.</div>
     <div class="noprint" style="text-align:center;margin-top:16px"><button onclick="window.print()" style="padding:8px 24px;font-size:12px">Print receipt</button></div>
     </body></html>`);
   win.document.close();
