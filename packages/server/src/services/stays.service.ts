@@ -6,6 +6,7 @@ import { prisma } from '../config';
 import { Prisma } from '@prisma/client';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
+import { randomUUID } from 'node:crypto';
 
 export interface CheckInDTO {
   reservationId: string;
@@ -209,10 +210,28 @@ export class StayService {
       const ledger = folio
         ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
         : null;
-      const finalBalance = ledger ? Number(ledger._sum.amount || 0) : 0;
+      let finalBalance = ledger ? Number(ledger._sum.amount || 0) : 0;
 
-      if (!new Prisma.Decimal(finalBalance).isZero()) {
-        throw new Error(`Folio balance of GHS ${finalBalance.toFixed(2)} must be settled to zero before check-out.`);
+      // The front-desk checkout form captures the settlement method. Record
+      // the exact outstanding balance before completing checkout, atomically.
+      if (finalBalance > 0) {
+        if (!data.paymentMethod?.trim()) throw new Error('Select a payment method to settle the outstanding balance.');
+        if (!folio) throw new Error('An open folio is required to settle this stay.');
+        const amount = new Prisma.Decimal(finalBalance);
+        const payment = await tx.payment.create({ data: {
+          reservationId: reservation.id, guestId: primaryGuestId, folioId: folio.id,
+          amount, currency: 'GHS', method: data.paymentMethod, type: 'PAYMENT', status: 'COMPLETED',
+          description: 'Final settlement at check-out', processedBy: data.checkedOutBy, idempotencyKey: randomUUID(),
+        } });
+        await tx.folioItem.create({ data: {
+          folioId: folio.id, type: 'PAYMENT', description: `Payment received at check-out (${data.paymentMethod})`,
+          amount: amount.negated(), quantity: 1, unitPrice: amount.negated(), department: 'FRONT_DESK',
+          referenceId: payment.id, referenceType: 'PAYMENT', postedBy: data.checkedOutBy,
+        } });
+        await tx.folio.update({ where: { id: folio.id }, data: { balance: { decrement: amount } } });
+        finalBalance = 0;
+      } else if (finalBalance < 0) {
+        throw new Error(`Folio has a guest credit of GHS ${Math.abs(finalBalance).toFixed(2)}. Process the refund before check-out.`);
       }
 
       // Create CheckOut record

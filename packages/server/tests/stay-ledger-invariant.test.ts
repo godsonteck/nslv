@@ -4,6 +4,8 @@ const mocks = vi.hoisted(() => ({
   transaction: vi.fn(),
   reservationFindUnique: vi.fn(),
   folioAggregate: vi.fn(),
+  folioItemCreate: vi.fn(),
+  paymentCreate: vi.fn(),
   checkOutCreate: vi.fn(),
   reservationUpdate: vi.fn(),
   roomUpdate: vi.fn(),
@@ -24,7 +26,8 @@ describe('stay ledger invariants', () => {
     vi.clearAllMocks();
     const tx = {
       reservation: { findUnique: mocks.reservationFindUnique, update: mocks.reservationUpdate },
-      folioItem: { aggregate: mocks.folioAggregate },
+      folioItem: { aggregate: mocks.folioAggregate, create: mocks.folioItemCreate },
+      payment: { create: mocks.paymentCreate },
       checkOut: { create: mocks.checkOutCreate },
       room: { update: mocks.roomUpdate },
       folio: { update: mocks.folioUpdate },
@@ -37,6 +40,8 @@ describe('stay ledger invariants', () => {
       folios: [{ id: 'folio-1', status: 'OPEN', balance: 999 }],
     });
     mocks.folioAggregate.mockResolvedValue({ _sum: { amount: 0 } });
+    mocks.folioItemCreate.mockResolvedValue({});
+    mocks.paymentCreate.mockResolvedValue({ id: 'payment-1' });
     mocks.checkOutCreate.mockResolvedValue({ id: 'checkout-1' });
     mocks.reservationUpdate.mockResolvedValue({});
     mocks.roomUpdate.mockResolvedValue({});
@@ -52,5 +57,12 @@ describe('stay ledger invariants', () => {
   it('never returns a damaged room to available inventory at checkout', async () => {
     await StayService.checkOutGuest({ reservationId: 'reservation-1', checkedOutBy: 'user-1', roomCondition: 'DAMAGED' });
     expect(mocks.roomUpdate).toHaveBeenCalledWith(expect.objectContaining({ data: { status: 'MAINTENANCE' } }));
+  });
+
+  it('records the exact outstanding balance using the selected checkout method', async () => {
+    mocks.folioAggregate.mockResolvedValue({ _sum: { amount: 850 } });
+    await StayService.checkOutGuest({ reservationId: 'reservation-1', checkedOutBy: 'user-1', paymentMethod: 'MOBILE_MONEY' });
+    expect(mocks.paymentCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ amount: expect.anything(), method: 'MOBILE_MONEY', folioId: 'folio-1' }) }));
+    expect(mocks.folioItemCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'PAYMENT', amount: expect.anything() }) }));
   });
 });
