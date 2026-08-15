@@ -7,6 +7,7 @@ import { prisma } from '../config';
 import { Prisma } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { AppError } from '../middleware/error';
+import { AuditService } from './audit.service';
 
 export interface CreateReservationDTO {
   guestId: string;
@@ -390,6 +391,27 @@ export class ReservationService {
       }
 
       return updated;
+    });
+  }
+
+  /** Permanently remove a cancelled reservation that has no immutable activity. */
+  static async deleteCancelledReservation(id: string, deletedBy: string) {
+    return prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.findUnique({
+        where: { id },
+        include: { checkIns: { select: { id: true } }, checkOuts: { select: { id: true } }, folios: { select: { id: true } }, payments: { select: { id: true } } },
+      });
+      if (!reservation) throw new AppError('Reservation not found.', 404, 'NOT_FOUND');
+      if (reservation.status !== 'CANCELLED') throw new AppError('Only cancelled reservations can be permanently deleted.', 409, 'RESERVATION_NOT_CANCELLED');
+      if (reservation.checkIns.length || reservation.checkOuts.length || reservation.folios.length || reservation.payments.length) {
+        throw new AppError('This cancelled reservation has stay or financial records and must be retained for audit.', 409, 'RESERVATION_AUDIT_REQUIRED');
+      }
+      await AuditService.logInTransaction(tx, {
+        userId: deletedBy, action: 'reservation.deleted', resource: 'reservation', resourceId: reservation.id,
+        beforeData: { confirmationNo: reservation.confirmationNo, status: reservation.status, roomId: reservation.roomId },
+      });
+      await tx.reservation.delete({ where: { id } });
+      return { id: reservation.id };
     });
   }
 }

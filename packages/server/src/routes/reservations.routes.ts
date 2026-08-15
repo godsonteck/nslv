@@ -5,7 +5,7 @@
 import { Router } from 'express';
 import { ReservationService } from '../services/reservations.service';
 import { AppError } from '../middleware/error';
-import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, requireAdmin, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import {
   createReservationSchema,
@@ -123,6 +123,17 @@ router.post('/:id/cancel', requirePermission('reservations.cancel'), validateBod
     const { reason } = req.body;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await ReservationService.cancelReservation(id, userId, reason);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const data = await ReservationService.deleteCancelledReservation(id, userId);
     res.json({ success: true, data });
   } catch (error) {
     next(error);

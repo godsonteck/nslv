@@ -112,6 +112,20 @@ export function requirePermission(...requiredPermissions: PermissionCode[]) {
   };
 }
 
+/** Restrict irreversible administrative actions to the Admin role. */
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  const authReq = req as AuthenticatedRequest;
+  if (!authReq.user) {
+    res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
+    return;
+  }
+  if (!authReq.user.roles.some((role) => role.toLowerCase() === 'admin')) {
+    res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Only an administrator can permanently delete a cancelled reservation.' } });
+    return;
+  }
+  next();
+}
+
 /**
  * Middleware: Check if user has ANY of the listed permissions (OR logic).
  */

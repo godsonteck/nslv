@@ -138,6 +138,8 @@ export const PaymentsPage: React.FC = () => {
   };
 
   const total = data.reduce((s, p) => s + (p.type === 'REFUND' ? -money(p.amount) : money(p.amount)), 0);
+  const refunds = data.filter((payment) => payment.type === 'REFUND');
+  const refundedTotal = refunds.reduce((sum, payment) => sum + money(payment.amount), 0);
   const openRefund = (payment: PaymentRecord) => {
     setRefundTarget(payment); setRefundAmount(money(payment.amount).toFixed(2)); setRefundReason(''); setRefundReference('');
   };
@@ -179,9 +181,10 @@ export const PaymentsPage: React.FC = () => {
         </>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <StatTile label="Collected" value={formatCurrency(total)} note="Current ledger result" icon={CreditCard} accent />
         <StatTile label="Transactions" value={data.length} icon={WalletCards} />
+        <StatTile label="Refunded" value={formatCurrency(refundedTotal)} note={`${refunds.length} refund${refunds.length === 1 ? '' : 's'} recorded`} icon={Undo2} />
         <StatTile label="Open stays" value={stays.length} note="Available for folio settlement" />
       </div>
 

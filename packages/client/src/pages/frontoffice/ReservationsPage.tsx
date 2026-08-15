@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { reservationsApi, roomsApi, guestsApi } from '../../services/apiService';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 
@@ -41,6 +42,7 @@ export const ReservationsPage: React.FC = () => {
   const [manageOpen, setManageOpen] = useState(false);
   const [manageRes, setManageRes] = useState<any>(null);
   const [manageIds, setManageIds] = useState<string[]>([]);
+  const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
 
   const load = async () => {
     try {
@@ -206,6 +208,17 @@ export const ReservationsPage: React.FC = () => {
     }
   };
 
+  const deleteCancelled = async (r: any) => {
+    if (!window.confirm(`Permanently delete cancelled reservation ${r.confirmationNo || r.id}? This cannot be undone.`)) return;
+    try {
+      await reservationsApi.deleteCancelled(r.id);
+      showToast('success', 'Cancelled reservation permanently deleted.');
+      load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Unable to delete cancelled reservation');
+    }
+  };
+
   const openManageGuests = (r: any) => {
     setManageRes(r);
     setManageIds([]);
@@ -362,6 +375,7 @@ export const ReservationsPage: React.FC = () => {
                         </td>
                         <td className="px-5 py-4 text-xs font-extrabold text-[#20343e]">
                           {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
+                          {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                         </td>
                         <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}</td>
                         <td className="px-5 py-4 text-right">
@@ -372,6 +386,11 @@ export const ReservationsPage: React.FC = () => {
                             {!['CANCELLED', 'CHECKED_OUT'].includes(String(r.status).toUpperCase()) && (
                               <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel reservation">
                                 <MoreHorizontal size={16} />
+                              </button>
+                            )}
+                            {canDeleteCancelled && String(r.status).toUpperCase() === 'CANCELLED' && (
+                              <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Permanently delete cancelled reservation">
+                                <Trash2 size={16} />
                               </button>
                             )}
                           </div>
