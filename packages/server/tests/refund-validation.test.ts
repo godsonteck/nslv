@@ -76,4 +76,58 @@ describe('refund validation and retry safety', () => {
       processedBy: 'd4b7968b-8988-4207-af89-07311791ef77',
     })).rejects.toMatchObject({ code: 'REFUND_EXCEEDS_PAYMENT', statusCode: 422 });
   });
+
+  it('rejects refund on a closed folio if allowClosedFolioReopen is not set', async () => {
+    const tx = {
+      payment: {
+        findUnique: vi.fn().mockResolvedValue({ id: originalPaymentId, type: 'PAYMENT', status: 'COMPLETED', voidedAt: null, amount: 100, folioId: 'folio-closed' }),
+        aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 0 } }),
+      },
+      folio: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'folio-closed', status: 'CLOSED' }),
+      },
+    };
+    mocks.findUnique.mockResolvedValue(null);
+    mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
+    await expect(PaymentService.refundPayment(originalPaymentId, {
+      amount: 50, reason: 'Authorized post-checkout refund', idempotencyKey,
+      processedBy: 'd4b7968b-8988-4207-af89-07311791ef77',
+    })).rejects.toMatchObject({ code: 'CLOSED_FOLIO_REFUND', statusCode: 409 });
+  });
+
+  it('successfully processes a refund on a closed folio when allowClosedFolioReopen is true', async () => {
+    const folioUpdate = vi.fn().mockResolvedValue({});
+    const paymentCreate = vi.fn().mockResolvedValue({ id: 'refund-100', method: 'CASH', reference: null });
+    const folioItemCreate = vi.fn().mockResolvedValue({});
+    const paymentUpdate = vi.fn().mockResolvedValue({});
+    const tx = {
+      payment: {
+        findUnique: vi.fn().mockResolvedValue({ id: originalPaymentId, type: 'PAYMENT', status: 'COMPLETED', voidedAt: null, amount: 100, folioId: 'folio-closed', currency: 'GHS', method: 'CASH' }),
+        aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 0 } }),
+        create: paymentCreate,
+        update: paymentUpdate,
+      },
+      folio: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'folio-closed', status: 'CLOSED' }),
+        update: folioUpdate,
+      },
+      folioItem: {
+        create: folioItemCreate,
+      },
+    };
+    mocks.findUnique.mockResolvedValue(null);
+    mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
+
+    const result = await PaymentService.refundPayment(originalPaymentId, {
+      amount: 50,
+      reason: 'Authorized post-checkout correction',
+      idempotencyKey,
+      processedBy: 'admin-user-1',
+      allowClosedFolioReopen: true,
+    });
+
+    expect(result).toEqual({ id: 'refund-100', method: 'CASH', reference: null });
+    expect(folioUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'folio-closed' }, data: { status: 'OPEN' } }));
+    expect(folioUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'folio-closed' }, data: expect.objectContaining({ status: 'CLOSED' }) }));
+  });
 });

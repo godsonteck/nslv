@@ -241,6 +241,7 @@ export const refundPaymentSchema = z.object({
   reference: z.string().max(100).trim().optional(),
   reason: z.string().min(3, 'A refund reason is required').max(500).trim(),
   idempotencyKey: uuidSchema,
+  allowClosedFolioReopen: z.boolean().optional(),
 });
 
 export const dailyCloseSchema = z.object({

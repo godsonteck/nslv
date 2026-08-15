@@ -28,6 +28,7 @@ export interface RefundPaymentDTO {
   reason: string;
   idempotencyKey: string;
   processedBy: string;
+  allowClosedFolioReopen?: boolean;
 }
 
 export class PaymentService {
@@ -160,10 +161,18 @@ export class PaymentService {
           throw new AppError(`Refund exceeds the remaining refundable amount of ${refundable.toFixed(2)}.`, 422, 'REFUND_EXCEEDS_PAYMENT');
         }
 
+        let isClosedFolioReopened = false;
+        let originalFolioStatus = 'OPEN';
         if (original.folioId) {
           const folio = await tx.folio.findUnique({ where: { id: original.folioId } });
-          if (!folio || folio.status !== 'OPEN') {
-            throw new AppError('A payment on a closed folio must be refunded through an authorised folio reopening workflow.', 409, 'CLOSED_FOLIO_REFUND');
+          if (!folio) throw new AppError('Folio not found.', 404, 'FOLIO_NOT_FOUND');
+          originalFolioStatus = folio.status;
+          if (folio.status !== 'OPEN') {
+            if (!data.allowClosedFolioReopen) {
+              throw new AppError('A payment on a closed folio must be refunded through an authorised folio reopening workflow.', 409, 'CLOSED_FOLIO_REFUND');
+            }
+            await tx.folio.update({ where: { id: original.folioId }, data: { status: 'OPEN' } });
+            isClosedFolioReopened = true;
           }
         }
 
@@ -202,7 +211,24 @@ export class PaymentService {
               postedBy: data.processedBy,
             },
           });
-          await tx.folio.update({ where: { id: original.folioId }, data: { balance: { increment: refundAmount } } });
+          await tx.folio.update({
+            where: { id: original.folioId },
+            data: {
+              balance: { increment: refundAmount },
+              status: isClosedFolioReopened ? 'CLOSED' : undefined,
+              closedAt: isClosedFolioReopened ? new Date() : undefined,
+            },
+          });
+          if (isClosedFolioReopened) {
+            await AuditService.logInTransaction(tx, {
+              userId: data.processedBy,
+              action: 'folio.closed_folio_refund_processed',
+              resource: 'folio',
+              resourceId: original.folioId,
+              beforeData: { status: originalFolioStatus },
+              afterData: { status: 'CLOSED', originalPaymentId: original.id, refundId: refund.id, amount: refundAmount.toString(), reason: data.reason },
+            });
+          }
         }
 
         const remaining = refundable.minus(refundAmount);

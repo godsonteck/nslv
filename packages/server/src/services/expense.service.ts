@@ -7,7 +7,7 @@ import { prisma } from '../config';
 import { randomBytes } from 'node:crypto';
 import { AuditService } from './audit.service';
 import { CategoryService } from './categories.service';
-import { DailyCloseService } from './daily-close.service';
+import { DailyCloseService, lockBusinessDay } from './daily-close.service';
 
 const makeExpenseNo = () => `EXP-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -44,75 +44,88 @@ export class ExpenseService {
     await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
 
     const incurredOn = input.incurredOn ? new Date(input.incurredOn) : new Date();
-    await DailyCloseService.assertBusinessDayOpen(incurredOn);
-    const expense = await prisma.expense.create({
-      data: {
-        expenseNo: makeExpenseNo(),
-        category: input.category,
-        description: input.description.trim(),
-        amount,
-        incurredOn,
-        paymentMethod: input.paymentMethod,
-        vendor: input.vendor,
-        receiptRef: input.receiptRef,
-        notes: input.notes,
-        createdBy,
-      },
+    return prisma.$transaction(async (tx) => {
+      await lockBusinessDay(tx, incurredOn);
+      await DailyCloseService.assertBusinessDayOpen(incurredOn);
+      const expense = await tx.expense.create({
+        data: {
+          expenseNo: makeExpenseNo(),
+          category: input.category,
+          description: input.description.trim(),
+          amount,
+          incurredOn,
+          paymentMethod: input.paymentMethod,
+          vendor: input.vendor,
+          receiptRef: input.receiptRef,
+          notes: input.notes,
+          createdBy,
+        },
+      });
+      await AuditService.logInTransaction(tx, { userId: createdBy, action: 'expense.created', resource: 'expense', resourceId: expense.id, afterData: expense as unknown as Record<string, unknown> });
+      return expense;
     });
-    await AuditService.log({ userId: createdBy, action: 'expense.created', resource: 'expense', resourceId: expense.id, afterData: expense as unknown as Record<string, unknown> });
-    return expense;
   }
 
   static async updateExpense(id: string, input: Partial<{ category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: string; vendor?: string; receiptRef?: string; notes?: string }>, updatedBy: string) {
-    const existing = await prisma.expense.findUnique({ where: { id } });
-    if (!existing) throw new Error('Expense not found.');
-    if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be edited.');
-    await DailyCloseService.assertBusinessDayOpen(input.incurredOn ? new Date(input.incurredOn) : existing.incurredOn);
-    if (input.category) await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.expense.findUnique({ where: { id } });
+      if (!existing) throw new Error('Expense not found.');
+      if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be edited.');
+      const incurredOn = input.incurredOn ? new Date(input.incurredOn) : existing.incurredOn;
+      await lockBusinessDay(tx, incurredOn);
+      await DailyCloseService.assertBusinessDayOpen(incurredOn);
+      if (input.category) await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
 
-    const expense = await prisma.expense.update({
-      where: { id },
-      data: {
-        category: input.category,
-        description: input.description,
-        amount: input.amount !== undefined ? Number(input.amount) : undefined,
-        incurredOn: input.incurredOn ? new Date(input.incurredOn) : undefined,
-        paymentMethod: input.paymentMethod,
-        vendor: input.vendor,
-        receiptRef: input.receiptRef,
-        notes: input.notes,
-      },
+      const expense = await tx.expense.update({
+        where: { id },
+        data: {
+          category: input.category,
+          description: input.description,
+          amount: input.amount !== undefined ? Number(input.amount) : undefined,
+          incurredOn: input.incurredOn ? new Date(input.incurredOn) : undefined,
+          paymentMethod: input.paymentMethod,
+          vendor: input.vendor,
+          receiptRef: input.receiptRef,
+          notes: input.notes,
+        },
+      });
+      await AuditService.logInTransaction(tx, { userId: updatedBy, action: 'expense.updated', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
+      return expense;
     });
-    await AuditService.log({ userId: updatedBy, action: 'expense.updated', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
-    return expense;
   }
 
   static async setStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED', approvedBy: string) {
-    const existing = await prisma.expense.findUnique({ where: { id } });
-    if (!existing) throw new Error('Expense not found.');
-    if (existing.status === 'APPROVED') throw new Error('Approved expenses are immutable. Record a correcting expense instead.');
-    await DailyCloseService.assertBusinessDayOpen(existing.incurredOn);
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.expense.findUnique({ where: { id } });
+      if (!existing) throw new Error('Expense not found.');
+      if (existing.status === 'APPROVED') throw new Error('Approved expenses are immutable. Record a correcting expense instead.');
+      await lockBusinessDay(tx, existing.incurredOn);
+      await DailyCloseService.assertBusinessDayOpen(existing.incurredOn);
 
-    const expense = await prisma.expense.update({
-      where: { id },
-      data: {
-        status,
-        approvedBy: status === 'APPROVED' ? approvedBy : null,
-        approvedAt: status === 'APPROVED' ? new Date() : null,
-      },
+      const expense = await tx.expense.update({
+        where: { id },
+        data: {
+          status,
+          approvedBy: status === 'APPROVED' ? approvedBy : null,
+          approvedAt: status === 'APPROVED' ? new Date() : null,
+        },
+      });
+      await AuditService.logInTransaction(tx, { userId: approvedBy, action: `expense.${status.toLowerCase()}`, resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
+      return expense;
     });
-    await AuditService.log({ userId: approvedBy, action: `expense.${status.toLowerCase()}`, resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
-    return expense;
   }
 
   static async deleteExpense(id: string, deletedBy: string) {
-    const existing = await prisma.expense.findUnique({ where: { id } });
-    if (!existing) throw new Error('Expense not found.');
-    if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be deleted.');
-    await DailyCloseService.assertBusinessDayOpen(existing.incurredOn);
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.expense.findUnique({ where: { id } });
+      if (!existing) throw new Error('Expense not found.');
+      if (existing.status === 'APPROVED') throw new Error('Approved expenses cannot be deleted.');
+      await lockBusinessDay(tx, existing.incurredOn);
+      await DailyCloseService.assertBusinessDayOpen(existing.incurredOn);
 
-    await prisma.expense.delete({ where: { id } });
-    await AuditService.log({ userId: deletedBy, action: 'expense.deleted', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown> });
-    return { id, deleted: true };
+      await tx.expense.delete({ where: { id } });
+      await AuditService.logInTransaction(tx, { userId: deletedBy, action: 'expense.deleted', resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown> });
+      return { id, deleted: true };
+    });
   }
 }
