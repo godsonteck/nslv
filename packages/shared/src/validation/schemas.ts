@@ -314,6 +314,13 @@ export const createReservationSchema = z.object({
   bookingId: uuidSchema.optional(),
   additionalGuestIds: z.array(uuidSchema).optional(),
 });
+/** Changes allowed before a guest has checked in. Rates are always recalculated by the server. */
+export const updateReservationSchema = z.object({
+  ...reservationCommon,
+  roomId: uuidSchema.optional(),
+  adults: wholeNumber.optional(),
+  children: wholeNumber.optional(),
+});
 export const createMultiReservationSchema = z.object({
   ...reservationCommon,
   rooms: z

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reservationsApi, roomsApi, guestsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2 } from 'lucide-react';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 
@@ -43,7 +43,10 @@ export const ReservationsPage: React.FC = () => {
   const [manageOpen, setManageOpen] = useState(false);
   const [manageRes, setManageRes] = useState<any>(null);
   const [manageIds, setManageIds] = useState<string[]>([]);
+  const [editRes, setEditRes] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', source: '', specialRequests: '', notes: '' });
   const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
+  const canEdit = useAuthStore((s) => s.hasPermission('reservations.edit'));
   const canDiscount = useAuthStore((s) => s.hasPermission('folios.adjust'));
   const navigate = useNavigate();
 
@@ -247,6 +250,31 @@ export const ReservationsPage: React.FC = () => {
     }
   };
 
+  const openEdit = (r: any) => {
+    setEditRes(r);
+    setEditForm({
+      roomId: r.roomId, checkInDate: String(r.checkInDate).slice(0, 10), checkOutDate: String(r.checkOutDate).slice(0, 10),
+      adults: String(r.adults ?? 1), children: String(r.children ?? 0), source: r.source || '',
+      specialRequests: r.specialRequests || '', notes: r.notes || '',
+    });
+  };
+
+  const saveEdit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editRes) return;
+    try {
+      setSaving(true);
+      await reservationsApi.update(editRes.id, { ...editForm, adults: Number(editForm.adults), children: Number(editForm.children), specialRequests: editForm.specialRequests || undefined, notes: editForm.notes || undefined });
+      showToast('success', 'Reservation updated and repriced');
+      setEditRes(null);
+      load();
+    } catch (error) {
+      showToast('error', error instanceof Error ? error.message : 'Unable to update reservation');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const confirmed = data.filter((x) => ['CONFIRMED', 'PENDING'].includes(String(x.status).toUpperCase())).length;
   const active = data.filter((x) => String(x.status).toUpperCase() === 'CHECKED_IN').length;
 
@@ -388,6 +416,11 @@ export const ReservationsPage: React.FC = () => {
                         <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}</td>
                         <td className="px-5 py-4 text-right">
                           <div className="flex items-center justify-end gap-1">
+                            {canEdit && ['PENDING', 'CONFIRMED'].includes(String(r.status).toUpperCase()) && (
+                              <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#eef3f0] hover:text-[#174b59]" title="Edit reservation details">
+                                <Pencil size={16} />
+                              </button>
+                            )}
                             <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#eef3f0] hover:text-[#174b59]" title="Manage guests on this reservation">
                               <Users size={16} />
                             </button>
@@ -702,6 +735,27 @@ export const ReservationsPage: React.FC = () => {
               {multi ? 'Book party' : guestMode === 'new' ? 'Create guest & reserve' : 'Create reservation'}
             </Button>
           </div>
+        </form>
+      </Modal>
+
+      <Modal open={!!editRes} onClose={() => setEditRes(null)} title={editRes ? `Edit ${editRes.confirmationNo || 'reservation'}` : 'Edit reservation'} size="lg">
+        <form onSubmit={saveEdit} className="space-y-4">
+          <div className="rounded-xl bg-[#f7f8f6] p-3 text-xs text-[#667278]">Changes are checked against live availability. The room rate and booking total are recalculated from the revised stay dates.</div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Arrival" required><TextInput type="date" required value={editForm.checkInDate} onChange={(e) => setEditForm({ ...editForm, checkInDate: e.target.value })} /></FormField>
+            <FormField label="Departure" required><TextInput type="date" required value={editForm.checkOutDate} onChange={(e) => setEditForm({ ...editForm, checkOutDate: e.target.value })} /></FormField>
+            <FormField label="Room" required>
+              <SelectInput required value={editForm.roomId} onChange={(e) => setEditForm({ ...editForm, roomId: e.target.value })}>
+                {rooms.filter((room) => room.isActive && !['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)).map((room) => <option key={room.id} value={room.id}>Room {room.number} · {room.roomType?.name || 'Room'}</option>)}
+              </SelectInput>
+            </FormField>
+            <FormField label="Source"><TextInput value={editForm.source} onChange={(e) => setEditForm({ ...editForm, source: e.target.value })} placeholder="WALK_IN" /></FormField>
+            <FormField label="Adults" required><TextInput type="number" min="1" required value={editForm.adults} onChange={(e) => setEditForm({ ...editForm, adults: e.target.value })} /></FormField>
+            <FormField label="Children"><TextInput type="number" min="0" value={editForm.children} onChange={(e) => setEditForm({ ...editForm, children: e.target.value })} /></FormField>
+          </div>
+          <FormField label="Special requests"><textarea className="ns-input min-h-20 w-full p-3 text-sm" value={editForm.specialRequests} onChange={(e) => setEditForm({ ...editForm, specialRequests: e.target.value })} /></FormField>
+          <FormField label="Internal notes"><textarea className="ns-input min-h-20 w-full p-3 text-sm" value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} /></FormField>
+          <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setEditRes(null)}>Cancel</Button><Button type="submit" loading={saving}>Save changes</Button></div>
         </form>
       </Modal>
 

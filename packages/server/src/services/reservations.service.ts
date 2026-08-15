@@ -49,6 +49,17 @@ export interface CreateMultiReservationDTO {
   }>;
 }
 
+export interface UpdateReservationDTO {
+  roomId?: string;
+  checkInDate: string | Date;
+  checkOutDate: string | Date;
+  adults?: number;
+  children?: number;
+  source?: string;
+  specialRequests?: string;
+  notes?: string;
+}
+
 export class ReservationService {
   /** Check if room is available for given dates */
   static async checkAvailability(
@@ -125,6 +136,66 @@ export class ReservationService {
       },
       orderBy: { checkInDate: 'asc' },
     });
+  }
+
+  /** Amend a booking before check-in, protecting availability and prior deposits. */
+  static async updateReservation(id: string, data: UpdateReservationDTO, updatedBy: string) {
+    const checkIn = new Date(data.checkInDate);
+    const checkOut = new Date(data.checkOutDate);
+    if (checkOut <= checkIn) throw new Error('Departure date must be strictly after arrival date.');
+
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const reservation = await tx.reservation.findUnique({ where: { id } });
+        if (!reservation) throw new AppError('Reservation not found.', 404, 'NOT_FOUND');
+        if (!['PENDING', 'CONFIRMED'].includes(reservation.status)) {
+          throw new AppError('Only pending or confirmed reservations can be edited. Use the stay workflow after check-in.', 409, 'RESERVATION_NOT_EDITABLE');
+        }
+        const roomId = data.roomId || reservation.roomId;
+        const [available, room] = await Promise.all([
+          this.checkAvailability(roomId, checkIn, checkOut, id, tx),
+          tx.room.findUnique({ where: { id: roomId }, include: { roomType: true } }),
+        ]);
+        if (!available || !room || !room.isActive || ['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)) {
+          throw new Error('The selected room is not available for the specified dates.');
+        }
+        const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+        const totalAmount = Math.max(0, Number(room.roomType.basePrice) * nights - Number(reservation.discountAmount) + Number(reservation.taxAmount));
+        const deposits = await tx.payment.aggregate({
+          where: { reservationId: id, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null }, _sum: { amount: true },
+        });
+        if (Number(deposits._sum.amount || 0) > totalAmount) {
+          throw new AppError('This change would make completed deposits exceed the revised reservation total.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
+        }
+        const updated = await tx.reservation.update({
+          where: { id },
+          data: {
+            roomId, checkInDate: checkIn, checkOutDate: checkOut,
+            adults: data.adults ?? reservation.adults, children: data.children ?? reservation.children,
+            source: data.source ?? reservation.source, specialRequests: data.specialRequests,
+            notes: data.notes, baseRate: room.roomType.basePrice, totalAmount,
+          },
+          include: { room: { include: { roomType: true } }, guests: { include: { guest: true } }, folios: true },
+        });
+        if (roomId !== reservation.roomId) {
+          await tx.room.update({ where: { id: roomId }, data: { status: 'RESERVED' } });
+          const otherReservations = await tx.reservation.findFirst({
+            where: { roomId: reservation.roomId, id: { not: id }, status: { in: ['PENDING', 'CONFIRMED', 'CHECKED_IN'] } }, select: { id: true },
+          });
+          const oldRoom = await tx.room.findUnique({ where: { id: reservation.roomId }, select: { status: true } });
+          if (oldRoom?.status === 'RESERVED' && !otherReservations) await tx.room.update({ where: { id: reservation.roomId }, data: { status: 'AVAILABLE' } });
+        }
+        await AuditService.logInTransaction(tx, {
+          userId: updatedBy, action: 'reservation.updated', resource: 'reservation', resourceId: id,
+          beforeData: { roomId: reservation.roomId, checkInDate: reservation.checkInDate.toISOString(), checkOutDate: reservation.checkOutDate.toISOString(), adults: reservation.adults, children: reservation.children, totalAmount: reservation.totalAmount.toString() },
+          afterData: { roomId, checkInDate: checkIn.toISOString(), checkOutDate: checkOut.toISOString(), adults: updated.adults, children: updated.children, totalAmount: updated.totalAmount.toString() },
+        });
+        return updated;
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') throw new AppError('The room was changed concurrently. Refresh availability and retry.', 409, 'RESERVATION_CONFLICT');
+      throw error;
+    }
   }
 
   /** Create reservation with atomic availability check transaction */

@@ -491,6 +491,9 @@ export const reservationsApi = {
   create: async (body: any): Promise<any> =>
     apiFetch<any>('/reservations', { method: 'POST', body: JSON.stringify(body) }, token()),
 
+  update: async (id: string, body: any): Promise<any> =>
+    apiFetch<any>(`/reservations/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
+
   createMulti: async (body: any): Promise<any> =>
     apiFetch<any>('/reservations/multi', { method: 'POST', body: JSON.stringify(body) }, token()),
 

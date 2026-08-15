@@ -9,6 +9,7 @@ import { authenticate, requireAdmin, requirePermission, verifyActiveUser, Authen
 import { validateBody } from '../middleware/validate';
 import {
   createReservationSchema,
+  updateReservationSchema,
   createMultiReservationSchema,
   attachGuestsSchema,
   cancelReservationSchema,
@@ -89,6 +90,18 @@ router.post('/multi', requirePermission('reservations.create'), validateBody(cre
     }
     const data = await ReservationService.createMultiReservation({ ...req.body, createdBy: userId });
     res.status(201).json({ success: true, data });
+  } catch (error) {
+    next(reservationFailure(error));
+  }
+});
+
+// Amend an unstarted booking. The service rechecks availability and recalculates the stay total.
+router.patch('/:id', requirePermission('reservations.edit'), validateBody(updateReservationSchema), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const data = await ReservationService.updateReservation(id, req.body, userId);
+    res.json({ success: true, data });
   } catch (error) {
     next(reservationFailure(error));
   }
