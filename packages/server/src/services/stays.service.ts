@@ -25,6 +25,11 @@ export interface CheckOutDTO {
 }
 
 export class StayService {
+  /** NS Luxury Villa operates on Ghana time: 2 PM check-in, noon check-out. */
+  private static stayBoundary(value: Date, hour: number) {
+    const date = value.toISOString().slice(0, 10);
+    return new Date(`${date}T${String(hour).padStart(2, '0')}:00:00.000Z`);
+  }
   /** Get active stays */
   static async getActiveStays() {
     return prisma.checkIn.findMany({
@@ -66,12 +71,11 @@ export class StayService {
       if (reservation.status === 'CANCELLED') throw new Error('Cannot check in a cancelled reservation');
       if (!['PENDING', 'CONFIRMED'].includes(reservation.status)) throw new Error('Reservation is not eligible for check-in');
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const checkoutDay = new Date(reservation.checkOutDate);
-      checkoutDay.setHours(0, 0, 0, 0);
-      const checkinDay = new Date(reservation.checkInDate);
-      checkinDay.setHours(0, 0, 0, 0);
-      if (today < checkinDay || today >= checkoutDay) throw new Error('Check-in is outside the reservation stay dates.');
+      const checkinTime = this.stayBoundary(reservation.checkInDate, 14);
+      const checkoutTime = this.stayBoundary(reservation.checkOutDate, 12);
+      if (now < checkinTime || now >= checkoutTime) {
+        throw new Error('Check-in is available from 2:00 PM on arrival until 12:00 PM on the departure date.');
+      }
       if (!reservation.room.isActive || ['MAINTENANCE', 'OUT_OF_SERVICE', 'OCCUPIED'].includes(reservation.room.status)) {
         throw new Error('The assigned room is not available for check-in.');
       }
