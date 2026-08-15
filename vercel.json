@@ -1,7 +1,7 @@
 {
   "framework": null,
   "installCommand": "npm ci --legacy-peer-deps",
-  "buildCommand": "export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && npm run build:shared && npm run db:generate && npm run db:migrate:prod && npm run build:server && npm run build:client",
+  "buildCommand": "npm run build:shared && npm run db:generate && npm run build:server && npm run build:client",
   "outputDirectory": "packages/client/dist",
   "functions": {
     "api/index.js": {
