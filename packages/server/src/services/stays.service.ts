@@ -33,7 +33,7 @@ export class StayService {
   }
   /** Get active stays */
   static async getActiveStays() {
-    return prisma.checkIn.findMany({
+    const stays = await prisma.checkIn.findMany({
       where: {
         reservation: { status: 'CHECKED_IN' },
       },
@@ -53,6 +53,10 @@ export class StayService {
       },
       orderBy: { actualCheckIn: 'desc' },
     });
+    const staffIds = [...new Set(stays.map((stay) => stay.checkedInBy))];
+    const staff = staffIds.length ? await prisma.user.findMany({ where: { id: { in: staffIds } }, select: { id: true, firstName: true, lastName: true, username: true } }) : [];
+    const staffById = new Map(staff.map((user) => [user.id, { id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.username, username: user.username }]));
+    return stays.map((stay) => ({ ...stay, checkedInByUser: staffById.get(stay.checkedInBy) || { id: stay.checkedInBy, name: 'Former staff account' } }));
   }
 
   /** Execute Check-In workflow */

@@ -47,6 +47,7 @@ export const ReservationsPage: React.FC = () => {
   const [editForm, setEditForm] = useState({ roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', source: '', specialRequests: '', notes: '' });
   const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
   const canEdit = useAuthStore((s) => s.hasPermission('reservations.edit'));
+  const isAdmin = useAuthStore((s) => s.hasRole('admin'));
   const canDiscount = useAuthStore((s) => s.hasPermission('folios.adjust'));
   const navigate = useNavigate();
 
@@ -388,6 +389,7 @@ export const ReservationsPage: React.FC = () => {
                             {r.bookingId && <span className="rounded-md bg-[#eef3f0] px-1.5 py-0.5 text-[9px] font-extrabold text-[#174b59]" title="Part of a multi-room booking">PARTY</span>}
                           </div>
                           <div className="mt-1 text-[10px] text-[#9aa3a6]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</div>
+                          {isAdmin && <div className="mt-1 text-[10px] text-[#667278]">Booked by: {r.bookedBy?.name || '—'}</div>}
                         </td>
                         <td className="px-5 py-4 text-xs text-[#26363e]">
                           {allGuests.length ? (
@@ -413,7 +415,7 @@ export const ReservationsPage: React.FC = () => {
                           {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
                           {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                         </td>
-                        <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}</td>
+                        <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#667278]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#667278]">Out: {r.checkedOutBy.name}</div>}</td>
                         <td className="px-5 py-4 text-right">
                           <div className="flex items-center justify-end gap-1">
                             {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (

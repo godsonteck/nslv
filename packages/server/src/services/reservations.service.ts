@@ -127,15 +127,26 @@ export class ReservationService {
       ];
     }
 
-    return prisma.reservation.findMany({
+    const reservations = await prisma.reservation.findMany({
       where,
       include: {
         room: { include: { roomType: true } },
         guests: { include: { guest: true } },
         folios: true,
+        checkIns: { select: { checkedInBy: true, actualCheckIn: true } },
+        checkOuts: { select: { checkedOutBy: true, actualCheckOut: true } },
       },
       orderBy: { checkInDate: 'asc' },
     });
+    const staffIds = [...new Set(reservations.flatMap((reservation) => [reservation.createdBy, ...reservation.checkIns.map((item) => item.checkedInBy), ...reservation.checkOuts.map((item) => item.checkedOutBy)]).filter(Boolean) as string[])];
+    const staff = staffIds.length ? await prisma.user.findMany({ where: { id: { in: staffIds } }, select: { id: true, firstName: true, lastName: true, username: true } }) : [];
+    const staffById = new Map(staff.map((user) => [user.id, { id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.username, username: user.username }]));
+    return reservations.map((reservation) => ({
+      ...reservation,
+      bookedBy: reservation.createdBy ? staffById.get(reservation.createdBy) || { id: reservation.createdBy, name: 'Former staff account' } : null,
+      checkedInBy: reservation.checkIns[0] ? staffById.get(reservation.checkIns[0].checkedInBy) || { id: reservation.checkIns[0].checkedInBy, name: 'Former staff account' } : null,
+      checkedOutBy: reservation.checkOuts[0] ? staffById.get(reservation.checkOuts[0].checkedOutBy) || { id: reservation.checkOuts[0].checkedOutBy, name: 'Former staff account' } : null,
+    }));
   }
 
   /** Amend a booking, including a controlled departure-date change for an in-house guest. */
