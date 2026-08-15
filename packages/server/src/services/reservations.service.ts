@@ -223,14 +223,12 @@ export class ReservationService {
       },
     });
 
-    // Update room status to RESERVED if arrival is today
-    const todayStr = new Date().toISOString().slice(0, 10);
-    if (checkIn.toISOString().slice(0, 10) === todayStr) {
-      await tx.room.update({
-        where: { id: data.roomId },
-        data: { status: 'RESERVED' },
-      });
-    }
+    // A confirmed reservation owns the room until it is cancelled or the
+    // guest checks in. Check-in changes this marker to OCCUPIED.
+    await tx.room.update({
+      where: { id: data.roomId },
+      data: { status: 'RESERVED' },
+    });
 
     return reservation;
   }
