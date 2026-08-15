@@ -4,7 +4,7 @@
 
 import { Router } from 'express';
 import { PaymentService } from '../services/payments.service';
-import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, requireAdmin, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { processPaymentSchema, refundPaymentSchema } from '@nslv/shared';
 
@@ -37,8 +37,8 @@ router.post('/', requirePermission('payments.create'), validateBody(processPayme
   }
 });
 
-// Refund a payment by creating a separate immutable reversal transaction.
-router.post('/:id/refunds', requirePermission('payments.refund'), validateBody(refundPaymentSchema), async (req, res, next) => {
+// Only an Admin can approve a refund. Approval creates the immutable reversal.
+router.post('/:id/refunds', requireAdmin, validateBody(refundPaymentSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await PaymentService.refundPayment(req.params.id as string, { ...req.body, processedBy: userId });
