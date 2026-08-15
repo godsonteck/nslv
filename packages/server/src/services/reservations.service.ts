@@ -138,7 +138,7 @@ export class ReservationService {
     });
   }
 
-  /** Amend a booking before check-in, protecting availability and prior deposits. */
+  /** Amend a booking, including a controlled departure-date change for an in-house guest. */
   static async updateReservation(id: string, data: UpdateReservationDTO, updatedBy: string) {
     const checkIn = new Date(data.checkInDate);
     const checkOut = new Date(data.checkOutDate);
@@ -148,10 +148,14 @@ export class ReservationService {
       return await prisma.$transaction(async (tx) => {
         const reservation = await tx.reservation.findUnique({ where: { id } });
         if (!reservation) throw new AppError('Reservation not found.', 404, 'NOT_FOUND');
-        if (!['PENDING', 'CONFIRMED'].includes(reservation.status)) {
-          throw new AppError('Only pending or confirmed reservations can be edited. Use the stay workflow after check-in.', 409, 'RESERVATION_NOT_EDITABLE');
+        if (!['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(reservation.status)) {
+          throw new AppError('Cancelled and completed reservations cannot be edited.', 409, 'RESERVATION_NOT_EDITABLE');
         }
         const roomId = data.roomId || reservation.roomId;
+        const isActiveStay = reservation.status === 'CHECKED_IN';
+        if (isActiveStay && (roomId !== reservation.roomId || checkIn.getTime() !== reservation.checkInDate.getTime())) {
+          throw new AppError('An in-house guest can only have their departure date and stay details updated. Room moves and arrival-date changes require a front-desk transfer.', 409, 'ACTIVE_STAY_RESTRICTION');
+        }
         const [available, room] = await Promise.all([
           this.checkAvailability(roomId, checkIn, checkOut, id, tx),
           tx.room.findUnique({ where: { id: roomId }, include: { roomType: true } }),
@@ -166,6 +170,20 @@ export class ReservationService {
         });
         if (Number(deposits._sum.amount || 0) > totalAmount) {
           throw new AppError('This change would make completed deposits exceed the revised reservation total.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
+        }
+        let folio: any = null;
+        const adjustment = totalAmount - Number(reservation.totalAmount);
+        if (isActiveStay && adjustment !== 0) {
+          folio = await tx.folio.findFirst({ where: { reservationId: id, status: 'OPEN' } });
+          if (!folio) throw new AppError('The active stay has no open folio to adjust.', 409, 'OPEN_FOLIO_REQUIRED');
+          await tx.folioItem.create({
+            data: {
+              folioId: folio.id, type: 'ACCOMMODATION',
+              description: adjustment > 0 ? 'Accommodation extension' : 'Accommodation stay reduction',
+              amount: adjustment, quantity: 1, unitPrice: adjustment, department: 'FRONT_DESK', postedBy: updatedBy,
+            },
+          });
+          await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: adjustment } } });
         }
         const updated = await tx.reservation.update({
           where: { id },
@@ -188,7 +206,7 @@ export class ReservationService {
         await AuditService.logInTransaction(tx, {
           userId: updatedBy, action: 'reservation.updated', resource: 'reservation', resourceId: id,
           beforeData: { roomId: reservation.roomId, checkInDate: reservation.checkInDate.toISOString(), checkOutDate: reservation.checkOutDate.toISOString(), adults: reservation.adults, children: reservation.children, totalAmount: reservation.totalAmount.toString() },
-          afterData: { roomId, checkInDate: checkIn.toISOString(), checkOutDate: checkOut.toISOString(), adults: updated.adults, children: updated.children, totalAmount: updated.totalAmount.toString() },
+          afterData: { roomId, checkInDate: checkIn.toISOString(), checkOutDate: checkOut.toISOString(), adults: updated.adults, children: updated.children, totalAmount: updated.totalAmount.toString(), folioAccommodationAdjustment: isActiveStay ? adjustment : undefined },
         });
         return updated;
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
