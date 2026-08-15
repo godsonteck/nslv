@@ -207,6 +207,20 @@ export class StayService {
       if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
 
       const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
+      // The fee is a live, admin-controlled business rule. Charge it before
+      // calculating the ledger settlement so it reaches the bill, payment
+      // record, checkout audit and printed receipt as one durable operation.
+      const lateCheckoutSetting = await tx.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
+      const lateCheckoutFee = lateCheckoutSetting ? Number(JSON.parse(lateCheckoutSetting.value)) : 0;
+      const checkoutDeadline = this.stayBoundary(reservation.checkOutDate, 12);
+      if (folio && Number.isFinite(lateCheckoutFee) && lateCheckoutFee > 0 && new Date() > checkoutDeadline) {
+        const fee = new Prisma.Decimal(lateCheckoutFee);
+        await tx.folioItem.create({ data: {
+          folioId: folio.id, type: 'ACCOMMODATION', description: 'Late checkout fee', amount: fee,
+          quantity: 1, unitPrice: fee, department: 'FRONT_DESK', referenceType: 'CHECKOUT', postedBy: data.checkedOutBy,
+        } });
+        await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
+      }
       const ledger = folio
         ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
         : null;
