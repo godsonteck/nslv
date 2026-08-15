@@ -35,6 +35,7 @@ export const ReservationsPage: React.FC = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [roomLines, setRoomLines] = useState<RoomLine[]>([]);
   const [bookingDates, setBookingDates] = useState({ checkInDate: '', checkOutDate: '' });
+  const [availableRoomIds, setAvailableRoomIds] = useState<Set<string> | null>(null);
 
   // Manage guests on an existing reservation
   const [manageOpen, setManageOpen] = useState(false);
@@ -62,6 +63,28 @@ export const ReservationsPage: React.FC = () => {
     const t = setTimeout(() => void load(), 200);
     return () => clearTimeout(t);
   }, [q, status]);
+
+  useEffect(() => {
+    const dates = multi ? bookingDates : form;
+    if (!dates.checkInDate || !dates.checkOutDate || dates.checkOutDate <= dates.checkInDate) {
+      setAvailableRoomIds(null);
+      return;
+    }
+    let cancelled = false;
+    reservationsApi.checkAvailability(dates.checkInDate, dates.checkOutDate)
+      .then((result) => {
+        if (!cancelled) setAvailableRoomIds(new Set((result.data || []).map((room: any) => room.id)));
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setAvailableRoomIds(null);
+          showToast('error', error instanceof Error ? error.message : 'Unable to check room availability');
+        }
+      });
+    return () => { cancelled = true; };
+  }, [multi, bookingDates.checkInDate, bookingDates.checkOutDate, form.checkInDate, form.checkOutDate]);
+
+  const bookableRooms = availableRoomIds === null ? [] : rooms.filter((room) => availableRoomIds.has(room.id));
 
   const resetSingle = () => {
     setGuestMode('existing');
@@ -469,7 +492,7 @@ export const ReservationsPage: React.FC = () => {
                           <FormField label="Room" required>
                             <SelectInput required value={line.roomId} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, roomId: e.target.value } : x)))}>
                               <option value="">Select room</option>
-                              {rooms
+                              {bookableRooms
                                 .filter((r) => !taken.includes(r.id))
                                 .map((r) => (
                                   <option key={r.id} value={r.id}>
@@ -611,7 +634,7 @@ export const ReservationsPage: React.FC = () => {
                 <FormField label="Room" required>
                   <SelectInput required value={form.roomId} onChange={(e) => setForm({ ...form, roomId: e.target.value })}>
                     <option value="">Select room</option>
-                    {rooms.map((r) => (
+                    {bookableRooms.map((r) => (
                       <option key={r.id} value={r.id}>
                         Room {r.number} · {r.roomType?.name || 'Room'} ({Number(r.roomType?.basePrice || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })})
                       </option>

@@ -4,6 +4,7 @@
 
 import { Router } from 'express';
 import { ReservationService } from '../services/reservations.service';
+import { AppError } from '../middleware/error';
 import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import {
@@ -15,6 +16,18 @@ import {
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
+
+const reservationFailure = (error: unknown) => {
+  if (error instanceof AppError) return error;
+  const message = error instanceof Error ? error.message : 'Unable to complete the reservation.';
+  if (/not available|already booked|changed concurrently/i.test(message)) {
+    return new AppError(message, 409, 'ROOM_UNAVAILABLE');
+  }
+  if (/guest not found|departure date|additional guests|at least one room|only be booked once/i.test(message)) {
+    return new AppError(message, 400, 'INVALID_RESERVATION');
+  }
+  return error;
+};
 
 // Check availability
 router.get('/availability', requirePermission('reservations.view'), async (req, res, next) => {
@@ -30,7 +43,7 @@ router.get('/availability', requirePermission('reservations.view'), async (req, 
     );
     res.json({ success: true, data });
   } catch (error) {
-    next(error);
+    next(reservationFailure(error));
   }
 });
 
@@ -45,7 +58,7 @@ router.get('/', requirePermission('reservations.view'), async (req, res, next) =
     });
     res.json({ success: true, data });
   } catch (error) {
-    next(error);
+    next(reservationFailure(error));
   }
 });
 
@@ -61,7 +74,7 @@ router.post('/', requirePermission('reservations.create'), validateBody(createRe
     const data = await ReservationService.createReservation({ ...req.body, createdBy: userId, discountApprovedBy: discountAmount > 0 ? userId : undefined });
     res.status(201).json({ success: true, data });
   } catch (error) {
-    next(error);
+    next(reservationFailure(error));
   }
 });
 
@@ -77,7 +90,7 @@ router.post('/multi', requirePermission('reservations.create'), validateBody(cre
     const data = await ReservationService.createMultiReservation({ ...req.body, createdBy: userId });
     res.status(201).json({ success: true, data });
   } catch (error) {
-    next(error);
+    next(reservationFailure(error));
   }
 });
 
