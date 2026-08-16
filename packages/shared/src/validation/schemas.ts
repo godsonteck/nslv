@@ -365,16 +365,6 @@ export const createFolioChargeSchema = z.object({
   }
 });
 
-export const replaceRecipeSchema = z.object({
-  name: z.string().min(1).max(100).trim(),
-  isActive: z.boolean().optional(),
-  items: z.array(z.object({
-    inventoryItemId: uuidSchema,
-    quantity: positiveNumber,
-    unit: z.string().min(1).max(30).trim(),
-    conversionFactor: positiveNumber.optional(),
-  })).min(1),
-});
 export const voidFolioChargeSchema = z.object({
   reason: z.string().max(500).trim().optional(),
 });
