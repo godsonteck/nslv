@@ -24,6 +24,63 @@ const DEFAULT_THEME: ThemeConfig = {
   enableDarkMode: false,
 };
 
+const THEME_CACHE_KEY = 'nslv_theme_config';
+
+function getInitialTheme(): ThemeConfig {
+  if (typeof window === 'undefined') return DEFAULT_THEME;
+  try {
+    const cached = localStorage.getItem(THEME_CACHE_KEY);
+    if (cached) {
+      return { ...DEFAULT_THEME, ...JSON.parse(cached) };
+    }
+  } catch {
+    // Ignore JSON parsing errors and use default
+  }
+  return DEFAULT_THEME;
+}
+
+const initialTheme = getInitialTheme();
+
+function applyThemeDirect(theme: ThemeConfig | null) {
+  if (!theme || typeof document === 'undefined') return;
+
+  const root = document.documentElement;
+  const dark = Boolean(theme.enableDarkMode);
+
+  root.setAttribute('data-theme', dark ? 'dark' : 'light');
+
+  root.style.setProperty('--color-primary', theme.primaryColor);
+  root.style.setProperty('--color-secondary', theme.secondaryColor);
+  root.style.setProperty('--color-accent', theme.accentColor);
+  root.style.setProperty('--color-bg', theme.bgColor);
+  root.style.setProperty('--color-text', theme.textColor);
+  root.style.setProperty('--color-text-muted', theme.textMuted);
+  root.style.setProperty('--color-border', theme.borderColor);
+  root.style.setProperty('--color-success', theme.successColor);
+  root.style.setProperty('--color-warning', theme.warningColor);
+  root.style.setProperty('--color-error', theme.errorColor);
+  root.style.setProperty('--color-info', theme.infoColor);
+
+  root.style.setProperty('--font-family', theme.fontFamily);
+  root.style.setProperty('--font-heading', theme.headingFont);
+  root.style.setProperty('--ns-bg', dark ? '#0b1220' : '#f5f6f4');
+  root.style.setProperty('--ns-surface', dark ? '#121a27' : '#ffffff');
+  root.style.setProperty('--ns-surface-2', dark ? '#1a2433' : '#fafaf8');
+  root.style.setProperty('--ns-line', dark ? '#2a3747' : '#e6e8e5');
+  root.style.setProperty('--ns-ink', dark ? '#edf4f9' : '#14232b');
+  root.style.setProperty('--ns-ink-2', dark ? '#dfeaf3' : '#20343e');
+  root.style.setProperty('--ns-muted', dark ? '#9ab0c0' : '#7a858a');
+
+  const body = document.body;
+  if (body) {
+    body.style.background = dark ? 'var(--ns-bg)' : 'var(--ns-bg)';
+    body.style.color = dark ? 'var(--ns-ink)' : 'var(--ns-ink)';
+  }
+}
+
+// Immediately apply cached theme on startup (0ms FOUC)
+applyThemeDirect(initialTheme);
+
 interface ThemeStore {
   theme: ThemeConfig | null;
   isLoading: boolean;
@@ -36,18 +93,20 @@ interface ThemeStore {
 }
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
-  theme: DEFAULT_THEME,
+  theme: initialTheme,
   isLoading: false,
 
   loadTheme: async () => {
-    set({ isLoading: true });
     try {
       const result = await themeApi.getTheme();
-      set({ theme: result.data ?? DEFAULT_THEME });
+      const themeData = result.data ?? DEFAULT_THEME;
+      set({ theme: themeData });
+      try {
+        localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(themeData));
+      } catch {}
       get().applyTheme();
     } catch (error) {
       console.error('Failed to load theme:', error);
-      set({ theme: DEFAULT_THEME });
       get().applyTheme();
     } finally {
       set({ isLoading: false });
@@ -57,7 +116,11 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
   updateTheme: async (config: Partial<ThemeConfig>) => {
     try {
       const result = await themeApi.updateTheme(config);
-      set({ theme: result.data });
+      const updatedTheme = result.data ?? { ...get().theme, ...config } as ThemeConfig;
+      set({ theme: updatedTheme });
+      try {
+        localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(updatedTheme));
+      } catch {}
       get().applyTheme();
     } catch (error) {
       console.error('Failed to update theme:', error);
@@ -68,7 +131,11 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
   resetTheme: async () => {
     try {
       const result = await themeApi.resetTheme();
-      set({ theme: result.data });
+      const resetThemeData = result.data ?? DEFAULT_THEME;
+      set({ theme: resetThemeData });
+      try {
+        localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(resetThemeData));
+      } catch {}
       get().applyTheme();
     } catch (error) {
       console.error('Failed to reset theme:', error);
@@ -77,40 +144,6 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
   },
 
   applyTheme: () => {
-    const theme = get().theme;
-    if (!theme) return;
-
-    const root = document.documentElement;
-    const dark = Boolean(theme.enableDarkMode);
-
-    root.setAttribute('data-theme', dark ? 'dark' : 'light');
-
-    root.style.setProperty('--color-primary', theme.primaryColor);
-    root.style.setProperty('--color-secondary', theme.secondaryColor);
-    root.style.setProperty('--color-accent', theme.accentColor);
-    root.style.setProperty('--color-bg', theme.bgColor);
-    root.style.setProperty('--color-text', theme.textColor);
-    root.style.setProperty('--color-text-muted', theme.textMuted);
-    root.style.setProperty('--color-border', theme.borderColor);
-    root.style.setProperty('--color-success', theme.successColor);
-    root.style.setProperty('--color-warning', theme.warningColor);
-    root.style.setProperty('--color-error', theme.errorColor);
-    root.style.setProperty('--color-info', theme.infoColor);
-
-    root.style.setProperty('--font-family', theme.fontFamily);
-    root.style.setProperty('--font-heading', theme.headingFont);
-    root.style.setProperty('--ns-bg', dark ? '#0b1220' : '#f5f6f4');
-    root.style.setProperty('--ns-surface', dark ? '#121a27' : '#ffffff');
-    root.style.setProperty('--ns-surface-2', dark ? '#1a2433' : '#fafaf8');
-    root.style.setProperty('--ns-line', dark ? '#2a3747' : '#e6e8e5');
-    root.style.setProperty('--ns-ink', dark ? '#edf4f9' : '#14232b');
-    root.style.setProperty('--ns-ink-2', dark ? '#dfeaf3' : '#20343e');
-    root.style.setProperty('--ns-muted', dark ? '#9ab0c0' : '#7a858a');
-
-    const body = document.body;
-    if (body) {
-      body.style.background = dark ? 'var(--ns-bg)' : 'var(--ns-bg)';
-      body.style.color = dark ? 'var(--ns-ink)' : 'var(--ns-ink)';
-    }
+    applyThemeDirect(get().theme);
   },
 }));

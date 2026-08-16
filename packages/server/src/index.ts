@@ -8,18 +8,28 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
 import { config, prisma } from './config';
 import routes from './routes';
 import { errorHandler } from './middleware/error';
+import { StayService } from './services/stays.service';
 
 const app = express();
+
+// Enable HTTP payload compression (Gzip / Deflate) for fast response transfer
+app.use(
+  compression({
+    threshold: 1024, // only compress responses larger than 1KB
+    level: 6,        // optimal balance between CPU speed and compression ratio
+  }),
+);
 
 // Trust proxy hops
 app.set('trust proxy', config.trustProxy);
 
-// Request logging
+// Request logging (clean and minimal)
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
@@ -83,12 +93,23 @@ app.use(cookieParser());
 // Mount API v1 Routes
 app.use('/api/v1', routes);
 
-// Serve built client app in production standalone mode
+// Serve built client app in production standalone mode with high-performance caching
 const clientDist = path.resolve(__dirname, '../../client/dist');
 const serveClient = config.isProd && fs.existsSync(clientDist);
 if (serveClient) {
-  app.use(express.static(clientDist));
+  app.use(
+    express.static(clientDist, {
+      maxAge: '1y',
+      immutable: true,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        }
+      },
+    }),
+  );
   app.get(/^\/(?!api(?:\/|$)).*/, (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(path.join(clientDist, 'index.html'));
   });
 }
@@ -122,6 +143,7 @@ if (!process.env.VERCEL) {
   Timezone:    ${config.villa.timezone}
 =====================================================
     `);
+    void StayService.autoAdjustHistoricalLateCheckoutFees();
   });
 }
 

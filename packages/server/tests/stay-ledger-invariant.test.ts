@@ -71,10 +71,38 @@ describe('stay ledger invariants', () => {
 
   it('adds the admin-configured late checkout fee before settlement after noon', async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2030-10-12T13:00:00.000Z'));
-    mocks.settingFindUnique.mockResolvedValue({ value: '125' });
+    vi.setSystemTime(new Date('2030-10-12T13:00:00.000Z')); // 1 hour past 12:00 PM deadline
+    mocks.settingFindUnique.mockResolvedValue({ value: '50' });
     await StayService.checkOutGuest({ reservationId: 'reservation-1', checkedOutBy: 'user-1', paymentMethod: 'CASH' });
-    expect(mocks.folioItemCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ description: 'Late checkout fee', amount: expect.anything() }) }));
+    expect(mocks.folioItemCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          description: expect.stringContaining('Late checkout fee'),
+          amount: expect.anything(),
+          quantity: 1,
+        }),
+      }),
+    );
     vi.useRealTimers();
+  });
+
+  it('calculates hourly late checkout fee correctly (50 GHS/hr)', () => {
+    // Exactly on time (12:00 PM) -> 0 fee
+    const onTime = StayService.calculateLateCheckoutFee('2030-10-12', new Date('2030-10-12T12:00:00.000Z'), 50);
+    expect(onTime.isLate).toBe(false);
+    expect(onTime.fee).toBe(0);
+
+    // 15 minutes late (12:15 PM) -> 1 hour fee (50 GHS)
+    const late15m = StayService.calculateLateCheckoutFee('2030-10-12', new Date('2030-10-12T12:15:00.000Z'), 50);
+    expect(late15m.isLate).toBe(true);
+    expect(late15m.lateHours).toBe(1);
+    expect(late15m.fee).toBe(50);
+
+    // 2 hours 10 minutes late (14:10 PM) -> 3 hours fee (150 GHS)
+    const late3h = StayService.calculateLateCheckoutFee('2030-10-12', new Date('2030-10-12T14:10:00.000Z'), 50);
+    expect(late3h.isLate).toBe(true);
+    expect(late3h.lateHours).toBe(3);
+    expect(late3h.fee).toBe(150);
+    expect(late3h.description).toContain('3 hrs @ GHS 50.00/hr');
   });
 });

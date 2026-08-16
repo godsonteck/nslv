@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { reportsApi, roomsApi, staysApi, posApi } from '../services/apiService';
 import { useAuthStore } from '../stores/authStore';
-import { formatCurrency } from '@nslv/shared';
+import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import { ArrowRight, BedDouble, CalendarCheck, CreditCard, LogIn, LogOut, RefreshCw, Users, UtensilsCrossed, Wine, Waves, Printer } from 'lucide-react';
 import { villaAssets } from '../assets';
 import { receiptCompanyBlock } from '../lib/company';
@@ -56,6 +56,7 @@ const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
 /** Full property command centre — used by roles that manage rooms & guests. */
 const PropertyDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
   const [m, setM] = useState<any>(empty);
   const [stays, setStays] = useState<any[]>([]);
   const [dirty, setDirty] = useState<any[]>([]);
@@ -67,6 +68,8 @@ const PropertyDashboard: React.FC = () => {
   const canFrontDesk = has('checkin.perform') || has('checkout.perform');
   const canReports = has('reports.view');
   const canRooms = has('rooms.view');
+
+  const greeting = formatUserGreeting(user);
 
   const load = async (initial = false) => {
     try {
@@ -89,7 +92,7 @@ const PropertyDashboard: React.FC = () => {
 
   if (loading) return <LoadingState message="Loading the live NSVilla workspace…" />;
   return (
-    <ShellPage eyebrow="NSVILLA · PROPERTY CONTROL" title="Good morning. Run the property with clarity." subtitle="A live command centre for reservations, rooms, guests, revenue and department activity." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>{canReserve && <Button size="sm" onClick={() => navigate('/reservations')}><CalendarCheck size={14} /> New reservation</Button>}</>}>
+    <ShellPage eyebrow="NSVILLA · PROPERTY CONTROL" title={`${greeting}. Run the property with clarity.`} subtitle="A live command centre for reservations, rooms, guests, revenue and department activity." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>{canReserve && <Button size="sm" onClick={() => navigate('/reservations')}><CalendarCheck size={14} /> New reservation</Button>}</>}>
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
       <section className="relative overflow-hidden rounded-[24px] bg-[#163f4f] text-white shadow-[0_18px_50px_rgba(22,63,79,.18)]">
         <img src={villaAssets.villaExterior} className="absolute inset-0 h-full w-full object-cover opacity-25" alt="" />
@@ -123,12 +126,14 @@ const PropertyDashboard: React.FC = () => {
 /** Department workstation dashboard — for Restaurant / Bar / Pool roles. */
 const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = ({ kind }) => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
   const [m, setM] = useState<any>(empty);
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
+  const greeting = formatUserGreeting(user);
   const deptLabel = kind === 'restaurant' ? 'Restaurant' : kind === 'bar' ? 'Bar' : 'Pool';
   const icon = kind === 'restaurant' ? UtensilsCrossed : kind === 'bar' ? Wine : Waves;
   const toPOS = kind === 'restaurant' ? '/restaurant/pos' : kind === 'bar' ? '/bar/pos' : '/pool/services';
@@ -156,7 +161,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
 
   if (loading) return <LoadingState message={`Loading the ${deptLabel} dashboard…`} />;
   return (
-    <ShellPage eyebrow={`NSVILLA · ${deptLabel.toUpperCase()} OPS`} title={`${deptLabel} at a glance.`} subtitle="Your department's sales, orders and receipts — no room or guest data required." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button><Button size="sm" onClick={() => navigate(toPOS)}><ArrowRight size={14} /> Open {deptLabel} POS</Button></>}>
+    <ShellPage eyebrow={`NSVILLA · ${deptLabel.toUpperCase()} OPS`} title={`${greeting}. ${deptLabel} at a glance.`} subtitle="Your department's sales, orders and receipts — no room or guest data required." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button><Button size="sm" onClick={() => navigate(toPOS)}><ArrowRight size={14} /> Open {deptLabel} POS</Button></>}>
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
       <section className="relative overflow-hidden rounded-[24px] bg-[#163f4f] text-white shadow-[0_18px_50px_rgba(22,63,79,.18)]">
         <div className="absolute inset-0 bg-gradient-to-r from-[#163f4f] via-[#163f4f]/95 to-[#163f4f]/45"/>

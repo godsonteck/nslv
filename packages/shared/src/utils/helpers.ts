@@ -179,3 +179,33 @@ export function safeJsonParse<T>(json: string): T | null {
     return null;
   }
 }
+
+/**
+ * Return a simple, human time-based greeting based on system time:
+ * - 04:00 - 11:59: "Good morning"
+ * - 12:00 - 16:59: "Good afternoon"
+ * - 17:00 - 03:59: "Good evening"
+ */
+export function getTimeGreeting(date = new Date()): 'Good morning' | 'Good afternoon' | 'Good evening' {
+  const hour = date.getHours();
+  if (hour >= 4 && hour < 12) return 'Good morning';
+  if (hour >= 12 && hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/**
+ * Format a natural, friendly greeting with the user's name:
+ * @example formatUserGreeting({ firstName: 'Kwame' }) → "Good morning, Kwame"
+ * @example formatUserGreeting(null) → "Good morning"
+ */
+export function formatUserGreeting(
+  user?: { firstName?: string | null; lastName?: string | null; username?: string | null } | null,
+  date = new Date(),
+): string {
+  const greeting = getTimeGreeting(date);
+  const name = user?.firstName?.trim() || user?.username?.trim();
+  if (name) {
+    return `${greeting}, ${name}`;
+  }
+  return greeting;
+}

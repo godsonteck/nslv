@@ -6,7 +6,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportsApi, staysApi, roomsApi } from '../../services/apiService';
-import { formatCurrency } from '@nslv/shared';
+import { useAuthStore } from '../../stores/authStore';
+import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import {
   PageHeader,
   MetricCard,
@@ -30,6 +31,8 @@ import {
 
 export const ManagerPortalPage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
 
   const [metrics, setMetrics] = useState({
@@ -154,7 +157,7 @@ export const ManagerPortalPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none pb-8">
       <PageHeader
-        title="Manager Operational Control Center"
+        title={`${greeting} · Manager Control Center`}
         subtitle="Real-time occupancy oversight, departmental revenue breakdown, and operational audit"
         actions={
           <div className="flex items-center gap-2">

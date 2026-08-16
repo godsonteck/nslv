@@ -195,6 +195,148 @@ export class StayService {
     }
   }
 
+  /**
+   * Calculates the late checkout charge based on scheduled checkout deadline, actual checkout time, and hourly rate.
+   * Standard checkout is 12:00 PM (Ghana time). Policy: GHS 50 per hour past noon (rounded up to nearest full hour).
+   */
+  static calculateLateCheckoutFee(checkOutDate: Date | string, actualCheckOut: Date = new Date(), hourlyRate = 50): {
+    isLate: boolean;
+    lateHours: number;
+    hourlyRate: number;
+    fee: number;
+    deadline: Date;
+    description: string;
+  } {
+    const deadline = this.stayBoundary(checkOutDate, 12);
+    const diffMs = actualCheckOut.getTime() - deadline.getTime();
+    if (diffMs <= 0 || hourlyRate <= 0) {
+      return { isLate: false, lateHours: 0, hourlyRate, fee: 0, deadline, description: '' };
+    }
+    const lateHours = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60)));
+    const fee = lateHours * hourlyRate;
+    const description = `Late checkout fee (${lateHours} hr${lateHours > 1 ? 's' : ''} @ GHS ${hourlyRate.toFixed(2)}/hr)`;
+    return { isLate: true, lateHours, hourlyRate, fee, deadline, description };
+  }
+
+  /**
+   * Auto-adjust historical checkout data according to the late checkout policy:
+   * 50 GHS per hour past 12:00 PM on departure date.
+   */
+  static async autoAdjustHistoricalLateCheckoutFees() {
+    try {
+      // 1. Ensure system setting 'financial.late_checkout_fee' is set to 50 GHS/hr
+      const existingSetting = await prisma.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
+      if (!existingSetting) {
+        await prisma.systemSetting.create({
+          data: {
+            key: 'financial.late_checkout_fee',
+            value: JSON.stringify(50),
+            category: 'financial',
+            description: 'Late check-out fee per hour (GHS) applied when departure is after 12:00 PM',
+          },
+        });
+      } else {
+        const parsedVal = Number(JSON.parse(existingSetting.value));
+        if (!Number.isFinite(parsedVal) || parsedVal <= 0) {
+          await prisma.systemSetting.update({
+            where: { key: 'financial.late_checkout_fee' },
+            data: {
+              value: JSON.stringify(50),
+              description: 'Late check-out fee per hour (GHS) applied when departure is after 12:00 PM',
+            },
+          });
+        }
+      }
+
+      // 2. Scan past checkouts
+      const checkOuts = await prisma.checkOut.findMany({
+        include: {
+          reservation: {
+            include: {
+              folios: {
+                include: {
+                  items: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      let adjustedCount = 0;
+
+      for (const co of checkOuts) {
+        if (!co.reservation) continue;
+        const folio = co.reservation.folios[0];
+        if (!folio) continue;
+
+        const lateInfo = this.calculateLateCheckoutFee(co.reservation.checkOutDate, co.actualCheckOut, 50);
+        const existingFeeItem = folio.items.find(
+          (item) => item.referenceType === 'CHECKOUT' || item.description.toLowerCase().includes('late checkout fee'),
+        );
+
+        if (lateInfo.isLate && lateInfo.fee > 0) {
+          const expectedAmount = new Prisma.Decimal(lateInfo.fee);
+          if (existingFeeItem) {
+            if (!new Prisma.Decimal(existingFeeItem.amount).equals(expectedAmount)) {
+              const diff = expectedAmount.minus(existingFeeItem.amount);
+              await prisma.folioItem.update({
+                where: { id: existingFeeItem.id },
+                data: {
+                  amount: expectedAmount,
+                  quantity: lateInfo.lateHours,
+                  unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
+                  description: lateInfo.description,
+                },
+              });
+              await prisma.folio.update({
+                where: { id: folio.id },
+                data: { balance: { increment: diff } },
+              });
+              adjustedCount++;
+            }
+          } else {
+            await prisma.folioItem.create({
+              data: {
+                folioId: folio.id,
+                type: 'ACCOMMODATION',
+                description: lateInfo.description,
+                amount: expectedAmount,
+                quantity: lateInfo.lateHours,
+                unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
+                department: 'FRONT_DESK',
+                referenceType: 'CHECKOUT',
+                postedBy: co.checkedOutBy || 'SYSTEM',
+                postedAt: co.actualCheckOut,
+              },
+            });
+            await prisma.folio.update({
+              where: { id: folio.id },
+              data: { balance: { increment: expectedAmount } },
+            });
+            adjustedCount++;
+          }
+        } else if (!lateInfo.isLate && existingFeeItem && !existingFeeItem.voidedAt) {
+          const itemAmount = new Prisma.Decimal(existingFeeItem.amount);
+          await prisma.folioItem.update({
+            where: { id: existingFeeItem.id },
+            data: { voidedAt: new Date(), voidReason: 'Checkout was on time (before 12:00 PM)' },
+          });
+          await prisma.folio.update({
+            where: { id: folio.id },
+            data: { balance: { decrement: itemAmount } },
+          });
+          adjustedCount++;
+        }
+      }
+
+      console.log(`[StayService] Late checkout policy (GHS 50/hr) active. Auto-adjusted ${adjustedCount} past records.`);
+      return { adjustedCount };
+    } catch (err) {
+      console.warn('[StayService] autoAdjustHistoricalLateCheckoutFees warning:', err);
+    }
+  }
+
   /** Execute Check-Out workflow */
   static async checkOutGuest(data: CheckOutDTO) {
     try {
@@ -228,18 +370,29 @@ export class StayService {
         if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
 
         const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
-        // The fee is a live, admin-controlled business rule. Charge it before
-        // calculating the ledger settlement so it reaches the bill, payment
-        // record, checkout audit and printed receipt as one durable operation.
+        // The fee is an admin-controlled business rule: GHS 50 per hour past 12:00 PM.
+        // Charge it before calculating the ledger settlement so it reaches the bill,
+        // payment record, checkout audit and printed receipt as one durable operation.
         const lateCheckoutSetting = await tx.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
-        const lateCheckoutFee = lateCheckoutSetting ? Number(JSON.parse(lateCheckoutSetting.value)) : 0;
-        const checkoutDeadline = this.stayBoundary(reservation.checkOutDate, 12);
-        if (folio && Number.isFinite(lateCheckoutFee) && lateCheckoutFee > 0 && new Date() > checkoutDeadline) {
-          const fee = new Prisma.Decimal(lateCheckoutFee);
-          await tx.folioItem.create({ data: {
-            folioId: folio.id, type: 'ACCOMMODATION', description: 'Late checkout fee', amount: fee,
-            quantity: 1, unitPrice: fee, department: 'FRONT_DESK', referenceType: 'CHECKOUT', postedBy: data.checkedOutBy,
-          } });
+        const settingVal = lateCheckoutSetting ? Number(JSON.parse(lateCheckoutSetting.value)) : 50;
+        const hourlyRate = Number.isFinite(settingVal) && settingVal > 0 ? settingVal : 50;
+
+        const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, new Date(), hourlyRate);
+        if (folio && lateInfo.isLate && lateInfo.fee > 0) {
+          const fee = new Prisma.Decimal(lateInfo.fee);
+          await tx.folioItem.create({
+            data: {
+              folioId: folio.id,
+              type: 'ACCOMMODATION',
+              description: lateInfo.description,
+              amount: fee,
+              quantity: lateInfo.lateHours,
+              unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
+              department: 'FRONT_DESK',
+              referenceType: 'CHECKOUT',
+              postedBy: data.checkedOutBy,
+            },
+          });
           await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
         }
         const ledger = folio

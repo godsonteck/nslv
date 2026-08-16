@@ -9,6 +9,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usersApi, rolesApi, auditApi, type AuditLogRecord } from '../../services/apiService';
+import { useAuthStore } from '../../stores/authStore';
+import { formatUserGreeting } from '@nslv/shared';
 import { Button, MetricCard, DataTable, Badge, LoadingState } from '../../components/ui';
 import {
   ShieldCheck,
@@ -50,14 +52,14 @@ const actionVariant = (action: string): 'success' | 'danger' | 'warning' | 'info
   return 'neutral';
 };
 
-const SystemHero: React.FC = () => (
+const SystemHero: React.FC<{ greeting: string }> = ({ greeting }) => (
   <section className="relative overflow-hidden rounded-[24px] bg-[#101a2b] text-white shadow-[0_18px_50px_rgba(16,26,43,.25)]">
     <div className="absolute inset-0 bg-gradient-to-br from-[#101a2b] via-[#16233a] to-[#0e2941]"/>
     <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#b18a55]/20 blur-3xl"/>
     <div className="relative grid min-h-[240px] lg:grid-cols-[1.2fr_.8fr]">
       <div className="relative p-7 sm:p-9">
         <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.2em] text-[#d9bd91]"><Lock size={13} /> System administration</div>
-        <h2 className="mt-3 max-w-xl text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">Configure the platform, not the rooms.</h2>
+        <h2 className="mt-3 max-w-xl text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">{greeting}. System console.</h2>
         <p className="mt-3 max-w-lg text-sm leading-6 text-white/70">Accounts, roles, permissions, staff records, POS menus, system settings and the immutable audit trail. Operations live in the Manager control center.</p>
       </div>
       <div className="grid grid-cols-2 border-l border-white/10 bg-white/5">
@@ -91,6 +93,8 @@ const QUICK_LINKS: QuickTile[] = [
 
 export const AdminConsolePage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [metrics, setMetrics] = useState<ConsoleMetrics>(emptyMetrics);
@@ -152,7 +156,7 @@ export const AdminConsolePage: React.FC = () => {
 
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
 
-      <SystemHero />
+      <SystemHero greeting={greeting} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="User accounts" value={metrics.totalUsers} subtext={`${metrics.activeUsers} active`} indicator={<Users size={18} />} accent />

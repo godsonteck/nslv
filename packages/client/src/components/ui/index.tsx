@@ -454,13 +454,14 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
 );
 
 // ──────────────────────────────────────────
-// Search Input
+// Search Input (Zero-Lag Typing + Fast Debounced Query)
 // ──────────────────────────────────────────
 interface SearchInputProps {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   className?: string;
+  debounceMs?: number;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -468,18 +469,71 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onChange,
   placeholder = 'Search records...',
   className = 'w-64',
-}) => (
-  <div className={`relative ${className}`}>
-    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className="ns-input w-full pl-9 pr-4 py-2.5 text-xs text-[#2D3748] placeholder-slate-400"
-    />
-  </div>
-);
+  debounceMs = 200,
+}) => {
+  const [localValue, setLocalValue] = React.useState(value);
+  const debounceTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Synchronize local input state with external value changes
+  React.useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  const handleChange = (newVal: string) => {
+    setLocalValue(newVal);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    if (debounceMs <= 0) {
+      onChange(newVal);
+    } else {
+      debounceTimerRef.current = setTimeout(() => {
+        onChange(newVal);
+      }, debounceMs);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      onChange(localValue);
+    } else if (e.key === 'Escape') {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      setLocalValue('');
+      onChange('');
+    }
+  };
+
+  const handleClear = () => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    setLocalValue('');
+    onChange('');
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <input
+        type="text"
+        value={localValue}
+        onChange={(e) => handleChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className="ns-input w-full pl-9 pr-8 py-2.5 text-xs text-[#2D3748] placeholder-slate-400"
+      />
+      {localValue && (
+        <button
+          type="button"
+          onClick={handleClear}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+          title="Clear search"
+        >
+          <X size={13} />
+        </button>
+      )}
+    </div>
+  );
+};
 
 // ──────────────────────────────────────────
 // Modal & Drawer

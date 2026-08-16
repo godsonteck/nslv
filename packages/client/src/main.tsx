@@ -13,7 +13,10 @@ import './styles/globals.css';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: 30 * 1000, // 30 seconds of freshness: enables instant navigation without loading flashes
+      gcTime: 10 * 60 * 1000, // Keep inactive cache alive for 10 minutes
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
       retry: 1,
     },
   },

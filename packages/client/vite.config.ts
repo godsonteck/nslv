@@ -20,6 +20,28 @@ export default defineConfig({
     modulePreload: {
       polyfill: false,
     },
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@tanstack') || id.includes('zustand')) {
+              return 'vendor-state';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('pdfjs-dist') || id.includes('mammoth')) {
+              return 'vendor-documents';
+            }
+          }
+        },
+      },
+    },
   },
   server: {
     port: 5173,

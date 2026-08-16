@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { posApi, reportsApi } from '../../services/apiService';
-import { formatCurrency } from '@nslv/shared';
+import { useAuthStore } from '../../stores/authStore';
+import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import { UtensilsCrossed, Wine, Waves, RefreshCw, ArrowRight, ClipboardCheck } from 'lucide-react';
 import { Button, showToast, LoadingState } from '../../components/ui';
 import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
@@ -17,6 +18,8 @@ const OUTLETS: { kind: OutletKind; label: string; to: string; icon: typeof Utens
 
 export const FandBPortalPage: React.FC = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [revenue, setRevenue] = useState({ restaurant: 0, bar: 0, pool: 0, revenueToday: 0 });
@@ -61,7 +64,7 @@ export const FandBPortalPage: React.FC = () => {
   return (
     <ShellPage
       eyebrow="F&B · FOOD, BEVERAGE & POOL"
-      title="One workspace for every outlet."
+      title={`${greeting}. Food & beverage workspace.`}
       subtitle="Restaurant, bar and pool services from a single point of sale — orders, charges and receipts together."
       actions={<Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>}
     >
