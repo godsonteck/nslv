@@ -138,10 +138,10 @@ export class PaymentService {
   }
 
   /**
-   * Records an immutable reversal. The original payment is never changed in-place:
-   * this creates a linked REFUND payment and, where relevant, returns value to the folio.
+   * Records an immutable reversal. If requested by a receptionist (non-admin/non-manager),
+   * creates a PENDING refund request. When approved by admin/manager, creates the completed reversal.
    */
-  static async refundPayment(originalPaymentId: string, data: RefundPaymentDTO) {
+  static async refundPayment(originalPaymentId: string, data: RefundPaymentDTO, isPrivilegedApproval = true) {
     if (!Number.isFinite(data.amount) || data.amount <= 0) {
       throw new AppError('Refund amount must be greater than zero.', 422, 'INVALID_REFUND_AMOUNT');
     }
@@ -152,6 +152,58 @@ export class PaymentService {
         throw new AppError('This idempotency key belongs to a different transaction.', 409, 'IDEMPOTENCY_KEY_REUSED');
       }
       return existing;
+    }
+
+    // If non-privileged (e.g. receptionist requesting), create a PENDING refund request awaiting admin/manager approval
+    if (!isPrivilegedApproval) {
+      const original = await prisma.payment.findUnique({ where: { id: originalPaymentId } });
+      if (!original || !['PAYMENT', 'DEPOSIT'].includes(original.type) || original.status === 'FAILED' || original.voidedAt) {
+        throw new AppError('Only completed, non-voided payments can be refunded.', 422, 'PAYMENT_NOT_REFUNDABLE');
+      }
+      if (!['COMPLETED', 'PARTIALLY_REFUNDED'].includes(original.status)) {
+        throw new AppError('This payment is not eligible for a refund.', 422, 'PAYMENT_NOT_REFUNDABLE');
+      }
+
+      const priorRefunds = await prisma.payment.aggregate({
+        where: { originalPaymentId, type: 'REFUND', status: { in: ['COMPLETED', 'PENDING'] }, voidedAt: null },
+        _sum: { amount: true },
+      });
+      const refunded = new Prisma.Decimal(priorRefunds._sum.amount || 0);
+      const refundAmount = new Prisma.Decimal(data.amount);
+      const refundable = new Prisma.Decimal(original.amount).minus(refunded);
+      if (refundAmount.gt(refundable)) {
+        throw new AppError(`Refund request exceeds the remaining refundable amount of ${refundable.toFixed(2)}.`, 422, 'REFUND_EXCEEDS_PAYMENT');
+      }
+
+      const pendingRefund = await prisma.payment.create({
+        data: {
+          reservationId: original.reservationId,
+          guestId: original.guestId,
+          folioId: original.folioId,
+          amount: refundAmount,
+          currency: original.currency,
+          method: (data.method as PaymentMethod) || original.method,
+          reference: data.reference,
+          source: original.source,
+          sourceId: original.sourceId,
+          originalPaymentId: original.id,
+          idempotencyKey: data.idempotencyKey,
+          status: PaymentStatus.PENDING,
+          type: PaymentType.REFUND,
+          description: `[PENDING APPROVAL] ${data.reason}`,
+          processedBy: data.processedBy,
+        },
+      });
+
+      await AuditService.log({
+        userId: data.processedBy,
+        action: 'payment.refund_requested',
+        resource: 'payment',
+        resourceId: pendingRefund.id,
+        afterData: { originalPaymentId: original.id, amount: refundAmount.toString(), folioId: original.folioId, reason: data.reason },
+      });
+
+      return pendingRefund;
     }
 
     try {
@@ -281,5 +333,165 @@ export class PaymentService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Approves a pending refund request (Admin or Manager).
+   */
+  static async approveRefund(refundId: string, approverId: string, allowClosedFolioReopen = true) {
+    const refundRecord = await prisma.payment.findUnique({ where: { id: refundId } });
+    if (!refundRecord || refundRecord.type !== 'REFUND') {
+      throw new AppError('Refund record not found.', 404, 'REFUND_NOT_FOUND');
+    }
+    if (refundRecord.status !== PaymentStatus.PENDING) {
+      throw new AppError('Only pending refund requests can be approved.', 422, 'REFUND_NOT_PENDING');
+    }
+    if (!refundRecord.originalPaymentId) {
+      throw new AppError('Original payment link is missing.', 422, 'INVALID_REFUND_LINK');
+    }
+
+    try {
+      return await prisma.$transaction(async tx => {
+        await lockBusinessDay(tx, new Date());
+        await DailyCloseService.assertBusinessDayOpen(new Date());
+        const original = await tx.payment.findUnique({ where: { id: refundRecord.originalPaymentId! } });
+        if (!original || !['PAYMENT', 'DEPOSIT'].includes(original.type) || original.status === 'FAILED' || original.voidedAt) {
+          throw new AppError('Only completed, non-voided payments can be refunded.', 422, 'PAYMENT_NOT_REFUNDABLE');
+        }
+
+        const priorRefunds = await tx.payment.aggregate({
+          where: { originalPaymentId: original.id, type: 'REFUND', status: 'COMPLETED', voidedAt: null },
+          _sum: { amount: true },
+        });
+        const refunded = new Prisma.Decimal(priorRefunds._sum.amount || 0);
+        const refundAmount = new Prisma.Decimal(refundRecord.amount);
+        const refundable = new Prisma.Decimal(original.amount).minus(refunded);
+        if (refundAmount.gt(refundable)) {
+          throw new AppError(`Approved refund exceeds the remaining refundable amount of ${refundable.toFixed(2)}.`, 422, 'REFUND_EXCEEDS_PAYMENT');
+        }
+
+        let isClosedFolioReopened = false;
+        let originalFolioStatus = 'OPEN';
+        if (original.folioId) {
+          const folio = await tx.folio.findUnique({ where: { id: original.folioId } });
+          if (!folio) throw new AppError('Folio not found.', 404, 'FOLIO_NOT_FOUND');
+          originalFolioStatus = folio.status;
+          if (folio.status !== 'OPEN') {
+            if (!allowClosedFolioReopen) {
+              throw new AppError('A payment on a closed folio must be refunded through an authorised folio reopening workflow.', 409, 'CLOSED_FOLIO_REFUND');
+            }
+            await tx.folio.update({ where: { id: original.folioId }, data: { status: 'OPEN' } });
+            isClosedFolioReopened = true;
+          }
+        }
+
+        // Mark refund as COMPLETED
+        const completedRefund = await tx.payment.update({
+          where: { id: refundId },
+          data: {
+            status: PaymentStatus.COMPLETED,
+            processedBy: approverId,
+            processedAt: new Date(),
+          },
+        });
+
+        if (original.folioId) {
+          await tx.folioItem.create({
+            data: {
+              folioId: original.folioId,
+              type: 'REFUND',
+              description: `Refund issued (${completedRefund.method}${completedRefund.reference ? ` · ${completedRefund.reference}` : ''})`,
+              amount: refundAmount,
+              quantity: 1,
+              unitPrice: refundAmount,
+              department: 'FRONT_DESK',
+              referenceId: completedRefund.id,
+              referenceType: 'REFUND',
+              postedBy: approverId,
+            },
+          });
+          await tx.folio.update({
+            where: { id: original.folioId },
+            data: {
+              balance: { increment: refundAmount },
+              status: isClosedFolioReopened ? 'CLOSED' : undefined,
+              closedAt: isClosedFolioReopened ? new Date() : undefined,
+            },
+          });
+          if (isClosedFolioReopened) {
+            await AuditService.logInTransaction(tx, {
+              userId: approverId,
+              action: 'folio.closed_folio_refund_processed',
+              resource: 'folio',
+              resourceId: original.folioId,
+              beforeData: { status: originalFolioStatus },
+              afterData: { status: 'CLOSED', originalPaymentId: original.id, refundId: completedRefund.id, amount: refundAmount.toString(), approvedBy: approverId },
+            });
+          }
+        }
+
+        const remaining = refundable.minus(refundAmount);
+        const paymentStatus: PaymentStatus = remaining.isZero() ? PaymentStatus.REFUNDED : PaymentStatus.PARTIALLY_REFUNDED;
+        const orderPaymentStatus: OrderPaymentStatus = remaining.isZero() ? OrderPaymentStatus.REFUNDED : OrderPaymentStatus.PARTIALLY_REFUNDED;
+        await tx.payment.update({
+          where: { id: original.id },
+          data: { status: paymentStatus },
+        });
+        if (original.source === 'RESTAURANT_ORDER' && original.sourceId) {
+          await tx.restaurantOrder.update({ where: { id: original.sourceId }, data: { paymentStatus: orderPaymentStatus } });
+        } else if (original.source === 'BAR_ORDER' && original.sourceId) {
+          await tx.barOrder.update({ where: { id: original.sourceId }, data: { paymentStatus: orderPaymentStatus } });
+        } else if (original.source === 'POOL_TRANSACTION' && original.sourceId) {
+          await tx.poolTransaction.update({ where: { id: original.sourceId }, data: { paymentStatus: orderPaymentStatus } });
+        }
+        await AuditService.logInTransaction(tx, {
+          userId: approverId,
+          action: 'payment.refund_approved',
+          resource: 'payment',
+          resourceId: completedRefund.id,
+          afterData: { originalPaymentId: original.id, amount: refundAmount.toString(), folioId: original.folioId, approvedBy: approverId },
+        });
+        return completedRefund;
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') {
+        throw new AppError('The payment changed while the refund was being approved. Please retry.', 409, 'REFUND_CONFLICT');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Rejects a pending refund request (Admin or Manager).
+   */
+  static async rejectRefund(refundId: string, rejectorId: string, reason = 'Rejected by Manager/Admin') {
+    const refundRecord = await prisma.payment.findUnique({ where: { id: refundId } });
+    if (!refundRecord || refundRecord.type !== 'REFUND') {
+      throw new AppError('Refund record not found.', 404, 'REFUND_NOT_FOUND');
+    }
+    if (refundRecord.status !== PaymentStatus.PENDING) {
+      throw new AppError('Only pending refund requests can be rejected.', 422, 'REFUND_NOT_PENDING');
+    }
+
+    const updated = await prisma.payment.update({
+      where: { id: refundId },
+      data: {
+        status: PaymentStatus.FAILED,
+        voidedAt: new Date(),
+        voidedBy: rejectorId,
+        voidReason: reason,
+        description: `[REJECTED] ${reason} - ${refundRecord.description || ''}`,
+      },
+    });
+
+    await AuditService.log({
+      userId: rejectorId,
+      action: 'payment.refund_rejected',
+      resource: 'payment',
+      resourceId: refundId,
+      afterData: { reason, rejectedBy: rejectorId },
+    });
+
+    return updated;
   }
 }

@@ -559,6 +559,10 @@ export const paymentsApi = {
     apiFetch<any>('/payments', { method: 'POST', body: JSON.stringify(body) }, token()),
   refund: async (paymentId: string, body: { amount: number; method?: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; reason: string; idempotencyKey: string; allowClosedFolioReopen?: boolean }): Promise<any> =>
     apiFetch<any>(`/payments/${paymentId}/refunds`, { method: 'POST', body: JSON.stringify(body) }, token()),
+  approveRefund: async (refundId: string): Promise<any> =>
+    apiFetch<any>(`/payments/${refundId}/approve-refund`, { method: 'POST' }, token()),
+  rejectRefund: async (refundId: string, reason?: string): Promise<any> =>
+    apiFetch<any>(`/payments/${refundId}/reject-refund`, { method: 'POST', body: JSON.stringify({ reason }) }, token()),
 };
 
 // ──────────────────────────────────────────

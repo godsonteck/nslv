@@ -120,7 +120,23 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
     return;
   }
   if (!authReq.user.roles.some((role) => role.toLowerCase() === 'admin')) {
-    res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Only an administrator can permanently delete a cancelled reservation.' } });
+    res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Only an administrator can perform this action.' } });
+    return;
+  }
+  next();
+}
+
+/** Restrict refund approvals and managerial overrides to Manager or Admin roles. */
+export function requireManagerOrAdmin(req: Request, res: Response, next: NextFunction): void {
+  const authReq = req as AuthenticatedRequest;
+  if (!authReq.user) {
+    res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
+    return;
+  }
+  const isPrivileged = authReq.user.roles.some((role) => ['admin', 'manager'].includes(role.toLowerCase())) ||
+    authReq.user.permissions.includes('payments.refund');
+  if (!isPrivileged) {
+    res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Only a manager or administrator can approve or reject refunds.' } });
     return;
   }
   next();

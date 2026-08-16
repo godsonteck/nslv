@@ -176,7 +176,6 @@ export default function ReportsPage() {
       ['Total Approved Operating Expenses', (fin.totalApprovedExpenses || 0).toFixed(2)],
       ['Net Operating Income (Accrued - Expenses)', (fin.netOperatingIncome || 0).toFixed(2)],
       ['Average Daily Rate (ADR)', (fin.averageDailyRate || 0).toFixed(2)],
-      ['RevPAR', (fin.revPAR || 0).toFixed(2)],
       ['Cash Payments Inflow', (cash.payments || 0).toFixed(2)],
       ['Cash Refunds Outflow', (cash.refunds || 0).toFixed(2)],
       ['Cash Approved Expenses Outflow', (cash.approvedExpenses || 0).toFixed(2)],
@@ -495,7 +494,7 @@ export default function ReportsPage() {
                 <MetricBox label="Maintenance" value={occ.maintenanceRooms || 0} sub="Out of service" highlight="text-red-400" />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3 pt-2 border-t border-[#2B303E]">
+              <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-[#2B303E]">
                 <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
                   <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Total Room Nights</div>
                   <div className="text-lg font-extrabold text-[#F4F4F2] mt-0.5">{occ.totalRoomNights || 0} nights</div>
@@ -505,13 +504,6 @@ export default function ReportsPage() {
                   <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Average Daily Rate (ADR)</div>
                   <div className="text-lg font-extrabold text-[#C5A880] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
                   <div className="text-[10px] text-[#6E737B]">Average revenue per occupied room</div>
-                </div>
-                <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Revenue Per Available Room (RevPAR)</div>
-                  <div className="text-lg font-extrabold text-emerald-400 mt-0.5">{formatCurrency(fin.revPAR || 0)}</div>
-                  <div className="text-[10px] text-[#6E737B]">
-                    Room Rev ÷ {occ.totalAvailableRoomNights || ((occ.totalRooms || 0) * (data.period?.daysInPeriod || 1))} Total Avail Nights (= {occ.occupancyRate || 0}% Occ × ADR)
-                  </div>
                 </div>
               </div>
             </div>
