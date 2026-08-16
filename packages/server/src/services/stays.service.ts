@@ -8,6 +8,7 @@ import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { randomUUID } from 'node:crypto';
 import { PaymentService } from './payments.service';
+import { FolioService } from './folios.service';
 
 export interface CheckInDTO {
   reservationId: string;
@@ -28,14 +29,27 @@ export interface CheckOutDTO {
 }
 
 export class StayService {
-  /** NS Luxury Villa operates on Ghana time: 2 PM check-in, noon check-out. */
-  private static stayBoundary(value: Date | string | undefined, hour: number) {
+  /**
+   * Calculates the ISO datetime boundary for a given check-in or check-out date.
+   * If a string time like "12:00" or "14:00" is given, it parses hours and minutes.
+   */
+  public static stayBoundary(value: Date | string | undefined, timeStrOrHour: string | number = 12) {
     if (!value) return new Date();
     const dateObj = typeof value === 'string' ? new Date(value) : value;
     if (Number.isNaN(dateObj.getTime())) return new Date();
     const date = dateObj.toISOString().slice(0, 10);
-    return new Date(`${date}T${String(hour).padStart(2, '0')}:00:00.000Z`);
+    let hours = 12;
+    let minutes = 0;
+    if (typeof timeStrOrHour === 'number') {
+      if (timeStrOrHour >= 0 && timeStrOrHour <= 23) hours = timeStrOrHour;
+    } else if (typeof timeStrOrHour === 'string') {
+      const parts = timeStrOrHour.split(':').map((p) => Number(p.replace(/[^0-9]/g, '')));
+      if (parts.length >= 1 && Number.isFinite(parts[0]) && parts[0] >= 0 && parts[0] <= 23) hours = parts[0];
+      if (parts.length >= 2 && Number.isFinite(parts[1]) && parts[1] >= 0 && parts[1] <= 59) minutes = parts[1];
+    }
+    return new Date(`${date}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00.000Z`);
   }
+
   /** Get active stays */
   static async getActiveStays() {
     const stays = await prisma.checkIn.findMany({
@@ -197,9 +211,14 @@ export class StayService {
 
   /**
    * Calculates the late checkout charge based on scheduled checkout deadline, actual checkout time, and hourly rate.
-   * Standard checkout is 12:00 PM (Ghana time). Policy: GHS 50 per hour past noon (rounded up to nearest full hour).
+   * Policy: 1 hour late -> 1x hourly rate; 2 hours late -> 2x hourly rate; 3 hours late -> 3x hourly rate, etc.
    */
-  static calculateLateCheckoutFee(checkOutDate: Date | string, actualCheckOut: Date = new Date(), hourlyRate = 50): {
+  static calculateLateCheckoutFee(
+    checkOutDate: Date | string,
+    actualCheckOut: Date | string = new Date(),
+    hourlyRate = 50,
+    checkoutTimeSetting = '12:00',
+  ): {
     isLate: boolean;
     lateHours: number;
     hourlyRate: number;
@@ -207,11 +226,13 @@ export class StayService {
     deadline: Date;
     description: string;
   } {
-    const deadline = this.stayBoundary(checkOutDate, 12);
-    const diffMs = actualCheckOut.getTime() - deadline.getTime();
+    const deadline = this.stayBoundary(checkOutDate, checkoutTimeSetting || '12:00');
+    const actualTime = typeof actualCheckOut === 'string' ? new Date(actualCheckOut) : actualCheckOut;
+    const diffMs = actualTime.getTime() - deadline.getTime();
     if (diffMs <= 0 || hourlyRate <= 0) {
       return { isLate: false, lateHours: 0, hourlyRate, fee: 0, deadline, description: '' };
     }
+    // Any fraction of an hour past the scheduled check-out deadline counts as 1 full hour
     const lateHours = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60)));
     const fee = lateHours * hourlyRate;
     const description = `Late checkout fee (${lateHours} hr${lateHours > 1 ? 's' : ''} @ GHS ${hourlyRate.toFixed(2)}/hr)`;
@@ -220,43 +241,58 @@ export class StayService {
 
   /**
    * Auto-adjust historical checkout data according to the late checkout policy:
-   * 50 GHS per hour past 12:00 PM on departure date.
+   * Policy: Configured rate (default GHS 50) per hour past checkout time (default 12:00 PM) on departure date.
+   * Scans all past checkouts in the system, recomputes exact hourly charges, updates or creates folio items,
+   * and recalculates folio balances so old and new records remain 100% synchronized and correct.
    */
-  static async autoAdjustHistoricalLateCheckoutFees() {
+  static async autoAdjustHistoricalLateCheckoutFees(customHourlyRate?: number, customCheckoutTime?: string) {
     try {
-      // 1. Ensure system setting 'financial.late_checkout_fee' is set to 50 GHS/hr
-      const existingSetting = await prisma.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
-      if (!existingSetting) {
-        await prisma.systemSetting.create({
-          data: {
-            key: 'financial.late_checkout_fee',
-            value: JSON.stringify(50),
-            category: 'financial',
-            description: 'Late check-out fee per hour (GHS) applied when departure is after 12:00 PM',
-          },
-        });
-      } else {
-        const parsedVal = Number(JSON.parse(existingSetting.value));
-        if (!Number.isFinite(parsedVal) || parsedVal <= 0) {
-          await prisma.systemSetting.update({
-            where: { key: 'financial.late_checkout_fee' },
+      // 1. Fetch current settings from DB
+      const rateSetting = await prisma.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
+      const timeSetting = await prisma.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } });
+
+      let hourlyRate = customHourlyRate;
+      if (hourlyRate === undefined) {
+        if (rateSetting) {
+          try {
+            const parsed = Number(JSON.parse(rateSetting.value));
+            hourlyRate = Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+          } catch {
+            hourlyRate = 50;
+          }
+        } else {
+          hourlyRate = 50;
+          await prisma.systemSetting.create({
             data: {
+              key: 'financial.late_checkout_fee',
               value: JSON.stringify(50),
-              description: 'Late check-out fee per hour (GHS) applied when departure is after 12:00 PM',
+              category: 'financial',
+              description: 'Late check-out fee per hour (GHS) applied when departure is after checkout time',
             },
           });
         }
       }
 
-      // 2. Scan past checkouts
+      let checkoutTime = customCheckoutTime;
+      if (!checkoutTime) {
+        if (timeSetting) {
+          try {
+            checkoutTime = String(JSON.parse(timeSetting.value) || '12:00');
+          } catch {
+            checkoutTime = '12:00';
+          }
+        } else {
+          checkoutTime = '12:00';
+        }
+      }
+
+      // 2. Fetch all historical CheckOut records with Reservation and Folio items
       const checkOuts = await prisma.checkOut.findMany({
         include: {
           reservation: {
             include: {
               folios: {
-                include: {
-                  items: true,
-                },
+                include: { items: true },
               },
             },
           },
@@ -264,22 +300,36 @@ export class StayService {
       });
 
       let adjustedCount = 0;
+      let totalLateChargesAmount = 0;
 
       for (const co of checkOuts) {
-        if (!co.reservation) continue;
-        const folio = co.reservation.folios[0];
+        const reservation = co.reservation;
+        if (!reservation) continue;
+
+        // Locate folio for this reservation
+        let folio = reservation.folios?.[0];
+        if (!folio) {
+          folio = (await prisma.folio.findUnique({
+            where: { reservationId: reservation.id },
+            include: { items: true },
+          })) as any;
+        }
         if (!folio) continue;
 
-        const lateInfo = this.calculateLateCheckoutFee(co.reservation.checkOutDate, co.actualCheckOut, 50);
+        const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, co.actualCheckOut, hourlyRate, checkoutTime);
         const existingFeeItem = folio.items.find(
-          (item) => item.referenceType === 'CHECKOUT' || item.description.toLowerCase().includes('late checkout fee'),
+          (item: any) =>
+            item.referenceType === 'CHECKOUT' ||
+            (item.description && item.description.toLowerCase().includes('late checkout')),
         );
 
         if (lateInfo.isLate && lateInfo.fee > 0) {
           const expectedAmount = new Prisma.Decimal(lateInfo.fee);
+          totalLateChargesAmount += lateInfo.fee;
+
           if (existingFeeItem) {
-            if (!new Prisma.Decimal(existingFeeItem.amount).equals(expectedAmount)) {
-              const diff = expectedAmount.minus(existingFeeItem.amount);
+            const existingAmount = new Prisma.Decimal(existingFeeItem.amount);
+            if (!existingAmount.equals(expectedAmount) || existingFeeItem.quantity !== lateInfo.lateHours || existingFeeItem.voidedAt) {
               await prisma.folioItem.update({
                 where: { id: existingFeeItem.id },
                 data: {
@@ -287,11 +337,14 @@ export class StayService {
                   quantity: lateInfo.lateHours,
                   unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
                   description: lateInfo.description,
+                  voidedAt: null,
+                  voidReason: null,
                 },
               });
+              const newBalance = await FolioService.calculateFolioBalance(folio.id);
               await prisma.folio.update({
                 where: { id: folio.id },
-                data: { balance: { increment: diff } },
+                data: { balance: newBalance },
               });
               adjustedCount++;
             }
@@ -310,30 +363,32 @@ export class StayService {
                 postedAt: co.actualCheckOut,
               },
             });
+            const newBalance = await FolioService.calculateFolioBalance(folio.id);
             await prisma.folio.update({
               where: { id: folio.id },
-              data: { balance: { increment: expectedAmount } },
+              data: { balance: newBalance },
             });
             adjustedCount++;
           }
         } else if (!lateInfo.isLate && existingFeeItem && !existingFeeItem.voidedAt) {
-          const itemAmount = new Prisma.Decimal(existingFeeItem.amount);
           await prisma.folioItem.update({
             where: { id: existingFeeItem.id },
-            data: { voidedAt: new Date(), voidReason: 'Checkout was on time (before 12:00 PM)' },
+            data: { voidedAt: new Date(), voidReason: 'Auto-adjusted: checkout was on time' },
           });
+          const newBalance = await FolioService.calculateFolioBalance(folio.id);
           await prisma.folio.update({
             where: { id: folio.id },
-            data: { balance: { decrement: itemAmount } },
+            data: { balance: newBalance },
           });
           adjustedCount++;
         }
       }
 
-      console.log(`[StayService] Late checkout policy (GHS 50/hr) active. Auto-adjusted ${adjustedCount} past records.`);
-      return { adjustedCount };
+      console.log(`[StayService] Auto-adjusted ${adjustedCount} past checkouts. Hourly rate: GHS ${hourlyRate}, checkout time: ${checkoutTime}.`);
+      return { success: true, adjustedCount, totalCheckOuts: checkOuts.length, hourlyRate, checkoutTime, totalLateChargesAmount };
     } catch (err) {
-      console.warn('[StayService] autoAdjustHistoricalLateCheckoutFees warning:', err);
+      console.error('[StayService] autoAdjustHistoricalLateCheckoutFees error:', err);
+      throw err;
     }
   }
 
@@ -370,14 +425,17 @@ export class StayService {
         if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
 
         const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
-        // The fee is an admin-controlled business rule: GHS 50 per hour past 12:00 PM.
+        // The fee is an admin-controlled business rule: GHS 50 per hour past configured check-out time.
         // Charge it before calculating the ledger settlement so it reaches the bill,
         // payment record, checkout audit and printed receipt as one durable operation.
         const lateCheckoutSetting = await tx.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
+        const checkoutTimeSetting = await tx.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } });
+
         const settingVal = lateCheckoutSetting ? Number(JSON.parse(lateCheckoutSetting.value)) : 50;
         const hourlyRate = Number.isFinite(settingVal) && settingVal > 0 ? settingVal : 50;
+        const checkoutTime = checkoutTimeSetting ? String(JSON.parse(checkoutTimeSetting.value) || '12:00') : '12:00';
 
-        const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, new Date(), hourlyRate);
+        const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, new Date(), hourlyRate, checkoutTime);
         if (folio && lateInfo.isLate && lateInfo.fee > 0) {
           const fee = new Prisma.Decimal(lateInfo.fee);
           await tx.folioItem.create({

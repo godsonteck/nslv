@@ -1,11 +1,7 @@
-// ============================================
-// NS LUXURY VILLA — System Settings Service
-// Manages key-value system configuration & audit
-// ============================================
-
 import { prisma } from '../config';
 import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
+import { StayService } from './stays.service';
 
 export class SettingsService {
   /**
@@ -82,6 +78,17 @@ export class SettingsService {
       beforeData: { key, value: beforeValue },
       afterData: { key, value },
     });
+
+    // If late checkout fee or checkout time is changed, immediately auto-adjust historical checkouts
+    if (key === 'financial.late_checkout_fee' || key === 'villa.checkout_time') {
+      try {
+        const rate = key === 'financial.late_checkout_fee' ? Number(value) : undefined;
+        const time = key === 'villa.checkout_time' ? String(value) : undefined;
+        void StayService.autoAdjustHistoricalLateCheckoutFees(rate, time);
+      } catch (err) {
+        console.warn('[SettingsService] autoAdjust error on setting change:', err);
+      }
+    }
 
     return {
       id: setting.id,

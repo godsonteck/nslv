@@ -43,4 +43,14 @@ router.post('/check-out', requirePermission('checkout.perform'), validateBody(ch
   }
 });
 
+// Recalculate and auto-adjust historical late checkout fees
+router.post('/recalculate-late-fees', requirePermission('settings.edit'), async (_req, res, next) => {
+  try {
+    const result = await StayService.autoAdjustHistoricalLateCheckoutFees();
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

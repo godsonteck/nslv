@@ -512,6 +512,7 @@ export const reservationsApi = {
   deleteCancelled: async (id: string): Promise<any> =>
     apiFetch<any>(`/reservations/${id}`, { method: 'DELETE' }, token()),
 };
+
 // ──────────────────────────────────────────
 // Stays (Check-In & Check-Out)
 // ──────────────────────────────────────────
@@ -524,6 +525,10 @@ export const staysApi = {
     apiFetch<any>('/stays/check-in', { method: 'POST', body: JSON.stringify(body) }, token()),
   checkOut: async (body: { reservationId: string; roomCondition?: string; paymentMethod?: string; notes?: string }): Promise<any> =>
     apiFetch<any>('/stays/check-out', { method: 'POST', body: JSON.stringify(body) }, token()),
+  recalculateLateFees: async (): Promise<{ success: true; data: { adjustedCount: number; hourlyRate: number; checkoutTime: string; totalCheckOuts: number } }> => {
+    const data = await apiFetch<{ adjustedCount: number; hourlyRate: number; checkoutTime: string; totalCheckOuts: number }>('/stays/recalculate-late-fees', { method: 'POST' }, token());
+    return { success: true, data };
+  },
 };
 
 // ──────────────────────────────────────────

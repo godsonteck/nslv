@@ -13,7 +13,7 @@ import {
   PageHeader, Button, FormField, TextInput,
   showToast, Spinner, Modal,
 } from '../../components/ui';
-import { settingsApi, systemApi } from '../../services/apiService';
+import { settingsApi, systemApi, staysApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
 
@@ -67,18 +67,31 @@ interface SettingFieldProps {
 
 const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange }) => {
   const val = draft[setting.key] !== undefined ? draft[setting.key] : setting.value;
-  const label = setting.key
+  let label = setting.key
     .replace(/_/g, ' ')
     .replace(/^villa\.|^financial\.|^notifications\.|^security\.|^regional\./, '')
     .trim()
     .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  let description = setting.description;
+
+  if (setting.key === 'financial.late_checkout_fee') {
+    label = 'Late Check-out Fee Per Hour (GHS)';
+    description = 'Hourly fee in Cedis (GHS) applied for each started hour after the check-out deadline (e.g. 50 GHS/hr; 2 hrs = 100 GHS, 3 hrs = 150 GHS).';
+  } else if (setting.key === 'villa.checkout_time') {
+    label = 'Standard Check-out Time (HH:MM)';
+    description = 'Daily departure deadline (e.g. 12:00). Departures past this time automatically incur the hourly late fee.';
+  } else if (setting.key === 'villa.checkin_time') {
+    label = 'Standard Check-in Time (HH:MM)';
+    description = 'Arrival start time (e.g. 14:00).';
+  }
 
   if (typeof setting.value === 'boolean') {
     return (
       <div className="flex items-center justify-between p-3 bg-[#14161D] border border-[#2B303E] rounded">
         <div>
           <div className="text-xs font-medium text-[#F4F4F2]">{label}</div>
-          {setting.description && <div className="text-[10px] text-[#6E737B] mt-0.5">{setting.description}</div>}
+          {description && <div className="text-[10px] text-[#6E737B] mt-0.5">{description}</div>}
         </div>
         <button
           type="button"
@@ -93,8 +106,8 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
 
   return (
     <FormField label={label}>
-      {setting.description && (
-        <p className="text-[10px] text-[#6E737B] mb-1">{setting.description}</p>
+      {description && (
+        <p className="text-[10px] text-[#6E737B] mb-1">{description}</p>
       )}
       <TextInput
         value={String(val ?? '')}
@@ -110,6 +123,7 @@ export const SettingsPage: React.FC = () => {
   const [draft, setDraft] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [syncingLateFees, setSyncingLateFees] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('villa');
   const [dirty, setDirty] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -155,12 +169,29 @@ export const SettingsPage: React.FC = () => {
     setSaving(true);
     try {
       await settingsApi.bulkUpdate(draft);
-      showToast('success', 'Settings updated successfully.');
+      showToast('success', 'Settings updated & policies synchronized successfully.');
       await fetchSettings();
     } catch {
       showToast('error', 'Failed to save settings.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSyncLateFees = async () => {
+    setSyncingLateFees(true);
+    try {
+      const res = await staysApi.recalculateLateFees();
+      if (res.success && res.data) {
+        showToast(
+          'success',
+          `Late check-out sync complete: ${res.data.adjustedCount} historical records updated (${res.data.hourlyRate} GHS/hr past ${res.data.checkoutTime}).`,
+        );
+      }
+    } catch (err: any) {
+      showToast('error', err?.message || 'Failed to sync historical late fees.');
+    } finally {
+      setSyncingLateFees(false);
     }
   };
 
@@ -183,19 +214,8 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const tabKeys = TAB_KEYS[activeTab];
-  const tabSettings = settings.filter((s) => tabKeys.includes(s.key));
-
-  const displaySettings: SettingEntry[] = tabKeys.map((key) => {
-    const found = tabSettings.find((s) => s.key === key);
-    if (found) return found;
-    return {
-      key,
-      value: '',
-      category: key.split('.')[0] || 'general',
-      description: null,
-    };
-  });
+  const currentTabKeys = TAB_KEYS[activeTab];
+  const displaySettings = settings.filter((s) => currentTabKeys.includes(s.key));
 
   return (
     <div className="space-y-6">
@@ -203,16 +223,23 @@ export const SettingsPage: React.FC = () => {
         title="Property & System Settings"
         subtitle="Configure villa business rules, tax rates, checkout policies & operational settings"
         actions={
-          dirty ? (
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => { setDraft({}); setDirty(false); }}>
-                Discard
+          <div className="flex items-center gap-2">
+            {activeTab === 'financial' && (
+              <Button variant="outline" size="sm" loading={syncingLateFees} onClick={handleSyncLateFees}>
+                <RefreshCw size={14} /> Recalculate Past Late Fees
               </Button>
-              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
-                <Save size={14} /> Save Changes
-              </Button>
-            </div>
-          ) : undefined
+            )}
+            {dirty && (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => { setDraft({}); setDirty(false); }}>
+                  Discard
+                </Button>
+                <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
+                  <Save size={14} /> Save Changes
+                </Button>
+              </>
+            )}
+          </div>
         }
       />
 
@@ -240,7 +267,17 @@ export const SettingsPage: React.FC = () => {
           {loading ? (
             <div className="py-16 text-center text-xs text-[#A0A5AD]"><Spinner /></div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {activeTab === 'financial' && (
+                <div className="rounded-md border border-[#b18a55]/30 bg-[#b18a55]/10 p-3.5 text-xs text-[#d9bd91]">
+                  <div className="font-bold flex items-center gap-1.5 text-[#f5f0e8]">
+                    <span>⏰ Late Check-out Dynamic Policy</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-[#e0d6c8] leading-relaxed">
+                    Set the hourly rate (GHS) below. Any guest departing past standard check-out time is billed at <strong>rate × hours late</strong> (1 hr late = 1×, 2 hrs late = 2×, etc.). Saving settings automatically synchronizes all historical stays.
+                  </p>
+                </div>
+              )}
               {displaySettings.map((setting) => (
                 <SettingField
                   key={setting.key}

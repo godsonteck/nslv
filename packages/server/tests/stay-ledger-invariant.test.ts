@@ -72,7 +72,11 @@ describe('stay ledger invariants', () => {
   it('adds the admin-configured late checkout fee before settlement after noon', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2030-10-12T13:00:00.000Z')); // 1 hour past 12:00 PM deadline
-    mocks.settingFindUnique.mockResolvedValue({ value: '50' });
+    mocks.settingFindUnique.mockImplementation(async ({ where }: any) => {
+      if (where.key === 'financial.late_checkout_fee') return { value: '50' };
+      if (where.key === 'villa.checkout_time') return { value: '"12:00"' };
+      return null;
+    });
     await StayService.checkOutGuest({ reservationId: 'reservation-1', checkedOutBy: 'user-1', paymentMethod: 'CASH' });
     expect(mocks.folioItemCreate).toHaveBeenCalledWith(
       expect.objectContaining({
