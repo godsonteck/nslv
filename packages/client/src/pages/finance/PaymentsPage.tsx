@@ -10,7 +10,7 @@ import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2 } from 'lu
 import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
-import { formatCurrency } from '@nslv/shared';
+import { formatCurrency, formatGuestName } from '@nslv/shared';
 
 interface PaymentRecord {
   id: string;
@@ -22,13 +22,13 @@ interface PaymentRecord {
   type: string;
   processedAt?: string;
   createdAt?: string;
-  guest?: { firstName: string; lastName: string } | null;
+  guest?: { firstName: string; lastName?: string | null } | null;
 }
 
 interface BillStay {
   id: string;
   reservationId?: string;
-  guest: { firstName: string; lastName: string } | null;
+  guest: { firstName: string; lastName?: string | null } | null;
   room: { number: string | number } | null;
   reservation: {
     id: string;
@@ -160,7 +160,7 @@ export const PaymentsPage: React.FC = () => {
   const visible = data.filter(
     (p) =>
       !q ||
-      `${p.reference || ''} ${p.description || ''} ${p.guest?.firstName || ''} ${p.guest?.lastName || ''}`
+      `${p.reference || ''} ${p.description || ''} ${formatGuestName(p.guest, '')}`
         .toLowerCase()
         .includes(q.toLowerCase()),
   );
@@ -216,7 +216,7 @@ export const PaymentsPage: React.FC = () => {
                       {p.reference || p.id.slice(0, 8)}
                     </td>
                     <td className="px-5 py-4 text-xs font-bold text-[#26363e]">
-                      {p.guest ? `${p.guest.firstName} ${p.guest.lastName}` : p.description || 'General payment'}
+                      {p.guest ? formatGuestName(p.guest) : p.description || 'General payment'}
                     </td>
                     <td className="px-5 py-4 text-[10px] font-bold text-[#667278]">{p.method || '—'}</td>
                     <td className="px-5 py-4 text-[10px] font-extrabold text-[#667278]">{p.type === 'REFUND' ? 'REFUND' : p.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT'}</td>
@@ -243,7 +243,7 @@ export const PaymentsPage: React.FC = () => {
               <option value="">Select a guest stay…</option>
               {stays.map((s) => (
                 <option key={s.id} value={s.id}>
-                  Room {s.room?.number || '—'} · {s.guest?.firstName || 'Guest'} {s.guest?.lastName || ''}
+                  Room {s.room?.number || '—'} · {formatGuestName(s.guest, 'Guest')}
                 </option>
               ))}
             </SelectInput>

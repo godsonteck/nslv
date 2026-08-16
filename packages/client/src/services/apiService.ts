@@ -506,6 +506,9 @@ export const reservationsApi = {
   cancel: async (id: string, reason?: string): Promise<any> =>
     apiFetch<any>(`/reservations/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) }, token()),
 
+  markNoShow: async (id: string, reason?: string): Promise<any> =>
+    apiFetch<any>(`/reservations/${id}/no-show`, { method: 'POST', body: JSON.stringify({ reason }) }, token()),
+
   deleteCancelled: async (id: string): Promise<any> =>
     apiFetch<any>(`/reservations/${id}`, { method: 'DELETE' }, token()),
 };

@@ -9,13 +9,13 @@ import { RefreshCw, ReceiptText, Printer, WalletCards, Search, UserRound } from 
 import { Button, Modal, SearchInput, LoadingState, showToast, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { staysApi } from '../../services/apiService';
-import { formatCurrency } from '@nslv/shared';
+import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { villaAssets } from '../../assets';
 import { receiptCompanyBlock } from '../../lib/company';
 
 interface BillStay {
   id: string;
-  guest: { firstName: string; lastName: string; id: string } | null;
+  guest: { firstName: string; lastName?: string | null; id: string } | null;
   room: { number: string | number; roomType?: { name?: string } } | null;
   actualCheckIn: string;
   reservation: {
@@ -89,7 +89,7 @@ export const GuestBillsPage: React.FC = () => {
   const visible = openFolios.filter((x) => {
     if (!q) return true;
     const query = q.toLowerCase();
-    const guestName = `${x.stay.guest?.firstName ?? ''} ${x.stay.guest?.lastName ?? ''}`.toLowerCase();
+    const guestName = formatGuestName(x.stay.guest, '').toLowerCase();
     const room = String(x.stay.room?.number ?? '');
     return guestName.includes(query) || room.includes(query);
   });
@@ -99,14 +99,16 @@ export const GuestBillsPage: React.FC = () => {
   const printBill = () => {
     if (!activeBill) return;
     const { stay, folio } = activeBill;
-    const win = window.open('', '_blank', 'width=380,height=600');
-    if (!win) return;
+    const win = window.open('', '_blank');
+    if (!win) {
+      showToast('error', 'Pop-up blocked. Please allow pop-ups to print bill.');
+      return;
+    }
 
     const items = folio.items
-      .filter((i) => !i.voidedAt)
       .map(
         (i) =>
-          `<tr><td>${i.description || i.type}</td><td class="r">${i.quantity} × ${formatCurrency(money(i.unitPrice))}</td><td class="r">${formatCurrency(money(i.amount))}</td></tr>`,
+          `<tr><td>${i.description}</td><td class="r">${i.quantity}</td><td class="r">${formatCurrency(money(i.unitPrice))}</td><td class="r">${formatCurrency(money(i.amount))}</td></tr>`,
       )
       .join('');
     const payments = folio.payments
@@ -115,7 +117,7 @@ export const GuestBillsPage: React.FC = () => {
           `<tr><td>${p.method} payment</td><td class="r">${new Date(p.processedAt).toLocaleDateString()}</td><td class="r">${formatCurrency(money(p.amount))}</td></tr>`,
       )
       .join('');
-    const guestName = stay.guest ? `${stay.guest.firstName} ${stay.guest.lastName}` : 'Guest';
+    const guestName = formatGuestName(stay.guest, 'Guest');
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
 
     win.document.write(`<!DOCTYPE html><html><head><title>Guest bill</title><style>
@@ -189,7 +191,7 @@ export const GuestBillsPage: React.FC = () => {
                       Room {stay.room?.number ?? '—'}
                     </td>
                     <td className="px-5 py-3 text-[11px] text-[#26363e]">
-                      {stay.guest ? `${stay.guest.firstName} ${stay.guest.lastName}` : 'Guest'}
+                      {formatGuestName(stay.guest, 'Guest')}
                     </td>
                     <td className="px-5 py-3">{statusBadge(folio.status)}</td>
                     <td className="px-5 py-3 text-right text-[11px] font-extrabold text-[#26363e]">
@@ -219,7 +221,7 @@ export const GuestBillsPage: React.FC = () => {
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <div className="text-xs font-extrabold text-[#26363e]">
-                  {activeBill.stay.guest ? `${activeBill.stay.guest.firstName} ${activeBill.stay.guest.lastName}` : 'Guest'}
+                  {formatGuestName(activeBill.stay.guest, 'Guest')}
                 </div>
                 <div className="mt-1 text-[10px] text-[#899397]">
                   Checked in {new Date(activeBill.stay.actualCheckIn).toLocaleDateString()} · Room {activeBill.stay.room?.number ?? '—'}

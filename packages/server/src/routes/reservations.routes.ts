@@ -142,6 +142,19 @@ router.post('/:id/cancel', requirePermission('reservations.cancel'), validateBod
   }
 });
 
+// Mark reservation as no-show
+router.post('/:id/no-show', requirePermission('reservations.cancel'), validateBody(cancelReservationSchema), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const { reason } = req.body;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await ReservationService.markNoShow(id, userId, reason);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

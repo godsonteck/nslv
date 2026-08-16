@@ -235,7 +235,7 @@ model Room {
 model Guest {
   id               String          @id @default(uuid())
   firstName        String          @map("first_name")
-  lastName         String          @map("last_name")
+  lastName         String?         @map("last_name")
   email            String?
   phone            String?
   address          String?

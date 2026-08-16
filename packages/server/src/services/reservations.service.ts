@@ -175,6 +175,14 @@ export class ReservationService {
           throw new Error('The selected room is not available for the specified dates.');
         }
         const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+        const finalAdults = data.adults ?? reservation.adults;
+        const finalChildren = data.children ?? reservation.children;
+        if (finalAdults > room.roomType.maxAdults) {
+          throw new AppError(`Room type allows a maximum of ${room.roomType.maxAdults} adult${room.roomType.maxAdults === 1 ? '' : 's'}.`, 400, 'EXCEEDS_ADULT_CAPACITY');
+        }
+        if (finalChildren > room.roomType.maxChildren) {
+          throw new AppError(`Room type allows a maximum of ${room.roomType.maxChildren} child${room.roomType.maxChildren === 1 ? '' : 'ren'}.`, 400, 'EXCEEDS_CHILD_CAPACITY');
+        }
         const totalAmount = Math.max(0, Number(room.roomType.basePrice) * nights - Number(reservation.discountAmount) + Number(reservation.taxAmount));
         const deposits = await tx.payment.aggregate({
           where: { reservationId: id, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null }, _sum: { amount: true },
@@ -269,6 +277,15 @@ export class ReservationService {
     }
     if (!guest) throw new Error('Guest not found.');
 
+    const adults = data.adults || 1;
+    const children = data.children || 0;
+    if (adults > room.roomType.maxAdults) {
+      throw new AppError(`Room type allows a maximum of ${room.roomType.maxAdults} adult${room.roomType.maxAdults === 1 ? '' : 's'}.`, 400, 'EXCEEDS_ADULT_CAPACITY');
+    }
+    if (children > room.roomType.maxChildren) {
+      throw new AppError(`Room type allows a maximum of ${room.roomType.maxChildren} child${room.roomType.maxChildren === 1 ? '' : 'ren'}.`, 400, 'EXCEEDS_CHILD_CAPACITY');
+    }
+
     // Pricing is authoritative on the server. The client cannot override the room rate.
     const baseRate = Number(room.roomType.basePrice);
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
@@ -278,6 +295,10 @@ export class ReservationService {
     }
     const taxAmount = Math.max(0, Number(data.taxAmount || 0));
     const totalAmount = Math.max(0, baseRate * nights - discountAmount + taxAmount);
+    const depositAmount = Math.max(0, Number(data.depositAmount || 0));
+    if (depositAmount > totalAmount) {
+      throw new AppError('Deposit cannot exceed the total reservation amount.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
+    }
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const confirmationNo = `NSVL-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -299,14 +320,14 @@ export class ReservationService {
         source: (data.source as BookingSource) || BookingSource.WALK_IN,
         checkInDate: checkIn,
         checkOutDate: checkOut,
-        adults: data.adults || 1,
-        children: data.children || 0,
+        adults,
+        children,
         baseRate,
         discountAmount,
         discountReason: discountAmount > 0 ? data.discountReason!.trim() : null,
         discountApprovedBy: discountAmount > 0 ? data.discountApprovedBy : null,
         taxAmount,
-        depositAmount: Math.max(0, Number(data.depositAmount || 0)),
+        depositAmount,
         totalAmount,
         specialRequests: data.specialRequests,
         notes: data.notes,
@@ -489,6 +510,60 @@ export class ReservationService {
       if (room?.status === 'RESERVED' && !otherActiveToday) {
         await tx.room.update({ where: { id: reservation.roomId }, data: { status: 'AVAILABLE' } });
       }
+
+      return updated;
+    });
+  }
+
+  /** Mark reservation as NO_SHOW */
+  static async markNoShow(id: string, markedBy: string, reason?: string) {
+    return prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.findUnique({ where: { id } });
+      if (!reservation) throw new AppError('Reservation not found.', 404, 'NOT_FOUND');
+      if (!['PENDING', 'CONFIRMED'].includes(reservation.status)) {
+        throw new AppError(`Cannot mark a reservation with status ${reservation.status} as no-show.`, 409, 'INVALID_RESERVATION_STATE');
+      }
+
+      const cancelReason = reason?.trim() || 'Guest did not arrive (No-show)';
+      const updated = await tx.reservation.update({
+        where: { id },
+        data: {
+          status: ReservationStatus.NO_SHOW,
+          cancelledBy: markedBy,
+          cancelledAt: new Date(),
+          cancelReason,
+        },
+      });
+
+      // Safe room release: only release room when it is RESERVED and no other active
+      // reservation needs the room today. Never make an occupied or maintenance room available.
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const otherActiveToday = await tx.reservation.findFirst({
+        where: {
+          roomId: reservation.roomId,
+          id: { not: reservation.id },
+          status: { in: ['PENDING', 'CONFIRMED', 'CHECKED_IN'] },
+          checkInDate: { lt: tomorrow },
+          checkOutDate: { gt: today },
+        },
+        select: { id: true },
+      });
+      const room = await tx.room.findUnique({ where: { id: reservation.roomId }, select: { status: true } });
+      if (room?.status === 'RESERVED' && !otherActiveToday) {
+        await tx.room.update({ where: { id: reservation.roomId }, data: { status: 'AVAILABLE' } });
+      }
+
+      await AuditService.logInTransaction(tx, {
+        userId: markedBy,
+        action: 'reservation.no_show',
+        resource: 'reservation',
+        resourceId: id,
+        beforeData: { status: reservation.status },
+        afterData: { status: 'NO_SHOW', cancelReason },
+      });
 
       return updated;
     });

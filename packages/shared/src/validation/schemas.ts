@@ -40,9 +40,9 @@ export const phoneSchema = z
 
 export const nameSchema = z
   .string()
+  .trim()
   .min(1, 'Name is required')
-  .max(100, 'Name must not exceed 100 characters')
-  .trim();
+  .max(100, 'Name must not exceed 100 characters');
 
 export const uuidSchema = z.string().uuid('Invalid ID format');
 
@@ -185,7 +185,7 @@ export const updateRoomStatusSchema = z.object({
 // ── Guests ──
 export const createGuestSchema = z.object({
   firstName: nameSchema,
-  lastName: nameSchema,
+  lastName: nameSchema.optional().nullable(),
   email: emailSchema.optional().nullable(),
   phone: phoneSchema,
   address: optionalString,

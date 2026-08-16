@@ -7,7 +7,7 @@ import { IdDocumentType } from '@prisma/client';
 
 export interface CreateGuestDTO {
   firstName: string;
-  lastName: string;
+  lastName?: string | null;
   email?: string;
   phone?: string;
   address?: string;
@@ -70,24 +70,34 @@ export class GuestService {
 
   /** Create guest */
   static async createGuest(data: CreateGuestDTO) {
-    return prisma.guest.create({
-      data: {
-        ...data,
-        idDocumentType: (data.idDocumentType as IdDocumentType) || null,
-        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
-      },
-    });
+    const payload = {
+      ...data,
+      lastName: data.lastName ?? null,
+      idDocumentType: (data.idDocumentType as IdDocumentType) || null,
+      dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+    };
+    return prisma.guest.create({ data: payload as any });
   }
 
   /** Update guest */
   static async updateGuest(id: string, data: Partial<CreateGuestDTO>) {
-    return prisma.guest.update({
-      where: { id },
-      data: {
-        ...data,
-        idDocumentType: data.idDocumentType !== undefined ? ((data.idDocumentType as IdDocumentType) || null) : undefined,
-        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
-      },
-    });
+    const payload: Record<string, unknown> = {};
+
+    if (data.firstName !== undefined)        payload.firstName        = data.firstName;
+    if ('lastName' in data)                  payload.lastName         = data.lastName ?? null;
+    if (data.email !== undefined)            payload.email            = data.email;
+    if (data.phone !== undefined)            payload.phone            = data.phone;
+    if (data.address !== undefined)          payload.address          = data.address;
+    if (data.city !== undefined)             payload.city             = data.city;
+    if (data.country !== undefined)          payload.country          = data.country;
+    if (data.idDocumentNumber !== undefined) payload.idDocumentNumber = data.idDocumentNumber;
+    if (data.nationality !== undefined)      payload.nationality      = data.nationality;
+    if (data.preferences !== undefined)      payload.preferences      = data.preferences;
+    if (data.notes !== undefined)            payload.notes            = data.notes;
+    if (data.isVip !== undefined)            payload.isVip            = data.isVip;
+    if (data.idDocumentType !== undefined)   payload.idDocumentType   = (data.idDocumentType as IdDocumentType) || null;
+    if (data.dateOfBirth !== undefined)      payload.dateOfBirth      = data.dateOfBirth ? new Date(data.dateOfBirth) : null;
+
+    return prisma.guest.update({ where: { id }, data: payload as any });
   }
 }

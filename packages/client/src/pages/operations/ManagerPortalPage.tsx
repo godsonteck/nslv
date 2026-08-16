@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // NS LUXURY VILLA — Manager Portal Workstation
 // /manager — Operational Control Center for Hotel Management
 // ============================================
@@ -118,7 +118,7 @@ export const ManagerPortalPage: React.FC = () => {
       render: (stay: any) => (
         <div>
           <div className="font-bold text-[#1A202C]">
-            {stay.guest ? `${stay.guest.firstName} ${stay.guest.lastName}` : 'In-House Guest'}
+            {[stay.guest?.firstName, stay.guest?.lastName].filter(Boolean).join(' ') || 'In-House Guest'}
           </div>
           <div className="text-[11px] text-slate-500">{stay.guest?.phone || 'No Phone'}</div>
         </div>

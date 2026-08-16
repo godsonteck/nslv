@@ -351,7 +351,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                           <option value="">Select in-house guest</option>
                           {stays.map((s) => (
                             <option key={s.id} value={s.id}>
-                              Room {s.room?.number || '—'} · {s.guest?.firstName || 'Guest'} {s.guest?.lastName || ''}
+                              Room {s.room?.number || '—'} · {[s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest'}
                             </option>
                           ))}
                         </SelectInput>

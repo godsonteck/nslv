@@ -154,7 +154,7 @@ export interface Room {
 export interface Guest {
   id: string;
   firstName: string;
-  lastName: string;
+  lastName: string | null;
   email: string | null;
   phone: string | null;
   address: string | null;

@@ -79,16 +79,36 @@ export function formatTime(
 }
 
 /**
+ * Format a guest's name cleanly handling single names and null/omitted last names.
+ *
+ * @example formatGuestName({ firstName: 'Kwame', lastName: 'Mensah' }) → "Kwame Mensah"
+ * @example formatGuestName({ firstName: 'Kwame', lastName: null }) → "Kwame"
+ * @example formatGuestName({ firstName: 'Kwame', lastName: '' }) → "Kwame"
+ */
+export function formatGuestName(
+  guest?: { firstName?: string | null; lastName?: string | null } | null,
+  fallback = '—',
+): string {
+  if (!guest) return fallback;
+  const first = (guest.firstName ?? '').trim();
+  const last = (guest.lastName ?? '').trim();
+  if (first && last) return `${first} ${last}`;
+  return first || last || fallback;
+}
+
+/**
  * Get a user's display name (full name or username fallback)
  */
 export function getDisplayName(
   user: { firstName?: string; lastName?: string; username?: string } | null,
 ): string {
   if (!user) return 'Unknown';
-  if (user.firstName && user.lastName) {
-    return `${user.firstName} ${user.lastName}`;
+  const first = (user.firstName ?? '').trim();
+  const last = (user.lastName ?? '').trim();
+  if (first && last) {
+    return `${first} ${last}`;
   }
-  return user.firstName || user.lastName || user.username || 'Unknown';
+  return first || last || user.username || 'Unknown';
 }
 
 /**

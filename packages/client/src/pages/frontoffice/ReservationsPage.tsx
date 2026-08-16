@@ -133,10 +133,10 @@ export const ReservationsPage: React.FC = () => {
         if (!p.guestId) throw new Error('Choose an existing guest for every person.');
         map.set(p.key, p.guestId);
       } else {
-        if (!p.firstName.trim() || !p.lastName.trim()) throw new Error('Enter a first and last name for each new guest.');
+        if (!p.firstName.trim()) throw new Error('Enter a first name for each new guest.');
         const created = await guestsApi.create({
           firstName: p.firstName.trim(),
-          lastName: p.lastName.trim(),
+          lastName: p.lastName.trim() || undefined,
           phone: p.phone.trim() || undefined,
           email: p.email.trim() || undefined,
         });
@@ -175,10 +175,10 @@ export const ReservationsPage: React.FC = () => {
       } else {
         let guestId = form.guestId;
         if (guestMode === 'new') {
-          if (!newGuest.firstName.trim() || !newGuest.lastName.trim()) throw new Error('Enter the new guest first and last name.');
+          if (!newGuest.firstName.trim()) throw new Error('Enter the new guest first name.');
           const created = await guestsApi.create({
             firstName: newGuest.firstName.trim(),
-            lastName: newGuest.lastName.trim(),
+            lastName: newGuest.lastName.trim() || undefined,
             phone: newGuest.phone.trim() || undefined,
             email: newGuest.email.trim() || undefined,
           });
@@ -666,8 +666,8 @@ export const ReservationsPage: React.FC = () => {
                     <FormField label="First name" required>
                       <TextInput required value={newGuest.firstName} onChange={(e) => setNewGuest({ ...newGuest, firstName: e.target.value })} placeholder="New guest first name" />
                     </FormField>
-                    <FormField label="Last name" required>
-                      <TextInput required value={newGuest.lastName} onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })} placeholder="New guest last name" />
+                    <FormField label="Last name">
+                      <TextInput value={newGuest.lastName} onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })} placeholder="New guest last name" />
                     </FormField>
                     <FormField label="Phone">
                       <TextInput value={newGuest.phone} onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })} placeholder="+233 …" />
