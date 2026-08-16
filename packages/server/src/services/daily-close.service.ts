@@ -21,7 +21,7 @@ export async function lockBusinessDay(tx: { $executeRaw?: (query: TemplateString
 export class DailyCloseService {
   static async assertBusinessDayOpen(value: Date | string) {
     const { start } = dayRange(typeof value === 'string' ? value : value.toISOString());
-    const closed = await prisma.dailyClose.findUnique({ where: { businessDate: start }, select: { id: true } });
+    const closed = prisma.dailyClose?.findUnique ? await prisma.dailyClose.findUnique({ where: { businessDate: start }, select: { id: true } }) : null;
     if (closed) throw new AppError('This business day is closed; record a correcting entry on an open day instead.', 409, 'BUSINESS_DAY_CLOSED');
   }
 

@@ -209,10 +209,14 @@ export const checkInSchema = z.object({
   idDocumentNumber: z.string().max(100).trim().optional(),
   notes: optionalString,
 });
+
+export const paymentMethodSchema = z.enum(['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']);
+
 export const checkOutSchema = z.object({
   reservationId: uuidSchema,
   roomCondition: z.enum(['DIRTY', 'CLEAN', 'DAMAGED']).optional(),
-  paymentMethod: z.string().max(50).optional(),
+  paymentMethod: paymentMethodSchema.optional(),
+  idempotencyKey: uuidSchema.optional(),
   notes: optionalString,
 });
 
@@ -223,7 +227,7 @@ export const processPaymentSchema = z.object({
   guestId: uuidSchema.optional(),
   amount: positiveNumber,
   currency: z.string().max(10).optional(),
-  method: z.enum(['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']),
+  method: paymentMethodSchema,
   reference: z.string().max(100).trim().optional(),
   // Every write to the payments ledger must be retry-safe.  This is required
   // rather than optional so a repeated browser submission cannot become a

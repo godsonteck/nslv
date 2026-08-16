@@ -7,6 +7,7 @@ import { Prisma } from '@prisma/client';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { randomUUID } from 'node:crypto';
+import { PaymentService } from './payments.service';
 
 export interface CheckInDTO {
   reservationId: string;
@@ -22,13 +23,17 @@ export interface CheckOutDTO {
   checkedOutBy: string;
   roomCondition?: 'DIRTY' | 'CLEAN' | 'DAMAGED';
   paymentMethod?: string;
+  idempotencyKey?: string;
   notes?: string;
 }
 
 export class StayService {
   /** NS Luxury Villa operates on Ghana time: 2 PM check-in, noon check-out. */
-  private static stayBoundary(value: Date, hour: number) {
-    const date = value.toISOString().slice(0, 10);
+  private static stayBoundary(value: Date | string | undefined, hour: number) {
+    if (!value) return new Date();
+    const dateObj = typeof value === 'string' ? new Date(value) : value;
+    if (Number.isNaN(dateObj.getTime())) return new Date();
+    const date = dateObj.toISOString().slice(0, 10);
     return new Date(`${date}T${String(hour).padStart(2, '0')}:00:00.000Z`);
   }
   /** Get active stays */
@@ -194,110 +199,124 @@ export class StayService {
   static async checkOutGuest(data: CheckOutDTO) {
     try {
       return await prisma.$transaction(async (tx) => {
-      const reservation = await tx.reservation.findUnique({
-        where: { id: data.reservationId },
-        include: {
-          guests: { where: { isPrimary: true } },
-          folios: {
-            include: { items: true, payments: true },
+        const reservation = await tx.reservation.findUnique({
+          where: { id: data.reservationId },
+          include: {
+            guests: { where: { isPrimary: true } },
+            folios: {
+              include: { items: true, payments: true },
+            },
           },
-        },
-      });
-
-      if (!reservation) throw new Error('Reservation not found');
-      if (reservation.status !== 'CHECKED_IN') throw new Error('Stay is not currently active for check-out');
-
-      const primaryGuestId = reservation.guests[0]?.guestId;
-      if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
-
-      const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
-      // The fee is a live, admin-controlled business rule. Charge it before
-      // calculating the ledger settlement so it reaches the bill, payment
-      // record, checkout audit and printed receipt as one durable operation.
-      const lateCheckoutSetting = await tx.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
-      const lateCheckoutFee = lateCheckoutSetting ? Number(JSON.parse(lateCheckoutSetting.value)) : 0;
-      const checkoutDeadline = this.stayBoundary(reservation.checkOutDate, 12);
-      if (folio && Number.isFinite(lateCheckoutFee) && lateCheckoutFee > 0 && new Date() > checkoutDeadline) {
-        const fee = new Prisma.Decimal(lateCheckoutFee);
-        await tx.folioItem.create({ data: {
-          folioId: folio.id, type: 'ACCOMMODATION', description: 'Late checkout fee', amount: fee,
-          quantity: 1, unitPrice: fee, department: 'FRONT_DESK', referenceType: 'CHECKOUT', postedBy: data.checkedOutBy,
-        } });
-        await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
-      }
-      const ledger = folio
-        ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
-        : null;
-      let finalBalance = ledger ? Number(ledger._sum.amount || 0) : 0;
-
-      // The front-desk checkout form captures the settlement method. Record
-      // the exact outstanding balance before completing checkout, atomically.
-      if (finalBalance > 0) {
-        if (!data.paymentMethod?.trim()) throw new Error('Select a payment method to settle the outstanding balance.');
-        if (!folio) throw new Error('An open folio is required to settle this stay.');
-        const amount = new Prisma.Decimal(finalBalance);
-        const payment = await tx.payment.create({ data: {
-          reservationId: reservation.id, guestId: primaryGuestId, folioId: folio.id,
-          amount, currency: 'GHS', method: data.paymentMethod, type: 'PAYMENT', status: 'COMPLETED',
-          description: 'Final settlement at check-out', processedBy: data.checkedOutBy, idempotencyKey: randomUUID(),
-        } });
-        await tx.folioItem.create({ data: {
-          folioId: folio.id, type: 'PAYMENT', description: `Payment received at check-out (${data.paymentMethod})`,
-          amount: amount.negated(), quantity: 1, unitPrice: amount.negated(), department: 'FRONT_DESK',
-          referenceId: payment.id, referenceType: 'PAYMENT', postedBy: data.checkedOutBy,
-        } });
-        await tx.folio.update({ where: { id: folio.id }, data: { balance: { decrement: amount } } });
-        finalBalance = 0;
-      } else if (finalBalance < 0) {
-        throw new Error(`Folio has a guest credit of GHS ${Math.abs(finalBalance).toFixed(2)}. Process the refund before check-out.`);
-      }
-
-      // Create CheckOut record
-      const checkOut = await tx.checkOut.create({
-        data: {
-          reservationId: reservation.id,
-          roomId: reservation.roomId,
-          guestId: primaryGuestId,
-          checkedOutBy: data.checkedOutBy,
-          roomCondition: data.roomCondition || 'DIRTY',
-          finalBalance,
-          paymentMethod: data.paymentMethod,
-          notes: data.notes,
-        },
-      });
-
-      // Update reservation status
-      await tx.reservation.update({
-        where: { id: reservation.id },
-        data: { status: 'CHECKED_OUT' },
-      });
-
-      // Update room status
-      await tx.room.update({
-        where: { id: reservation.roomId },
-        data: { status: data.roomCondition === 'DAMAGED' ? 'MAINTENANCE' : data.roomCondition === 'DIRTY' ? 'DIRTY' : 'AVAILABLE' },
-      });
-
-      // Close Folio
-      if (folio) {
-        await tx.folio.update({
-          where: { id: folio.id },
-          data: { status: 'CLOSED', closedAt: new Date(), balance: new Prisma.Decimal(finalBalance) },
         });
-      }
 
-      await AuditService.logInTransaction(tx, {
-        userId: data.checkedOutBy,
-        action: 'stay.checked_out',
-        resource: 'reservation',
-        resourceId: reservation.id,
-        afterData: { checkOutId: checkOut.id, roomId: reservation.roomId, folioId: folio?.id, finalBalance },
-      });
-      return { checkOut, folio };
+        if (!reservation) throw new AppError('Reservation not found.', 404, 'RESERVATION_NOT_FOUND');
+
+        if (reservation.status === 'CHECKED_OUT') {
+          const existingCheckOut = await tx.checkOut.findUnique({ where: { reservationId: reservation.id } });
+          const existingFolio = reservation.folios[0];
+          if (existingCheckOut) {
+            return { checkOut: existingCheckOut, folio: existingFolio, isRetry: true };
+          }
+          throw new AppError('Stay has already been checked out.', 409, 'STAY_ALREADY_CHECKED_OUT');
+        }
+
+        if (reservation.status !== 'CHECKED_IN') {
+          throw new AppError('Stay is not currently active for check-out.', 409, 'STAY_NOT_ACTIVE');
+        }
+
+        const primaryGuestId = reservation.guests[0]?.guestId;
+        if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
+
+        const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
+        // The fee is a live, admin-controlled business rule. Charge it before
+        // calculating the ledger settlement so it reaches the bill, payment
+        // record, checkout audit and printed receipt as one durable operation.
+        const lateCheckoutSetting = await tx.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
+        const lateCheckoutFee = lateCheckoutSetting ? Number(JSON.parse(lateCheckoutSetting.value)) : 0;
+        const checkoutDeadline = this.stayBoundary(reservation.checkOutDate, 12);
+        if (folio && Number.isFinite(lateCheckoutFee) && lateCheckoutFee > 0 && new Date() > checkoutDeadline) {
+          const fee = new Prisma.Decimal(lateCheckoutFee);
+          await tx.folioItem.create({ data: {
+            folioId: folio.id, type: 'ACCOMMODATION', description: 'Late checkout fee', amount: fee,
+            quantity: 1, unitPrice: fee, department: 'FRONT_DESK', referenceType: 'CHECKOUT', postedBy: data.checkedOutBy,
+          } });
+          await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
+        }
+        const ledger = folio
+          ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
+          : null;
+        let finalBalance = ledger ? Number(ledger._sum.amount || 0) : 0;
+
+        // The front-desk checkout form captures the settlement method. Settle
+        // through PaymentService.processPaymentInTx to enforce daily-close locking,
+        // payment method validation, idempotency, and audit logging.
+        if (finalBalance > 0) {
+          if (!data.paymentMethod?.trim()) throw new AppError('Select a payment method to settle the outstanding balance.', 422, 'PAYMENT_METHOD_REQUIRED');
+          if (!folio) throw new AppError('An open folio is required to settle this stay.', 409, 'OPEN_FOLIO_REQUIRED');
+
+          const checkoutPaymentIdempotencyKey = data.idempotencyKey || `checkout-payment-${reservation.id}`;
+          await PaymentService.processPaymentInTx(tx, {
+            folioId: folio.id,
+            reservationId: reservation.id,
+            guestId: primaryGuestId,
+            amount: finalBalance,
+            method: data.paymentMethod,
+            idempotencyKey: checkoutPaymentIdempotencyKey,
+            description: 'Final settlement at check-out',
+            processedBy: data.checkedOutBy,
+            paymentType: 'PAYMENT',
+          });
+          finalBalance = 0;
+        } else if (finalBalance < 0) {
+          throw new AppError(`Folio has a guest credit of GHS ${Math.abs(finalBalance).toFixed(2)}. Process the refund before check-out.`, 409, 'GUEST_CREDIT_UNSETTLED');
+        }
+
+        // Create CheckOut record
+        const checkOut = await tx.checkOut.create({
+          data: {
+            reservationId: reservation.id,
+            roomId: reservation.roomId,
+            guestId: primaryGuestId,
+            checkedOutBy: data.checkedOutBy,
+            roomCondition: data.roomCondition || 'DIRTY',
+            finalBalance,
+            paymentMethod: data.paymentMethod,
+            notes: data.notes,
+          },
+        });
+
+        // Update reservation status
+        await tx.reservation.update({
+          where: { id: reservation.id },
+          data: { status: 'CHECKED_OUT' },
+        });
+
+        // Update room status
+        await tx.room.update({
+          where: { id: reservation.roomId },
+          data: { status: data.roomCondition === 'DAMAGED' ? 'MAINTENANCE' : data.roomCondition === 'DIRTY' ? 'DIRTY' : 'AVAILABLE' },
+        });
+
+        // Close Folio
+        if (folio) {
+          await tx.folio.update({
+            where: { id: folio.id },
+            data: { status: 'CLOSED', closedAt: new Date(), balance: new Prisma.Decimal(finalBalance) },
+          });
+        }
+
+        await AuditService.logInTransaction(tx, {
+          userId: data.checkedOutBy,
+          action: 'stay.checked_out',
+          resource: 'reservation',
+          resourceId: reservation.id,
+          afterData: { checkOutId: checkOut.id, roomId: reservation.roomId, folioId: folio?.id, finalBalance },
+        });
+        return { checkOut, folio };
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } catch (error) {
-      if ((error as { code?: string }).code === 'P2034') {
-        throw new AppError('The stay changed while check-out was being processed. Please retry.', 409, 'CHECKOUT_CONFLICT');
+      if ((error as { code?: string }).code === 'P2034' || (error as { code?: string }).code === 'P2002') {
+        throw new AppError('The stay changed or was checked out concurrently. Please retry.', 409, 'CHECKOUT_CONFLICT');
       }
       throw error;
     }
