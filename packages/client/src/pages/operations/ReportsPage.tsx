@@ -499,17 +499,19 @@ export default function ReportsPage() {
                 <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
                   <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Total Room Nights</div>
                   <div className="text-lg font-extrabold text-[#F4F4F2] mt-0.5">{occ.totalRoomNights || 0} nights</div>
-                  <div className="text-[10px] text-[#6E737B]">In selected window</div>
+                  <div className="text-[10px] text-[#6E737B]">Occupied nights in selected window</div>
                 </div>
                 <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
                   <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Average Daily Rate (ADR)</div>
                   <div className="text-lg font-extrabold text-[#C5A880] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
-                  <div className="text-[10px] text-[#6E737B]">Room revenue per occupied room</div>
+                  <div className="text-[10px] text-[#6E737B]">Average revenue per occupied room</div>
                 </div>
                 <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">RevPAR</div>
+                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Revenue Per Available Room (RevPAR)</div>
                   <div className="text-lg font-extrabold text-emerald-400 mt-0.5">{formatCurrency(fin.revPAR || 0)}</div>
-                  <div className="text-[10px] text-[#6E737B]">Revenue per available room</div>
+                  <div className="text-[10px] text-[#6E737B]">
+                    Room Rev ÷ {occ.totalAvailableRoomNights || ((occ.totalRooms || 0) * (data.period?.daysInPeriod || 1))} Total Avail Nights (= {occ.occupancyRate || 0}% Occ × ADR)
+                  </div>
                 </div>
               </div>
             </div>

@@ -257,10 +257,11 @@ export class ReportService {
     const totalExpenses = Number(approvedExpenses._sum.amount || 0);
     const totalRevenueAccrued = accommodation + restaurant + bar + pool;
 
-    // ADR (Average Daily Rate) and RevPAR
-    const averageDailyRate = totalRoomNights > 0 ? Math.round(accommodation / totalRoomNights) : 0;
+    // ADR (Average Daily Rate) and RevPAR (Revenue Per Available Room)
     const daysInPeriod = startDate && endDate ? Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1) : 30;
-    const revPAR = totalRooms > 0 ? Math.round(accommodation / (totalRooms * daysInPeriod)) : 0;
+    const totalAvailableRoomNights = Math.max(1, totalRooms * daysInPeriod);
+    const averageDailyRate = totalRoomNights > 0 ? Number((accommodation / totalRoomNights).toFixed(2)) : 0;
+    const revPAR = totalAvailableRoomNights > 0 ? Number((accommodation / totalAvailableRoomNights).toFixed(2)) : 0;
 
     // 5. Daily Timeline Breakdown (for Daily, Weekly, and Monthly views)
     const dailyBreakdown: Array<{
@@ -376,6 +377,7 @@ export class ReportService {
         maintenanceRooms,
         occupancyRate: currentOccupancyRate,
         totalRoomNights,
+        totalAvailableRoomNights,
       },
       people: {
         totalPeopleAccommodated,
