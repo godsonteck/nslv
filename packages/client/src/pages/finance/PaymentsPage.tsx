@@ -69,9 +69,10 @@ export const PaymentsPage: React.FC = () => {
   const [refundAmount, setRefundAmount] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundReference, setRefundReference] = useState('');
+  const [refundMethod, setRefundMethod] = useState<DirectPaymentMethod>('CASH');
   const [q, setQ] = useState('');
   const [form, setForm] = useState<PaymentForm>({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
-  const canRefund = useAuthStore((s) => s.hasRole('admin'));
+  const canRefund = useAuthStore((s) => s.hasRole('admin') || s.hasRole('manager') || s.hasPermission('payments.refund') || s.hasPermission('payments.create'));
 
   const load = async () => {
     try {
@@ -140,22 +141,44 @@ export const PaymentsPage: React.FC = () => {
   const total = data.reduce((s, p) => s + (p.type === 'REFUND' ? -money(p.amount) : money(p.amount)), 0);
   const refunds = data.filter((payment) => payment.type === 'REFUND');
   const refundedTotal = refunds.reduce((sum, payment) => sum + money(payment.amount), 0);
+
   const openRefund = (payment: PaymentRecord) => {
-    setRefundTarget(payment); setRefundAmount(money(payment.amount).toFixed(2)); setRefundReason(''); setRefundReference('');
+    const existingRefunds = data.filter((p: any) => p.originalPaymentId === payment.id && p.type === 'REFUND' && p.status === 'COMPLETED');
+    const priorSum = existingRefunds.reduce((sum: number, r: any) => sum + money(r.amount), 0);
+    const maxRefundable = Math.max(0, money(payment.amount) - priorSum);
+
+    setRefundTarget(payment);
+    setRefundAmount(maxRefundable.toFixed(2));
+    setRefundMethod((payment.method as DirectPaymentMethod) || 'CASH');
+    setRefundReason('');
+    setRefundReference('');
   };
+
   const submitRefund = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!refundTarget) return;
     const amount = Number(refundAmount);
     if (!Number.isFinite(amount) || amount <= 0) return showToast('error', 'Enter a positive refund amount.');
-    if (!refundReason.trim()) return showToast('error', 'A refund reason is required.');
+    const reason = refundReason.trim();
+    if (!reason || reason.length < 3) return showToast('error', 'A refund reason of at least 3 characters is required.');
     try {
       setBusy(true);
-      await paymentsApi.refund(refundTarget.id, { amount, method: refundTarget.method as DirectPaymentMethod, reference: refundReference || undefined, reason: refundReason.trim(), idempotencyKey: crypto.randomUUID() });
-      showToast('success', 'Refund approved and recorded as an immutable ledger reversal.');
-      setRefundTarget(null); void load();
-    } catch (error) { showToast('error', error instanceof Error ? error.message : 'Unable to issue refund'); }
-    finally { setBusy(false); }
+      await paymentsApi.refund(refundTarget.id, {
+        amount,
+        method: refundMethod || (refundTarget.method as DirectPaymentMethod),
+        reference: refundReference.trim() || undefined,
+        reason,
+        idempotencyKey: crypto.randomUUID(),
+        allowClosedFolioReopen: true,
+      });
+      showToast('success', 'Refund approved and recorded successfully.');
+      setRefundTarget(null);
+      void load();
+    } catch (error) {
+      showToast('error', error instanceof Error ? error.message : 'Unable to issue refund');
+    } finally {
+      setBusy(false);
+    }
   };
   const visible = data.filter(
     (p) =>
@@ -337,13 +360,66 @@ export const PaymentsPage: React.FC = () => {
         </form>
       </Modal>
 
-      <Modal open={!!refundTarget} onClose={() => setRefundTarget(null)} title="Approve refund">
+      <Modal open={!!refundTarget} onClose={() => setRefundTarget(null)} title="Approve & Issue Refund">
         <form onSubmit={submitRefund} className="space-y-4 p-6">
-          <p className="rounded-xl bg-[#fdf4e8] p-3 text-xs text-[#6a4d26]">Admin approval creates an immutable reversal; it never edits the original payment. The server prevents over-refunds.</p>
-          <FormField label="Refund amount (GHS)" required><TextInput required type="number" min="0.01" step="0.01" max={refundTarget ? money(refundTarget.amount) : undefined} value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} /></FormField>
-          <FormField label="Reason" required><TextInput required value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="Reason for refund" /></FormField>
-          <FormField label="Refund reference"><TextInput value={refundReference} onChange={(e) => setRefundReference(e.target.value)} /></FormField>
-          <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setRefundTarget(null)}>Cancel</Button><Button type="submit" loading={busy}><Undo2 size={14} /> Approve refund</Button></div>
+          <div className="rounded-xl border border-amber-200/40 bg-[#252830] p-3 text-xs text-[#E5D5BA]">
+            <p className="font-semibold text-[#F4F4F2]">Approval creates an immutable ledger reversal.</p>
+            <p className="text-[11px] text-[#A0A5AD] mt-0.5">
+              Original Payment: <strong>{refundTarget ? formatCurrency(money(refundTarget.amount)) : ''}</strong> ({refundTarget?.method || 'N/A'})
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Refund amount (GHS)" required>
+              <TextInput
+                required
+                type="number"
+                min="0.01"
+                step="0.01"
+                max={refundTarget ? money(refundTarget.amount) : undefined}
+                value={refundAmount}
+                onChange={(e) => setRefundAmount(e.target.value)}
+              />
+            </FormField>
+
+            <FormField label="Refund Method" required>
+              <SelectInput
+                value={refundMethod}
+                onChange={(e) => setRefundMethod(e.target.value as DirectPaymentMethod)}
+              >
+                <option value="CASH">CASH</option>
+                <option value="CARD">CARD</option>
+                <option value="MOBILE_MONEY">MOBILE_MONEY</option>
+                <option value="BANK_TRANSFER">BANK_TRANSFER</option>
+              </SelectInput>
+            </FormField>
+          </div>
+
+          <FormField label="Refund Reason" required>
+            <TextInput
+              required
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+              placeholder="e.g. Guest cancellation / Folio credit adjustment"
+            />
+          </FormField>
+
+          <FormField label="Transaction / Transfer Reference (Optional)">
+            <TextInput
+              value={refundReference}
+              onChange={(e) => setRefundReference(e.target.value)}
+              placeholder="e.g. MoMo Ref / POS Auth Code"
+            />
+          </FormField>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setRefundTarget(null)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" loading={busy}>
+              <Undo2 size={14} /> Confirm & Issue Refund
+            </Button>
+          </div>
         </form>
       </Modal>
     </ShellPage>

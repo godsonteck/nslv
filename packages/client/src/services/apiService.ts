@@ -557,7 +557,7 @@ export const paymentsApi = {
   },
   processPayment: async (body: { folioId?: string; reservationId?: string; guestId?: string; amount: number; method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; idempotencyKey: string; description?: string; paymentType?: 'PAYMENT' | 'DEPOSIT' }): Promise<any> =>
     apiFetch<any>('/payments', { method: 'POST', body: JSON.stringify(body) }, token()),
-  refund: async (paymentId: string, body: { amount: number; method?: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; reason: string; idempotencyKey: string }): Promise<any> =>
+  refund: async (paymentId: string, body: { amount: number; method?: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; reason: string; idempotencyKey: string; allowClosedFolioReopen?: boolean }): Promise<any> =>
     apiFetch<any>(`/payments/${paymentId}/refunds`, { method: 'POST', body: JSON.stringify(body) }, token()),
 };
 
