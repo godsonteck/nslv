@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reservationsApi, roomsApi, guestsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
+import { formatCurrency, formatGuestName } from '@nslv/shared';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -45,8 +46,13 @@ export const ReservationsPage: React.FC = () => {
   const [manageIds, setManageIds] = useState<string[]>([]);
   const [editRes, setEditRes] = useState<any>(null);
   const [editForm, setEditForm] = useState({ roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', source: '', specialRequests: '', notes: '' });
+  
+  // Reservation Details Popup
+  const [detailsRes, setDetailsRes] = useState<any | null>(null);
+
   const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
   const canEdit = useAuthStore((s) => s.hasPermission('reservations.edit'));
+  const canCancel = useAuthStore((s) => s.hasPermission('reservations.cancel') || s.hasRole('admin'));
   const isAdmin = useAuthStore((s) => s.hasRole('admin'));
   const canDiscount = useAuthStore((s) => s.hasPermission('folios.adjust'));
   const navigate = useNavigate();
@@ -211,10 +217,28 @@ export const ReservationsPage: React.FC = () => {
     try {
       await reservationsApi.cancel(id, 'Cancelled from NSVilla front office');
       showToast('success', 'Reservation cancelled');
+      if (detailsRes?.id === id) setDetailsRes(null);
       load();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to cancel reservation');
     }
+  };
+
+  const markNoShow = async (id: string) => {
+    const reason = window.prompt('Enter reason for marking as NO-SHOW (optional):', 'Guest did not arrive');
+    if (reason === null) return;
+    try {
+      await reservationsApi.markNoShow(id, reason.trim() || undefined);
+      showToast('success', 'Reservation marked as NO-SHOW and room released');
+      if (detailsRes?.id === id) setDetailsRes(null);
+      load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to mark reservation as no-show');
+    }
+  };
+
+  const openDetails = (r: any) => {
+    setDetailsRes(r);
   };
 
   const deleteCancelled = async (r: any) => {
@@ -222,6 +246,7 @@ export const ReservationsPage: React.FC = () => {
     try {
       await reservationsApi.deleteCancelled(r.id);
       showToast('success', 'Cancelled reservation permanently deleted.');
+      if (detailsRes?.id === r.id) setDetailsRes(null);
       load();
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Unable to delete cancelled reservation');
@@ -382,7 +407,10 @@ export const ReservationsPage: React.FC = () => {
                           </td>
                         </tr>
                       )}
-                      <tr className="hover:bg-[#fbfcfa]">
+                      <tr
+                        onClick={() => openDetails(r)}
+                        className="cursor-pointer hover:bg-[#f5f8f6] transition-colors"
+                      >
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono text-[11px] font-bold text-[#8d693c]">{r.confirmationNo || r.id.slice(0, 8)}</span>
@@ -416,8 +444,11 @@ export const ReservationsPage: React.FC = () => {
                           {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                         </td>
                         <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#667278]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#667278]">Out: {r.checkedOutBy.name}</div>}</td>
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
+                            <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#eef3f0] hover:text-[#174b59]" title="View booking details">
+                              <Eye size={16} />
+                            </button>
                             {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (
                               <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#eef3f0] hover:text-[#174b59]" title="Edit reservation details">
                                 <Pencil size={16} />
@@ -426,7 +457,12 @@ export const ReservationsPage: React.FC = () => {
                             <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#eef3f0] hover:text-[#174b59]" title="Manage guests on this reservation">
                               <Users size={16} />
                             </button>
-                            {!['CANCELLED', 'CHECKED_OUT'].includes(String(r.status).toUpperCase()) && (
+                            {canCancel && ['PENDING', 'CONFIRMED'].includes(String(r.status).toUpperCase()) && (
+                              <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-amber-50 hover:text-amber-700" title="Mark reservation as NO-SHOW">
+                                <UserX size={16} />
+                              </button>
+                            )}
+                            {!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(r.status).toUpperCase()) && (
                               <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel reservation">
                                 <MoreHorizontal size={16} />
                               </button>
@@ -759,6 +795,243 @@ export const ReservationsPage: React.FC = () => {
           <FormField label="Internal notes"><textarea className="ns-input min-h-20 w-full p-3 text-sm" value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} /></FormField>
           <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setEditRes(null)}>Cancel</Button><Button type="submit" loading={saving}>Save changes</Button></div>
         </form>
+      </Modal>
+
+      {/* Reservation Details Modal */}
+      <Modal
+        open={!!detailsRes}
+        onClose={() => setDetailsRes(null)}
+        title={detailsRes ? `Reservation details · ${detailsRes.confirmationNo || detailsRes.id.slice(0, 8)}` : 'Reservation details'}
+        size="lg"
+      >
+        {detailsRes && (() => {
+          const allGuests = detailsRes.guests?.length ? [...detailsRes.guests].sort((a: any, b: any) => Number(b.isPrimary) - Number(a.isPrimary)) : [];
+          const primaryGuest = allGuests[0]?.guest;
+          const additionalGuests = allGuests.slice(1);
+          const checkIn = new Date(detailsRes.checkInDate);
+          const checkOut = new Date(detailsRes.checkOutDate);
+          const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24)));
+
+          return (
+            <div className="p-6 space-y-6">
+              {/* Header Overview Card */}
+              <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#e8ebe8] bg-[#f7f9f8] p-5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-base font-extrabold text-[#8d693c]">
+                      {detailsRes.confirmationNo || detailsRes.id.slice(0, 8)}
+                    </span>
+                    {detailsRes.bookingId && (
+                      <span className="rounded-md bg-[#eef3f0] px-2 py-0.5 text-[10px] font-extrabold text-[#174b59]">
+                        PARTY · {detailsRes.bookingId}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 text-xs text-[#7d898d] space-x-2">
+                    <span>Booked on {detailsRes.createdAt ? new Date(detailsRes.createdAt).toLocaleDateString() : '—'}</span>
+                    {detailsRes.source && <span>· Via {detailsRes.source}</span>}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {statusBadge(detailsRes.status || 'PENDING')}
+                </div>
+              </div>
+
+              {/* Grid 1: Stay & Room Details & Guest Details */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Stay & Room */}
+                <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                    <BedDouble size={14} /> Room & Stay Information
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Assigned Room</span>
+                      <span className="font-extrabold text-[#26363e]">
+                        {detailsRes.room ? `Room ${detailsRes.room.number}` : 'Unassigned'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Room Type</span>
+                      <span className="font-bold text-[#26363e]">
+                        {detailsRes.room?.roomType?.name || '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Stay Period</span>
+                      <span className="font-bold text-[#26363e]">
+                        {checkIn.toLocaleDateString()} → {checkOut.toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Duration</span>
+                      <span className="font-bold text-[#26363e]">{nights} night{nights === 1 ? '' : 's'}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-[#899397]">Occupancy</span>
+                      <span className="font-bold text-[#26363e]">
+                        {detailsRes.adults ?? 1} Adult{(detailsRes.adults ?? 1) === 1 ? '' : 's'}
+                        {Number(detailsRes.children || 0) > 0 ? `, ${detailsRes.children} Child${detailsRes.children === 1 ? '' : 'ren'}` : ''}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Primary & Additional Guests */}
+                <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Users size={14} /> Guests on Booking
+                    </span>
+                    <button
+                      onClick={() => {
+                        const r = detailsRes;
+                        setDetailsRes(null);
+                        openManageGuests(r);
+                      }}
+                      className="text-[10px] font-extrabold text-[#174b59] hover:underline"
+                    >
+                      Manage →
+                    </button>
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Primary Guest</span>
+                      <span className="font-extrabold text-[#26363e]">{formatGuestName(primaryGuest)}</span>
+                    </div>
+                    {primaryGuest?.phone && (
+                      <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                        <span className="text-[#899397]">Phone</span>
+                        <span className="font-bold text-[#26363e]">{primaryGuest.phone}</span>
+                      </div>
+                    )}
+                    {primaryGuest?.email && (
+                      <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                        <span className="text-[#899397]">Email</span>
+                        <span className="font-bold text-[#26363e]">{primaryGuest.email}</span>
+                      </div>
+                    )}
+                    {additionalGuests.length > 0 && (
+                      <div className="py-1">
+                        <span className="text-[#899397] block mb-1">Additional Guests ({additionalGuests.length}):</span>
+                        <div className="space-y-1">
+                          {additionalGuests.map((ag: any) => (
+                            <div key={ag.id} className="text-[#26363e] font-semibold pl-2 border-l-2 border-[#dce5e0]">
+                              {formatGuestName(ag.guest)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Financial Summary Card */}
+              <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                  <CreditCard size={14} /> Financial Summary
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                    <span className="text-[#899397]">Nightly Base Rate</span>
+                    <span className="font-bold text-[#26363e]">
+                      {formatCurrency(detailsRes.baseRate || detailsRes.room?.roomType?.basePrice || 0)} / night
+                    </span>
+                  </div>
+                  {Number(detailsRes.discountAmount || 0) > 0 && (
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0] text-[#a05d20]">
+                      <span>Discount ({detailsRes.discountReason || 'Approved discount'})</span>
+                      <span className="font-bold">−{formatCurrency(detailsRes.discountAmount)}</span>
+                    </div>
+                  )}
+                  {Number(detailsRes.taxAmount || 0) > 0 && (
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Taxes & Levies</span>
+                      <span className="font-bold text-[#26363e]">{formatCurrency(detailsRes.taxAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between py-2 border-t-2 border-[#edf0ed] text-sm">
+                    <span className="font-extrabold text-[#20343e]">Total Reservation Amount</span>
+                    <span className="font-extrabold text-[#20343e]">{formatCurrency(detailsRes.totalAmount)}</span>
+                  </div>
+                  {Number(detailsRes.depositAmount || 0) > 0 && (
+                    <div className="flex justify-between py-1 bg-[#f7f9f8] p-2 rounded-lg">
+                      <span className="text-[#174b59] font-bold">Deposit Logged</span>
+                      <span className="font-extrabold text-[#174b59]">{formatCurrency(detailsRes.depositAmount)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Special Requests & Notes */}
+              {(detailsRes.specialRequests || detailsRes.notes) && (
+                <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-2 text-xs">
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                    <FileText size={13} /> Notes & Special Requests
+                  </div>
+                  {detailsRes.specialRequests && (
+                    <div>
+                      <span className="font-bold text-[#899397]">Special requests: </span>
+                      <span className="text-[#26363e]">{detailsRes.specialRequests}</span>
+                    </div>
+                  )}
+                  {detailsRes.notes && (
+                    <div>
+                      <span className="font-bold text-[#899397]">Internal notes: </span>
+                      <span className="text-[#26363e]">{detailsRes.notes}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#edf0ed]">
+                <div className="flex items-center gap-2">
+                  {canCancel && ['PENDING', 'CONFIRMED'].includes(String(detailsRes.status).toUpperCase()) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => markNoShow(detailsRes.id)}
+                    >
+                      <UserX size={13} /> Mark No-Show
+                    </Button>
+                  )}
+                  {!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(detailsRes.status).toUpperCase()) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:bg-red-50"
+                      onClick={() => cancel(detailsRes.id)}
+                    >
+                      Cancel booking
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(detailsRes.status).toUpperCase()) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const r = detailsRes;
+                        setDetailsRes(null);
+                        openEdit(r);
+                      }}
+                    >
+                      <Pencil size={13} /> Edit details
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => setDetailsRes(null)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
 
       <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={manageRes ? `Guests on ${manageRes.confirmationNo || 'reservation'}` : 'Manage guests'} size="lg">
