@@ -1,4 +1,5 @@
 import { prisma } from '../config/database';
+import { ItemCategoryType } from '@prisma/client';
 import { AuditService } from './audit.service';
 
 export const DEFAULT_CATEGORY_SEEDS: Record<string, Array<{ name: string; description: string }>> = {
@@ -53,12 +54,12 @@ export const getDefaultCategorySeeds = (type?: string) => {
   const normalizedType = (type ?? '').toUpperCase();
   if (!normalizedType) {
     return Object.entries(DEFAULT_CATEGORY_SEEDS).flatMap(([categoryType, items]) =>
-      items.map((item) => ({ ...item, type: categoryType, color: '#174b59' }))
+      items.map((item) => ({ ...item, type: categoryType as ItemCategoryType, color: '#174b59' }))
     );
   }
 
   const items = DEFAULT_CATEGORY_SEEDS[normalizedType] ?? [];
-  return items.map((item) => ({ ...item, type: normalizedType, color: '#174b59' }));
+  return items.map((item) => ({ ...item, type: normalizedType as ItemCategoryType, color: '#174b59' }));
 };
 
 export class CategoryService {
@@ -67,7 +68,7 @@ export class CategoryService {
     if (seeds.length === 0) return [];
 
     const targetType = (type ?? '').toUpperCase();
-    const where = targetType ? { type: targetType } : {};
+    const where = targetType ? { type: targetType as ItemCategoryType } : {};
     const existingCount = await prisma.itemCategory.count({ where });
     if (existingCount > 0) return [];
 
@@ -97,7 +98,7 @@ export class CategoryService {
   static async listByType(type: string) {
     await this.ensureDefaultCategories(type);
     return prisma.itemCategory.findMany({
-      where: { type, isActive: true },
+      where: { type: type.toUpperCase() as ItemCategoryType, isActive: true },
       orderBy: [{ order: 'asc' }, { name: 'asc' }],
     });
   }
@@ -106,7 +107,7 @@ export class CategoryService {
    * Get all categories (with optional filtering)
    */
   static async listAll(filters?: { type?: string; includeInactive?: boolean }) {
-    const requestedType = filters?.type ? String(filters.type).toUpperCase() : undefined;
+    const requestedType = filters?.type ? (String(filters.type).toUpperCase() as ItemCategoryType) : undefined;
     await this.ensureDefaultCategories(requestedType);
     return prisma.itemCategory.findMany({
       where: {
@@ -130,7 +131,7 @@ export class CategoryService {
    * their legacy values until the first managed category is added.
    */
   static async assertConfiguredValue(type: string, name: string) {
-    const normalizedType = type.toUpperCase();
+    const normalizedType = type.toUpperCase() as ItemCategoryType;
     const configuredCount = await prisma.itemCategory.count({ where: { type: normalizedType } });
     if (configuredCount === 0) return;
 
@@ -138,7 +139,7 @@ export class CategoryService {
       where: { type: normalizedType, name, isActive: true },
     });
     if (!category) {
-      throw new Error(`Select an active ${normalizedType.toLowerCase()} category configured by an administrator.`);
+      throw new Error(`Select an active ${type.toLowerCase()} category configured by an administrator.`);
     }
   }
 
@@ -148,7 +149,7 @@ export class CategoryService {
   static async create(
     data: {
       name: string;
-      type: string;
+      type: ItemCategoryType | string;
       description?: string;
       color?: string;
       order?: number;
@@ -158,7 +159,7 @@ export class CategoryService {
     const category = await prisma.itemCategory.create({
       data: {
         name: data.name.trim(),
-        type: data.type.toUpperCase(),
+        type: (typeof data.type === 'string' ? data.type.toUpperCase() : data.type) as ItemCategoryType,
         description: data.description?.trim(),
         color: data.color,
         order: data.order ?? 0,

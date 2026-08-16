@@ -4,7 +4,7 @@
 // ============================================
 
 import { prisma } from '../config';
-import { Prisma } from '@prisma/client';
+import { Prisma, ReservationStatus, BookingSource, RoomStatus } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
@@ -22,7 +22,7 @@ export interface CreateReservationDTO {
   discountApprovedBy?: string;
   taxAmount?: number;
   depositAmount?: number;
-  source?: string;
+  source?: BookingSource | string;
   specialRequests?: string;
   notes?: string;
   createdBy?: string;
@@ -35,7 +35,7 @@ export interface CreateReservationDTO {
 export interface CreateMultiReservationDTO {
   checkInDate: string | Date;
   checkOutDate: string | Date;
-  source?: string;
+  source?: BookingSource | string;
   specialRequests?: string;
   notes?: string;
   createdBy?: string;
@@ -201,7 +201,7 @@ export class ReservationService {
           data: {
             roomId, checkInDate: checkIn, checkOutDate: checkOut,
             adults: data.adults ?? reservation.adults, children: data.children ?? reservation.children,
-            source: data.source ?? reservation.source, specialRequests: data.specialRequests,
+            source: (data.source as BookingSource) ?? reservation.source, specialRequests: data.specialRequests,
             notes: data.notes, baseRate: room.roomType.basePrice, totalAmount,
           },
           include: { room: { include: { roomType: true } }, guests: { include: { guest: true } }, folios: true },
@@ -295,8 +295,8 @@ export class ReservationService {
         confirmationNo,
         bookingId: data.bookingId || null,
         roomId: data.roomId,
-        status: 'CONFIRMED',
-        source: data.source || 'WALK_IN',
+        status: ReservationStatus.CONFIRMED,
+        source: (data.source as BookingSource) || BookingSource.WALK_IN,
         checkInDate: checkIn,
         checkOutDate: checkOut,
         adults: data.adults || 1,
@@ -328,7 +328,7 @@ export class ReservationService {
     // guest checks in. Check-in changes this marker to OCCUPIED.
     await tx.room.update({
       where: { id: data.roomId },
-      data: { status: 'RESERVED' },
+      data: { status: RoomStatus.RESERVED },
     });
 
     return reservation;

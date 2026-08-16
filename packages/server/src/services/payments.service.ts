@@ -2,7 +2,7 @@
 // Payments are persistent, transactional and never trusted from client totals alone.
 
 import { prisma } from '../config';
-import { Prisma } from '@prisma/client';
+import { Prisma, PaymentMethod, PaymentStatus, PaymentType, OrderPaymentStatus } from '@prisma/client';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { DailyCloseService, lockBusinessDay } from './daily-close.service';
@@ -13,7 +13,7 @@ export interface ProcessPaymentDTO {
   guestId?: string;
   amount: number;
   currency?: string;
-  method: string;
+  method: PaymentMethod | string;
   reference?: string;
   idempotencyKey: string;
   description?: string;
@@ -23,7 +23,7 @@ export interface ProcessPaymentDTO {
 
 export interface RefundPaymentDTO {
   amount: number;
-  method?: string;
+  method?: PaymentMethod | string;
   reference?: string;
   reason: string;
   idempotencyKey: string;
@@ -94,8 +94,8 @@ export class PaymentService {
     const payment = await tx.payment.create({ data: {
       folioId: targetFolio?.id, reservationId: reservation.id,
       guestId: expectedGuestId,
-      amount, currency: data.currency || 'GHS', method: data.method, reference: data.reference,
-      idempotencyKey: data.idempotencyKey, status: 'COMPLETED', type: paymentType,
+      amount, currency: data.currency || 'GHS', method: data.method as PaymentMethod, reference: data.reference,
+      idempotencyKey: data.idempotencyKey, status: PaymentStatus.COMPLETED, type: paymentType as PaymentType,
       description: data.description || (paymentType === 'DEPOSIT' ? 'Reservation deposit collected' : 'Guest payment settlement'),
       processedBy: data.processedBy,
     } });
@@ -199,14 +199,14 @@ export class PaymentService {
             folioId: original.folioId,
             amount: refundAmount,
             currency: original.currency,
-            method: data.method || original.method,
+            method: (data.method as PaymentMethod) || original.method,
             reference: data.reference,
             source: original.source,
             sourceId: original.sourceId,
             originalPaymentId: original.id,
             idempotencyKey: data.idempotencyKey,
-            status: 'COMPLETED',
-            type: 'REFUND',
+            status: PaymentStatus.COMPLETED,
+            type: PaymentType.REFUND,
             description: data.reason,
             processedBy: data.processedBy,
           },
@@ -248,18 +248,19 @@ export class PaymentService {
         }
 
         const remaining = refundable.minus(refundAmount);
-        const paymentStatus = remaining.isZero() ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
+        const paymentStatus: PaymentStatus = remaining.isZero() ? PaymentStatus.REFUNDED : PaymentStatus.PARTIALLY_REFUNDED;
+        const orderPaymentStatus: OrderPaymentStatus = remaining.isZero() ? OrderPaymentStatus.REFUNDED : OrderPaymentStatus.PARTIALLY_REFUNDED;
         await tx.payment.update({
           where: { id: original.id },
           data: { status: paymentStatus },
         });
         // Financial state remains independent from the restaurant/bar/pool operational status.
         if (original.source === 'RESTAURANT_ORDER' && original.sourceId) {
-          await tx.restaurantOrder.update({ where: { id: original.sourceId }, data: { paymentStatus } });
+          await tx.restaurantOrder.update({ where: { id: original.sourceId }, data: { paymentStatus: orderPaymentStatus } });
         } else if (original.source === 'BAR_ORDER' && original.sourceId) {
-          await tx.barOrder.update({ where: { id: original.sourceId }, data: { paymentStatus } });
+          await tx.barOrder.update({ where: { id: original.sourceId }, data: { paymentStatus: orderPaymentStatus } });
         } else if (original.source === 'POOL_TRANSACTION' && original.sourceId) {
-          await tx.poolTransaction.update({ where: { id: original.sourceId }, data: { paymentStatus } });
+          await tx.poolTransaction.update({ where: { id: original.sourceId }, data: { paymentStatus: orderPaymentStatus } });
         }
         await AuditService.logInTransaction(tx, {
           userId: data.processedBy,

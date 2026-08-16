@@ -2,7 +2,7 @@
 // All totals and room-charge decisions are calculated server-side.
 
 import { prisma } from '../config';
-import { Prisma } from '@prisma/client';
+import { Prisma, PaymentMethod, PaymentStatus, PaymentType } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { CategoryService } from './categories.service';
 import { AuditService } from './audit.service';
@@ -32,7 +32,7 @@ async function findOpenFolio(tx: Prisma.TransactionClient, roomId: string, guest
 
 async function recordDirectPayment(
   tx: Prisma.TransactionClient,
-  data: { amount: Prisma.Decimal; method: string; source: string; sourceId: string; idempotencyKey: string; processedBy: string; description: string },
+  data: { amount: Prisma.Decimal; method: PaymentMethod | string; source: string; sourceId: string; idempotencyKey: string; processedBy: string; description: string },
 ) {
   await lockBusinessDay(tx, new Date());
   await DailyCloseService.assertBusinessDayOpen(new Date());
@@ -40,12 +40,12 @@ async function recordDirectPayment(
     data: {
       amount: data.amount,
       currency: 'GHS',
-      method: data.method,
+      method: data.method as PaymentMethod,
       source: data.source,
       sourceId: data.sourceId,
       idempotencyKey: data.idempotencyKey,
-      status: 'COMPLETED',
-      type: 'PAYMENT',
+      status: PaymentStatus.COMPLETED,
+      type: PaymentType.PAYMENT,
       description: data.description,
       processedBy: data.processedBy,
     },

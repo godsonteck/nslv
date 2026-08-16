@@ -27,16 +27,16 @@ export class DailyCloseService {
 
   static async preview(businessDate: string, openingCash: number) {
     const { start, end } = dayRange(businessDate);
-    const cashWhere = { processedAt: { gte: start, lt: end }, method: 'CASH', status: 'COMPLETED', voidedAt: null };
+    const cashWhere: Prisma.PaymentWhereInput = { processedAt: { gte: start, lt: end }, method: 'CASH', status: 'COMPLETED', voidedAt: null };
     const [payments, refunds, expenses] = await Promise.all([
       prisma.payment.aggregate({ where: { ...cashWhere, type: 'PAYMENT' }, _sum: { amount: true } }),
       prisma.payment.aggregate({ where: { ...cashWhere, type: 'REFUND' }, _sum: { amount: true } }),
       prisma.expense.aggregate({ where: { incurredOn: { gte: start, lt: end }, paymentMethod: 'CASH', status: 'APPROVED' }, _sum: { amount: true } }),
     ]);
     const opening = new Prisma.Decimal(openingCash);
-    const cashPayments = new Prisma.Decimal(payments._sum.amount || 0);
-    const cashRefunds = new Prisma.Decimal(refunds._sum.amount || 0);
-    const cashExpenses = new Prisma.Decimal(expenses._sum.amount || 0);
+    const cashPayments = new Prisma.Decimal(payments._sum?.amount || 0);
+    const cashRefunds = new Prisma.Decimal(refunds._sum?.amount || 0);
+    const cashExpenses = new Prisma.Decimal(expenses._sum?.amount || 0);
     const expectedCash = opening.plus(cashPayments).minus(cashRefunds).minus(cashExpenses);
     return { businessDate: start, openingCash: opening, cashPayments, cashRefunds, cashExpenses, expectedCash };
   }

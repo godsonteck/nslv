@@ -3,6 +3,7 @@
 // ============================================
 
 import { prisma } from '../config';
+import { RoomStatus } from '@prisma/client';
 
 export interface CreateRoomTypeDTO {
   name: string;
@@ -183,7 +184,7 @@ export class RoomService {
   }
 
   /** Update room status (AVAILABLE, RESERVED, OCCUPIED, DIRTY, READY, OUT_OF_SERVICE) */
-  static async updateRoomStatus(id: string, status: string, notes?: string) {
+  static async updateRoomStatus(id: string, status: RoomStatus | string, notes?: string) {
     // Reservation and stay workflows exclusively own these states. Allowing a
     // generic room-status form to set them would create an inconsistent room,
     // reservation and folio lifecycle.
@@ -192,7 +193,7 @@ export class RoomService {
     }
     return prisma.room.update({
       where: { id },
-      data: { status, notes },
+      data: { status: status as RoomStatus, notes },
       include: { roomType: true },
     });
   }

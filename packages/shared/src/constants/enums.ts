@@ -21,6 +21,13 @@ export enum RoomStatus {
   OUT_OF_SERVICE = 'OUT_OF_SERVICE',
 }
 
+/** Room physical condition */
+export enum RoomCondition {
+  DIRTY = 'DIRTY',
+  CLEAN = 'CLEAN',
+  DAMAGED = 'DAMAGED',
+}
+
 /** Reservation lifecycle status */
 export enum ReservationStatus {
   PENDING = 'PENDING',
@@ -40,6 +47,14 @@ export enum PaymentStatus {
   PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
 }
 
+/** Payment transaction classification */
+export enum PaymentType {
+  PAYMENT = 'PAYMENT',
+  REFUND = 'REFUND',
+  DEPOSIT = 'DEPOSIT',
+  ADJUSTMENT = 'ADJUSTMENT',
+}
+
 /** Accepted payment methods */
 export enum PaymentMethod {
   CASH = 'CASH',
@@ -50,6 +65,13 @@ export enum PaymentMethod {
   OTHER = 'OTHER',
 }
 
+/** Folio lifecycle status */
+export enum FolioStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+  DISPUTED = 'DISPUTED',
+}
+
 /** Restaurant/Bar order status */
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -58,6 +80,15 @@ export enum OrderStatus {
   SERVED = 'SERVED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
+}
+
+/** POS Order payment status */
+export enum OrderPaymentStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  CHARGED_TO_FOLIO = 'CHARGED_TO_FOLIO',
+  REFUNDED = 'REFUNDED',
+  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
 }
 
 /** Expense approval status */
@@ -85,17 +116,41 @@ export enum FolioItemType {
 
 /** Inventory transaction type */
 export enum InventoryTransactionType {
+  OPENING_BALANCE = 'OPENING_BALANCE',
   STOCK_IN = 'STOCK_IN',
   STOCK_OUT = 'STOCK_OUT',
   ADJUSTMENT = 'ADJUSTMENT',
+  ADJUSTMENT_IN = 'ADJUSTMENT_IN',
+  ADJUSTMENT_OUT = 'ADJUSTMENT_OUT',
   RETURN = 'RETURN',
   WASTE = 'WASTE',
 }
 
-/** Pool entry type */
-export enum PoolEntryType {
-  GUEST = 'GUEST',
-  EXTERNAL_VISITOR = 'EXTERNAL_VISITOR',
+/** Item category module classification */
+export enum ItemCategoryType {
+  RESTAURANT = 'RESTAURANT',
+  BAR = 'BAR',
+  POOL = 'POOL',
+  INVENTORY = 'INVENTORY',
+  EXPENDITURE = 'EXPENDITURE',
+  ROOM_TYPE = 'ROOM_TYPE',
+}
+
+/** Event booking status */
+export enum EventBookingStatus {
+  PLANNED = 'PLANNED',
+  CONFIRMED = 'CONFIRMED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+/** Notification category */
+export enum NotificationType {
+  RESERVATION = 'RESERVATION',
+  PAYMENT = 'PAYMENT',
+  ALERT = 'ALERT',
+  SYSTEM = 'SYSTEM',
+  INFO = 'INFO',
 }
 
 /** Notification priority */
@@ -104,6 +159,12 @@ export enum NotificationPriority {
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
   URGENT = 'URGENT',
+}
+
+/** Pool entry type */
+export enum PoolEntryType {
+  GUEST = 'GUEST',
+  EXTERNAL_VISITOR = 'EXTERNAL_VISITOR',
 }
 
 /** Booking source */

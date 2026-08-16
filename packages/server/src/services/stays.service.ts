@@ -3,7 +3,7 @@
 // ============================================
 
 import { prisma } from '../config';
-import { Prisma } from '@prisma/client';
+import { Prisma, IdDocumentType, PaymentMethod, RoomCondition, ReservationStatus, RoomStatus, FolioStatus } from '@prisma/client';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { randomUUID } from 'node:crypto';
@@ -13,7 +13,7 @@ export interface CheckInDTO {
   reservationId: string;
   checkedInBy: string;
   idVerified?: boolean;
-  idDocumentType?: string;
+  idDocumentType?: IdDocumentType | string;
   idDocumentNumber?: string;
   notes?: string;
 }
@@ -21,8 +21,8 @@ export interface CheckInDTO {
 export interface CheckOutDTO {
   reservationId: string;
   checkedOutBy: string;
-  roomCondition?: 'DIRTY' | 'CLEAN' | 'DAMAGED';
-  paymentMethod?: string;
+  roomCondition?: RoomCondition | 'DIRTY' | 'CLEAN' | 'DAMAGED';
+  paymentMethod?: PaymentMethod | string;
   idempotencyKey?: string;
   notes?: string;
 }
@@ -101,7 +101,7 @@ export class StayService {
           guestId: primaryGuestId,
           checkedInBy: data.checkedInBy,
           idVerified: data.idVerified ?? true,
-          idDocumentType: data.idDocumentType,
+          idDocumentType: (data.idDocumentType as IdDocumentType) || null,
           idDocumentNumber: data.idDocumentNumber,
           notes: data.notes,
         },
@@ -110,7 +110,7 @@ export class StayService {
       // Update reservation status
       await tx.reservation.update({
         where: { id: reservation.id },
-        data: { status: 'CHECKED_IN' },
+        data: { status: ReservationStatus.CHECKED_IN },
       });
 
       // Update room status
@@ -278,9 +278,9 @@ export class StayService {
             roomId: reservation.roomId,
             guestId: primaryGuestId,
             checkedOutBy: data.checkedOutBy,
-            roomCondition: data.roomCondition || 'DIRTY',
+            roomCondition: (data.roomCondition as RoomCondition) || RoomCondition.DIRTY,
             finalBalance,
-            paymentMethod: data.paymentMethod,
+            paymentMethod: (data.paymentMethod as PaymentMethod) || null,
             notes: data.notes,
           },
         });
@@ -288,20 +288,20 @@ export class StayService {
         // Update reservation status
         await tx.reservation.update({
           where: { id: reservation.id },
-          data: { status: 'CHECKED_OUT' },
+          data: { status: ReservationStatus.CHECKED_OUT },
         });
 
         // Update room status
         await tx.room.update({
           where: { id: reservation.roomId },
-          data: { status: data.roomCondition === 'DAMAGED' ? 'MAINTENANCE' : data.roomCondition === 'DIRTY' ? 'DIRTY' : 'AVAILABLE' },
+          data: { status: data.roomCondition === 'DAMAGED' ? RoomStatus.MAINTENANCE : data.roomCondition === 'DIRTY' ? RoomStatus.DIRTY : RoomStatus.AVAILABLE },
         });
 
         // Close Folio
         if (folio) {
           await tx.folio.update({
             where: { id: folio.id },
-            data: { status: 'CLOSED', closedAt: new Date(), balance: new Prisma.Decimal(finalBalance) },
+            data: { status: FolioStatus.CLOSED, closedAt: new Date(), balance: new Prisma.Decimal(finalBalance) },
           });
         }
 

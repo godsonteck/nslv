@@ -4,7 +4,7 @@
 // ============================================
 
 import { prisma } from '../config';
-import { Prisma } from '@prisma/client';
+import { Prisma, FolioItemType, Department } from '@prisma/client';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 
@@ -12,12 +12,12 @@ export const FOLIO_CHARGE_TYPES = ['ACCOMMODATION', 'RESTAURANT', 'BAR', 'POOL',
 
 export interface AddFolioChargeDTO {
   folioId: string;
-  type: string; // ACCOMMODATION | RESTAURANT | BAR | POOL | SERVICE | DISCOUNT | TAX
+  type: FolioItemType | string; // ACCOMMODATION | RESTAURANT | BAR | POOL | SERVICE | DISCOUNT | TAX
   description: string;
   amount: number;
   quantity?: number;
   unitPrice: number;
-  department: string;
+  department: Department | string;
   referenceId?: string;
   referenceType?: string;
   postedBy: string;
@@ -105,12 +105,12 @@ export class FolioService {
       const item = await tx.folioItem.create({
         data: {
           folioId: data.folioId,
-          type: data.type,
+          type: data.type as FolioItemType,
           description: data.description,
           amount: decimalAmount,
           quantity: data.quantity || 1,
           unitPrice: decimalUnitPrice,
-          department: data.department,
+          department: data.department as Department,
           referenceId: data.referenceId,
           referenceType: data.referenceType,
           postedBy: data.postedBy,

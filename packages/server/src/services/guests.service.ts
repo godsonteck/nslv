@@ -3,6 +3,7 @@
 // ============================================
 
 import { prisma } from '../config';
+import { IdDocumentType } from '@prisma/client';
 
 export interface CreateGuestDTO {
   firstName: string;
@@ -12,7 +13,7 @@ export interface CreateGuestDTO {
   address?: string;
   city?: string;
   country?: string;
-  idDocumentType?: string;
+  idDocumentType?: IdDocumentType | string | null;
   idDocumentNumber?: string;
   dateOfBirth?: Date | string;
   nationality?: string;
@@ -72,6 +73,7 @@ export class GuestService {
     return prisma.guest.create({
       data: {
         ...data,
+        idDocumentType: (data.idDocumentType as IdDocumentType) || null,
         dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
       },
     });
@@ -83,6 +85,7 @@ export class GuestService {
       where: { id },
       data: {
         ...data,
+        idDocumentType: data.idDocumentType !== undefined ? ((data.idDocumentType as IdDocumentType) || null) : undefined,
         dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
       },
     });

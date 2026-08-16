@@ -4,6 +4,7 @@
 // ============================================
 
 import { prisma } from '../config';
+import { PaymentMethod, ExpenseStatus } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { AuditService } from './audit.service';
 import { CategoryService } from './categories.service';
@@ -14,7 +15,7 @@ const makeExpenseNo = () => `EXP-${new Date().toISOString().slice(0, 10).replace
 export class ExpenseService {
   static async listExpenses(filters?: { status?: string; category?: string; search?: string; startDate?: string; endDate?: string }) {
     const where: any = {};
-    if (filters?.status) where.status = filters.status;
+    if (filters?.status) where.status = filters.status as ExpenseStatus;
     if (filters?.category) where.category = filters.category;
     if (filters?.search) {
       where.OR = [
@@ -36,15 +37,15 @@ export class ExpenseService {
     return { items, total };
   }
 
-  static async createExpense(input: { category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: string; vendor?: string; receiptRef?: string; notes?: string }, createdBy: string) {
+  static async createExpense(input: { category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: PaymentMethod | string; vendor?: string; receiptRef?: string; notes?: string }, createdBy: string) {
     const amount = Number(input.amount);
     if (!Number.isFinite(amount) || amount <= 0) throw new Error('Expense amount must be greater than zero.');
     if (!input.description?.trim()) throw new Error('Expense description is required.');
 
     await CategoryService.assertConfiguredValue('EXPENDITURE', input.category);
 
-    const incurredOn = input.incurredOn ? new Date(input.incurredOn) : new Date();
     return prisma.$transaction(async (tx) => {
+      const incurredOn = input.incurredOn ? new Date(input.incurredOn) : new Date();
       await lockBusinessDay(tx, incurredOn);
       await DailyCloseService.assertBusinessDayOpen(incurredOn);
       const expense = await tx.expense.create({
@@ -54,7 +55,7 @@ export class ExpenseService {
           description: input.description.trim(),
           amount,
           incurredOn,
-          paymentMethod: input.paymentMethod,
+          paymentMethod: (input.paymentMethod as PaymentMethod) || null,
           vendor: input.vendor,
           receiptRef: input.receiptRef,
           notes: input.notes,
@@ -66,7 +67,7 @@ export class ExpenseService {
     });
   }
 
-  static async updateExpense(id: string, input: Partial<{ category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: string; vendor?: string; receiptRef?: string; notes?: string }>, updatedBy: string) {
+  static async updateExpense(id: string, input: Partial<{ category: string; description: string; amount: number; incurredOn?: string; paymentMethod?: PaymentMethod | string; vendor?: string; receiptRef?: string; notes?: string }>, updatedBy: string) {
     return prisma.$transaction(async (tx) => {
       const existing = await tx.expense.findUnique({ where: { id } });
       if (!existing) throw new Error('Expense not found.');
@@ -83,7 +84,7 @@ export class ExpenseService {
           description: input.description,
           amount: input.amount !== undefined ? Number(input.amount) : undefined,
           incurredOn: input.incurredOn ? new Date(input.incurredOn) : undefined,
-          paymentMethod: input.paymentMethod,
+          paymentMethod: input.paymentMethod !== undefined ? ((input.paymentMethod as PaymentMethod) || null) : undefined,
           vendor: input.vendor,
           receiptRef: input.receiptRef,
           notes: input.notes,
@@ -94,7 +95,7 @@ export class ExpenseService {
     });
   }
 
-  static async setStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED', approvedBy: string) {
+  static async setStatus(id: string, status: ExpenseStatus, approvedBy: string) {
     return prisma.$transaction(async (tx) => {
       const existing = await tx.expense.findUnique({ where: { id } });
       if (!existing) throw new Error('Expense not found.');

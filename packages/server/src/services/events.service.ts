@@ -2,6 +2,7 @@
 // Event spaces and event bookings (birthdays, weddings, corporate, private parties).
 
 import { prisma } from '../config';
+import { EventBookingStatus } from '@prisma/client';
 
 const assertEmptyTitle = (title: string) => {
   if (!title?.trim()) throw new Error('Event title is required.');
@@ -111,7 +112,7 @@ export class EventsService {
   static listBookings(from?: string, to?: string) {
     const where: {
       startAt?: { gte?: Date; lte?: Date };
-      status?: { not: string };
+      status?: { not: EventBookingStatus };
     } = {};
     if (from) where.startAt = { ...(where.startAt || {}), gte: new Date(from) };
     if (to) where.startAt = { ...(where.startAt || {}), lte: new Date(to) };
