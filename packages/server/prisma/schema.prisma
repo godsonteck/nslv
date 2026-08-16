@@ -504,7 +504,6 @@ model RestaurantItem {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   orderItems  RestaurantOrderItem[]
-  recipes     Recipe[]
 
   @@index([category])
   @@map("restaurant_items")
@@ -568,7 +567,6 @@ model BarItem {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   orderItems  BarOrderItem[]
-  recipes     Recipe[]
 
   @@index([category])
   @@map("bar_items")
@@ -631,7 +629,6 @@ model PoolService {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   transactions PoolTransaction[]
-  recipes      Recipe[]
 
   @@index([category])
   @@map("pool_services")
@@ -735,7 +732,6 @@ model InventoryItem {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   movements   InventoryMovement[]
-  recipeItems RecipeItem[]
 
   @@index([category])
   @@index([isActive])
@@ -755,57 +751,15 @@ model InventoryMovement {
   recordedBy      String?       @map("recorded_by")
   referenceId     String?       @map("reference_id")
   referenceType   String?       @map("reference_type")
-  recipeItemId    String?       @map("recipe_item_id")
   createdAt       DateTime      @default(now()) @map("created_at")
 
   inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
 
   @@index([inventoryItemId, createdAt])
   @@index([type, createdAt])
-  @@unique([referenceId, recipeItemId])
   @@map("inventory_movements")
 }
 
-// A sellable item may have zero or more historical recipes. Only one active
-// recipe is used when a sale is finalised; inactive recipes preserve history.
-model Recipe {
-  id               String       @id @default(uuid())
-  restaurantItemId String?      @map("restaurant_item_id")
-  barItemId        String?      @map("bar_item_id")
-  poolServiceId    String?      @map("pool_service_id")
-  name             String
-  isActive         Boolean      @default(true) @map("is_active")
-  createdAt        DateTime     @default(now()) @map("created_at")
-  updatedAt        DateTime     @updatedAt @map("updated_at")
-
-  restaurantItem RestaurantItem? @relation(fields: [restaurantItemId], references: [id], onDelete: Restrict)
-  barItem        BarItem?        @relation(fields: [barItemId], references: [id], onDelete: Restrict)
-  poolService    PoolService?    @relation(fields: [poolServiceId], references: [id], onDelete: Restrict)
-  items          RecipeItem[]
-
-  @@index([restaurantItemId, isActive])
-  @@index([barItemId, isActive])
-  @@index([poolServiceId, isActive])
-  @@map("recipes")
-}
-
-model RecipeItem {
-  id              String        @id @default(uuid())
-  recipeId        String        @map("recipe_id")
-  inventoryItemId String        @map("inventory_item_id")
-  quantity        Decimal
-  unit            String
-  // Multiplies recipe quantity into the inventory item's integer base unit
-  // (e.g. 0.30 kg × 1000 = 300 g).
-  conversionFactor Decimal      @default(1) @map("conversion_factor")
-  createdAt       DateTime      @default(now()) @map("created_at")
-
-  recipe          Recipe        @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
-
-  @@unique([recipeId, inventoryItemId])
-  @@map("recipe_items")
-}
 
 // ──────────────────────────────────────────
 // Events
