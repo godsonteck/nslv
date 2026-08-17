@@ -194,18 +194,27 @@ export function getTimeGreeting(date = new Date()): 'Good morning' | 'Good after
 }
 
 /**
- * Format a natural, friendly greeting with the user's name:
- * @example formatUserGreeting({ firstName: 'Kwame' }) → "Good morning, Kwame"
- * @example formatUserGreeting(null) → "Good morning"
+ * Format a warm, time-aware greeting with the user's full name and the day of the week:
+ * @example formatUserGreeting({ firstName: 'Kwame', lastName: 'Mensah' }) → "Good morning, Kwame Mensah — here's to a bright Monday"
+ * @example formatUserGreeting(null) → "Good morning — here's to a bright Monday"
  */
 export function formatUserGreeting(
   user?: { firstName?: string | null; lastName?: string | null; username?: string | null } | null,
   date = new Date(),
 ): string {
-  const greeting = getTimeGreeting(date);
-  const name = user?.firstName?.trim() || user?.username?.trim();
-  if (name) {
-    return `${greeting}, ${name}`;
-  }
-  return greeting;
+  const fullName = [user?.firstName, user?.lastName]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ');
+  const name = fullName || user?.firstName?.trim() || user?.username?.trim();
+  const day = date.toLocaleDateString('en-GB', { weekday: 'long' });
+  const base = getTimeGreeting(date);
+  const phrase = name ? `${base}, ${name}` : base;
+  const suffix =
+    base === 'Good morning'
+      ? `— here's to a bright ${day}`
+      : base === 'Good afternoon'
+        ? `— enjoy your ${day} afternoon`
+        : `— hope your ${day} is going well`;
+  return `${phrase} ${suffix}`;
 }
