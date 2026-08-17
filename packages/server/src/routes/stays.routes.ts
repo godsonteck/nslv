@@ -86,4 +86,17 @@ router.get('/late-checkouts', requirePermission('dashboard.view'), async (req, r
   }
 });
 
+// Delete or Waive a Late Check-Out (Admin only)
+router.delete('/late-checkouts/:id', requirePermission('settings.edit'), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const checkOutId = Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!;
+    const { reason } = req.body || {};
+    const result = await StayService.deleteLateCheckout(checkOutId, userId, reason);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

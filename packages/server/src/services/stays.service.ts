@@ -712,4 +712,108 @@ export class StayService {
       records: lateList,
     };
   }
+
+  /**
+   * Delete or Waive a Late Check-Out record & fee (Admin action)
+   * Voids late fee charges, resets actual departure timestamp to on-time deadline,
+   * recalculates folio balance, and logs audit trail.
+   */
+  static async deleteLateCheckout(checkOutId: string, adminUserId: string, reason?: string) {
+    return prisma.$transaction(async (tx) => {
+      const co = await tx.checkOut.findUnique({
+        where: { id: checkOutId },
+        include: {
+          reservation: {
+            include: {
+              folios: {
+                include: {
+                  items: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!co) throw new AppError('Check-out record not found.', 404, 'CHECKOUT_NOT_FOUND');
+
+      const res = co.reservation;
+      const checkoutTimeSetting = await tx.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } });
+      const checkoutTime = checkoutTimeSetting ? String(JSON.parse(checkoutTimeSetting.value) || '12:00') : '12:00';
+      const onTimeDeadline = this.stayBoundary(res?.checkOutDate, checkoutTime);
+
+      let voidedFeeTotal = 0;
+      const voidReason = reason?.trim() || 'Waived / Deleted by Administrator';
+
+      // 1. Find and void all late fee folio items
+      if (res?.folios?.length) {
+        for (const folio of res.folios) {
+          const lateItems = folio.items.filter(
+            (item) =>
+              !item.voidedAt &&
+              (item.referenceType === 'CHECKOUT' || (item.description && item.description.toLowerCase().includes('late'))),
+          );
+
+          for (const item of lateItems) {
+            await tx.folioItem.update({
+              where: { id: item.id },
+              data: {
+                voidedAt: new Date(),
+                voidedBy: adminUserId,
+                voidReason,
+              },
+            });
+            voidedFeeTotal += Number(item.amount || 0);
+          }
+
+          // Recalculate folio balance
+          const updatedBalance = await tx.folioItem.aggregate({
+            where: { folioId: folio.id, voidedAt: null },
+            _sum: { amount: true },
+          });
+          const newBal = new Prisma.Decimal(updatedBalance._sum.amount || 0);
+          await tx.folio.update({
+            where: { id: folio.id },
+            data: { balance: newBal },
+          });
+        }
+      }
+
+      // 2. Adjust actualCheckOut to the on-time deadline
+      await tx.checkOut.update({
+        where: { id: checkOutId },
+        data: {
+          actualCheckOut: onTimeDeadline,
+          notes: co.notes
+            ? `${co.notes} | Late checkout waived by admin: ${voidReason}`
+            : `Late checkout waived by admin: ${voidReason}`,
+        },
+      });
+
+      // 3. Log in Audit trail
+      await AuditService.logInTransaction(tx, {
+        userId: adminUserId,
+        action: 'stay.late_checkout_deleted',
+        resource: 'check_out',
+        resourceId: checkOutId,
+        beforeData: {
+          checkOutId,
+          reservationId: co.reservationId,
+          actualCheckOut: co.actualCheckOut.toISOString(),
+        },
+        afterData: {
+          adjustedCheckOut: onTimeDeadline.toISOString(),
+          voidedFeeTotal,
+          voidReason,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Late check-out details and fee removed successfully.',
+        voidedFeeTotal,
+        adjustedCheckOut: onTimeDeadline,
+      };
+    });
+  }
 }

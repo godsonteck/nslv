@@ -576,6 +576,13 @@ export const staysApi = {
     const data = await apiFetch<any>(`/stays/late-checkouts${qStr}`, {}, token());
     return { success: true, data };
   },
+  deleteLateCheckout: async (id: string, reason?: string): Promise<{ success: true; data: any }> => {
+    const data = await apiFetch<any>(`/stays/late-checkouts/${id}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    }, token());
+    return { success: true, data };
+  },
 };
 
 // ──────────────────────────────────────────

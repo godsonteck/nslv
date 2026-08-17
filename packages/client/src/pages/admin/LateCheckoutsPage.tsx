@@ -13,9 +13,10 @@ import {
   DollarSign,
   SlidersHorizontal,
   Eye,
+  Trash2,
 } from 'lucide-react';
 import { staysApi } from '../../services/apiService';
-import { Button, LoadingState, showToast, Modal } from '../../components/ui';
+import { Button, LoadingState, showToast, Modal, FormField, TextInput } from '../../components/ui';
 import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 
 interface LateCheckoutRecord {
@@ -61,6 +62,9 @@ export const LateCheckoutsPage: React.FC = () => {
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [selectedRecord, setSelectedRecord] = useState<LateCheckoutRecord | null>(null);
+  const [deletingRecord, setDeletingRecord] = useState<LateCheckoutRecord | null>(null);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [deletingBusy, setDeletingBusy] = useState(false);
 
   // Compute start/end dates based on date filter preset
   const dateParams = useMemo(() => {
@@ -119,6 +123,29 @@ export const LateCheckoutsPage: React.FC = () => {
     const timer = setTimeout(() => void loadData(), 200);
     return () => clearTimeout(timer);
   }, [loadData]);
+
+  // Execute Deletion / Waiving
+  const confirmDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deletingRecord) return;
+    try {
+      setDeletingBusy(true);
+      const res = await staysApi.deleteLateCheckout(deletingRecord.id, deleteReason || 'Waived by Administrator');
+      if (res.success) {
+        showToast('success', res.data?.message || 'Late check-out details and fees successfully removed');
+        if (selectedRecord?.id === deletingRecord.id) {
+          setSelectedRecord(null);
+        }
+        setDeletingRecord(null);
+        setDeleteReason('');
+        void loadData();
+      }
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to delete late checkout details');
+    } finally {
+      setDeletingBusy(false);
+    }
+  };
 
   // Export Audit to CSV
   const exportCsv = () => {
@@ -309,7 +336,7 @@ export const LateCheckoutsPage: React.FC = () => {
                   <th className="p-3 text-right">Late Fee Billed</th>
                   <th className="p-3">Settlement</th>
                   <th className="p-3">Handled By</th>
-                  <th className="p-3 text-right">Action</th>
+                  <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#2B303E]/50">
@@ -372,15 +399,29 @@ export const LateCheckoutsPage: React.FC = () => {
                     </td>
 
                     <td className="p-3 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedRecord(r)}
-                        className="text-[#C5A880] hover:text-white"
-                        title="View Full Stay & Fee Audit"
-                      >
-                        <Eye size={14} /> Details
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedRecord(r)}
+                          className="text-[#C5A880] hover:text-white"
+                          title="View Full Stay & Fee Audit"
+                        >
+                          <Eye size={14} /> Details
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setDeletingRecord(r);
+                            setDeleteReason('');
+                          }}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                          title="Delete / Waive Late Check-out"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -461,12 +502,89 @@ export const LateCheckoutsPage: React.FC = () => {
               )}
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center justify-between pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setDeletingRecord(selectedRecord);
+                  setDeleteReason('');
+                }}
+                className="text-red-400 border-red-900/50 hover:bg-red-950/40"
+              >
+                <Trash2 size={14} /> Delete / Waive Late Fee
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setSelectedRecord(null)}>
                 Close Audit View
               </Button>
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Delete / Waive Confirmation Modal */}
+      {deletingRecord && (
+        <Modal
+          open={!!deletingRecord}
+          onClose={() => !deletingBusy && setDeletingRecord(null)}
+          title={`Delete Late Departure · ${deletingRecord.confirmationNo}`}
+        >
+          <form onSubmit={confirmDelete} className="space-y-4 text-xs">
+            <div className="p-4 rounded-xl bg-red-950/30 border border-red-900/50 flex items-start gap-3">
+              <AlertTriangle className="text-red-400 shrink-0 mt-0.5" size={18} />
+              <div className="space-y-1">
+                <div className="font-bold text-red-300">
+                  Remove Late Check-Out Status & Fee
+                </div>
+                <div className="text-[11px] text-red-200/80 leading-relaxed">
+                  This action will void the <strong>{formatCurrency(deletingRecord.feeAmount)}</strong> late check-out charge on the folio, reset the departure timestamp to on-time cutoff, and record this deletion in the immutable audit log.
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-[#14161D] rounded-xl border border-[#2B303E] space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="text-[#6E737B]">Guest:</span>
+                <span className="font-bold text-[#F4F4F2]">{deletingRecord.guestName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#6E737B]">Room:</span>
+                <span className="font-bold text-[#F4F4F2]">Room {deletingRecord.roomNumber} ({deletingRecord.roomTypeName})</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#6E737B]">Fee to be Voided:</span>
+                <span className="font-bold text-amber-300">{formatCurrency(deletingRecord.feeAmount)} ({deletingRecord.hoursLate}h late)</span>
+              </div>
+            </div>
+
+            <FormField label="Reason for Waiving / Deleting (Audit Note)" required>
+              <TextInput
+                required
+                placeholder="e.g., Management waiver, compensation, system correction…"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+              />
+            </FormField>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={deletingBusy}
+                onClick={() => setDeletingRecord(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                loading={deletingBusy}
+                className="bg-red-600 hover:bg-red-500 text-white"
+              >
+                Confirm & Remove Late Fee
+              </Button>
+            </div>
+          </form>
         </Modal>
       )}
     </ShellPage>
