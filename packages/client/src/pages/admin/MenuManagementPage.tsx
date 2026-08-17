@@ -209,7 +209,7 @@ export const MenuManagementPage: React.FC = () => {
             onClick={() => setDomain(d.id)}
             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[11px] font-extrabold ${
               domain === d.id
-                ? 'bg-[#174b59] text-white'
+                ? 'bg-[#16a4d4] text-white'
                 : 'border border-[#dfe4e0] bg-white text-[#718086]'
             }`}
           >
@@ -233,7 +233,7 @@ export const MenuManagementPage: React.FC = () => {
                 id="inc-off"
                 checked={includeOff}
                 onChange={(e) => setIncludeOff(e.target.checked)}
-                className="h-4 w-4 accent-[#174b59]"
+                className="h-4 w-4 accent-[#16a4d4]"
               />
               <label htmlFor="inc-off" className="text-[10px] font-bold text-[#718086]">
                 Show archived
@@ -275,7 +275,7 @@ export const MenuManagementPage: React.FC = () => {
                       {i.description ? ` · ${i.description}` : ''}
                     </div>
                   </div>
-                  <span className="shrink-0 text-xs font-extrabold text-[#8d693c]">
+                  <span className="shrink-0 text-xs font-extrabold text-[#a8761e]">
                     {formatCurrency(Number(i.price || 0))}
                   </span>
                   <div className="flex shrink-0 gap-1.5">
@@ -317,7 +317,7 @@ export const MenuManagementPage: React.FC = () => {
                   <div key={o.id} className="px-5 py-3">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[11px] font-extrabold text-[#26363e]">{o.orderNo}</span>
-                      <span className="text-[11px] font-extrabold text-[#8d693c]">
+                      <span className="text-[11px] font-extrabold text-[#a8761e]">
                         {formatCurrency(Number(o.totalAmount || 0))}
                       </span>
                     </div>

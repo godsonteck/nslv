@@ -17,7 +17,7 @@ export const CategoriesPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<CategoryType | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', type: 'EXPENDITURE' as CategoryType, description: '', color: '#b18a55', order: 0 });
+  const [formData, setFormData] = useState({ name: '', type: 'EXPENDITURE' as CategoryType, description: '', color: '#f1a83f', order: 0 });
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -54,7 +54,7 @@ export const CategoriesPage: React.FC = () => {
       }
       setModalOpen(false);
       setEditingId(null);
-      setFormData({ name: '', type: 'EXPENDITURE', description: '', color: '#b18a55', order: 0 });
+      setFormData({ name: '', type: 'EXPENDITURE', description: '', color: '#f1a83f', order: 0 });
       fetchCategories();
     } catch (err: any) {
       showToast('error', err?.message ?? 'Failed to save category');
@@ -78,7 +78,7 @@ export const CategoriesPage: React.FC = () => {
       name: category.name,
       type: category.type as CategoryType,
       description: category.description || '',
-      color: category.color || '#b18a55',
+      color: category.color || '#f1a83f',
       order: category.order || 0,
     });
     setModalOpen(true);
@@ -86,7 +86,7 @@ export const CategoriesPage: React.FC = () => {
 
   const handleOpenCreate = () => {
     setEditingId(null);
-    setFormData({ name: '', type: 'EXPENDITURE', description: '', color: '#b18a55', order: 0 });
+    setFormData({ name: '', type: 'EXPENDITURE', description: '', color: '#f1a83f', order: 0 });
     setModalOpen(true);
   };
 
@@ -226,7 +226,7 @@ export const CategoriesPage: React.FC = () => {
               <TextInput
                 value={formData.color}
                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                placeholder="#b18a55"
+                placeholder="#f1a83f"
                 className="flex-1"
               />
             </div>

@@ -83,7 +83,7 @@ export const FandBPortalPage: React.FC = () => {
                   <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}><Icon size={19} /></span>
                   <div className="mt-4 text-sm font-extrabold text-[#26363e]">{label}</div>
                   <div className="mt-1 text-[10px] text-[#8a9598]">{kind === 'pool' ? 'Attendance & services' : 'Take orders and post receipts'}</div>
-                  <div className="mt-4 flex items-center gap-1 text-[11px] font-extrabold text-[#8d693c]">Open <ArrowRight size={12} className="transition group-hover:translate-x-0.5" /></div>
+                  <div className="mt-4 flex items-center gap-1 text-[11px] font-extrabold text-[#a8761e]">Open <ArrowRight size={12} className="transition group-hover:translate-x-0.5" /></div>
                 </button>
               ))}
             </div>

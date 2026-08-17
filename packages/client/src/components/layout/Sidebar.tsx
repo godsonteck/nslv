@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { villaAssets } from '../../assets';
 import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, CalendarClock, Palette, KeyRound, ScrollText, Tags, Clock } from 'lucide-react';
 import type { PermissionCode } from '@nslv/shared';
 
@@ -50,21 +51,73 @@ export const Sidebar: React.FC = () => {
   const { theme } = useThemeStore();
   const perms = user?.permissions ?? [];
   const roleName = user?.roles?.[0]?.name ?? 'Admin';
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Staff member';
+  const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const villaName = theme?.villaName || 'NSVilla';
   const villaTagline = theme?.villaTagline || 'Hospitality operations platform';
+  const villaLogo = theme?.logoUrl || villaAssets.logo;
   const sections = ALL_SECTIONS
     .map(section => ({ ...section, items: section.items.filter(item => item.perms.some(p => perms.includes(p))) }))
     .filter(section => section.items.length > 0);
 
-  return <aside className="flex h-full w-[246px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e8e5] bg-[#fbfcfa]">
-    <div className="flex min-h-full flex-col px-3 py-5">
-      <div className="mb-5 rounded-2xl border border-[#e6ddcf] bg-[#f7f0e5] px-4 py-3.5">
-        <div className="flex items-center justify-between"><div><div className="text-[9px] font-extrabold uppercase tracking-[.18em] text-[#a37a45]">{villaName}</div><div className="mt-1 font-['Manrope'] text-[13px] font-extrabold text-[#26363e]">{roleName} operations</div></div><span className="h-2 w-2 rounded-full bg-[#2d8a68] shadow-[0_0_0_4px_rgba(45,138,104,.10)]"/></div>
-        <div className="mt-2 text-[10px] leading-4 text-slate-500">Connected to the live {villaName} property workspace.</div>
+  return (
+    <aside className="flex h-full w-[246px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e8e5] bg-[#fbfcfa]">
+      <div className="flex min-h-full flex-col px-3.5 py-5">
+        {/* Brand */}
+        <div className="mb-7 flex items-center gap-3 px-1">
+          <img src={villaLogo} alt={villaName} className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-black/10 shadow-[0_6px_16px_rgba(22,164,212,.22)]" />
+          <div className="min-w-0">
+            <div className="truncate font-['Manrope'] text-[14px] font-extrabold leading-tight text-[#26363e]">{villaName}</div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[.16em] text-[#9aa3a6]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#2d8a68] shadow-[0_0_0_3px_rgba(45,138,104,.12)]" />
+              {roleName} operations
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        {sections.map(section => (
+          <div key={section.title} className="mb-6">
+            <div className="px-3 pb-2 text-[9px] font-extrabold uppercase tracking-[.19em] text-[#9aa3a6]">{section.title}</div>
+            <div className="space-y-0.5">
+              {section.items.map(({ label, to, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold transition ${isActive ? 'bg-[#16a4d4] text-white shadow-[0_6px_18px_rgba(22,164,212,.16)]' : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'}`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span className={`absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full transition ${isActive ? 'bg-[#f1a83f]' : 'bg-transparent'}`} />
+                      <Icon size={15} className={`shrink-0 transition ${isActive ? 'text-[#f1a83f]' : 'opacity-80 group-hover:opacity-100'}`} />
+                      <span>{label}</span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Footer */}
+        <div className="mt-auto space-y-4">
+          <div className="flex items-center gap-2.5 rounded-2xl border border-[#e8ebe8] bg-white p-3 shadow-[0_2px_10px_rgba(20,35,43,.04)]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#16a4d4] text-[10px] font-extrabold text-white ring-2 ring-[#e8f2f4]">{initials}</div>
+            <div className="min-w-0">
+              <div className="truncate text-[11px] font-extrabold text-[#26363e]">{fullName}</div>
+              <div className="truncate text-[9px] font-semibold uppercase tracking-wide text-[#9aa3a6]">{roleName}</div>
+            </div>
+          </div>
+          <div className="border-t border-[#edf0ed] pt-3 text-[9px] leading-5 text-[#9aa3a6]">
+            <div className="font-extrabold uppercase tracking-[.16em] text-[#7d898d]">{villaName}</div>
+            <div>{villaTagline}</div>
+            <div className="mt-0.5">Ho, Volta Region · Ghana</div>
+          </div>
+        </div>
       </div>
-      {sections.map(section => <div key={section.title} className="mb-5"><div className="px-3 pb-2 text-[9px] font-extrabold uppercase tracking-[.19em] text-slate-400">{section.title}</div><div className="space-y-0.5">{section.items.map(({label,to,icon:Icon}) => <NavLink key={to} to={to} className={({isActive}) => `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold transition ${isActive ? 'bg-[#174b59] text-white shadow-[0_7px_18px_rgba(23,75,89,.14)]' : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'}`}><Icon size={15} className="shrink-0 opacity-80"/><span>{label}</span></NavLink>)}</div></div>)}
-      <div className="mt-auto border-t border-slate-200/80 pt-4 text-[9px] leading-5 text-slate-400"><div className="font-extrabold uppercase tracking-[.16em] text-slate-500">{villaName}</div><div>{villaTagline}</div><div>Ho, Volta Region · Ghana</div></div>
-    </div>
-  </aside>;
+    </aside>
+  );
 };
 export default Sidebar;

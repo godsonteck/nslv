@@ -135,7 +135,7 @@ export const FrontDeskPage: React.FC = () => {
           <div className="divide-y divide-[#edf0ed]">
             {arrivals.map((reservation) => (
               <div key={reservation.id} className="flex items-center gap-4 px-5 py-4">
-                <UserRound size={18} className="text-[#174b59]" />
+                <UserRound size={18} className="text-[#16a4d4]" />
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-extrabold">
                     {[reservation.guests?.[0]?.guest?.firstName, reservation.guests?.[0]?.guest?.lastName].filter(Boolean).join(' ') || 'Guest'}

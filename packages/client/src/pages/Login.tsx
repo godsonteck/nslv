@@ -88,7 +88,7 @@ export default function Login() {
           alt=""
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[#123a49]/75" />
+        <div className="absolute inset-0 bg-[#0E0B12]/85" />
 
         {/* Left Side Content */}
         <div className="relative flex h-full flex-col justify-between p-12 text-white">
@@ -100,15 +100,15 @@ export default function Login() {
             />
             <div>
               <div className="text-lg font-extrabold">{villaName}</div>
-              <div className="text-[9px] font-bold uppercase tracking-[.2em] text-[#d9bd91]">
+              <div className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f1a83f]">
                 {villaTagline}
               </div>
             </div>
           </div>
 
           <div className="max-w-xl">
-            <div className="text-[10px] font-extrabold uppercase tracking-[.2em] text-[#d9bd91]">
-              Staff workspace
+            <div className="text-[10px] font-extrabold uppercase tracking-[.2em] text-[#f1a83f]">
+              Arrive as a Guest, Stay as Family
             </div>
             <h1 className="mt-4 text-5xl font-extrabold tracking-[-.055em]">
               A calmer way to run the villa.
@@ -139,7 +139,7 @@ export default function Login() {
               <div className="text-base font-extrabold text-[#20343e]">
                 {villaName}
               </div>
-              <div className="text-[9px] font-extrabold uppercase tracking-[.18em] text-[#9b7648]">
+              <div className="text-[9px] font-extrabold uppercase tracking-[.18em] text-[#a8761e]">
                 {villaTagline}
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function Login() {
                     value={login}
                     onChange={(e) => setLogin(e.target.value)}
                     placeholder="you@villa.com"
-                    className="w-full rounded border border-[#d9dfea] bg-white px-4 py-2 text-sm text-[#14232b] placeholder-[#a0a5ad] focus:border-[#c5a880] focus:outline-none focus:ring-2 focus:ring-[#c5a880]/20"
+                    className="w-full rounded border border-[#d9dfea] bg-white px-4 py-2 text-sm text-[#14232b] placeholder-[#a0a5ad] focus:border-[#f1a83f] focus:outline-none focus:ring-2 focus:ring-[#f1a83f]/20"
                     disabled={busy}
                   />
                 </div>
@@ -197,7 +197,7 @@ export default function Login() {
                       value={pw}
                       onChange={(e) => setPw(e.target.value)}
                       placeholder="Enter password"
-                      className="w-full rounded border border-[#d9dfea] bg-white px-4 py-2 text-sm text-[#14232b] placeholder-[#a0a5ad] focus:border-[#c5a880] focus:outline-none focus:ring-2 focus:ring-[#c5a880]/20"
+                      className="w-full rounded border border-[#d9dfea] bg-white px-4 py-2 text-sm text-[#14232b] placeholder-[#a0a5ad] focus:border-[#f1a83f] focus:outline-none focus:ring-2 focus:ring-[#f1a83f]/20"
                       disabled={busy}
                     />
                     <button
@@ -224,7 +224,7 @@ export default function Login() {
                     onChange={(e) => setTotp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="000000"
                     maxLength={6}
-                    className="w-full rounded border border-[#d9dfea] bg-white px-4 py-2 text-center text-2xl tracking-widest text-[#14232b] placeholder-[#a0a5ad] focus:border-[#c5a880] focus:outline-none focus:ring-2 focus:ring-[#c5a880]/20"
+                    className="w-full rounded border border-[#d9dfea] bg-white px-4 py-2 text-center text-2xl tracking-widest text-[#14232b] placeholder-[#a0a5ad] focus:border-[#f1a83f] focus:outline-none focus:ring-2 focus:ring-[#f1a83f]/20"
                     disabled={busy}
                   />
                 </div>
@@ -235,7 +235,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full flex items-center justify-center gap-2 rounded bg-[#c5a880] px-4 py-2.5 text-sm font-semibold text-[#17232b] hover:bg-[#b8956f] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded bg-[#f1a83f] px-4 py-2.5 text-sm font-semibold text-[#17232b] hover:bg-[#dd9323] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
               {two ? 'Verify' : 'Sign in'}
               <ArrowRight size={16} />

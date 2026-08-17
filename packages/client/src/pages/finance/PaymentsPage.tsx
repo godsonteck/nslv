@@ -295,7 +295,7 @@ export const PaymentsPage: React.FC = () => {
 
                   return (
                     <tr key={p.id} className={`hover:bg-[#fbfcfa] transition-colors ${isPendingRefund ? 'bg-amber-500/5' : ''}`}>
-                      <td className="px-5 py-4 font-mono text-[11px] font-bold text-[#8d693c]">
+                      <td className="px-5 py-4 font-mono text-[11px] font-bold text-[#a8761e]">
                         {p.reference || p.id.slice(0, 8)}
                       </td>
                       <td className="px-5 py-4 text-xs font-bold text-[#26363e]">
@@ -387,7 +387,7 @@ export const PaymentsPage: React.FC = () => {
             <div className="rounded-xl border border-[#dfe4df] bg-[#f7f8f6] p-4 text-xs">
               <div className="flex items-center justify-between font-bold text-[#20343e]">
                 <span>Outstanding Bill Balance</span>
-                <span className={balance > 0 ? 'text-[#8d693c]' : 'text-emerald-700'}>
+                <span className={balance > 0 ? 'text-[#a8761e]' : 'text-emerald-700'}>
                   {formatCurrency(balance)}
                 </span>
               </div>

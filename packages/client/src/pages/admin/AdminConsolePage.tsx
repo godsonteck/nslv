@@ -54,12 +54,12 @@ const actionVariant = (action: string): 'success' | 'danger' | 'warning' | 'info
 };
 
 const SystemHero: React.FC<{ greeting: string }> = ({ greeting }) => (
-  <section className="relative overflow-hidden rounded-[24px] bg-[#101a2b] text-white shadow-[0_18px_50px_rgba(16,26,43,.25)]">
-    <div className="absolute inset-0 bg-gradient-to-br from-[#101a2b] via-[#16233a] to-[#0e2941]"/>
-    <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#b18a55]/20 blur-3xl"/>
+  <section className="relative overflow-hidden rounded-[24px] bg-[#0E0B12] text-white shadow-[0_18px_50px_rgba(14,11,18,.4)]">
+    <div className="absolute inset-0 bg-gradient-to-br from-[#0E0B12] via-[#131019] to-[#0E2A36]"/>
+    <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#f1a83f]/20 blur-3xl"/>
     <div className="relative grid min-h-[240px] lg:grid-cols-[1.2fr_.8fr]">
       <div className="relative p-7 sm:p-9">
-        <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.2em] text-[#d9bd91]"><Lock size={13} /> System administration</div>
+        <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.2em] text-[#f1a83f]"><Lock size={13} /> System administration</div>
         <h2 className="mt-3 max-w-xl text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">{greeting}</h2>
         <p className="mt-3 max-w-lg text-sm leading-6 text-white/70">Accounts, roles, permissions, staff records, POS menus, system settings and the immutable audit trail. Operations live in the Manager control center.</p>
       </div>
@@ -146,7 +146,7 @@ export const AdminConsolePage: React.FC = () => {
     <div className="space-y-6 select-none pb-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]"><Server size={13} className="text-[#b18a55]" /> NSVilla · Admin only</div>
+          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]"><Server size={13} className="text-[#f1a83f]" /> NSVilla · Admin only</div>
           <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">System Administration Console</h1>
           <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">Secure management of user accounts, roles & permissions, staff records, POS menus, system settings and the immutable audit trail.</p>
         </div>
@@ -171,12 +171,12 @@ export const AdminConsolePage: React.FC = () => {
         <h2 className="mb-3 text-base font-extrabold tracking-[-.02em] text-[#14232b]">Administration modules</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {QUICK_LINKS.map((tile) => (
-            <button key={tile.to} onClick={() => navigate(tile.to)} className="group flex items-start gap-4 rounded-2xl border border-[#e2e7ea] bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#b18a55]/50 hover:shadow-md">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f0f4f7] text-[#1b4965] transition group-hover:bg-[#101a2b] group-hover:text-[#d9bd91]">{tile.icon}</span>
+            <button key={tile.to} onClick={() => navigate(tile.to)} className="group flex items-start gap-4 rounded-2xl border border-[#e2e7ea] bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#f1a83f]/50 hover:shadow-md">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e6f2f7] text-[#16a4d4] transition group-hover:bg-[#0E0B12] group-hover:text-[#f1a83f]">{tile.icon}</span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold text-[#1a2b3c]">{tile.label}</span>
                 <span className="mt-1 block text-[11px] leading-4 text-[#7c8a95]">{tile.desc}</span>
-                <span className="mt-2 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-[.12em] text-[#8f6a3e]">Open <ArrowRight size={12} /></span>
+                <span className="mt-2 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-[.12em] text-[#a8761e]">Open <ArrowRight size={12} /></span>
               </span>
             </button>
           ))}

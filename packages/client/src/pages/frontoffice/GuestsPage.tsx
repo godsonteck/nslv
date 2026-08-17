@@ -242,7 +242,7 @@ export const GuestsPage: React.FC = () => {
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#edf4f2] text-xs font-extrabold text-[#174b59]">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e9f3f5] text-xs font-extrabold text-[#16a4d4]">
                           {(g.firstName?.[0] || 'G') + (g.lastName?.[0] || '')}
                         </div>
                         <div>
@@ -251,7 +251,7 @@ export const GuestsPage: React.FC = () => {
                               {formatGuestName(g)}
                             </span>
                             {g.isVip && (
-                              <span className="inline-flex items-center rounded-full bg-[#fbf3db] px-2 py-0.5 text-[9px] font-extrabold text-[#8d693c]">
+                              <span className="inline-flex items-center rounded-full bg-[#fbf3db] px-2 py-0.5 text-[9px] font-extrabold text-[#a8761e]">
                                 VIP
                               </span>
                             )}
@@ -270,7 +270,7 @@ export const GuestsPage: React.FC = () => {
                     </td>
                     <td className="px-5 py-4">
                       {g.isVip ? (
-                        <span className="inline-flex items-center rounded-md bg-[#eef3f0] px-2 py-1 text-[10px] font-extrabold text-[#174b59]">
+                        <span className="inline-flex items-center rounded-md bg-[#e8f2f4] px-2 py-1 text-[10px] font-extrabold text-[#16a4d4]">
                           VIP GUEST
                         </span>
                       ) : (
@@ -317,7 +317,7 @@ export const GuestsPage: React.FC = () => {
             {/* Top Overview Banner */}
             <div className="flex items-start justify-between gap-4 rounded-2xl bg-[#f7f9f8] border border-[#e8ebe8] p-5">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#174b59] text-base font-extrabold text-white">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#16a4d4] text-base font-extrabold text-white">
                   {(selectedGuest.firstName?.[0] || 'G') + (selectedGuest.lastName?.[0] || '')}
                 </div>
                 <div>
@@ -326,7 +326,7 @@ export const GuestsPage: React.FC = () => {
                       {formatGuestName(selectedGuest)}
                     </h3>
                     {selectedGuest.isVip && (
-                      <span className="rounded-full bg-[#fbf3db] px-2.5 py-0.5 text-[10px] font-extrabold text-[#8d693c]">
+                      <span className="rounded-full bg-[#fbf3db] px-2.5 py-0.5 text-[10px] font-extrabold text-[#a8761e]">
                         VIP GUEST
                       </span>
                     )}
@@ -462,7 +462,7 @@ export const GuestsPage: React.FC = () => {
                             const res = item.reservation || item;
                             return (
                               <tr key={res.id} className="hover:bg-[#fbfcfa]">
-                                <td className="px-3 py-2.5 font-mono text-[11px] font-bold text-[#8d693c]">
+                                <td className="px-3 py-2.5 font-mono text-[11px] font-bold text-[#a8761e]">
                                   {res.confirmationNo || res.id.slice(0, 8)}
                                 </td>
                                 <td className="px-3 py-2.5 text-[#26363e]">
@@ -613,7 +613,7 @@ export const GuestsPage: React.FC = () => {
               id="vip-check"
               checked={form.isVip}
               onChange={(e) => setForm({ ...form, isVip: e.target.checked })}
-              className="h-4 w-4 rounded border-[#ced5ce] text-[#174b59] focus:ring-[#174b59]"
+              className="h-4 w-4 rounded border-[#ced5ce] text-[#16a4d4] focus:ring-[#16a4d4]"
             />
             <label htmlFor="vip-check" className="text-xs font-bold text-[#26363e]">
               Mark as VIP Guest
@@ -735,7 +735,7 @@ export const GuestsPage: React.FC = () => {
               id="vip-edit-check"
               checked={editForm.isVip}
               onChange={(e) => setEditForm({ ...editForm, isVip: e.target.checked })}
-              className="h-4 w-4 rounded border-[#ced5ce] text-[#174b59] focus:ring-[#174b59]"
+              className="h-4 w-4 rounded border-[#ced5ce] text-[#16a4d4] focus:ring-[#16a4d4]"
             />
             <label htmlFor="vip-edit-check" className="text-xs font-bold text-[#26363e]">
               Mark as VIP Guest

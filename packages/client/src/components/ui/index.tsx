@@ -280,7 +280,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, badge, 
       <div className="ns-eyebrow">NSVilla operations</div>
       <div className="mt-1 flex items-center gap-3">
         <h1 className="font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#14232B]">{title}</h1>
-        {badge && <span className="rounded-full border border-[#e7dccb] bg-[#f7f0e5] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em] text-[#8f6a3e]">{badge}</span>}
+        {badge && <span className="rounded-full border border-[#e7dccb] bg-[#f7f0e5] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em] text-[#a8761e]">{badge}</span>}
       </div>
       {subtitle && <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">{subtitle}</p>}
     </div>
@@ -300,9 +300,9 @@ interface MetricCardProps {
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({ label, value, subtext, indicator, accent = false }) => (
-  <div className={`ns-card p-5 ${accent ? 'border-[#b18a55]/40 ring-1 ring-[#b18a55]/10' : ''}`}>
-    <div className="flex items-center justify-between"><span className="text-[9px] font-extrabold uppercase tracking-[.15em] text-[#849095]">{label}</span>{indicator && <div className="text-[#b18a55]">{indicator}</div>}</div>
-    <div className={`ns-number mt-3 text-[27px] font-extrabold ${accent ? 'text-[#174b59]' : 'text-[#14232b]'}`}>{value}</div>
+  <div className={`ns-card p-5 ${accent ? 'border-[#f1a83f]/45 ring-1 ring-[#f1a83f]/15' : ''}`}>
+    <div className="flex items-center justify-between"><span className="text-[9px] font-extrabold uppercase tracking-[.15em] text-[#849095]">{label}</span>{indicator && <div className="text-[#a8761e]">{indicator}</div>}</div>
+    <div className={`ns-number mt-3 text-[27px] font-extrabold ${accent ? 'text-[#16a4d4]' : 'text-[#14232b]'}`}>{value}</div>
     {subtext && <div className="mt-1 text-[10px] leading-4 text-[#8b9599]">{subtext}</div>}
   </div>
 );

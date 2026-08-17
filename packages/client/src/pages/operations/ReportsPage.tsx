@@ -284,7 +284,7 @@ export default function ReportsPage() {
               onClick={() => setMode('daily')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'daily'
-                  ? 'bg-[#C5A880] text-[#10131A] shadow'
+                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
                   : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
               }`}
             >
@@ -294,7 +294,7 @@ export default function ReportsPage() {
               onClick={() => setMode('weekly')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'weekly'
-                  ? 'bg-[#C5A880] text-[#10131A] shadow'
+                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
                   : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
               }`}
             >
@@ -304,7 +304,7 @@ export default function ReportsPage() {
               onClick={() => setMode('monthly')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'monthly'
-                  ? 'bg-[#C5A880] text-[#10131A] shadow'
+                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
                   : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
               }`}
             >
@@ -314,7 +314,7 @@ export default function ReportsPage() {
               onClick={() => setMode('custom')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'custom'
-                  ? 'bg-[#C5A880] text-[#10131A] shadow'
+                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
                   : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
               }`}
             >
@@ -498,11 +498,11 @@ export default function ReportsPage() {
               <div>
                 <div className="flex justify-between text-xs font-semibold text-[#A0A5AD] mb-1.5">
                   <span>Current Occupancy: {occ.occupiedRooms || 0} of {occ.totalRooms || 0} active rooms</span>
-                  <span className="text-[#C5A880] font-bold">{occ.occupancyRate || 0}% Occupied</span>
+                  <span className="text-[#f1a83f] font-bold">{occ.occupancyRate || 0}% Occupied</span>
                 </div>
                 <div className="h-3 w-full bg-[#14161D] rounded-full overflow-hidden flex border border-[#2B303E]">
                   <div
-                    className="bg-gradient-to-r from-[#C5A880] to-[#E3CBA8] transition-all duration-500"
+                    className="bg-gradient-to-r from-[#f1a83f] to-[#f7d488] transition-all duration-500"
                     style={{ width: `${Math.min(100, occ.occupancyRate || 0)}%` }}
                   />
                 </div>
@@ -510,7 +510,7 @@ export default function ReportsPage() {
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6 pt-2">
                 <MetricBox label="Total Rooms" value={occ.totalRooms || 0} sub="Active inventory" />
-                <MetricBox label="Occupied" value={occ.occupiedRooms || 0} sub="In-house stays" highlight="text-[#C5A880]" />
+                <MetricBox label="Occupied" value={occ.occupiedRooms || 0} sub="In-house stays" highlight="text-[#f1a83f]" />
                 <MetricBox label="Reserved" value={occ.reservedRooms || 0} sub="Upcoming bookings" highlight="text-blue-400" />
                 <MetricBox label="Available" value={occ.availableRooms || 0} sub="Ready for walk-in" highlight="text-emerald-400" />
                 <MetricBox label="Dirty / Cleaning" value={occ.dirtyRooms || 0} sub="Housekeeping" highlight="text-amber-400" />
@@ -525,7 +525,7 @@ export default function ReportsPage() {
                 </div>
                 <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
                   <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Average Daily Rate (ADR)</div>
-                  <div className="text-lg font-extrabold text-[#C5A880] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
+                  <div className="text-lg font-extrabold text-[#f1a83f] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
                   <div className="text-[10px] text-[#6E737B]">Average revenue per occupied room</div>
                 </div>
               </div>
@@ -539,7 +539,7 @@ export default function ReportsPage() {
           >
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#C5A880]">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#f1a83f]">
                   <Users size={16} /> Total People in Period
                 </div>
                 <div className="mt-2 text-2xl font-extrabold text-[#F4F4F2]">
@@ -681,7 +681,7 @@ export default function ReportsPage() {
                   <div className="text-xs font-bold uppercase text-[#A0A5AD]">Total Accrued Revenue</div>
                   <div className="text-xs text-[#6E737B]">Sum of all accommodation, restaurant, bar, pool, and late checkout fees</div>
                 </div>
-                <div className="text-2xl font-extrabold text-[#C5A880]">
+                <div className="text-2xl font-extrabold text-[#f1a83f]">
                   {formatCurrency(Number(fin.accruedRevenue || data?.accruedRevenue || 0))}
                 </div>
               </div>
@@ -716,10 +716,10 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-[#C5A880]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-[#f1a83f]">
                     <Wallet size={16} /> Net Cash Movement
                   </div>
-                  <div className="text-xl font-extrabold text-[#C5A880] mt-1">
+                  <div className="text-xl font-extrabold text-[#f1a83f] mt-1">
                     {formatCurrency(Number(cash.netMovement || 0))}
                   </div>
                   <div className="text-[10px] text-[#6E737B] mt-1">Cash in hand balance change</div>
@@ -761,7 +761,7 @@ export default function ReportsPage() {
             <div className="p-5 space-y-5">
               {/* Event Stat Tiles */}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricBox label="Total Events" value={evts.totalInPeriod || 0} sub="In period" highlight="text-[#C5A880]" />
+                <MetricBox label="Total Events" value={evts.totalInPeriod || 0} sub="In period" highlight="text-[#f1a83f]" />
                 <MetricBox label="Confirmed" value={evts.confirmedCount || 0} sub="Active bookings" highlight="text-emerald-400" />
                 <MetricBox label="Cancelled" value={evts.cancelledCount || 0} sub="In period" highlight="text-red-400" />
                 <MetricBox label="Event Guests" value={evts.totalGuestCount || 0} sub="Total attendees" highlight="text-blue-400" />
@@ -778,7 +778,7 @@ export default function ReportsPage() {
                           <div className="text-xs font-bold text-[#F4F4F2]">{sp.name}</div>
                           <div className="text-[10px] text-[#6E737B] mt-0.5">{sp.guests} guests</div>
                         </div>
-                        <div className="text-lg font-extrabold text-[#C5A880]">{sp.bookings} <span className="text-[10px] font-normal text-[#6E737B]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
+                        <div className="text-lg font-extrabold text-[#f1a83f]">{sp.bookings} <span className="text-[10px] font-normal text-[#6E737B]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
                       </div>
                     ))}
                   </div>
@@ -807,7 +807,7 @@ export default function ReportsPage() {
                         {(evts.recentEvents || []).map((ev: any) => (
                           <tr key={ev.id} className="hover:bg-[#14161D]/60 transition-colors">
                             <td className="p-2.5 font-bold text-[#F4F4F2]">{ev.title}</td>
-                            <td className="p-2.5 text-[#C5A880]">{ev.spaceName}</td>
+                            <td className="p-2.5 text-[#f1a83f]">{ev.spaceName}</td>
                             <td className="p-2.5 font-mono">{new Date(ev.startAt).toLocaleString()}</td>
                             <td className="p-2.5 font-mono">{new Date(ev.endAt).toLocaleString()}</td>
                             <td className="p-2.5 text-center font-bold text-blue-400">{ev.guestCount}</td>
@@ -885,7 +885,7 @@ export default function ReportsPage() {
                     {dailyTimeline.map((d: any) => (
                       <tr key={d.date} className="hover:bg-[#14161D]/60 transition-colors">
                         <td className="p-2.5 font-bold text-[#F4F4F2]">{d.date}</td>
-                        <td className="p-2.5 text-[#C5A880] font-sans font-semibold">{d.dayName}</td>
+                        <td className="p-2.5 text-[#f1a83f] font-sans font-semibold">{d.dayName}</td>
                         <td className="p-2.5 text-right font-bold text-[#F4F4F2]">{formatCurrency(d.revenue)}</td>
                         <td className="p-2.5 text-right">{formatCurrency(d.accommodation)}</td>
                         <td className="p-2.5 text-right">{formatCurrency(d.restaurant)}</td>
@@ -933,7 +933,7 @@ const DeptCard: React.FC<{ icon: any; label: string; value: any; note: string }>
 }) => (
   <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4 flex flex-col justify-between">
     <div className="flex items-center gap-2 text-xs font-bold text-[#A0A5AD]">
-      <Icon size={16} className="text-[#C5A880]" />
+      <Icon size={16} className="text-[#f1a83f]" />
       <span>{label}</span>
     </div>
     <div className="mt-3 text-xl font-extrabold text-[#F4F4F2]">

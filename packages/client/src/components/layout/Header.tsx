@@ -41,7 +41,7 @@ export const Header: React.FC = () => {
           <img src={villaLogo} alt={villaName} className="h-10 w-10 rounded-xl object-cover ring-1 ring-black/5" />
           <div className="hidden sm:block">
             <div className="font-['Manrope'] text-[16px] font-extrabold tracking-[-0.03em] text-[#14232b]">{villaName}</div>
-            <div className="text-[9px] font-bold uppercase tracking-[.18em] text-[#b18a55]">{villaTagline}</div>
+            <div className="text-[9px] font-bold uppercase tracking-[.18em] text-[#a8761e]">{villaTagline}</div>
           </div>
         </button>
 
@@ -74,7 +74,7 @@ export const Header: React.FC = () => {
           {canSettings && <button className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex" onClick={() => navigate('/admin/settings')} aria-label="Settings"><Settings2 size={17} /></button>}
           <div className="relative">
             <button onClick={() => setOpenDropdown(v => !v)} className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-slate-50">
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#174b59] text-[11px] font-extrabold text-white ring-2 ring-[#eef3f2]">{user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}</span>
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#16a4d4] text-[11px] font-extrabold text-white ring-2 ring-[#e8f2f4]">{user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}</span>
               <span className="hidden text-left lg:block"><span className="block max-w-[120px] truncate text-[11px] font-extrabold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</span><span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-400">{user?.roles?.[0]?.name ?? 'User'}</span></span>
               <ChevronDown size={13} className="hidden text-slate-400 lg:block" />
             </button>

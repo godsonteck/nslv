@@ -259,7 +259,7 @@ export const UsersPage: React.FC = () => {
       header: 'Name',
       render: (u: UserRecord) => (
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-semibold text-[#C5A880] shrink-0">
+          <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-semibold text-[#f1a83f] shrink-0">
             {u.firstName[0]}{u.lastName[0]}
           </div>
           <div>

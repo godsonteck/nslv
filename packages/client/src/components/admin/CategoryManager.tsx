@@ -14,7 +14,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
   const { categories, isLoading, createCategory, updateCategory, deleteCategory, loadByType } = useCategoryStore();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ItemCategory | null>(null);
-  const [formData, setFormData] = useState({ name: '', description: '', color: '#174b59' });
+  const [formData, setFormData] = useState({ name: '', description: '', color: '#16a4d4' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
 
   const handleOpenAdd = () => {
     setEditing(null);
-    setFormData({ name: '', description: '', color: '#174b59' });
+    setFormData({ name: '', description: '', color: '#16a4d4' });
     setOpen(true);
   };
 
@@ -32,7 +32,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
     setFormData({
       name: cat.name,
       description: cat.description || '',
-      color: cat.color || '#174b59',
+      color: cat.color || '#16a4d4',
     });
     setOpen(true);
   };
@@ -107,7 +107,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
                 <GripVertical size={14} className="shrink-0 text-[#a0a5ad] cursor-grab" />
                 <div
                   className="shrink-0 w-4 h-4 rounded"
-                  style={{ backgroundColor: cat.color || '#174b59' }}
+                  style={{ backgroundColor: cat.color || '#16a4d4' }}
                   title={cat.color}
                 />
                 <div className="min-w-0 flex-1">

@@ -19,10 +19,10 @@ export const ShellPage: React.FC<{
 );
 
 export const StatTile: React.FC<{label:string; value:string|number; note?:string; icon?:LucideIcon; accent?:boolean}> = ({label,value,note,icon:Icon,accent}) => (
-  <div className={`ns-card p-5 ${accent?'ring-1 ring-[#b18a55]/25':''}`}>
+  <div className={`ns-card p-5 ${accent?'ring-1 ring-[#f1a83f]/30':''}`}>
     <div className="flex items-start justify-between gap-3">
       <span className="text-[10px] font-extrabold uppercase tracking-[.14em] text-[#8a9598]">{label}</span>
-      {Icon && <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f5f0e8] text-[#9b7648]"><Icon size={16}/></span>}
+      {Icon && <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f6ecd9] text-[#a8761e]"><Icon size={16}/></span>}
     </div>
     <div className="ns-number mt-4 text-[29px] font-extrabold text-[#14232b]">{value}</div>
     {note && <div className="mt-1 text-[11px] text-[#899397]">{note}</div>}

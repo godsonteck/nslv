@@ -59,7 +59,7 @@ const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }
             {/* Module Header */}
             <button
               onClick={() => toggleModule(mod)}
-              className="w-full flex items-center px-4 py-2 bg-[#14161D] hover:bg-[#1C1F28] transition-colors text-left font-semibold text-[#C5A880]"
+              className="w-full flex items-center px-4 py-2 bg-[#14161D] hover:bg-[#1C1F28] transition-colors text-left font-semibold text-[#f1a83f]"
             >
               {isExpanded ? <ChevronDown size={14} className="mr-2 text-[#A0A5AD]" /> : <ChevronRight size={14} className="mr-2 text-[#A0A5AD]" />}
               <span className="uppercase tracking-wider mr-2">{mod}</span>
@@ -181,7 +181,7 @@ export const RolesPage: React.FC = () => {
           <div key={role.id} className="bg-[#1C1F28] border border-[#2B303E] rounded-md p-4 flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Shield size={14} className="text-[#C5A880]" />
+                <Shield size={14} className="text-[#f1a83f]" />
                 <span className="font-semibold text-[#F4F4F2]">{role.name.replace(/_/g, ' ')}</span>
                 {role.isSystem && <Badge label="System" variant="info" />}
               </div>
@@ -228,13 +228,13 @@ export const RolesPage: React.FC = () => {
                 if (modPerms.length === 0) return null;
                 return (
                   <div key={mod}>
-                    <div className="text-[10px] uppercase tracking-wider text-[#C5A880] font-semibold mb-1">{mod}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-[#f1a83f] font-semibold mb-1">{mod}</div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                       {modPerms.map((p) => (
                         <label key={p.id} className="flex items-center gap-2 p-1.5 rounded hover:bg-[#1C1F28] cursor-pointer">
                           <input
                             type="checkbox"
-                            className="accent-[#C5A880]"
+                            className="accent-[#f1a83f]"
                             checked={selectedCodes.has(p.code)}
                             onChange={() => togglePermission(p.code)}
                           />

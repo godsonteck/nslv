@@ -96,7 +96,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
         <button
           type="button"
           onClick={() => onChange(setting.key, !val)}
-          className={`relative w-10 h-5 rounded-full transition-colors ${val ? 'bg-[#C5A880]' : 'bg-[#2B303E]'}`}
+          className={`relative w-10 h-5 rounded-full transition-colors ${val ? 'bg-[#f1a83f]' : 'bg-[#2B303E]'}`}
         >
           <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${val ? 'translate-x-5' : 'translate-x-0.5'}`} />
         </button>
@@ -252,11 +252,11 @@ export const SettingsPage: React.FC = () => {
               onClick={() => setActiveTab(id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-xs font-medium transition-all text-left ${
                 activeTab === id
-                  ? 'bg-[#232733] text-[#F4F4F2] font-semibold border-l-2 border-[#C5A880] pl-2.5'
+                  ? 'bg-[#232733] text-[#F4F4F2] font-semibold border-l-2 border-[#f1a83f] pl-2.5'
                   : 'text-[#A0A5AD] hover:bg-[#1C1F28] hover:text-[#F4F4F2]'
               }`}
             >
-              <Icon size={15} className={activeTab === id ? 'text-[#C5A880]' : 'text-[#6E737B]'} />
+              <Icon size={15} className={activeTab === id ? 'text-[#f1a83f]' : 'text-[#6E737B]'} />
               <span>{label}</span>
             </button>
           ))}
@@ -269,7 +269,7 @@ export const SettingsPage: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {activeTab === 'financial' && (
-                <div className="rounded-md border border-[#b18a55]/30 bg-[#b18a55]/10 p-3.5 text-xs text-[#d9bd91]">
+                <div className="rounded-md border border-[#f1a83f]/30 bg-[#f1a83f]/10 p-3.5 text-xs text-[#f1a83f]">
                   <div className="font-bold flex items-center gap-1.5 text-[#f5f0e8]">
                     <span>⏰ Late Check-out Dynamic Policy</span>
                   </div>

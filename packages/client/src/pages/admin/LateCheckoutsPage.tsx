@@ -282,7 +282,7 @@ export const LateCheckoutsPage: React.FC = () => {
                 onClick={() => setDateFilter(tab.key as any)}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
                   dateFilter === tab.key
-                    ? 'bg-[#C5A880] text-[#10131A] shadow-sm'
+                    ? 'bg-[#f1a83f] text-[#10131A] shadow-sm'
                     : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
                 }`}
               >
@@ -318,7 +318,7 @@ export const LateCheckoutsPage: React.FC = () => {
               placeholder="Search guest, room, staff, code…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-8 pl-8 pr-3 text-xs bg-[#14161D] border border-[#2B303E] rounded text-[#F4F4F2] placeholder-[#6E737B] focus:border-[#C5A880] focus:outline-none"
+              className="w-full h-8 pl-8 pr-3 text-xs bg-[#14161D] border border-[#2B303E] rounded text-[#F4F4F2] placeholder-[#6E737B] focus:border-[#f1a83f] focus:outline-none"
             />
           </div>
         </div>
@@ -328,7 +328,7 @@ export const LateCheckoutsPage: React.FC = () => {
           <LoadingState message="Loading late check-out audit records..." />
         ) : records.length === 0 ? (
           <div className="p-12 text-center text-xs text-[#6E737B]">
-            <Clock size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
+            <Clock size={32} className="mx-auto mb-2 opacity-30 text-[#f1a83f]" />
             No late check-outs found for the selected filter.
           </div>
         ) : (
@@ -352,7 +352,7 @@ export const LateCheckoutsPage: React.FC = () => {
                   <tr key={r.id} className="hover:bg-[#14161D]/60 transition-colors">
                     <td className="p-3">
                       <div className="font-bold text-[#F4F4F2]">{r.guestName}</div>
-                      <div className="text-[10px] font-mono text-[#C5A880]">{r.confirmationNo}</div>
+                      <div className="text-[10px] font-mono text-[#f1a83f]">{r.confirmationNo}</div>
                       {r.guestPhone && r.guestPhone !== '—' && (
                         <div className="text-[10px] text-[#6E737B]">{r.guestPhone}</div>
                       )}
@@ -424,7 +424,7 @@ export const LateCheckoutsPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedRecord(r)}
-                          className="text-[#C5A880] hover:text-white"
+                          className="text-[#f1a83f] hover:text-white"
                           title="View Full Stay & Fee Audit"
                         >
                           <Eye size={14} /> Details
@@ -478,7 +478,7 @@ export const LateCheckoutsPage: React.FC = () => {
               <div className="p-3.5 bg-[#14161D] rounded-xl border border-[#2B303E] space-y-2">
                 <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Guest & Reservation</div>
                 <div className="text-sm font-extrabold text-[#F4F4F2]">{selectedRecord.guestName}</div>
-                <div className="text-xs text-[#6E737B]">Confirmation: <span className="font-mono text-[#C5A880]">{selectedRecord.confirmationNo}</span></div>
+                <div className="text-xs text-[#6E737B]">Confirmation: <span className="font-mono text-[#f1a83f]">{selectedRecord.confirmationNo}</span></div>
                 <div className="text-xs text-[#6E737B]">Phone: {selectedRecord.guestPhone}</div>
                 <div className="text-xs text-[#6E737B]">Email: {selectedRecord.guestEmail}</div>
               </div>

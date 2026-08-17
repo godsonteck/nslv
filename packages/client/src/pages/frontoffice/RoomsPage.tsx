@@ -240,7 +240,7 @@ export const RoomsPage: React.FC = () => {
                 key={s}
                 onClick={() => setStatus(s)}
                 className={`rounded-xl px-3 py-2 text-[10px] font-extrabold uppercase tracking-wide ${
-                  status === s ? 'bg-[#174b59] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'
+                  status === s ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'
                 }`}
               >
                 {s.replaceAll('_', ' ')}
@@ -270,7 +270,7 @@ export const RoomsPage: React.FC = () => {
                     <div className="flex gap-2 opacity-0 transition group-hover:opacity-100">
                       {canManage && (
                         <>
-                          <button onClick={() => openEdit(r)} className="text-[10px] font-extrabold text-[#174b59]" title="Edit room">
+                          <button onClick={() => openEdit(r)} className="text-[10px] font-extrabold text-[#16a4d4]" title="Edit room">
                             <Pencil size={13} />
                           </button>
                           <button onClick={() => remove(r)} className="text-[10px] font-extrabold text-[#b23a3a]" title="Delete room">
@@ -323,7 +323,7 @@ export const RoomsPage: React.FC = () => {
                 <div key={t.id} className="group rounded-[20px] border border-[#e7ebe8] bg-[#fbfcfa] p-4 transition hover:-translate-y-0.5 hover:border-[#cfd8d3] hover:bg-white">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2.5">
-                      <div className="mt-0.5 rounded-xl bg-[#e7f0ec] p-2 text-[#174b59]">
+                      <div className="mt-0.5 rounded-xl bg-[#e5f0f2] p-2 text-[#16a4d4]">
                         <Layers size={15} />
                       </div>
                       <div>
@@ -344,7 +344,7 @@ export const RoomsPage: React.FC = () => {
                     <div className="flex flex-wrap gap-1">
                       {t.amenities?.length ? (
                         t.amenities.map((a: any) => (
-                          <span key={a.amenityId} className="rounded-lg bg-[#e7f0ec] px-2 py-0.5 text-[9px] font-bold text-[#174b59]">
+                          <span key={a.amenityId} className="rounded-lg bg-[#e5f0f2] px-2 py-0.5 text-[9px] font-bold text-[#16a4d4]">
                             {a.amenity?.name || 'Amenity'}
                           </span>
                         ))
@@ -358,7 +358,7 @@ export const RoomsPage: React.FC = () => {
                       </span>
                       {canManage && (
                         <div className="flex gap-2">
-                          <button onClick={() => openEditType(t)} className="text-[10px] font-extrabold text-[#174b59]" title="Edit type">
+                          <button onClick={() => openEditType(t)} className="text-[10px] font-extrabold text-[#16a4d4]" title="Edit type">
                             <Pencil size={13} />
                           </button>
                           <button onClick={() => removeType(t)} className="text-[10px] font-extrabold text-[#b23a3a]" title="Delete type">
@@ -461,7 +461,7 @@ export const RoomsPage: React.FC = () => {
                       type="button"
                       onClick={() => toggleAmenity(a.id)}
                       className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${
-                        active ? 'bg-[#174b59] text-white' : 'border border-[#dfe4e0] bg-[#fbfcfa] text-[#718086]'
+                        active ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-[#fbfcfa] text-[#718086]'
                       }`}
                     >
                       {a.name}

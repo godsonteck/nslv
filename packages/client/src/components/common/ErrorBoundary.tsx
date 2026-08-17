@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 this.setState({ error: null });
               }}
               style={{
-                background: '#174b59',
+                background: '#16a4d4',
                 color: '#fff',
                 border: 'none',
                 borderRadius: 12,

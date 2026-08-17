@@ -71,7 +71,7 @@ const AuditDetailModal: React.FC<{ log: AuditLogEntry | null; onClose: () => voi
 
         {log.userName && (
           <div className="bg-[#14161D] border border-[#2B303E] rounded p-3 flex items-center gap-3">
-            <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-bold text-[#C5A880]">
+            <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-bold text-[#f1a83f]">
               {(log.userName ?? 'S')[0]}
             </div>
             <div>
@@ -183,7 +183,7 @@ export const AuditLogsPage: React.FC = () => {
       header: '',
       align: 'right' as const,
       render: (log: AuditLogEntry) => (
-        <button onClick={() => setDetailLog(log)} className="p-1 hover:bg-[#232733] rounded text-[#C5A880]" title="Inspect Event">
+        <button onClick={() => setDetailLog(log)} className="p-1 hover:bg-[#232733] rounded text-[#f1a83f]" title="Inspect Event">
           <Eye size={15} />
         </button>
       ),

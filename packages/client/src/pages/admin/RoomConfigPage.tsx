@@ -210,7 +210,7 @@ export const RoomConfigPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]">
-            <Building size={13} className="text-[#b18a55]" /> Administration · Room Configuration
+            <Building size={13} className="text-[#a8761e]" /> Administration · Room Configuration
           </div>
           <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">
             Room Configuration
@@ -242,7 +242,7 @@ export const RoomConfigPage: React.FC = () => {
           onClick={() => setActiveTab('types')}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-extrabold transition border-b-2 ${
             activeTab === 'types'
-              ? 'border-[#174b59] text-[#174b59]'
+              ? 'border-[#16a4d4] text-[#16a4d4]'
               : 'border-transparent text-[#7c8a95] hover:text-[#1a2b3c]'
           }`}
         >
@@ -252,7 +252,7 @@ export const RoomConfigPage: React.FC = () => {
           onClick={() => setActiveTab('rooms')}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-extrabold transition border-b-2 ${
             activeTab === 'rooms'
-              ? 'border-[#174b59] text-[#174b59]'
+              ? 'border-[#16a4d4] text-[#16a4d4]'
               : 'border-transparent text-[#7c8a95] hover:text-[#1a2b3c]'
           }`}
         >
@@ -270,7 +270,7 @@ export const RoomConfigPage: React.FC = () => {
                   <h3 className="font-bold text-[#1a2b3c]">{t.name}</h3>
                   <div className="text-[11px] text-[#7c8a95]">{t._count?.rooms || 0} room(s) assigned</div>
                 </div>
-                <span className="font-mono text-base font-extrabold text-[#174b59]">
+                <span className="font-mono text-base font-extrabold text-[#16a4d4]">
                   {formatCurrency(Number(t.basePrice))}
                   <span className="text-[10px] font-normal text-[#7c8a95]">/night</span>
                 </span>
@@ -307,7 +307,7 @@ export const RoomConfigPage: React.FC = () => {
               align: 'right' as const,
               render: (r: any) => (
                 <div className="flex items-center justify-end gap-1">
-                  <button onClick={() => openEditRoom(r)} className="p-1.5 text-[#5b6b7a] hover:text-[#174b59]">
+                  <button onClick={() => openEditRoom(r)} className="p-1.5 text-[#5b6b7a] hover:text-[#16a4d4]">
                     <Pencil size={14} />
                   </button>
                   <button onClick={() => removeRoom(r)} className="p-1.5 text-[#5b6b7a] hover:text-red-600">

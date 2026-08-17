@@ -113,9 +113,9 @@ export const BrandingSettingsPage: React.FC = () => {
   const activeTheme = theme ?? ({
     villaName: 'NS Luxury Villa',
     villaTagline: 'Property Operations',
-    primaryColor: '#174b59',
-    secondaryColor: '#b18a55',
-    accentColor: '#d9bd91',
+    primaryColor: '#16a4d4',
+    secondaryColor: '#f1a83f',
+    accentColor: '#1cecd4',
     bgColor: '#f5f6f4',
     textColor: '#14232b',
     textMuted: '#7a858a',
@@ -157,7 +157,7 @@ export const BrandingSettingsPage: React.FC = () => {
       <div className="space-y-6">
         <div className="bg-[#1C1F28] border border-[#2B303E] rounded-lg p-6 space-y-5">
           <div className="flex items-center gap-2 mb-2">
-            <Palette size={18} className="text-[#C5A880]" />
+            <Palette size={18} className="text-[#f1a83f]" />
             <h2 className="text-base font-bold text-[#F4F4F2]">Brand identity</h2>
           </div>
 
@@ -186,7 +186,7 @@ export const BrandingSettingsPage: React.FC = () => {
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'logoUrl')}
-                className="block w-full text-[11px] text-[#D9DFE7] file:mr-3 file:rounded file:border-0 file:bg-[#C5A880] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
+                className="block w-full text-[11px] text-[#D9DFE7] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
               />
               <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[#2B303E] bg-[#0E1117]">
                 {logoValue ? (
@@ -205,7 +205,7 @@ export const BrandingSettingsPage: React.FC = () => {
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'loginBgUrl')}
-                className="block w-full text-[11px] text-[#D9DFE7] file:mr-3 file:rounded file:border-0 file:bg-[#C5A880] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
+                className="block w-full text-[11px] text-[#D9DFE7] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
               />
               <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[#2B303E] bg-[#0E1117]">
                 {loginBgValue ? (
@@ -253,7 +253,7 @@ export const BrandingSettingsPage: React.FC = () => {
               type="checkbox"
               checked={Boolean(getValue('enableDarkMode'))}
               onChange={(e) => handleChange('enableDarkMode', e.target.checked)}
-              className="h-4 w-4 rounded accent-[#C5A880]"
+              className="h-4 w-4 rounded accent-[#f1a83f]"
             />
           </label>
         </div>

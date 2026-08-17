@@ -250,7 +250,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                       key={c}
                       onClick={() => setCategory(c)}
                       className={`whitespace-nowrap rounded-xl px-3 py-2 text-[10px] font-extrabold ${
-                        category === c ? 'bg-[#174b59] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'
+                        category === c ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'
                       }`}
                     >
                       {c}
@@ -274,7 +274,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                         <div className="text-xs font-extrabold text-[#26363e]">{i.name}</div>
                         <div className="mt-1 text-[10px] text-[#899397]">{i.category?.name || i.category || 'General'}</div>
                       </div>
-                      <span className="text-xs font-extrabold text-[#8d693c]">{formatCurrency(Number(i.price || 0))}</span>
+                      <span className="text-xs font-extrabold text-[#a8761e]">{formatCurrency(Number(i.price || 0))}</span>
                     </div>
                     {i.isAvailable === false && <div className="mt-3">{statusBadge('OUT_OF_SERVICE')}</div>}
                     {canManage && (

@@ -54,12 +54,12 @@ export const getDefaultCategorySeeds = (type?: string) => {
   const normalizedType = (type ?? '').toUpperCase();
   if (!normalizedType) {
     return Object.entries(DEFAULT_CATEGORY_SEEDS).flatMap(([categoryType, items]) =>
-      items.map((item) => ({ ...item, type: categoryType as ItemCategoryType, color: '#174b59' }))
+      items.map((item) => ({ ...item, type: categoryType as ItemCategoryType, color: '#16a4d4' }))
     );
   }
 
   const items = DEFAULT_CATEGORY_SEEDS[normalizedType] ?? [];
-  return items.map((item) => ({ ...item, type: normalizedType as ItemCategoryType, color: '#174b59' }));
+  return items.map((item) => ({ ...item, type: normalizedType as ItemCategoryType, color: '#16a4d4' }));
 };
 
 export class CategoryService {

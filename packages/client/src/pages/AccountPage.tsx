@@ -18,7 +18,7 @@ return <ShellPage eyebrow="ACCOUNT" title="My account" subtitle="Manage your pro
   <div className="grid gap-6 lg:grid-cols-3">
     <Section title="Profile photo" subtitle="PNG, JPG or GIF up to 2MB.">
       <div className="flex flex-col items-center gap-4 p-6">
-        <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full ring-4 ring-[#eef3f2]">{preview?<img src={preview} alt="avatar" className="h-full w-full object-cover"/>:user?.avatarUrl?<img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover"/>:<span className="text-3xl font-extrabold text-white bg-[#174b59] flex h-full w-full items-center justify-center">{initials}</span>}</div>
+        <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full ring-4 ring-[#e8f2f4]">{preview?<img src={preview} alt="avatar" className="h-full w-full object-cover"/>:user?.avatarUrl?<img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover"/>:<span className="text-3xl font-extrabold text-white bg-[#16a4d4] flex h-full w-full items-center justify-center">{initials}</span>}</div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar}/>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={()=>fileRef.current?.click()}><Camera size={14}/> {preview?'Choose different':'Upload photo'}</Button>

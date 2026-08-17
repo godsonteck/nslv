@@ -220,7 +220,7 @@ export const GuestBillsPage: React.FC = () => {
                         Checked in {new Date(stay.actualCheckIn).toLocaleDateString()}
                       </div>
                     </td>
-                    <td className="px-5 py-4 font-mono text-[11px] font-bold text-[#8d693c]">
+                    <td className="px-5 py-4 font-mono text-[11px] font-bold text-[#a8761e]">
                       {folio.id.slice(0, 8).toUpperCase()}
                     </td>
                     <td className="px-5 py-4">{statusBadge(folio.status)}</td>
@@ -257,7 +257,7 @@ export const GuestBillsPage: React.FC = () => {
                 <div className="mt-1 text-xs text-[#899397]">
                   Checked in {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString()} · Room {selectedBill.stay.room?.number ?? '—'} ({selectedBill.stay.room?.roomType?.name || 'Room'})
                 </div>
-                <div className="mt-0.5 font-mono text-[10px] text-[#8d693c]">
+                <div className="mt-0.5 font-mono text-[10px] text-[#a8761e]">
                   Folio: {selectedBill.folio.id.slice(0, 8).toUpperCase()} · Status: {selectedBill.folio.status}
                 </div>
               </div>
@@ -293,7 +293,7 @@ export const GuestBillsPage: React.FC = () => {
                           {item.description}
                           {item.voidedAt && <span className="ml-2 text-[10px] text-red-500">(Voided)</span>}
                         </td>
-                        <td className="px-4 py-3 text-[10px] font-extrabold text-[#174b59] uppercase">{item.department}</td>
+                        <td className="px-4 py-3 text-[10px] font-extrabold text-[#16a4d4] uppercase">{item.department}</td>
                         <td className="px-4 py-3 text-right text-xs text-[#718086]">{item.quantity ?? 1}</td>
                         <td className="px-4 py-3 text-right text-xs text-[#718086]">{formatCurrency(money(item.unitPrice || item.amount))}</td>
                         <td className="px-4 py-3 text-right text-xs font-extrabold text-[#26363e]">

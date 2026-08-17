@@ -126,7 +126,7 @@ export const EventSpacesPage: React.FC = () => {
       key: 'rate',
       header: 'Rate / Hour',
       render: (s: EventSpaceRecord) => (
-        <span className="font-mono text-xs font-bold text-[#174b59]">
+        <span className="font-mono text-xs font-bold text-[#16a4d4]">
           {s.pricePerHour ? formatCurrency(Number(s.pricePerHour)) : 'Free / Included'}
         </span>
       ),
@@ -137,7 +137,7 @@ export const EventSpacesPage: React.FC = () => {
       align: 'right' as const,
       render: (s: EventSpaceRecord) => (
         <div className="flex items-center justify-end gap-1">
-          <button onClick={() => openEdit(s)} className="p-1.5 text-[#5b6b7a] hover:text-[#174b59]">
+          <button onClick={() => openEdit(s)} className="p-1.5 text-[#5b6b7a] hover:text-[#16a4d4]">
             <Pencil size={14} />
           </button>
           <button onClick={() => handleDelete(s)} className="p-1.5 text-[#5b6b7a] hover:text-red-600">
@@ -153,7 +153,7 @@ export const EventSpacesPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]">
-            <Building2 size={13} className="text-[#b18a55]" /> Administration · Venues & Spaces
+            <Building2 size={13} className="text-[#a8761e]" /> Administration · Venues & Spaces
           </div>
           <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">
             Event Spaces Management
