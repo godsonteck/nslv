@@ -10,10 +10,10 @@ import { formatCurrency, formatGuestName } from '@nslv/shared';
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 type Person = { key: string; mode: 'existing' | 'new'; guestId: string; firstName: string; lastName: string; phone: string; email: string };
-type RoomLine = { key: string; roomId: string; adults: string; children: string; primaryKey: string; additionalKeys: string[] };
+type RoomLine = { key: string; roomId: string; adults: string; children: string; primaryKey: string; additionalKeys: string[]; depositAmount: string; depositMethod: string; depositReference: string };
 
 const emptyPerson: Person = { key: uid(), mode: 'existing', guestId: '', firstName: '', lastName: '', phone: '', email: '' };
-const emptyRoomLine = (primaryKey: string): RoomLine => ({ key: uid(), roomId: '', adults: '1', children: '0', primaryKey, additionalKeys: [] });
+const emptyRoomLine = (primaryKey: string): RoomLine => ({ key: uid(), roomId: '', adults: '1', children: '0', primaryKey, additionalKeys: [], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
 
 const guestName = (g: any) => (g ? `${g.firstName ?? ''} ${g.lastName ?? ''}`.trim() || '—' : '—');
 
@@ -31,7 +31,7 @@ export const ReservationsPage: React.FC = () => {
   const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing');
   const [guestFilter, setGuestFilter] = useState('');
   const [newGuest, setNewGuest] = useState({ firstName: '', lastName: '', phone: '', email: '' });
-  const [form, setForm] = useState({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] as string[] });
+  const [form, setForm] = useState({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] as string[], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
 
   // Multi-room (one party) booking
   const [multi, setMulti] = useState(false);
@@ -105,7 +105,7 @@ export const ReservationsPage: React.FC = () => {
     setGuestMode('existing');
     setGuestFilter('');
     setNewGuest({ firstName: '', lastName: '', phone: '', email: '' });
-    setForm({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] });
+    setForm({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
   };
 
   const startMulti = () => {
@@ -169,6 +169,9 @@ export const ReservationsPage: React.FC = () => {
             adults: Number(line.adults) || 1,
             children: Number(line.children) || 0,
             additionalGuestIds: line.additionalKeys.map((k) => keyToGuest.get(k)!).filter(Boolean),
+            depositAmount: Number(line.depositAmount) > 0 ? Number(line.depositAmount) : undefined,
+            depositMethod: Number(line.depositAmount) > 0 ? line.depositMethod : undefined,
+            depositReference: Number(line.depositAmount) > 0 && line.depositReference.trim() ? line.depositReference.trim() : undefined,
           };
         });
         const res = await reservationsApi.createMulti({
@@ -200,6 +203,9 @@ export const ReservationsPage: React.FC = () => {
           discountAmount: Number(form.discountAmount) || 0,
           discountReason: form.discountAmount ? form.discountReason.trim() : undefined,
           additionalGuestIds: form.additionalGuestIds,
+          depositAmount: Number(form.depositAmount) > 0 ? Number(form.depositAmount) : undefined,
+          depositMethod: Number(form.depositAmount) > 0 ? form.depositMethod : undefined,
+          depositReference: Number(form.depositAmount) > 0 && form.depositReference.trim() ? form.depositReference.trim() : undefined,
         });
         showToast('success', guestMode === 'new' ? 'Guest created and reservation booked' : 'Reservation created');
       }
@@ -626,6 +632,22 @@ export const ReservationsPage: React.FC = () => {
                             <TextInput type="number" min="0" value={line.children} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, children: e.target.value } : x)))} />
                           </FormField>
                         </div>
+                        <div className="mt-3 grid gap-3 sm:grid-cols-3 rounded-xl bg-[#fbfcfa] p-3 border border-[#eef1ee]">
+                          <FormField label="Partial payment (GHS)">
+                            <TextInput type="number" min="0" step="0.01" value={line.depositAmount} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, depositAmount: e.target.value } : x)))} placeholder="0.00" />
+                          </FormField>
+                          <FormField label="Method" required={Number(line.depositAmount) > 0}>
+                            <SelectInput required={Number(line.depositAmount) > 0} value={line.depositMethod} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, depositMethod: e.target.value } : x)))}>
+                              <option value="CASH">Cash</option>
+                              <option value="CARD">Card</option>
+                              <option value="MOBILE_MONEY">Mobile Money</option>
+                              <option value="BANK_TRANSFER">Bank Transfer</option>
+                            </SelectInput>
+                          </FormField>
+                          <FormField label="Reference (optional)">
+                            <TextInput value={line.depositReference} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, depositReference: e.target.value } : x)))} placeholder="e.g. MoMo ref" />
+                          </FormField>
+                        </div>
                         <FormField label="Additional guests sharing this room">
                           {people.length === 0 ? (
                             <p className="text-xs text-[#8a9598]">Add guests above first.</p>
@@ -761,6 +783,27 @@ export const ReservationsPage: React.FC = () => {
                   <TextInput type="date" required value={form.checkOutDate} onChange={(e) => setForm({ ...form, checkOutDate: e.target.value })} />
                 </FormField>
               </div>
+
+              <div className="rounded-2xl border border-[#e7ebe8] p-4">
+                <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Partial payment (optional)</div>
+                <p className="mt-0.5 text-[10px] text-[#8a9598]">Record a deposit now. The full balance is settled at check-in or check-out.</p>
+                <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                  <FormField label="Amount (GHS)">
+                    <TextInput type="number" min="0" step="0.01" value={form.depositAmount} onChange={(e) => setForm({ ...form, depositAmount: e.target.value })} placeholder="0.00" />
+                  </FormField>
+                  <FormField label="Method" required={Number(form.depositAmount) > 0}>
+                    <SelectInput required={Number(form.depositAmount) > 0} value={form.depositMethod} onChange={(e) => setForm({ ...form, depositMethod: e.target.value })}>
+                      <option value="CASH">Cash</option>
+                      <option value="CARD">Card</option>
+                      <option value="MOBILE_MONEY">Mobile Money</option>
+                      <option value="BANK_TRANSFER">Bank Transfer</option>
+                    </SelectInput>
+                  </FormField>
+                  <FormField label="Reference (optional)">
+                    <TextInput value={form.depositReference} onChange={(e) => setForm({ ...form, depositReference: e.target.value })} placeholder="e.g. MoMo ref / card last 4" />
+                  </FormField>
+                </div>
+              </div>
             </>
           )}
 
@@ -811,6 +854,7 @@ export const ReservationsPage: React.FC = () => {
           const checkIn = new Date(detailsRes.checkInDate);
           const checkOut = new Date(detailsRes.checkOutDate);
           const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24)));
+          const recordedDeposits = (detailsRes.payments || []).filter((p: any) => p.status === 'COMPLETED' && !p.voidedAt);
 
           return (
             <div className="p-6 space-y-6">
@@ -963,9 +1007,25 @@ export const ReservationsPage: React.FC = () => {
                     <span className="font-extrabold text-[#20343e]">{formatCurrency(detailsRes.totalAmount)}</span>
                   </div>
                   {Number(detailsRes.depositAmount || 0) > 0 && (
-                    <div className="flex justify-between py-1 bg-[#f7f9f8] p-2 rounded-lg">
-                      <span className="text-[#174b59] font-bold">Deposit Logged</span>
-                      <span className="font-extrabold text-[#174b59]">{formatCurrency(detailsRes.depositAmount)}</span>
+                    <div className="space-y-1.5 bg-[#f7f9f8] p-2 rounded-lg">
+                      <div className="flex justify-between">
+                        <span className="text-[#174b59] font-bold">Deposit Logged</span>
+                        <span className="font-extrabold text-[#174b59]">{formatCurrency(detailsRes.depositAmount)}</span>
+                      </div>
+                      {recordedDeposits.length > 0 ? (
+                        recordedDeposits.map((p: any) => (
+                          <div key={p.id} className="flex justify-between text-[11px]">
+                            <span className="text-[#5f6b6f]">
+                              Recorded · {p.method}
+                              {p.reference ? ` · ${p.reference}` : ''}
+                              {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
+                            </span>
+                            <span className="text-[#2e7d32] font-bold">{formatCurrency(p.amount)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-[11px] text-[#b0743a]">Not yet recorded — collect at check-in</div>
+                      )}
                     </div>
                   )}
                 </div>

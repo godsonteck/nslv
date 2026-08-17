@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   guestFindUnique: vi.fn(),
   guestFindMany: vi.fn(),
   paymentAggregate: vi.fn(),
+  paymentCreate: vi.fn(),
+  paymentFindFirst: vi.fn(),
   folioFindFirst: vi.fn(),
   folioItemCreate: vi.fn(),
   folioUpdate: vi.fn(),
@@ -64,6 +66,8 @@ describe('Surgical Reservation Fixes', () => {
       },
       payment: {
         aggregate: mocks.paymentAggregate,
+        create: mocks.paymentCreate,
+        findFirst: mocks.paymentFindFirst,
       },
       folio: {
         findFirst: mocks.folioFindFirst,
@@ -510,6 +514,10 @@ describe('Surgical Reservation Fixes', () => {
       mocks.roomFindUnique.mockResolvedValue(room);
       mocks.guestFindUnique.mockResolvedValue({ id: 'guest-1' });
       mocks.reservationCreate.mockImplementation(({ data }) => Promise.resolve({ id: 'res-1', ...data }));
+      // The deposit recorder re-reads the reservation inside the same transaction.
+      mocks.reservationFindUnique.mockResolvedValue({ id: 'res-1', totalAmount: 500, guests: [{ guestId: 'guest-1' }] });
+      mocks.paymentAggregate.mockResolvedValue({ _sum: { amount: null } });
+      mocks.paymentCreate.mockResolvedValue({ id: 'payment-1' });
     });
 
     it('deposit = 0, total = 500 -> succeeds', async () => {
@@ -531,9 +539,19 @@ describe('Surgical Reservation Fixes', () => {
         checkInDate: '2030-06-01',
         checkOutDate: '2030-06-03',
         depositAmount: 499,
+        depositMethod: 'CASH',
       });
       expect(res.depositAmount).toBe(499);
       expect(res.totalAmount).toBe(500);
+      expect(mocks.paymentCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'DEPOSIT',
+            reservationId: 'res-1',
+            method: 'CASH',
+          }),
+        }),
+      );
     });
 
     it('deposit = 500, total = 500 -> succeeds', async () => {
@@ -543,9 +561,19 @@ describe('Surgical Reservation Fixes', () => {
         checkInDate: '2030-06-01',
         checkOutDate: '2030-06-03',
         depositAmount: 500,
+        depositMethod: 'MOBILE_MONEY',
       });
       expect(res.depositAmount).toBe(500);
       expect(res.totalAmount).toBe(500);
+      expect(mocks.paymentCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'DEPOSIT',
+            reservationId: 'res-1',
+            method: 'MOBILE_MONEY',
+          }),
+        }),
+      );
     });
 
     it('deposit = 501, total = 500 -> rejected with DEPOSIT_EXCEEDS_TOTAL', async () => {
@@ -556,12 +584,30 @@ describe('Surgical Reservation Fixes', () => {
           checkInDate: '2030-06-01',
           checkOutDate: '2030-06-03',
           depositAmount: 501,
+          depositMethod: 'CASH',
         });
         expect.unreachable('Should have thrown AppError');
       } catch (err: any) {
         expect(err).toBeInstanceOf(AppError);
         expect(err.code).toBe('DEPOSIT_EXCEEDS_TOTAL');
         expect(err.statusCode).toBe(409);
+      }
+    });
+
+    it('deposit > 0 without a payment method -> rejected with DEPOSIT_METHOD_REQUIRED', async () => {
+      try {
+        await ReservationService.createReservation({
+          guestId: 'guest-1',
+          roomId: 'room-1',
+          checkInDate: '2030-06-01',
+          checkOutDate: '2030-06-03',
+          depositAmount: 100,
+        });
+        expect.unreachable('Should have thrown AppError');
+      } catch (err: any) {
+        expect(err).toBeInstanceOf(AppError);
+        expect(err.code).toBe('DEPOSIT_METHOD_REQUIRED');
+        expect(err.statusCode).toBe(422);
       }
     });
 
@@ -574,6 +620,53 @@ describe('Surgical Reservation Fixes', () => {
       });
       expect(res.depositAmount).toBe(0);
       expect(res.totalAmount).toBe(500);
+    });
+  });
+
+  // ==========================================================
+  // FIX #5: DEPOSIT MUST BE RESOLVED BEFORE CANCELLING / NO-SHOW
+  // ==========================================================
+  describe('Fix #5: Deposits blocked from being orphaned on cancel / no-show', () => {
+    beforeEach(() => {
+      mocks.reservationFindUnique.mockResolvedValue({
+        id: 'res-1',
+        status: 'CONFIRMED',
+        roomId: 'room-1',
+        checkInDate: new Date('2030-06-01'),
+        checkOutDate: new Date('2030-06-03'),
+      });
+      mocks.reservationUpdate.mockResolvedValue({ id: 'res-1', status: 'CANCELLED' });
+      mocks.roomFindUnique.mockResolvedValue({ id: 'room-1', status: 'AVAILABLE' });
+      mocks.paymentFindFirst.mockResolvedValue(null);
+    });
+
+    it('cancelling a reservation without a recorded deposit succeeds', async () => {
+      const res = await ReservationService.cancelReservation('res-1', 'user-1', 'Guest changed plans');
+      expect(res.status).toBe('CANCELLED');
+    });
+
+    it('cancelling a reservation that holds a deposit is blocked with DEPOSIT_REFUND_REQUIRED', async () => {
+      mocks.paymentFindFirst.mockResolvedValue({ id: 'payment-1', amount: 499 });
+      try {
+        await ReservationService.cancelReservation('res-1', 'user-1', 'Guest changed plans');
+        expect.unreachable('Should have thrown AppError');
+      } catch (err: any) {
+        expect(err).toBeInstanceOf(AppError);
+        expect(err.code).toBe('DEPOSIT_REFUND_REQUIRED');
+        expect(err.statusCode).toBe(409);
+      }
+    });
+
+    it('marking a no-show for a reservation that holds a deposit is blocked', async () => {
+      mocks.paymentFindFirst.mockResolvedValue({ id: 'payment-1', amount: 500 });
+      try {
+        await ReservationService.markNoShow('res-1', 'user-1');
+        expect.unreachable('Should have thrown AppError');
+      } catch (err: any) {
+        expect(err).toBeInstanceOf(AppError);
+        expect(err.code).toBe('DEPOSIT_REFUND_REQUIRED');
+        expect(err.statusCode).toBe(409);
+      }
     });
   });
 });

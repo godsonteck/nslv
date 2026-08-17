@@ -316,6 +316,8 @@ export const createReservationSchema = z.object({
   discountReason: z.string().min(3).max(500).trim().optional(),
   taxAmount: nonNegativeNumber.optional(),
   depositAmount: nonNegativeNumber.optional(),
+  depositMethod: paymentMethodSchema.optional(),
+  depositReference: z.string().max(100).trim().optional(),
   bookingId: uuidSchema.optional(),
   additionalGuestIds: z.array(uuidSchema).optional(),
 });
@@ -336,6 +338,9 @@ export const createMultiReservationSchema = z.object({
         adults: wholeNumber.optional(),
         children: wholeNumber.optional(),
         additionalGuestIds: z.array(uuidSchema).optional(),
+        depositAmount: nonNegativeNumber.optional(),
+        depositMethod: paymentMethodSchema.optional(),
+        depositReference: z.string().max(100).trim().optional(),
       }),
     )
     .min(1, 'At least one room is required'),

@@ -4,10 +4,11 @@
 // ============================================
 
 import { prisma } from '../config';
-import { Prisma, ReservationStatus, BookingSource, RoomStatus } from '@prisma/client';
+import { Prisma, ReservationStatus, BookingSource, RoomStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
+import { PaymentService } from './payments.service';
 
 export interface CreateReservationDTO {
   guestId: string;
@@ -22,6 +23,10 @@ export interface CreateReservationDTO {
   discountApprovedBy?: string;
   taxAmount?: number;
   depositAmount?: number;
+  /** Payment method when a partial payment is collected at booking time */
+  depositMethod?: PaymentMethod | string;
+  /** Provider/reference for the collected partial payment */
+  depositReference?: string;
   source?: BookingSource | string;
   specialRequests?: string;
   notes?: string;
@@ -46,6 +51,10 @@ export interface CreateMultiReservationDTO {
     adults?: number;
     children?: number;
     additionalGuestIds?: string[];
+    /** Optional partial payment collected for this room at booking time */
+    depositAmount?: number;
+    depositMethod?: PaymentMethod | string;
+    depositReference?: string;
   }>;
 }
 
@@ -135,6 +144,11 @@ export class ReservationService {
         folios: true,
         checkIns: { select: { checkedInBy: true, actualCheckIn: true } },
         checkOuts: { select: { checkedOutBy: true, actualCheckOut: true } },
+        payments: {
+          where: { type: 'DEPOSIT' },
+          select: { id: true, amount: true, method: true, reference: true, status: true, voidedAt: true, processedAt: true },
+          orderBy: { processedAt: 'asc' },
+        },
       },
       orderBy: { checkInDate: 'asc' },
     });
@@ -299,6 +313,10 @@ export class ReservationService {
     if (depositAmount > totalAmount) {
       throw new AppError('Deposit cannot exceed the total reservation amount.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
     }
+    const depositMethod = (data.depositMethod as PaymentMethod) || null;
+    if (depositAmount > 0 && !['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'].includes(depositMethod as string)) {
+      throw new AppError('A payment method is required to record a partial payment.', 422, 'DEPOSIT_METHOD_REQUIRED');
+    }
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const confirmationNo = `NSVL-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -351,6 +369,23 @@ export class ReservationService {
       where: { id: data.roomId },
       data: { status: RoomStatus.RESERVED },
     });
+
+    // Record any partial payment collected at booking time as a real deposit
+    // on the payments ledger. It is linked to the reservation so check-in can
+    // materialise it onto the folio as immovable payment history.
+    if (depositAmount > 0 && depositMethod) {
+      await PaymentService.processPaymentInTx(tx, {
+        reservationId: reservation.id,
+        guestId: data.guestId,
+        amount: depositAmount,
+        method: depositMethod,
+        reference: data.depositReference?.trim() || undefined,
+        idempotencyKey: `reservation-deposit-${reservation.id}-${reservation.confirmationNo}`,
+        description: `Reservation deposit collected (${reservation.confirmationNo})`,
+        paymentType: 'DEPOSIT',
+        processedBy: data.createdBy || 'SYSTEM',
+      });
+    }
 
     return reservation;
   }
@@ -471,6 +506,27 @@ export class ReservationService {
   }
 
   /** Cancel reservation */
+  /**
+   * A reservation may hold a recorded deposit (collected at booking time) that
+   * has not yet been materialised onto a folio. Closing the reservation out
+   * (cancel / no-show) without resolving that deposit would orphan the money,
+   * so the operator must refund or forfeit it first.
+   */
+  private static async assertNoUnsettledDeposit(tx: Prisma.TransactionClient, reservationId: string) {
+    if (!tx.payment?.findFirst) return;
+    const deposit = await tx.payment.findFirst({
+      where: { reservationId, type: 'DEPOSIT', status: PaymentStatus.COMPLETED, voidedAt: null },
+      select: { id: true, amount: true },
+    });
+    if (deposit) {
+      throw new AppError(
+        `This reservation holds a recorded deposit of ${deposit.amount}. Refund or forfeit it before closing this reservation.`,
+        409,
+        'DEPOSIT_REFUND_REQUIRED',
+      );
+    }
+  }
+
   static async cancelReservation(id: string, cancelledBy: string, reason?: string) {
     return prisma.$transaction(async (tx) => {
       const reservation = await tx.reservation.findUnique({ where: { id } });
@@ -478,6 +534,7 @@ export class ReservationService {
       if (reservation.status === 'CHECKED_IN') {
         throw new Error('Cannot cancel a reservation that is currently checked in.');
       }
+      await this.assertNoUnsettledDeposit(tx, id);
 
       const updated = await tx.reservation.update({
         where: { id },
@@ -523,6 +580,7 @@ export class ReservationService {
       if (!['PENDING', 'CONFIRMED'].includes(reservation.status)) {
         throw new AppError(`Cannot mark a reservation with status ${reservation.status} as no-show.`, 409, 'INVALID_RESERVATION_STATE');
       }
+      await this.assertNoUnsettledDeposit(tx, id);
 
       const cancelReason = reason?.trim() || 'Guest did not arrive (No-show)';
       const updated = await tx.reservation.update({
