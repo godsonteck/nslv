@@ -532,4 +532,182 @@ export class StayService {
       throw error;
     }
   }
+
+  /**
+   * Get Late Check-Outs Audit for Admin Portal
+   * Returns complete list of all late checkouts with stay details, delays, fees, and staff attribution
+   */
+  static async getLateCheckoutsAudit(options: { startDate?: Date; endDate?: Date; search?: string } = {}) {
+    const { startDate, endDate, search } = options;
+
+    // 1. Fetch current policy settings
+    const [rateSetting, timeSetting] = await Promise.all([
+      prisma.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } }),
+      prisma.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } }),
+    ]);
+    const hourlyRate = rateSetting ? Number(JSON.parse(rateSetting.value)) || 50 : 50;
+    const checkoutTime = timeSetting ? String(JSON.parse(timeSetting.value) || '12:00') : '12:00';
+
+    // 2. Fetch all CheckOut records with associated relations
+    const whereDate = startDate && endDate ? { gte: startDate, lte: endDate } : undefined;
+
+    const checkOuts: any[] = await prisma.checkOut.findMany({
+      where: whereDate ? { actualCheckOut: whereDate } : undefined,
+      include: {
+        guest: true,
+        room: { include: { roomType: true } },
+        reservation: {
+          include: {
+            room: { include: { roomType: true } },
+            checkIn: true,
+            guests: { include: { guest: true } },
+            folios: {
+              include: {
+                items: {
+                  where: {
+                    voidedAt: null,
+                    OR: [
+                      { referenceType: 'CHECKOUT' },
+                      { description: { contains: 'late', mode: 'insensitive' } },
+                    ],
+                  },
+                },
+                payments: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { actualCheckOut: 'desc' },
+    });
+
+    // 3. Resolve user IDs to staff names
+    const userIds = new Set<string>();
+    for (const co of checkOuts) {
+      if (co.checkedOutBy) userIds.add(co.checkedOutBy);
+      if (co.reservation?.checkIn?.checkedInBy) userIds.add(co.reservation.checkIn.checkedInBy);
+    }
+    const staffUsers = await prisma.user.findMany({
+      where: { id: { in: Array.from(userIds) } },
+      select: { id: true, firstName: true, lastName: true, email: true },
+    });
+    const staffMap = new Map(
+      staffUsers.map((u) => [u.id, `${u.firstName} ${u.lastName}`.trim() || u.email || 'Staff']),
+    );
+
+    // 4. Filter and structure late check-outs
+    const lateList: Array<{
+      id: string;
+      reservationId: string;
+      confirmationNo: string;
+      guestId: string;
+      guestName: string;
+      guestPhone: string;
+      guestEmail: string;
+      roomNumber: string;
+      roomTypeName: string;
+      checkInDate: string;
+      scheduledCheckOutDate: string;
+      actualCheckIn: string | null;
+      actualCheckOut: string;
+      deadline: string;
+      hoursLate: number;
+      feeAmount: number;
+      feeDescription: string;
+      paymentMethod: string;
+      checkedOutByName: string;
+      checkedInByName: string;
+      roomCondition: string;
+      notes: string | null;
+    }> = [];
+
+    let totalFees = 0;
+    let totalDelayMinutes = 0;
+
+    for (const co of checkOuts) {
+      const res = co.reservation;
+      if (!res) continue;
+
+      const schedOut = res.checkOutDate;
+      const lateCalc = this.calculateLateCheckoutFee(schedOut, co.actualCheckOut, hourlyRate, checkoutTime);
+
+      // Also check if there was a recorded folio late charge item
+      const folio = res.folios?.[0];
+      const lateItem = folio?.items?.find(
+        (i: any) => i.description?.toLowerCase().includes('late') || i.referenceType === 'CHECKOUT',
+      );
+
+      const isLate = lateCalc.isLate || !!lateItem;
+      if (!isLate) continue;
+
+      const hoursLate = lateItem ? Math.max(1, lateItem.quantity || lateCalc.lateHours) : lateCalc.lateHours;
+      const feeAmount = lateItem ? Number(lateItem.amount || 0) : lateCalc.fee;
+      const feeDescription = lateItem?.description || lateCalc.description || `Late checkout (${hoursLate}h @ GHS ${hourlyRate}/hr)`;
+
+      const guest = (co as any).guest || res.guests?.[0]?.guest;
+      const guestName = guest ? `${guest.firstName} ${guest.lastName}`.trim() : 'Guest';
+      const guestPhone = guest?.phone || '—';
+      const guestEmail = guest?.email || '—';
+
+      const roomObj = (co as any).room || (res as any).room;
+      const roomNumber = roomObj?.number || '—';
+      const roomTypeName = roomObj?.roomType?.name || 'Standard';
+
+      const checkedOutByName = staffMap.get(co.checkedOutBy) || 'Staff';
+      const checkedInByName = res.checkIn?.checkedInBy ? staffMap.get(res.checkIn.checkedInBy) || 'Staff' : 'Staff';
+
+      // Search filter if provided
+      if (search && search.trim()) {
+        const q = search.toLowerCase().trim();
+        const matches =
+          guestName.toLowerCase().includes(q) ||
+          guestPhone.toLowerCase().includes(q) ||
+          (res.confirmationNo || '').toLowerCase().includes(q) ||
+          roomNumber.toLowerCase().includes(q) ||
+          checkedOutByName.toLowerCase().includes(q);
+        if (!matches) continue;
+      }
+
+      totalFees += feeAmount;
+      totalDelayMinutes += hoursLate * 60;
+
+      lateList.push({
+        id: co.id,
+        reservationId: res.id,
+        confirmationNo: res.confirmationNo || res.id.slice(0, 8),
+        guestId: guest?.id || '',
+        guestName,
+        guestPhone,
+        guestEmail,
+        roomNumber,
+        roomTypeName,
+        checkInDate: new Date(res.checkInDate).toISOString(),
+        scheduledCheckOutDate: new Date(res.checkOutDate).toISOString(),
+        actualCheckIn: res.checkIn?.actualCheckIn ? new Date(res.checkIn.actualCheckIn).toISOString() : null,
+        actualCheckOut: new Date(co.actualCheckOut).toISOString(),
+        deadline: lateCalc.deadline.toISOString(),
+        hoursLate,
+        feeAmount,
+        feeDescription,
+        paymentMethod: co.paymentMethod || 'CASH',
+        checkedOutByName,
+        checkedInByName,
+        roomCondition: co.roomCondition || 'CLEAN',
+        notes: co.notes,
+      });
+    }
+
+    const count = lateList.length;
+    const avgDelayHours = count > 0 ? Number((totalDelayMinutes / count / 60).toFixed(1)) : 0;
+
+    return {
+      policy: { hourlyRate, checkoutTime },
+      summary: {
+        totalLateCheckouts: count,
+        totalFeesCollected: totalFees,
+        avgDelayHours,
+      },
+      records: lateList,
+    };
+  }
 }

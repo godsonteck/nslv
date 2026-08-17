@@ -43,6 +43,7 @@ const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminConsolePage = lazy(() => import('./pages/admin/AdminConsolePage'));
 const RoomConfigPage = lazy(() => import('./pages/admin/RoomConfigPage'));
 const EventSpacesPage = lazy(() => import('./pages/admin/EventSpacesPage'));
+const LateCheckoutsPage = lazy(() => import('./pages/admin/LateCheckoutsPage'));
 
 const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
 const UnauthorizedPage = lazy(() => import('./pages/error/UnauthorizedPage'));
@@ -134,6 +135,7 @@ export const App: React.FC = () => {
           <Route path="admin/categories" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['categories.view']}><CategoriesPage /></RequirePermission></Suspense>} />
           <Route path="admin/rooms" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['rooms.manage']}><RoomConfigPage /></RequirePermission></Suspense>} />
           <Route path="admin/event-spaces" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['events.edit']}><EventSpacesPage /></RequirePermission></Suspense>} />
+          <Route path="admin/late-checkouts" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['dashboard.view', 'reports.view', 'audit.view', 'settings.view']}><LateCheckoutsPage /></RequirePermission></Suspense>} />
 
           {/* Error pages */}
           <Route path="unauthorized" element={<Suspense fallback={<PageLoader />}><UnauthorizedPage /></Suspense>} />

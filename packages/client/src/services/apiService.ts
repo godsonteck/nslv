@@ -533,6 +533,49 @@ export const staysApi = {
     const data = await apiFetch<{ adjustedCount: number; hourlyRate: number; checkoutTime: string; totalCheckOuts: number }>('/stays/recalculate-late-fees', { method: 'POST' }, token());
     return { success: true, data };
   },
+  getLateCheckouts: async (params?: { startDate?: string; endDate?: string; search?: string }): Promise<{
+    success: true;
+    data: {
+      policy: { hourlyRate: number; checkoutTime: string };
+      summary: {
+        totalLateCheckouts: number;
+        totalFeesCollected: number;
+        avgDelayHours: number;
+      };
+      records: Array<{
+        id: string;
+        reservationId: string;
+        confirmationNo: string;
+        guestId: string;
+        guestName: string;
+        guestPhone: string;
+        guestEmail: string;
+        roomNumber: string;
+        roomTypeName: string;
+        checkInDate: string;
+        scheduledCheckOutDate: string;
+        actualCheckIn: string | null;
+        actualCheckOut: string;
+        deadline: string;
+        hoursLate: number;
+        feeAmount: number;
+        feeDescription: string;
+        paymentMethod: string;
+        checkedOutByName: string;
+        checkedInByName: string;
+        roomCondition: string;
+        notes: string | null;
+      }>;
+    };
+  }> => {
+    const qs = new URLSearchParams();
+    if (params?.startDate) qs.set('startDate', params.startDate);
+    if (params?.endDate) qs.set('endDate', params.endDate);
+    if (params?.search) qs.set('search', params.search);
+    const qStr = qs.toString() ? `?${qs.toString()}` : '';
+    const data = await apiFetch<any>(`/stays/late-checkouts${qStr}`, {}, token());
+    return { success: true, data };
+  },
 };
 
 // ──────────────────────────────────────────

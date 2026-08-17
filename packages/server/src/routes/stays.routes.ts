@@ -69,4 +69,21 @@ router.post('/recalculate-late-fees', requirePermission('settings.edit'), async 
   }
 });
 
+// Get all late check-outs audit for admin portal
+router.get('/late-checkouts', requirePermission('dashboard.view'), async (req, res, next) => {
+  try {
+    const { startDate, endDate, search } = req.query;
+    const start = startDate ? new Date(startDate as string) : undefined;
+    const end = endDate ? new Date(endDate as string) : undefined;
+    const data = await StayService.getLateCheckoutsAudit({
+      startDate: start,
+      endDate: end,
+      search: search ? String(search) : undefined,
+    });
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

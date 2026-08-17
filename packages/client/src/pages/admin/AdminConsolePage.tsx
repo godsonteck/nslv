@@ -28,6 +28,7 @@ import {
   Upload,
   BedDouble,
   CalendarClock,
+  Clock,
 } from 'lucide-react';
 
 interface ConsoleMetrics {
@@ -88,6 +89,7 @@ const QUICK_LINKS: QuickTile[] = [
   { label: 'Categories', to: '/admin/categories', icon: <Tags size={18} />, desc: 'Classify menus, stock, rooms & expenses' },
   { label: 'Menu & POS', to: '/admin/menus', icon: <Utensils size={18} />, desc: 'Catalog & department pricing' },
   { label: 'System settings', to: '/admin/settings', icon: <Settings size={18} />, desc: 'Property-wide configuration' },
+  { label: 'Late checkouts', to: '/admin/late-checkouts', icon: <Clock size={18} />, desc: 'Delayed departures & fee audit' },
   { label: 'Audit logs', to: '/admin/audit', icon: <ScrollText size={18} />, desc: 'Immutable activity trail' },
 ];
 

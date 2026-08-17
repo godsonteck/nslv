@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
-import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, CalendarClock, Palette, KeyRound, ScrollText, Tags } from 'lucide-react';
+import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, CalendarClock, Palette, KeyRound, ScrollText, Tags, Clock } from 'lucide-react';
 import type { PermissionCode } from '@nslv/shared';
 
 interface NavItem { label: string; to: string; icon: typeof LayoutDashboard; perms: PermissionCode[]; }
@@ -40,6 +40,7 @@ const ALL_SECTIONS: NavSection[] = [
     { label: 'Categories', to: '/admin/categories', icon: Tags, perms: ['categories.view'] },
     { label: 'Settings', to: '/admin/settings', icon: Settings, perms: ['settings.view'] },
     { label: 'Branding', to: '/admin/branding', icon: Palette, perms: ['settings.edit'] },
+    { label: 'Late checkouts', to: '/admin/late-checkouts', icon: Clock, perms: ['audit.view', 'reports.view', 'settings.view', 'dashboard.view'] },
     { label: 'Audit logs', to: '/admin/audit', icon: ScrollText, perms: ['audit.view'] },
   ] },
 ];
