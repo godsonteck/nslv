@@ -159,6 +159,8 @@ export default function ReportsPage() {
       ['Check-Outs / Departures', String(ops.checkOutsCount || 0)],
       ['Late Check-Outs Count', String(ops.lateCheckOutsCount || 0)],
       ['Total Late Check-Out Fees Billed', `GHS ${(ops.totalLateCheckoutFees || 0).toFixed(2)}`],
+      ['Late Check-Out Fees Refunded', `GHS ${(ops.totalLateCheckoutRefunds || 0).toFixed(2)}`],
+      ['Net Late Check-Out Fees Collected', `GHS ${(ops.netLateCheckoutFees ?? ops.totalLateCheckoutFees ?? 0).toFixed(2)}`],
       ['Cancelled Reservations', String(ops.cancelledCount || 0)],
       ['No-Show Reservations', String(ops.noShowCount || 0)],
       [''],
@@ -622,11 +624,16 @@ export default function ReportsPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-extrabold text-amber-300 mt-1">
-                  {formatCurrency(ops.totalLateCheckoutFees || 0)}
+                  {formatCurrency(ops.netLateCheckoutFees ?? ops.totalLateCheckoutFees ?? 0)}
                 </div>
                 <div className="mt-2 text-xs text-[#A0A5AD]">
                   Hourly departure charges
                 </div>
+                {(ops.totalLateCheckoutRefunds ?? 0) > 0 && (
+                  <div className="mt-1 text-[10px] font-bold text-emerald-400">
+                    {formatCurrency(ops.totalLateCheckoutRefunds)} refunded
+                  </div>
+                )}
               </div>
             </div>
           </Section>
@@ -664,7 +671,7 @@ export default function ReportsPage() {
               <DeptCard
                 icon={Clock}
                 label="Late Checkout Fees"
-                value={dept.lateCheckout || ops.totalLateCheckoutFees}
+                value={dept.lateCheckout ?? ops.netLateCheckoutFees ?? 0}
                 note="Hourly departure penalty fees"
               />
             </div>

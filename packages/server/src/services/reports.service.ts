@@ -197,6 +197,36 @@ export class ReportService {
     const lateCheckOutsCount = uniqueLateItems.length;
     const totalLateCheckoutFees = uniqueLateItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
+    // Every folio that ever carried a non-voided late-checkout fee, so a refund
+    // issued against one of them is attributed to late checkout even when the fee
+    // was posted in an earlier period or the refund reason does not mention it.
+    const lateFolioRows = await prisma.folioItem.findMany({
+      where: {
+        voidedAt: null,
+        referenceType: 'CHECKOUT',
+        description: { contains: 'late', mode: 'insensitive' },
+      },
+      select: { folioId: true },
+    });
+    const lateFolioIds = [...new Set(lateFolioRows.map((row) => row.folioId))];
+
+    // Query any completed late-checkout refunds in the period
+    const lateRefundPayments = await prisma.payment.findMany({
+      where: {
+        processedAt: whereDate,
+        status: 'COMPLETED',
+        type: 'REFUND',
+        voidedAt: null,
+        OR: [
+          { description: { contains: 'late', mode: 'insensitive' } },
+          { folioId: { in: lateFolioIds } },
+        ],
+      },
+      select: { processedAt: true, amount: true, folioId: true },
+    });
+    const totalLateCheckoutRefunds = lateRefundPayments.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    const netLateCheckoutFees = Math.max(0, totalLateCheckoutFees - totalLateCheckoutRefunds);
+
     // 4. Financial Metrics & Revenue Breakdown
     const totalPayments = await prisma.payment.aggregate({
       where: {
@@ -275,7 +305,7 @@ export class ReportService {
     const pool = Number(poolSales._sum.totalAmount || 0);
     const accommodation = Number(accommodationRevenue._sum.amount || 0);
     const totalExpenses = Number(approvedExpenses._sum.amount || 0);
-    const totalRevenueAccrued = accommodation + restaurant + bar + pool + totalLateCheckoutFees;
+    const totalRevenueAccrued = accommodation + restaurant + bar + pool + netLateCheckoutFees;
 
     // ADR (Average Daily Rate) and RevPAR (Revenue Per Available Room)
     const daysInPeriod = startDate && endDate ? Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1) : 30;
@@ -307,7 +337,7 @@ export class ReportService {
       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
       // Fetch all relevant day-scoped records in one pass to stay super fast
-      const [allPayments, allExpenses, allRest, allBar, allPool, allCheckIns, allCheckOuts, allLateFees] = await Promise.all([
+      const [allPayments, allExpenses, allRest, allBar, allPool, allCheckIns, allCheckOuts, allLateFees, allLateRefunds] = await Promise.all([
         prisma.payment.findMany({
           where: { processedAt: whereDate, status: 'COMPLETED', type: 'PAYMENT' },
           select: { processedAt: true, amount: true },
@@ -345,6 +375,19 @@ export class ReportService {
           },
           select: { postedAt: true, amount: true, folioId: true },
         }),
+        prisma.payment.findMany({
+          where: {
+            processedAt: whereDate,
+            status: 'COMPLETED',
+            type: 'REFUND',
+            voidedAt: null,
+            OR: [
+              { description: { contains: 'late', mode: 'insensitive' } },
+              { folioId: { in: lateFolioIds } },
+            ],
+          },
+          select: { processedAt: true, amount: true, folioId: true },
+        }),
       ]);
 
       // De-duplicate late fee items by folioId within each day
@@ -369,14 +412,17 @@ export class ReportService {
         const dayPool = allPool.filter((pl) => pl.createdAt && pl.createdAt.toISOString().slice(0, 10) === dStr).reduce((s, pl) => s + Number(pl.totalAmount || 0), 0);
         // Deduplicated late fee items (one per folio)
         const dayLateUniq = deduplicateLateFeesByDay(allLateFees, dStr);
-        const dayLate = dayLateUniq.reduce((s, l) => s + Number(l.amount || 0), 0);
+        const dayGrossLate = dayLateUniq.reduce((s, l) => s + Number(l.amount || 0), 0);
+        const dayLateRefunds = allLateRefunds.filter((r) => r.processedAt && r.processedAt.toISOString().slice(0, 10) === dStr).reduce((s, r) => s + Number(r.amount || 0), 0);
+        const dayNetLate = Math.max(0, dayGrossLate - dayLateRefunds);
+
         const dayIns = allCheckIns.filter((ci) => ci.actualCheckIn && ci.actualCheckIn.toISOString().slice(0, 10) === dStr);
         const dayOuts = allCheckOuts.filter((co) => co.actualCheckOut && co.actualCheckOut.toISOString().slice(0, 10) === dStr);
         const dayLateOuts = dayLateUniq.length;
         const dayPeople = dayIns.reduce((sum, ci) => sum + ((ci.reservation?.adults || 1) + (ci.reservation?.children || 0)), 0);
 
-        // Accommodation = payments collected minus other departments minus late fees (late fees are a separate line)
-        const dayAccommodation = Math.max(0, dayPay - dayRest - dayBar - dayPool - dayLate);
+        // Accommodation = payments collected minus other departments minus net late fees
+        const dayAccommodation = Math.max(0, dayPay - dayRest - dayBar - dayPool - dayNetLate);
 
         dailyBreakdown.push({
           date: dStr,
@@ -386,7 +432,7 @@ export class ReportService {
           restaurant: dayRest,
           bar: dayBar,
           pool: dayPool,
-          lateFees: dayLate,
+          lateFees: dayNetLate,
           expenses: dayExp,
           net: dayPay - dayExp,
           checkIns: dayIns.length,
@@ -495,6 +541,8 @@ export class ReportService {
         checkOutsCount,
         lateCheckOutsCount,
         totalLateCheckoutFees,
+        totalLateCheckoutRefunds,
+        netLateCheckoutFees,
       },
       financials: {
         totalCollectedRevenue: Number(totalPayments._sum.amount || 0),
@@ -520,7 +568,7 @@ export class ReportService {
           restaurant,
           bar,
           pool,
-          lateCheckout: totalLateCheckoutFees,
+          lateCheckout: netLateCheckoutFees,
         },
         expensesByCategory,
       },
@@ -546,7 +594,7 @@ export class ReportService {
         restaurant,
         bar,
         pool,
-        lateCheckout: totalLateCheckoutFees,
+        lateCheckout: netLateCheckoutFees,
       },
     };
   }

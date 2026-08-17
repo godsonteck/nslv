@@ -36,6 +36,7 @@ interface LateCheckoutRecord {
   deadline: string;
   hoursLate: number;
   feeAmount: number;
+  refundedAmount: number;
   feeDescription: string;
   paymentMethod: string;
   checkedOutByName: string;
@@ -48,6 +49,8 @@ interface AuditData {
   policy: { hourlyRate: number; checkoutTime: string };
   summary: {
     totalLateCheckouts: number;
+    totalFeesBilled: number;
+    totalRefunded: number;
     totalFeesCollected: number;
     avgDelayHours: number;
   };
@@ -166,6 +169,8 @@ export const LateCheckoutsPage: React.FC = () => {
       'Actual Departure',
       'Hours Late',
       'Late Fee Billed (GHS)',
+      'Late Fee Refunded (GHS)',
+      'Late Fee Net Collected (GHS)',
       'Fee Description',
       'Settlement Method',
       'Checked Out By (Staff)',
@@ -186,6 +191,8 @@ export const LateCheckoutsPage: React.FC = () => {
       new Date(r.actualCheckOut).toLocaleString(),
       String(r.hoursLate),
       r.feeAmount.toFixed(2),
+      r.refundedAmount.toFixed(2),
+      Math.max(0, r.feeAmount - r.refundedAmount).toFixed(2),
       r.feeDescription,
       r.paymentMethod,
       r.checkedOutByName,
@@ -211,7 +218,7 @@ export const LateCheckoutsPage: React.FC = () => {
   const formatCurrency = (val: number) =>
     Number(val || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' });
 
-  const summary = data?.summary || { totalLateCheckouts: 0, totalFeesCollected: 0, avgDelayHours: 0 };
+  const summary = data?.summary || { totalLateCheckouts: 0, totalFeesBilled: 0, totalRefunded: 0, totalFeesCollected: 0, avgDelayHours: 0 };
   const policy = data?.policy || { hourlyRate: 50, checkoutTime: '12:00' };
   const records = data?.records || [];
 
@@ -242,6 +249,7 @@ export const LateCheckoutsPage: React.FC = () => {
         <StatTile
           label="Late Fees Recovered"
           value={formatCurrency(summary.totalFeesCollected)}
+          note={`${formatCurrency(summary.totalFeesBilled)} billed · ${formatCurrency(summary.totalRefunded)} refunded`}
           icon={DollarSign}
           accent
         />
@@ -375,11 +383,23 @@ export const LateCheckoutsPage: React.FC = () => {
 
                     <td className="p-3 text-right">
                       <div className="font-extrabold text-amber-300 font-mono text-xs">
-                        {formatCurrency(r.feeAmount)}
+                        {r.refundedAmount > 0 ? (
+                          <>
+                            <span className="line-through opacity-50">{formatCurrency(r.feeAmount)}</span>{' '}
+                            <span className="text-[#6E737B]">{formatCurrency(Math.max(0, r.feeAmount - r.refundedAmount))}</span>
+                          </>
+                        ) : (
+                          formatCurrency(r.feeAmount)
+                        )}
                       </div>
                       <div className="text-[9px] text-[#6E737B]">
                         {r.hoursLate}h @ GHS {policy.hourlyRate}/h
                       </div>
+                      {r.refundedAmount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
+                          {formatCurrency(r.refundedAmount)} Refunded
+                        </span>
+                      )}
                     </td>
 
                     <td className="p-3">
@@ -480,6 +500,12 @@ export const LateCheckoutsPage: React.FC = () => {
                   <span className="text-[#6E737B]">Late Fee Charge</span>
                   <span className="font-extrabold text-amber-300">{formatCurrency(selectedRecord.feeAmount)}</span>
                 </div>
+                {selectedRecord.refundedAmount > 0 && (
+                  <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
+                    <span className="text-[#6E737B]">Late Fee Refunded</span>
+                    <span className="font-bold text-emerald-400">−{formatCurrency(selectedRecord.refundedAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
                   <span className="text-[#6E737B]">Settlement Method</span>
                   <span className="font-bold text-[#F4F4F2]">{selectedRecord.paymentMethod}</span>

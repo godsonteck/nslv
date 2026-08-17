@@ -614,6 +614,7 @@ export class StayService {
       deadline: string;
       hoursLate: number;
       feeAmount: number;
+      refundedAmount: number;
       feeDescription: string;
       paymentMethod: string;
       checkedOutByName: string;
@@ -623,6 +624,7 @@ export class StayService {
     }> = [];
 
     let totalFees = 0;
+    let totalRefunded = 0;
     let totalDelayMinutes = 0;
 
     for (const co of checkOuts) {
@@ -644,6 +646,14 @@ export class StayService {
       const hoursLate = lateItem ? Math.max(1, lateItem.quantity || lateCalc.lateHours) : lateCalc.lateHours;
       const feeAmount = lateItem ? Number(lateItem.amount || 0) : lateCalc.fee;
       const feeDescription = lateItem?.description || lateCalc.description || `Late checkout (${hoursLate}h @ GHS ${hourlyRate}/hr)`;
+
+      // Any completed, non-voided refund issued against this folio is a reversal
+      // of the late checkout fee that was settled at check-out. Cap it at the fee
+      // so the record never shows a net negative charge.
+      const folioRefunds = (folio?.payments || []).filter(
+        (p: any) => p.type === 'REFUND' && p.status === 'COMPLETED' && !p.voidedAt,
+      );
+      const refundedAmount = Math.min(feeAmount, folioRefunds.reduce((s: number, p: any) => s + Number(p.amount || 0), 0));
 
       const guest = (co as any).guest || res.guests?.[0]?.guest;
       const guestName = guest ? `${guest.firstName} ${guest.lastName}`.trim() : 'Guest';
@@ -671,6 +681,7 @@ export class StayService {
       }
 
       totalFees += feeAmount;
+      totalRefunded += refundedAmount;
       totalDelayMinutes += hoursLate * 60;
 
       lateList.push({
@@ -690,6 +701,7 @@ export class StayService {
         deadline: lateCalc.deadline.toISOString(),
         hoursLate,
         feeAmount,
+        refundedAmount,
         feeDescription,
         paymentMethod: co.paymentMethod || 'CASH',
         checkedOutByName,
@@ -706,7 +718,9 @@ export class StayService {
       policy: { hourlyRate, checkoutTime },
       summary: {
         totalLateCheckouts: count,
-        totalFeesCollected: totalFees,
+        totalFeesBilled: totalFees,
+        totalRefunded,
+        totalFeesCollected: Math.max(0, totalFees - totalRefunded),
         avgDelayHours,
       },
       records: lateList,

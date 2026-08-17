@@ -539,6 +539,8 @@ export const staysApi = {
       policy: { hourlyRate: number; checkoutTime: string };
       summary: {
         totalLateCheckouts: number;
+        totalFeesBilled: number;
+        totalRefunded: number;
         totalFeesCollected: number;
         avgDelayHours: number;
       };
@@ -559,6 +561,7 @@ export const staysApi = {
         deadline: string;
         hoursLate: number;
         feeAmount: number;
+        refundedAmount: number;
         feeDescription: string;
         paymentMethod: string;
         checkedOutByName: string;
