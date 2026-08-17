@@ -60,7 +60,7 @@ const SystemHero: React.FC<{ greeting: string }> = ({ greeting }) => (
     <div className="relative grid min-h-[240px] lg:grid-cols-[1.2fr_.8fr]">
       <div className="relative p-7 sm:p-9">
         <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.2em] text-[#d9bd91]"><Lock size={13} /> System administration</div>
-        <h2 className="mt-3 max-w-xl text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">{greeting}. System console.</h2>
+        <h2 className="mt-3 max-w-xl text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">{greeting}</h2>
         <p className="mt-3 max-w-lg text-sm leading-6 text-white/70">Accounts, roles, permissions, staff records, POS menus, system settings and the immutable audit trail. Operations live in the Manager control center.</p>
       </div>
       <div className="grid grid-cols-2 border-l border-white/10 bg-white/5">

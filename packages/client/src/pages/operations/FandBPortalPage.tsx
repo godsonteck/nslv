@@ -64,7 +64,7 @@ export const FandBPortalPage: React.FC = () => {
   return (
     <ShellPage
       eyebrow="F&B · FOOD, BEVERAGE & POOL"
-      title={`${greeting}. Food & beverage workspace.`}
+      title={greeting}
       subtitle="Restaurant, bar and pool services from a single point of sale — orders, charges and receipts together."
       actions={<Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>}
     >

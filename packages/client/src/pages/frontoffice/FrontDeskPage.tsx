@@ -106,7 +106,7 @@ export const FrontDeskPage: React.FC = () => {
   return (
     <ShellPage
       eyebrow="RECEPTION · FRONT DESK"
-      title={`${greeting}. Front desk operations.`}
+      title={greeting}
       subtitle="Arrivals, in-house guests and payment-safe departures."
       actions={
         <Button variant="outline" size="sm" onClick={load}>

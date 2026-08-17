@@ -92,7 +92,7 @@ const PropertyDashboard: React.FC = () => {
 
   if (loading) return <LoadingState message="Loading the live NSVilla workspace…" />;
   return (
-    <ShellPage eyebrow="NSVILLA · PROPERTY CONTROL" title={`${greeting}. Run the property with clarity.`} subtitle="A live command centre for reservations, rooms, guests, revenue and department activity." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>{canReserve && <Button size="sm" onClick={() => navigate('/reservations')}><CalendarCheck size={14} /> New reservation</Button>}</>}>
+    <ShellPage eyebrow="NSVILLA · PROPERTY CONTROL" title={greeting} subtitle="A live command centre for reservations, rooms, guests, revenue and department activity." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>{canReserve && <Button size="sm" onClick={() => navigate('/reservations')}><CalendarCheck size={14} /> New reservation</Button>}</>}>
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
       <section className="relative overflow-hidden rounded-[24px] bg-[#163f4f] text-white shadow-[0_18px_50px_rgba(22,63,79,.18)]">
         <img src={villaAssets.villaExterior} className="absolute inset-0 h-full w-full object-cover opacity-25" alt="" />
@@ -161,7 +161,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
 
   if (loading) return <LoadingState message={`Loading the ${deptLabel} dashboard…`} />;
   return (
-    <ShellPage eyebrow={`NSVILLA · ${deptLabel.toUpperCase()} OPS`} title={`${greeting}. ${deptLabel} at a glance.`} subtitle="Your department's sales, orders and receipts — no room or guest data required." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button><Button size="sm" onClick={() => navigate(toPOS)}><ArrowRight size={14} /> Open {deptLabel} POS</Button></>}>
+    <ShellPage eyebrow={`NSVILLA · ${deptLabel.toUpperCase()} OPS`} title={greeting} subtitle="Your department's sales, orders and receipts — no room or guest data required." actions={<><Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button><Button size="sm" onClick={() => navigate(toPOS)}><ArrowRight size={14} /> Open {deptLabel} POS</Button></>}>
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
       <section className="relative overflow-hidden rounded-[24px] bg-[#163f4f] text-white shadow-[0_18px_50px_rgba(22,63,79,.18)]">
         <div className="absolute inset-0 bg-gradient-to-r from-[#163f4f] via-[#163f4f]/95 to-[#163f4f]/45"/>

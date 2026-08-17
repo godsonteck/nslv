@@ -32,7 +32,7 @@ export const PortalHome: React.FC = () => {
           <div className="p-3 rounded-xl bg-[#8C2D19]/20 text-[#E2B768]">{portal.icon}</div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#E2B768]">{role} portal</p>
-            <h1 className="mt-1 text-2xl font-bold text-[#F3F4F6]">{greeting} · {portal.name}</h1>
+            <h1 className="mt-1 text-2xl font-bold text-[#F3F4F6]">{greeting}</h1>
             <p className="mt-2 text-sm text-[#9CA3AF]">{portal.summary}</p>
           </div>
         </div>

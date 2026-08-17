@@ -157,7 +157,7 @@ export const ManagerPortalPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none pb-8">
       <PageHeader
-        title={`${greeting} · Manager Control Center`}
+        title={greeting}
         subtitle="Real-time occupancy oversight, departmental revenue breakdown, and operational audit"
         actions={
           <div className="flex items-center gap-2">
