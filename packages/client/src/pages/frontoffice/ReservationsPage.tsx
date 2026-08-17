@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reservationsApi, roomsApi, guestsApi } from '../../services/apiService';
+import { reservationsApi, roomsApi, guestsApi, paymentsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
@@ -16,6 +16,9 @@ const emptyPerson: Person = { key: uid(), mode: 'existing', guestId: '', firstNa
 const emptyRoomLine = (primaryKey: string): RoomLine => ({ key: uid(), roomId: '', adults: '1', children: '0', primaryKey, additionalKeys: [], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
 
 const guestName = (g: any) => (g ? `${g.firstName ?? ''} ${g.lastName ?? ''}`.trim() || '—' : '—');
+
+const recordedDeposits = (r: any) => (r?.payments || []).filter((p: any) => p.status === 'COMPLETED' && !p.voidedAt);
+const recordedDepositTotal = (r: any) => recordedDeposits(r).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
 
 export const ReservationsPage: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
@@ -50,11 +53,16 @@ export const ReservationsPage: React.FC = () => {
   // Reservation Details Popup
   const [detailsRes, setDetailsRes] = useState<any | null>(null);
 
+  // Record a partial payment against an existing reservation
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [depositForm, setDepositForm] = useState({ amount: '', method: 'CASH', reference: '' });
+
   const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
   const canEdit = useAuthStore((s) => s.hasPermission('reservations.edit'));
   const canCancel = useAuthStore((s) => s.hasPermission('reservations.cancel') || s.hasRole('admin'));
   const isAdmin = useAuthStore((s) => s.hasRole('admin'));
   const canDiscount = useAuthStore((s) => s.hasPermission('folios.adjust'));
+  const canProcessPayment = useAuthStore((s) => s.hasPermission('payments.create'));
   const navigate = useNavigate();
 
   const load = async () => {
@@ -247,6 +255,50 @@ export const ReservationsPage: React.FC = () => {
     setDetailsRes(r);
   };
 
+  const openDeposit = () => {
+    const r = detailsRes;
+    if (!r) return;
+    const expected = Number(r.depositAmount || 0) - recordedDepositTotal(r);
+    setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '' });
+    setDepositOpen(true);
+  };
+
+  const recordDeposit = async () => {
+    const r = detailsRes;
+    if (!r) return;
+    const amount = Number(depositForm.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast('error', 'Enter a valid partial payment amount.');
+      return;
+    }
+    const remaining = Number(r.totalAmount || 0) - recordedDepositTotal(r);
+    if (amount > remaining) {
+      showToast('error', `Partial payment cannot exceed the outstanding amount of ${formatCurrency(Math.max(0, remaining))}.`);
+      return;
+    }
+    const primaryGuest = [...(r.guests || [])].sort((a: any, b: any) => Number(b.isPrimary) - Number(a.isPrimary))[0];
+    try {
+      setSaving(true);
+      await paymentsApi.processPayment({
+        reservationId: r.id,
+        guestId: primaryGuest?.guestId,
+        amount,
+        method: depositForm.method as any,
+        reference: depositForm.reference.trim() || undefined,
+        paymentType: 'DEPOSIT',
+        idempotencyKey: crypto.randomUUID(),
+        description: `Partial payment recorded for ${r.confirmationNo || 'reservation'}`,
+      });
+      showToast('success', 'Partial payment recorded.');
+      setDepositOpen(false);
+      load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to record partial payment');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const deleteCancelled = async (r: any) => {
     if (!window.confirm(`Permanently delete cancelled reservation ${r.confirmationNo || r.id}? This cannot be undone.`)) return;
     try {
@@ -386,6 +438,7 @@ export const ReservationsPage: React.FC = () => {
                   <th className="px-5 py-3">Room</th>
                   <th className="px-5 py-3">Stay</th>
                   <th className="px-5 py-3">Amount</th>
+                  <th className="px-5 py-3">Partial Payment</th>
                   <th className="px-5 py-3">Status</th>
                   <th />
                 </tr>
@@ -401,7 +454,7 @@ export const ReservationsPage: React.FC = () => {
                     <React.Fragment key={r.id}>
                       {showPartyHeader && (
                         <tr className="bg-[#eef3f0]">
-                          <td colSpan={7} className="px-5 py-2">
+                          <td colSpan={8} className="px-5 py-2">
                             <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wide text-[#174b59]">
                               <Link2 size={13} />
                               Party booking {r.bookingId}
@@ -448,6 +501,26 @@ export const ReservationsPage: React.FC = () => {
                         <td className="px-5 py-4 text-xs font-extrabold text-[#20343e]">
                           {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
                           {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
+                        </td>
+                        <td className="px-5 py-4 text-xs">
+                          {Number(r.depositAmount || 0) > 0 ? (
+                            <>
+                              <div className="font-extrabold text-[#174b59]">{formatCurrency(r.depositAmount)}</div>
+                              {recordedDepositTotal(r) > 0 ? (
+                                <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-[#2e7d32]">
+                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#2e7d32]" />
+                                  {recordedDepositTotal(r) >= Number(r.depositAmount) ? 'Paid' : `${formatCurrency(recordedDepositTotal(r))} paid`}
+                                </div>
+                              ) : (
+                                <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-[#b0743a]">
+                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#b0743a]" />
+                                  Unrecorded
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-[#c0c6c4]">—</span>
+                          )}
                         </td>
                         <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#667278]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#667278]">Out: {r.checkedOutBy.name}</div>}</td>
                         <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
@@ -854,7 +927,6 @@ export const ReservationsPage: React.FC = () => {
           const checkIn = new Date(detailsRes.checkInDate);
           const checkOut = new Date(detailsRes.checkOutDate);
           const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24)));
-          const recordedDeposits = (detailsRes.payments || []).filter((p: any) => p.status === 'COMPLETED' && !p.voidedAt);
 
           return (
             <div className="p-6 space-y-6">
@@ -1009,11 +1081,11 @@ export const ReservationsPage: React.FC = () => {
                   {Number(detailsRes.depositAmount || 0) > 0 && (
                     <div className="space-y-1.5 bg-[#f7f9f8] p-2 rounded-lg">
                       <div className="flex justify-between">
-                        <span className="text-[#174b59] font-bold">Deposit Logged</span>
-                        <span className="font-extrabold text-[#174b59]">{formatCurrency(detailsRes.depositAmount)}</span>
+                        <span className="text-[#174b59] font-bold">Partial Payment</span>
+                        <span className="font-extrabold text-[#174b59]">{formatCurrency(recordedDepositTotal(detailsRes))} / {formatCurrency(detailsRes.depositAmount)}</span>
                       </div>
-                      {recordedDeposits.length > 0 ? (
-                        recordedDeposits.map((p: any) => (
+                      {recordedDeposits(detailsRes).length > 0 ? (
+                        recordedDeposits(detailsRes).map((p: any) => (
                           <div key={p.id} className="flex justify-between text-[11px]">
                             <span className="text-[#5f6b6f]">
                               Recorded · {p.method}
@@ -1055,6 +1127,16 @@ export const ReservationsPage: React.FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#edf0ed]">
                 <div className="flex items-center gap-2">
+                  {canProcessPayment && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(detailsRes.status).toUpperCase()) && recordedDepositTotal(detailsRes) < Number(detailsRes.totalAmount || 0) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-[#174b59]"
+                      onClick={openDeposit}
+                    >
+                      <CreditCard size={13} /> Record partial payment
+                    </Button>
+                  )}
                   {canCancel && ['PENDING', 'CONFIRMED'].includes(String(detailsRes.status).toUpperCase()) && (
                     <Button
                       variant="outline"
@@ -1098,6 +1180,67 @@ export const ReservationsPage: React.FC = () => {
             </div>
           );
         })()}
+      </Modal>
+
+      <Modal
+        open={depositOpen}
+        onClose={() => setDepositOpen(false)}
+        title={detailsRes ? `Record partial payment · ${detailsRes.confirmationNo || 'reservation'}` : 'Record partial payment'}
+        size="md"
+      >
+        <div className="space-y-5">
+          {detailsRes && (
+            <>
+              <div className="rounded-xl bg-[#f7f9f8] p-3 text-xs text-[#26363e]">
+                {Number(detailsRes.depositAmount || 0) > 0 ? (
+                  <>
+                    Partial payment expected: <span className="font-extrabold text-[#174b59]">{formatCurrency(detailsRes.depositAmount)}</span>
+                    {recordedDepositTotal(detailsRes) > 0 && (
+                      <>
+                        <span className="mx-1 text-[#899397]">·</span>
+                        <span className="text-[#2e7d32] font-bold">{formatCurrency(recordedDepositTotal(detailsRes))} recorded</span>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <span>No partial payment was logged on this reservation — record the amount the guest paid.</span>
+                )}
+                <div className="mt-1 text-[10px] text-[#899397]">
+                  Amount cannot exceed {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}
+                </div>
+              </div>
+              <FormField label="Amount (GHS)">
+                <TextInput
+                  type="number"
+                  min={1}
+                  step="0.01"
+                  placeholder="e.g. 500"
+                  value={depositForm.amount}
+                  onChange={(e) => setDepositForm((f) => ({ ...f, amount: e.target.value }))}
+                />
+              </FormField>
+              <FormField label="Payment method">
+                <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))}>
+                  <option value="CASH">Cash</option>
+                  <option value="CARD">Card</option>
+                  <option value="MOBILE_MONEY">Mobile Money</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                </SelectInput>
+              </FormField>
+              <FormField label="Reference (optional)">
+                <TextInput
+                  placeholder="Receipt / transaction number"
+                  value={depositForm.reference}
+                  onChange={(e) => setDepositForm((f) => ({ ...f, reference: e.target.value }))}
+                />
+              </FormField>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" size="sm" onClick={() => setDepositOpen(false)}>Cancel</Button>
+                <Button variant="primary" size="sm" loading={saving} onClick={recordDeposit}>Record payment</Button>
+              </div>
+            </>
+          )}
+        </div>
       </Modal>
 
       <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={manageRes ? `Guests on ${manageRes.confirmationNo || 'reservation'}` : 'Manage guests'} size="lg">
