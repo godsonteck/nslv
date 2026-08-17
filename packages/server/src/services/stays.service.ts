@@ -559,7 +559,7 @@ export class StayService {
         reservation: {
           include: {
             room: { include: { roomType: true } },
-            checkIn: true,
+            checkIns: true,
             guests: { include: { guest: true } },
             folios: {
               include: {
@@ -585,7 +585,8 @@ export class StayService {
     const userIds = new Set<string>();
     for (const co of checkOuts) {
       if (co.checkedOutBy) userIds.add(co.checkedOutBy);
-      if (co.reservation?.checkIn?.checkedInBy) userIds.add(co.reservation.checkIn.checkedInBy);
+      const inStaff = co.reservation?.checkIns?.[0]?.checkedInBy;
+      if (inStaff) userIds.add(inStaff);
     }
     const staffUsers = await prisma.user.findMany({
       where: { id: { in: Array.from(userIds) } },
@@ -654,7 +655,8 @@ export class StayService {
       const roomTypeName = roomObj?.roomType?.name || 'Standard';
 
       const checkedOutByName = staffMap.get(co.checkedOutBy) || 'Staff';
-      const checkedInByName = res.checkIn?.checkedInBy ? staffMap.get(res.checkIn.checkedInBy) || 'Staff' : 'Staff';
+      const checkInObj = res.checkIns?.[0];
+      const checkedInByName = checkInObj?.checkedInBy ? staffMap.get(checkInObj.checkedInBy) || 'Staff' : 'Staff';
 
       // Search filter if provided
       if (search && search.trim()) {
@@ -683,7 +685,7 @@ export class StayService {
         roomTypeName,
         checkInDate: new Date(res.checkInDate).toISOString(),
         scheduledCheckOutDate: new Date(res.checkOutDate).toISOString(),
-        actualCheckIn: res.checkIn?.actualCheckIn ? new Date(res.checkIn.actualCheckIn).toISOString() : null,
+        actualCheckIn: checkInObj?.actualCheckIn ? new Date(checkInObj.actualCheckIn).toISOString() : null,
         actualCheckOut: new Date(co.actualCheckOut).toISOString(),
         deadline: lateCalc.deadline.toISOString(),
         hoursLate,
