@@ -6,8 +6,11 @@ import { LogIn, LogOut, RefreshCw, UserRound, BedDouble } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 
-const hotelBoundary = (value: unknown, hour: number) =>
-  new Date(`${String(value).slice(0, 10)}T${String(hour).padStart(2, '0')}:00:00.000Z`);
+const hotelBoundary = (value: unknown, timeStr: string | number = 12) => {
+  const hour = typeof timeStr === 'string' ? parseInt(timeStr.split(':')[0] || '12', 10) : timeStr;
+  const min = typeof timeStr === 'string' ? parseInt(timeStr.split(':')[1] || '0', 10) : 0;
+  return new Date(`${String(value).slice(0, 10)}T${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:00.000Z`);
+};
 
 const isArrivalDue = (reservation: any, now = new Date()) =>
   ['PENDING', 'CONFIRMED'].includes(String(reservation.status).toUpperCase()) &&
@@ -25,6 +28,8 @@ export const FrontDeskPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [action, setAction] = useState<{ type: 'in' | 'out'; row: any } | null>(null);
+  // Admin-configured checkout policy
+  const [checkoutPolicy, setCheckoutPolicy] = useState({ hourlyRate: 50, checkoutTime: '12:00' });
   const [form, setForm] = useState({
     idVerified: true,
     idDocumentType: 'PASSPORT',
@@ -36,14 +41,16 @@ export const FrontDeskPage: React.FC = () => {
   const load = async () => {
     try {
       setLoading(true);
-      const [r, s, rm] = await Promise.all([
+      const [r, s, rm, policy] = await Promise.all([
         reservationsApi.list({ search: q || undefined }),
         staysApi.getActiveStays(),
         roomsApi.getRooms(),
+        staysApi.getCheckoutPolicy().catch(() => null),
       ]);
       setArrivals((r.data || []).filter((reservation) => isArrivalDue(reservation)));
       setStays(s.data || []);
       setRooms(rm.data || []);
+      if (policy?.data) setCheckoutPolicy(policy.data);
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to load front desk');
     } finally {
@@ -85,13 +92,13 @@ export const FrontDeskPage: React.FC = () => {
   const getLateInfo = (stay: any) => {
     const d = departureDate(stay);
     if (!d) return null;
-    const deadline = hotelBoundary(d, 12);
+    const deadline = hotelBoundary(d, checkoutPolicy.checkoutTime);
     const now = new Date();
     if (now <= deadline) return null;
     const diffMs = now.getTime() - deadline.getTime();
     const lateHours = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60)));
-    const fee = lateHours * 50;
-    return { lateHours, fee };
+    const fee = lateHours * checkoutPolicy.hourlyRate;
+    return { lateHours, fee, hourlyRate: checkoutPolicy.hourlyRate };
   };
 
   const activeLateInfo = action?.type === 'out' ? getLateInfo(action.row) : null;
@@ -175,7 +182,7 @@ export const FrontDeskPage: React.FC = () => {
                       )}
                     </div>
                     <div className="mt-1 text-[10px] text-[#8a9598]">
-                      Room {stay.room?.number || '—'} · departure {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : '—'} 12:00 PM · checked in by {stay.checkedInByUser?.name || '—'}
+                      Room {stay.room?.number || '—'} · Departure {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : '—'} 12:00 PM · 👤 Checked in by <span className="font-semibold text-[#26363e]">{stay.checkedInByUser?.name || 'Staff'}</span> at {stay.actualCheckIn ? new Date(stay.actualCheckIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
                     </div>
                   </div>
                   {statusBadge(stay.status || 'CHECKED_IN')}

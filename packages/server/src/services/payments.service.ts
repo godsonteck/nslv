@@ -37,7 +37,25 @@ export class PaymentService {
     if (filters?.folioId) where.folioId = filters.folioId;
     if (filters?.reservationId) where.reservationId = filters.reservationId;
     if (filters?.guestId) where.guestId = filters.guestId;
-    return prisma.payment.findMany({ where, include: { guest: true, reservation: true, folio: true }, orderBy: { processedAt: 'desc' } });
+    const payments = await prisma.payment.findMany({
+      where,
+      include: { guest: true, reservation: true, folio: true },
+      orderBy: { processedAt: 'desc' },
+    });
+
+    const userIds = Array.from(new Set(payments.map((p) => p.processedBy).filter(Boolean)));
+    const users = userIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, firstName: true, lastName: true, username: true, email: true },
+        })
+      : [];
+    const userMap = new Map(users.map((u) => [u.id, `${u.firstName} ${u.lastName}`.trim() || u.username || u.email]));
+
+    return payments.map((p) => ({
+      ...p,
+      processorName: userMap.get(p.processedBy) || p.processedBy || 'System / Staff',
+    }));
   }
 
   /**

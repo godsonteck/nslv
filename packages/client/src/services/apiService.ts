@@ -525,6 +525,10 @@ export const staysApi = {
     apiFetch<any>('/stays/check-in', { method: 'POST', body: JSON.stringify(body) }, token()),
   checkOut: async (body: { reservationId: string; roomCondition?: string; paymentMethod?: string; notes?: string }): Promise<any> =>
     apiFetch<any>('/stays/check-out', { method: 'POST', body: JSON.stringify(body) }, token()),
+  getCheckoutPolicy: async (): Promise<{ success: true; data: { hourlyRate: number; checkoutTime: string } }> => {
+    const data = await apiFetch<{ hourlyRate: number; checkoutTime: string }>('/stays/checkout-policy', {}, token());
+    return { success: true, data };
+  },
   recalculateLateFees: async (): Promise<{ success: true; data: { adjustedCount: number; hourlyRate: number; checkoutTime: string; totalCheckOuts: number } }> => {
     const data = await apiFetch<{ adjustedCount: number; hourlyRate: number; checkoutTime: string; totalCheckOuts: number }>('/stays/recalculate-late-fees', { method: 'POST' }, token());
     return { success: true, data };

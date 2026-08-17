@@ -177,20 +177,25 @@ export class ReportService {
     const checkOutsCount = await prisma.checkOut.count({ where: { actualCheckOut: whereDate } });
 
     // Late checkouts query & fees
+    // Late-checkout folio items have referenceType='CHECKOUT' and description contains 'late'
     const lateFeeItems = await prisma.folioItem.findMany({
       where: {
-        postedAt: whereDate,
         voidedAt: null,
-        OR: [
-          { referenceType: 'CHECKOUT' },
-          { description: { contains: 'late checkout', mode: 'insensitive' } },
-          { description: { contains: 'late check-out', mode: 'insensitive' } },
-        ],
+        referenceType: 'CHECKOUT',
+        description: { contains: 'late', mode: 'insensitive' },
+        ...(whereDate ? { postedAt: whereDate } : {}),
       },
-      select: { amount: true, quantity: true },
+      select: { amount: true, quantity: true, folioId: true },
     });
-    const lateCheckOutsCount = lateFeeItems.length;
-    const totalLateCheckoutFees = lateFeeItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+    const seenFolios = new Set<string>();
+    const uniqueLateItems = lateFeeItems.filter((item) => {
+      if (seenFolios.has(item.folioId)) return false;
+      seenFolios.add(item.folioId);
+      return true;
+    });
+    const lateCheckOutsCount = uniqueLateItems.length;
+    const totalLateCheckoutFees = uniqueLateItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
     // 4. Financial Metrics & Revenue Breakdown
     const totalPayments = await prisma.payment.aggregate({
@@ -232,7 +237,22 @@ export class ReportService {
       prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'REFUND', voidedAt: null }, _sum: { amount: true } }),
       prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'REFUND', method: 'CASH', voidedAt: null }, _sum: { amount: true } }),
       prisma.expense.aggregate({ where: { incurredOn: whereDate, status: 'APPROVED', paymentMethod: 'CASH' }, _sum: { amount: true } }),
-      prisma.folioItem.aggregate({ where: { postedAt: whereDate, voidedAt: null, type: 'ACCOMMODATION' }, _sum: { amount: true } }),
+      // Accommodation revenue = ACCOMMODATION folio items EXCLUDING late-checkout lines
+      // Late-checkout items have referenceType='CHECKOUT' AND description contains 'late'
+      prisma.folioItem.aggregate({
+        where: {
+          postedAt: whereDate,
+          voidedAt: null,
+          type: 'ACCOMMODATION',
+          NOT: {
+            AND: [
+              { referenceType: 'CHECKOUT' },
+              { description: { contains: 'late', mode: 'insensitive' } },
+            ],
+          },
+        },
+        _sum: { amount: true },
+      }),
       prisma.folio.aggregate({ where: { status: 'OPEN' }, _sum: { balance: true } }),
       prisma.reservation.aggregate({ where: { createdAt: whereDate }, _sum: { depositAmount: true } }),
       prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'DEPOSIT', voidedAt: null }, _sum: { amount: true } }),
@@ -255,7 +275,7 @@ export class ReportService {
     const pool = Number(poolSales._sum.totalAmount || 0);
     const accommodation = Number(accommodationRevenue._sum.amount || 0);
     const totalExpenses = Number(approvedExpenses._sum.amount || 0);
-    const totalRevenueAccrued = accommodation + restaurant + bar + pool;
+    const totalRevenueAccrued = accommodation + restaurant + bar + pool + totalLateCheckoutFees;
 
     // ADR (Average Daily Rate) and RevPAR (Revenue Per Available Room)
     const daysInPeriod = startDate && endDate ? Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1) : 30;
@@ -320,15 +340,23 @@ export class ReportService {
           where: {
             postedAt: whereDate,
             voidedAt: null,
-            OR: [
-              { referenceType: 'CHECKOUT' },
-              { description: { contains: 'late checkout', mode: 'insensitive' } },
-              { description: { contains: 'late check-out', mode: 'insensitive' } },
-            ],
+            referenceType: 'CHECKOUT',
+            description: { contains: 'late', mode: 'insensitive' },
           },
-          select: { postedAt: true, amount: true },
+          select: { postedAt: true, amount: true, folioId: true },
         }),
       ]);
+
+      // De-duplicate late fee items by folioId within each day
+      const deduplicateLateFeesByDay = (items: { postedAt: Date | null; amount: any; folioId: string }[], dStr: string) => {
+        const dayItems = items.filter((l) => l.postedAt && l.postedAt.toISOString().slice(0, 10) === dStr);
+        const seen = new Set<string>();
+        return dayItems.filter((l) => {
+          if (seen.has(l.folioId)) return false;
+          seen.add(l.folioId);
+          return true;
+        });
+      };
 
       while (curr <= endLimit) {
         const dStr = curr.toISOString().slice(0, 10);
@@ -339,17 +367,22 @@ export class ReportService {
         const dayRest = allRest.filter((r) => r.createdAt && r.createdAt.toISOString().slice(0, 10) === dStr).reduce((s, r) => s + Number(r.totalAmount || 0), 0);
         const dayBar = allBar.filter((b) => b.createdAt && b.createdAt.toISOString().slice(0, 10) === dStr).reduce((s, b) => s + Number(b.totalAmount || 0), 0);
         const dayPool = allPool.filter((pl) => pl.createdAt && pl.createdAt.toISOString().slice(0, 10) === dStr).reduce((s, pl) => s + Number(pl.totalAmount || 0), 0);
-        const dayLate = allLateFees.filter((l) => l.postedAt && l.postedAt.toISOString().slice(0, 10) === dStr).reduce((s, l) => s + Number(l.amount || 0), 0);
+        // Deduplicated late fee items (one per folio)
+        const dayLateUniq = deduplicateLateFeesByDay(allLateFees, dStr);
+        const dayLate = dayLateUniq.reduce((s, l) => s + Number(l.amount || 0), 0);
         const dayIns = allCheckIns.filter((ci) => ci.actualCheckIn && ci.actualCheckIn.toISOString().slice(0, 10) === dStr);
         const dayOuts = allCheckOuts.filter((co) => co.actualCheckOut && co.actualCheckOut.toISOString().slice(0, 10) === dStr);
-        const dayLateOuts = allLateFees.filter((l) => l.postedAt && l.postedAt.toISOString().slice(0, 10) === dStr).length;
+        const dayLateOuts = dayLateUniq.length;
         const dayPeople = dayIns.reduce((sum, ci) => sum + ((ci.reservation?.adults || 1) + (ci.reservation?.children || 0)), 0);
+
+        // Accommodation = payments collected minus other departments minus late fees (late fees are a separate line)
+        const dayAccommodation = Math.max(0, dayPay - dayRest - dayBar - dayPool - dayLate);
 
         dailyBreakdown.push({
           date: dStr,
           dayName: dayOfWeek,
           revenue: dayPay,
-          accommodation: Math.max(0, dayPay - dayRest - dayBar - dayPool),
+          accommodation: dayAccommodation,
           restaurant: dayRest,
           bar: dayBar,
           pool: dayPool,
@@ -365,6 +398,70 @@ export class ReportService {
         curr.setUTCDate(curr.getUTCDate() + 1);
       }
     }
+
+    // ─── Events & Event Spaces ───────────────────────────────────────────────
+    const eventDateWhere = whereDate
+      ? { OR: [{ startAt: whereDate }, { createdAt: whereDate }] }
+      : {};
+
+    const [eventsInPeriod, upcomingEvents, allEventSpaces] = await Promise.all([
+      prisma.eventBooking.findMany({
+        where: eventDateWhere,
+        include: { eventSpace: { select: { name: true } }, createdBy: { select: { firstName: true, lastName: true } } },
+        orderBy: { startAt: 'asc' },
+      }),
+      prisma.eventBooking.findMany({
+        where: { startAt: { gte: new Date() }, status: 'CONFIRMED' },
+        include: { eventSpace: { select: { name: true } } },
+        orderBy: { startAt: 'asc' },
+        take: 10,
+      }),
+      prisma.eventSpace.findMany({ where: { isActive: true }, select: { id: true, name: true, capacity: true } }),
+    ]);
+
+    const totalEventsInPeriod = eventsInPeriod.length;
+    const confirmedEventsCount = eventsInPeriod.filter((e) => e.status === 'CONFIRMED').length;
+    const cancelledEventsCount = eventsInPeriod.filter((e) => e.status === 'CANCELLED').length;
+    const totalEventGuestCount = eventsInPeriod.reduce((sum, e) => sum + (e.guestCount || 0), 0);
+
+    // Space utilization: count bookings per space in period
+    const spaceUtilization: Record<string, { name: string; bookings: number; guests: number }> = {};
+    for (const ev of eventsInPeriod) {
+      const spaceName = ev.eventSpace?.name || 'Unassigned';
+      if (!spaceUtilization[spaceName]) spaceUtilization[spaceName] = { name: spaceName, bookings: 0, guests: 0 };
+      spaceUtilization[spaceName].bookings += 1;
+      spaceUtilization[spaceName].guests += ev.guestCount || 0;
+    }
+
+    const events = {
+      totalInPeriod: totalEventsInPeriod,
+      confirmedCount: confirmedEventsCount,
+      cancelledCount: cancelledEventsCount,
+      totalGuestCount: totalEventGuestCount,
+      totalEventSpaces: allEventSpaces.length,
+      upcomingCount: upcomingEvents.length,
+      spaceUtilization: Object.values(spaceUtilization),
+      upcomingEvents: upcomingEvents.map((e) => ({
+        id: e.id,
+        title: e.title,
+        spaceName: e.eventSpace?.name || 'Unassigned',
+        startAt: e.startAt.toISOString(),
+        endAt: e.endAt.toISOString(),
+        guestCount: e.guestCount,
+        status: e.status,
+      })),
+      recentEvents: eventsInPeriod.slice(0, 20).map((e) => ({
+        id: e.id,
+        title: e.title,
+        spaceName: e.eventSpace?.name || 'Unassigned',
+        startAt: e.startAt.toISOString(),
+        endAt: e.endAt.toISOString(),
+        guestCount: e.guestCount,
+        status: e.status,
+        contactName: e.contactName,
+        createdByName: e.createdBy ? `${e.createdBy.firstName} ${e.createdBy.lastName}`.trim() : 'System',
+      })),
+    };
 
     return {
       period: { startDate, endDate, daysInPeriod },
@@ -428,6 +525,7 @@ export class ReportService {
         expensesByCategory,
       },
       dailyBreakdown,
+      events,
       // Backward compatibility fields
       totalCollectedRevenue: Number(totalPayments._sum.amount || 0),
       accruedRevenue: totalRevenueAccrued,

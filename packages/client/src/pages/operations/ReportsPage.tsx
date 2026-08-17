@@ -28,6 +28,7 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  PartyPopper,
 } from 'lucide-react';
 import { Button, LoadingState, showToast } from '../../components/ui';
 import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
@@ -186,9 +187,28 @@ export default function ReportsPage() {
       ['Total Refunds Processed', (fin.refunds || data.refunds || 0).toFixed(2)],
     ];
 
+    rows.push(['']);
+    rows.push(['=== 6. EVENTS & EVENT SPACES ===']);
+    rows.push(['Metric', 'Value']);
+    rows.push(['Total Events in Period', String(evts.totalInPeriod || 0)]);
+    rows.push(['Confirmed Events', String(evts.confirmedCount || 0)]);
+    rows.push(['Cancelled Events', String(evts.cancelledCount || 0)]);
+    rows.push(['Total Event Guests', String(evts.totalGuestCount || 0)]);
+    rows.push(['Active Event Spaces', String(evts.totalEventSpaces || 0)]);
+    rows.push(['Upcoming Confirmed Events', String(evts.upcomingCount || 0)]);
+
+    if ((evts.recentEvents || []).length > 0) {
+      rows.push(['']);
+      rows.push(['Events in Period Details:']);
+      rows.push(['Title', 'Space', 'Start', 'End', 'Guests', 'Status', 'Contact', 'Booked By']);
+      for (const e of evts.recentEvents || []) {
+        rows.push([e.title, e.spaceName, new Date(e.startAt).toLocaleString(), new Date(e.endAt).toLocaleString(), String(e.guestCount), e.status, e.contactName || '—', e.createdByName || '—']);
+      }
+    }
+
     if (daily.length > 0) {
       rows.push(['']);
-      rows.push(['=== 6. TIMELINE BREAKDOWN (DAY-BY-DAY) ===']);
+      rows.push(['=== 7. TIMELINE BREAKDOWN (DAY-BY-DAY) ===']);
       rows.push(['Date', 'Day', 'Revenue (GHS)', 'Accommodation', 'Restaurant', 'Bar', 'Pool', 'Late Fees', 'Expenses', 'Net Flow', 'Check-Ins', 'Check-Outs', 'People Accommodated']);
       for (const d of daily) {
         rows.push([
@@ -232,6 +252,7 @@ export default function ReportsPage() {
   const cash = fin?.cash || data?.cash || {};
   const expensesByCat = fin?.expensesByCategory || {};
   const dailyTimeline = data?.dailyBreakdown || [];
+  const evts = data?.events || {};
 
   return (
     <ShellPage
@@ -725,7 +746,110 @@ export default function ReportsPage() {
             </div>
           </Section>
 
-          {/* Section 6: Daily Timeline Breakdown Table (for Weekly/Monthly/Custom reports) */}
+          {/* Section 6: Events & Event Spaces */}
+          <Section
+            title="🎉 Events & Event Spaces"
+            subtitle={`Event bookings, guest counts, and space utilization for ${startDate} to ${endDate}`}
+          >
+            <div className="p-5 space-y-5">
+              {/* Event Stat Tiles */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <MetricBox label="Total Events" value={evts.totalInPeriod || 0} sub="In period" highlight="text-[#C5A880]" />
+                <MetricBox label="Confirmed" value={evts.confirmedCount || 0} sub="Active bookings" highlight="text-emerald-400" />
+                <MetricBox label="Cancelled" value={evts.cancelledCount || 0} sub="In period" highlight="text-red-400" />
+                <MetricBox label="Event Guests" value={evts.totalGuestCount || 0} sub="Total attendees" highlight="text-blue-400" />
+              </div>
+
+              {/* Space Utilization */}
+              {(evts.spaceUtilization || []).length > 0 && (
+                <div>
+                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Space Utilization</div>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {(evts.spaceUtilization || []).map((sp: any) => (
+                      <div key={sp.name} className="p-3 bg-[#14161D] rounded-lg border border-[#2B303E] flex justify-between items-center">
+                        <div>
+                          <div className="text-xs font-bold text-[#F4F4F2]">{sp.name}</div>
+                          <div className="text-[10px] text-[#6E737B] mt-0.5">{sp.guests} guests</div>
+                        </div>
+                        <div className="text-lg font-extrabold text-[#C5A880]">{sp.bookings} <span className="text-[10px] font-normal text-[#6E737B]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Events in Period Table */}
+              {(evts.recentEvents || []).length > 0 ? (
+                <div>
+                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Events in Period</div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left text-[#A0A5AD]">
+                      <thead className="text-[10px] uppercase font-bold text-[#6E737B] bg-[#14161D] border-b border-[#2B303E]">
+                        <tr>
+                          <th className="p-2.5">Event Title</th>
+                          <th className="p-2.5">Space</th>
+                          <th className="p-2.5">Start</th>
+                          <th className="p-2.5">End</th>
+                          <th className="p-2.5 text-center">Guests</th>
+                          <th className="p-2.5">Status</th>
+                          <th className="p-2.5">Contact</th>
+                          <th className="p-2.5">Booked By</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#2B303E]/50 text-[11px]">
+                        {(evts.recentEvents || []).map((ev: any) => (
+                          <tr key={ev.id} className="hover:bg-[#14161D]/60 transition-colors">
+                            <td className="p-2.5 font-bold text-[#F4F4F2]">{ev.title}</td>
+                            <td className="p-2.5 text-[#C5A880]">{ev.spaceName}</td>
+                            <td className="p-2.5 font-mono">{new Date(ev.startAt).toLocaleString()}</td>
+                            <td className="p-2.5 font-mono">{new Date(ev.endAt).toLocaleString()}</td>
+                            <td className="p-2.5 text-center font-bold text-blue-400">{ev.guestCount}</td>
+                            <td className="p-2.5">
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                ev.status === 'CONFIRMED' ? 'bg-emerald-900/40 text-emerald-400' :
+                                ev.status === 'CANCELLED' ? 'bg-red-900/40 text-red-400' :
+                                'bg-amber-900/40 text-amber-400'
+                              }`}>{ev.status}</span>
+                            </td>
+                            <td className="p-2.5 text-[#A0A5AD]">{ev.contactName || '—'}</td>
+                            <td className="p-2.5">
+                              <span className="flex items-center gap-1 text-[#F4F4F2] font-semibold">
+                                👤 {ev.createdByName || 'Staff'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-[#6E737B] text-xs">No events recorded in this period.</div>
+              )}
+
+              {/* Upcoming Events */}
+              {(evts.upcomingEvents || []).length > 0 && (
+                <div className="pt-2 border-t border-[#2B303E]">
+                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Upcoming Confirmed Events</div>
+                  <div className="space-y-2">
+                    {(evts.upcomingEvents || []).map((ev: any) => (
+                      <div key={ev.id} className="flex items-center justify-between p-3 bg-[#14161D] rounded-lg border border-[#2B303E]">
+                        <div>
+                          <div className="text-xs font-bold text-[#F4F4F2]">{ev.title}</div>
+                          <div className="text-[10px] text-[#6E737B] mt-0.5">{ev.spaceName} · {new Date(ev.startAt).toLocaleString()}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs font-bold text-blue-400">{ev.guestCount} guests</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Section>
+
+          {/* Section 7: Daily Timeline Breakdown Table (for Weekly/Monthly/Custom reports) */}
           {dailyTimeline.length > 1 && (
             <Section
               title="📅 Day-by-Day Timeline Audit"

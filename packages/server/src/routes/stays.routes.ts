@@ -21,6 +21,22 @@ router.get('/active', requirePermission('dashboard.view'), async (_req, res, nex
   }
 });
 
+// Get checkout policy (hourly rate + checkout time) — used by front desk to display accurate late fees
+router.get('/checkout-policy', requirePermission('dashboard.view'), async (_req, res, next) => {
+  try {
+    const { prisma } = await import('../config');
+    const [rateSetting, timeSetting] = await Promise.all([
+      prisma.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } }),
+      prisma.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } }),
+    ]);
+    const hourlyRate = rateSetting ? Number(JSON.parse(rateSetting.value)) || 50 : 50;
+    const checkoutTime = timeSetting ? String(JSON.parse(timeSetting.value) || '12:00') : '12:00';
+    res.json({ success: true, data: { hourlyRate, checkoutTime } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Check in guest
 router.post('/check-in', requirePermission('checkin.perform'), validateBody(checkInSchema), async (req, res, next) => {
   try {

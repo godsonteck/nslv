@@ -828,9 +828,15 @@ export const ReservationsPage: React.FC = () => {
                     )}
                   </div>
                   <div className="mt-1 text-xs text-[#7d898d] space-x-2">
-                    <span>Booked on {detailsRes.createdAt ? new Date(detailsRes.createdAt).toLocaleDateString() : '—'}</span>
+                    <span>Booked on {detailsRes.createdAt ? new Date(detailsRes.createdAt).toLocaleString() : '—'}</span>
                     {detailsRes.source && <span>· Via {detailsRes.source}</span>}
                   </div>
+                  {detailsRes.bookedBy && (
+                    <div className="mt-1 text-xs flex items-center gap-1 text-[#26363e] font-semibold">
+                      <span>👤 Booked by</span>
+                      <span className="text-[#174b59]">{detailsRes.bookedBy?.name || 'Staff'}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">

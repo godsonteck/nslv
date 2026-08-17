@@ -24,6 +24,7 @@ interface PaymentRecord {
   createdAt?: string;
   guest?: { firstName: string; lastName?: string | null } | null;
   originalPaymentId?: string | null;
+  processorName?: string;
 }
 
 interface BillStay {
@@ -281,7 +282,7 @@ export const PaymentsPage: React.FC = () => {
                   <th className="px-5 py-3">Payer / Guest</th>
                   <th className="px-5 py-3">Method</th>
                   <th className="px-5 py-3">Type</th>
-                  <th className="px-5 py-3">Date</th>
+                  <th className="px-5 py-3">Handled By & Time</th>
                   <th className="px-5 py-3 text-right">Amount</th>
                   <th className="px-5 py-3">Status</th>
                   <th className="px-5 py-3 text-right">Action</th>
@@ -304,8 +305,13 @@ export const PaymentsPage: React.FC = () => {
                       <td className="px-5 py-4 text-[10px] font-extrabold text-[#667278]">
                         {p.type === 'REFUND' ? 'REFUND' : p.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT'}
                       </td>
-                      <td className="px-5 py-4 text-[10px] text-[#899397]">
-                        {(() => { const ts = p.processedAt || p.createdAt; return ts ? new Date(ts).toLocaleString() : '—'; })()}
+                      <td className="px-5 py-4 text-[10px]">
+                        <div className="font-semibold text-[#26363e] flex items-center gap-1">
+                          <span>👤 {p.processorName || 'Staff'}</span>
+                        </div>
+                        <div className="text-[10px] text-[#899397] font-mono mt-0.5">
+                          {(() => { const ts = p.processedAt || p.createdAt; return ts ? new Date(ts).toLocaleString() : '—'; })()}
+                        </div>
                       </td>
                       <td className={`px-5 py-4 text-right text-xs font-extrabold ${p.type === 'REFUND' ? 'text-red-500' : 'text-[#20343e]'}`}>
                         {p.type === 'REFUND' ? '− ' : ''}{formatCurrency(money(p.amount))}
