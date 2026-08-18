@@ -542,22 +542,27 @@ export class PaymentService {
 
   /**
    * Admin-only hard delete of a payment record (mistake / duplicate correction).
-   * Refuses to remove financially materialized records: payments already posted
-   * to a guest folio, payments referenced by a refund, or payments inside a
-   * business day that has already been closed. Use the refund/reversal flow
-   * for those instead so the ledger and daily close stay consistent.
+   *
+   * Single payments are refused when financially materialized: posted to a guest
+   * folio, referenced by a refund, settling a POS order, or inside a business day
+   * that has already been closed. Refunds are only deleted as a *pair* together
+   * with the payment they reversed (see deleteRefundPair), so removing the
+   * reversal can never silently resurrect a "paid" amount or leave an orphan.
    */
   static async deletePayment(paymentId: string, deletedBy: string) {
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
-      include: { refunds: { select: { id: true } } },
+      include: {
+        refunds: { select: { id: true } },
+        originalPayment: { include: { refunds: { select: { id: true } } } },
+      },
     });
     if (!payment) throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
+
+    if (payment.type === 'REFUND') return this.deleteRefundPair(payment, deletedBy);
+
     if (payment.refunds.length > 0) {
-      throw new AppError('Cannot delete this payment — a refund references it. Use the refund flow to reverse it instead.', 409, 'PAYMENT_HAS_REFUNDS');
-    }
-    if (payment.type === 'REFUND') {
-      throw new AppError('Cannot delete a refund record — it is the system reversal. Refunds are never hard-deleted.', 409, 'PAYMENT_IS_REFUND');
+      throw new AppError('Cannot delete this payment — a refund references it. Delete the refund instead, which removes both records together.', 409, 'PAYMENT_HAS_REFUNDS');
     }
     if (payment.source && payment.sourceId) {
       throw new AppError('Cannot delete this payment — it settles a POS order. Use the refund flow to reverse it instead.', 409, 'PAYMENT_SOURCE_LINKED');
@@ -578,10 +583,7 @@ export class PaymentService {
         const latest = await tx.payment.findUnique({ where: { id: paymentId }, include: { refunds: { select: { id: true } } } });
         if (!latest) throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
         if (latest.refunds.length > 0) {
-          throw new AppError('Cannot delete this payment — a refund references it. Use the refund flow to reverse it instead.', 409, 'PAYMENT_HAS_REFUNDS');
-        }
-        if (latest.type === 'REFUND') {
-          throw new AppError('Cannot delete a refund record — it is the system reversal. Refunds are never hard-deleted.', 409, 'PAYMENT_IS_REFUND');
+          throw new AppError('Cannot delete this payment — a refund references it. Delete the refund instead, which removes both records together.', 409, 'PAYMENT_HAS_REFUNDS');
         }
         if (latest.source && latest.sourceId) {
           throw new AppError('Cannot delete this payment — it settles a POS order. Use the refund flow to reverse it instead.', 409, 'PAYMENT_SOURCE_LINKED');
@@ -616,6 +618,105 @@ export class PaymentService {
     } catch (error) {
       if ((error as { code?: string }).code === 'P2003') {
         throw new AppError('Cannot delete this payment — it is still referenced by other records. Use the refund flow instead.', 409, 'PAYMENT_IN_USE');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Paired delete of a refund record together with the payment it reversed.
+   * Both rows are removed in one transaction, so the ledger net effect is
+   * exactly "the mistaken payment never happened". Only allowed when the
+   * original payment is itself clean to remove: no folio posting, no POS link,
+   * no other refunds, and an open business day.
+   */
+  private static async deleteRefundPair(refund: any, deletedBy: string) {
+    if (refund.refunds.length > 0) {
+      throw new AppError('Cannot delete this refund — another record references it.', 409, 'PAYMENT_HAS_REFUNDS');
+    }
+    const original = refund.originalPayment;
+    if (!original) {
+      throw new AppError('Cannot delete this refund — its original payment could not be resolved.', 409, 'REFUND_ORIGINAL_MISSING');
+    }
+    if (original.type === 'REFUND') {
+      throw new AppError('Cannot delete this refund — it reverses another refund record.', 409, 'REFUND_ORIGINAL_IS_REFUND');
+    }
+    if (original.refunds.length > 1) {
+      throw new AppError('Cannot delete this refund — the original payment has other refunds. Keep it so the ledger stays consistent.', 409, 'REFUND_ORIGINAL_MULTI_REFUND');
+    }
+    if (original.source && original.sourceId) {
+      throw new AppError('Cannot delete this refund — its original payment settles a POS order.', 409, 'REFUND_ORIGINAL_POS_LINKED');
+    }
+    const postedItem = await prisma.folioItem.findFirst({
+      where: { referenceId: original.id, referenceType: 'PAYMENT' },
+      select: { folioId: true },
+    });
+    if (original.folioId || postedItem) {
+      throw new AppError('Cannot delete this refund — its original payment has been posted to a guest folio.', 409, 'REFUND_ORIGINAL_POSTED');
+    }
+
+    try {
+      return await prisma.$transaction(async (tx) => {
+        await lockBusinessDay(tx, original.processedAt);
+        await DailyCloseService.assertBusinessDayOpen(original.processedAt);
+        // Re-check inside the serialized lock: the records may have changed while we waited.
+        const latest = await tx.payment.findUnique({
+          where: { id: refund.id },
+          include: { originalPayment: { include: { refunds: { select: { id: true } } } } },
+        });
+        if (!latest || !latest.originalPayment) throw new AppError('Refund record not found.', 404, 'PAYMENT_NOT_FOUND');
+        const o = latest.originalPayment;
+        if (o.type === 'REFUND') {
+          throw new AppError('Cannot delete this refund — it reverses another refund record.', 409, 'REFUND_ORIGINAL_IS_REFUND');
+        }
+        if (o.refunds.length > 1) {
+          throw new AppError('Cannot delete this refund — the original payment has other refunds. Keep it so the ledger stays consistent.', 409, 'REFUND_ORIGINAL_MULTI_REFUND');
+        }
+        if (o.source && o.sourceId) {
+          throw new AppError('Cannot delete this refund — its original payment settles a POS order.', 409, 'REFUND_ORIGINAL_POS_LINKED');
+        }
+        if (o.folioId) {
+          throw new AppError('Cannot delete this refund — its original payment has been posted to a guest folio.', 409, 'REFUND_ORIGINAL_POSTED');
+        }
+        const postedItemInside = await tx.folioItem.findFirst({
+          where: { referenceId: o.id, referenceType: 'PAYMENT' },
+          select: { folioId: true },
+        });
+        if (postedItemInside) {
+          throw new AppError('Cannot delete this refund — its original payment has been posted to a guest folio.', 409, 'REFUND_ORIGINAL_POSTED');
+        }
+
+        await tx.payment.delete({ where: { id: refund.id } });
+        await tx.payment.delete({ where: { id: o.id } });
+
+        await AuditService.logInTransaction(tx, {
+          userId: deletedBy,
+          action: 'payment.refund_deleted',
+          resource: 'payment',
+          resourceId: refund.id,
+          beforeData: {
+            refund: {
+              amount: refund.amount.toString(),
+              method: refund.method,
+              status: refund.status,
+              description: refund.description || null,
+            },
+            originalPayment: {
+              id: o.id,
+              amount: original.amount.toString(),
+              method: original.method,
+              type: original.type,
+              reservationId: original.reservationId,
+              guestId: original.guestId,
+            },
+          },
+        });
+
+        return { id: refund.id, type: 'REFUND', amount: refund.amount, method: refund.method, deletedOriginalPaymentId: o.id };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2003') {
+        throw new AppError('Cannot delete this refund — it is still referenced by other records.', 409, 'PAYMENT_IN_USE');
       }
       throw error;
     }

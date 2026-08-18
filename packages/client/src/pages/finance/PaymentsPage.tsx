@@ -164,8 +164,12 @@ export const PaymentsPage: React.FC = () => {
   };
 
   const handleDeletePayment = async (payment: PaymentRecord) => {
-    const label = `${payment.type === 'REFUND' ? 'refund' : payment.type === 'DEPOSIT' ? 'deposit' : 'payment'} of ${formatCurrency(money(payment.amount))}`;
-    if (!window.confirm(`Permanently delete this ${label} (${payment.method || '—'})? This cannot be undone. Only records not yet posted to a folio and without refunds can be deleted.`)) return;
+    const isRefund = payment.type === 'REFUND';
+    const label = `${isRefund ? 'refund' : payment.type === 'DEPOSIT' ? 'deposit' : 'payment'} of ${formatCurrency(money(payment.amount))}`;
+    const note = isRefund
+      ? 'Deleting a refund also deletes the payment it reversed — both must be unposted and unlinked for this to work.'
+      : 'Only records not yet posted to a folio and without linked refunds can be deleted.';
+    if (!window.confirm(`Permanently delete this ${label} (${payment.method || '—'})? This cannot be undone. ${note}`)) return;
     try {
       setBusyId(payment.id);
       await paymentsApi.remove(payment.id);
