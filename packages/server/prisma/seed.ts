@@ -482,23 +482,61 @@ async function main() {
   });
 
   console.log('🥂 Seeding bar menu...');
-  const barItems = [
-    { name: 'NSV Sunset Spritz', category: 'COCKTAILS', description: 'Aperol, prosecco, blood orange', price: 90 },
-    { name: 'Palm Wine Cooler', category: 'COCKTAILS', description: 'Fresh palm wine, lime, mint, crushed ice', price: 75 },
-    { name: 'Dark & Stormy', category: 'COCKTAILS', description: 'Dark rum, ginger beer, lime', price: 85 },
-    { name: 'Moët & Chandon Impérial', category: 'WINES', description: 'Brut champagne, 750ml', price: 750 },
-    { name: 'South African Chenin Blanc', category: 'WINES', description: 'Crisp white, glass', price: 60 },
-    { name: 'Club Premium Lager', category: 'BEERS', description: 'Ghanaian classic, 500ml', price: 35 },
-    { name: 'Guinness Foreign Extra', category: 'BEERS', description: '500ml', price: 40 },
-    { name: 'Baileys Irish Cream', category: 'SPIRITS', description: 'Single serve', price: 70 },
-    { name: 'Hendricks Gin', category: 'SPIRITS', description: 'Cucumber & rose gin, tonic', price: 80 },
-    { name: 'Johnnie Walker Black Label', category: 'SPIRITS', description: 'Single serve, neat or on ice', price: 95 },
-    { name: 'Coca-Cola', category: 'SOFT_DRINKS', description: '330ml', price: 15 },
-    { name: 'Sparkling Water', category: 'SOFT_DRINKS', description: '330ml', price: 15 },
-    { name: 'Mixed Nuts', category: 'SNACKS', description: 'Roasted cashews, almonds, peanuts', price: 30 },
-    { name: 'Plantain Chips', category: 'SNACKS', description: 'Salted, with spicy dip', price: 25 },
+  const barCategories = [
+    ['BEERS', 'Beers, lagers, stouts and shandies', '#f59e0b', 0],
+    ['SPIRITS', 'Spirits and herbal bitters', '#8b5cf6', 1],
+    ['COCKTAILS', 'Cocktails and ready-to-drink mixes', '#ec4899', 2],
+    ['SOFT_DRINKS', 'Non-alcoholic drinks, juices and water', '#16a4d4', 3],
   ];
-  await prisma.barItem.createMany({ data: barItems, skipDuplicates: true });
+  for (const [name, description, color, order] of barCategories) {
+    await prisma.itemCategory.upsert({
+      where: { name_type: { name, type: 'BAR' } },
+      update: {},
+      create: { name, type: 'BAR', description, color, order, isActive: true },
+    });
+  }
+
+  // [name, category, price] — matching the NS Luxury Villa bar price list
+  const barItems: Array<[string, string, number]> = [
+    ['Shandy', 'BEERS', 25],
+    ['Club', 'BEERS', 30],
+    ['Mini (Club Mini)', 'BEERS', 20],
+    ['Gulder', 'BEERS', 30],
+    ['Guinness', 'BEERS', 25],
+    ['Origin', 'BEERS', 30],
+    ['Eagle Black', 'BEERS', 15],
+    ['Heineken', 'BEERS', 40],
+    ['Butal', 'BEERS', 30],
+    ['Eagle Plain', 'BEERS', 20],
+    ['Can Fanta', 'SOFT_DRINKS', 20],
+    ['Can Coke', 'SOFT_DRINKS', 20],
+    ['1.5 Coke', 'SOFT_DRINKS', 60],
+    ['Alvaro', 'SOFT_DRINKS', 20],
+    ['Kiss', 'SOFT_DRINKS', 35],
+    ['Panache', 'SOFT_DRINKS', 15],
+    ['Don Simon', 'SOFT_DRINKS', 60],
+    ['Ceres', 'SOFT_DRINKS', 80],
+    ['Water', 'SOFT_DRINKS', 10],
+    ['Frutelli', 'SOFT_DRINKS', 60],
+    ['Black Rock', 'SOFT_DRINKS', 5],
+    ['Lime', 'SOFT_DRINKS', 5],
+    ['Strawberry', 'SOFT_DRINKS', 10],
+    ['Choice', 'SOFT_DRINKS', 35],
+    ['Black Rock Bottle', 'SOFT_DRINKS', 5],
+    ['Can Malt', 'SOFT_DRINKS', 25],
+    ['Hunter', 'SPIRITS', 35],
+    ['Alomo', 'SPIRITS', 5],
+    ['Mandango', 'SPIRITS', 10],
+    ['Herb Afric', 'SPIRITS', 10],
+    ['Campari', 'SPIRITS', 25],
+    ['SMIRNOFF', 'SPIRITS', 25],
+    ['BB Cocktail', 'COCKTAILS', 20],
+    ['Savanna', 'COCKTAILS', 35],
+  ];
+  await prisma.barItem.createMany({
+    data: barItems.map(([name, category, price]) => ({ name, category, price, description: null })),
+    skipDuplicates: true,
+  });
 
   console.log('🏊 Seeding pool services...');
   const poolServices = [
