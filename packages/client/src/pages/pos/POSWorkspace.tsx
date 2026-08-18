@@ -259,19 +259,13 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                   onChange={(e) => setQ(e.target.value)}
                 />
               </div>
-              <div className="flex gap-1.5 overflow-x-auto">
+              <SelectInput value={category} onChange={(e) => setCategory(e.target.value)} className="w-full sm:w-56">
                 {cats.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setCategory(c)}
-                    className={`whitespace-nowrap rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${
-                      category === c ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086] hover:border-[#c4cfca]'
-                    }`}
-                  >
-                    {c}
-                  </button>
+                  <option key={c} value={c}>
+                    {c === 'ALL' ? 'All categories' : c}
+                  </option>
                 ))}
-              </div>
+              </SelectInput>
             </div>
             {visible.length === 0 ? (
               <div className="p-12 text-center text-xs text-[#899397]">No menu items match this filter.</div>
