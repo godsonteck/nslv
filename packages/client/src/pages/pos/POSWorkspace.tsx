@@ -246,7 +246,8 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       {loading ? (
         <LoadingState />
       ) : (
-        <div className="grid items-start gap-4 xl:grid-cols-[1fr_400px]">
+        <div className="grid items-start gap-4 lg:grid-cols-[1fr_360px]">
+          {/* ────────────────────── Menu Section ────────────────────── */}
           <Section title="Menu" subtitle="Select items to add them to the order">
             <div className="flex flex-col gap-3 border-b border-[#e8ebe8] bg-[#fbfcfa] p-4 sm:flex-row sm:items-center">
               <div className="relative flex-1">
@@ -273,9 +274,9 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
               </div>
             </div>
             {visible.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#899397]">No menu items are configured yet.</div>
+              <div className="p-12 text-center text-xs text-[#899397]">No menu items match this filter.</div>
             ) : (
-              <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
                 {visible.map((i) => {
                   const inCart = cartMap[i.id] || 0;
                   const off = i.isAvailable === false;
@@ -283,47 +284,63 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                     <div
                       key={i.id}
                       onClick={() => !off && add(i)}
-                      className={`relative cursor-pointer rounded-2xl border p-4 text-left transition ${
+                      className={`relative flex cursor-pointer flex-col justify-between rounded-xl border p-3 transition ${
                         off
                           ? 'border-[#e8ece9] bg-[#f7f8f6] opacity-60'
-                          : 'border-[#e7ebe8] bg-[#fbfcfa] hover:-translate-y-0.5 hover:border-[#cbd5d0] hover:bg-white hover:shadow-[0_10px_24px_rgba(23,44,52,.06)]'
+                          : 'border-[#e7ebe8] bg-white hover:-translate-y-0.5 hover:border-[#16a4d4] hover:shadow-sm'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-[13px] font-extrabold leading-snug text-[#26363e]">{i.name}</div>
-                          <div className="mt-1 text-[10px] uppercase tracking-[.08em] text-[#899397]">{catName(i)}</div>
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className={`line-clamp-2 text-xs font-bold leading-snug ${off ? 'text-slate-400' : 'text-slate-800'}`}>
+                            {i.name}
+                          </span>
+                          {inCart > 0 && (
+                            <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-[#16a4d4] px-1 text-[9px] font-bold text-white shadow-sm">
+                              {inCart}
+                            </span>
+                          )}
                         </div>
-                        <span className="shrink-0 text-[13px] font-extrabold text-[#a8761e]">{formatCurrency(Number(i.price || 0))}</span>
+                        <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-400">
+                          {catName(i)}
+                        </div>
                       </div>
-                      {inCart > 0 && (
-                        <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#16a4d4] px-1.5 text-[10px] font-bold text-white">
-                          {inCart}
-                        </span>
-                      )}
-                      {off && <div className="mt-2.5">{statusBadge('OUT_OF_SERVICE')}</div>}
+
+                      <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
+                        <span className="text-xs font-extrabold text-[#a8761e]">{formatCurrency(Number(i.price || 0))}</span>
+                        {off ? (
+                          <span className="rounded bg-amber-50 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-700">
+                            Sold out
+                          </span>
+                        ) : (
+                          <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-100 text-slate-600 transition group-hover:bg-[#16a4d4] group-hover:text-white">
+                            <Plus size={11} />
+                          </span>
+                        )}
+                      </div>
+
                       {canManage && (
-                        <div className="mt-2.5 flex items-center gap-1.5 border-t border-[#edf0ed] pt-2.5" onClick={(e) => e.stopPropagation()}>
+                        <div className="mt-2.5 flex items-center gap-1 border-t border-slate-100 pt-2" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => toggleItem(i)}
                             title={off ? 'Put on menu' : 'Take off menu'}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#e0e5e2] bg-white text-[#657278] hover:bg-[#f7f9f7]"
+                            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                           >
-                            <Power size={12} />
+                            <Power size={11} />
                           </button>
                           <button
                             onClick={() => openEditItem(i)}
-                            title="Edit item"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#e0e5e2] bg-white text-[#657278] hover:bg-[#f7f9f7]"
+                            title="Edit"
+                            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                           >
-                            <Pencil size={12} />
+                            <Pencil size={11} />
                           </button>
                           <button
                             onClick={() => removeItem(i)}
-                            title="Delete item"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#e0e5e2] bg-white text-[#b23a3a] hover:bg-[#fdf1f1]"
+                            title="Delete"
+                            className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
                           >
-                            <Trash2 size={12} />
+                            <Trash2 size={11} />
                           </button>
                         </div>
                       )}
@@ -334,6 +351,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             )}
           </Section>
 
+          {/* ────────────────────── Cart Section ────────────────────── */}
           <Section
             title="Current order"
             subtitle={totalQty ? `${totalQty} item${totalQty === 1 ? '' : 's'} on this ticket` : 'Review before posting'}
@@ -361,28 +379,30 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
               ) : (
                 <div className="space-y-2">
                   {cart.map((i) => (
-                    <div key={i.id} className="flex items-center gap-3 rounded-xl border border-[#edf0ed] bg-[#fbfcfa] p-3">
+                    <div key={i.id} className="flex items-center gap-2 rounded-lg border border-slate-100 bg-[#fbfcfa] p-2 text-xs">
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-[13px] font-bold text-[#26363e]">{i.name}</div>
-                        <div className="text-[10px] text-[#899397]">{formatCurrency(Number(i.price))} each</div>
+                        <div className="truncate font-semibold text-slate-800">{i.name}</div>
+                        <div className="text-[10px] text-slate-500">{formatCurrency(Number(i.price))} each</div>
                       </div>
-                      <button onClick={() => dec(i.id)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#dfe4e0] bg-white text-[#59676d] hover:bg-[#f3f5f3]">
-                        <Minus size={13} />
-                      </button>
-                      <span className="w-5 text-center text-[13px] font-extrabold text-[#26363e]">{i.quantity}</span>
-                      <button onClick={() => add(i)} className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#16a4d4] text-white hover:bg-[#0e94c4]">
-                        <Plus size={13} />
-                      </button>
-                      <span className="w-20 text-right text-[13px] font-extrabold text-[#26363e]">{formatCurrency(Number(i.price) * i.quantity)}</span>
-                      <button onClick={() => removeLine(i.id)} title="Remove line" className="flex h-6 w-6 items-center justify-center rounded-md text-[#a6b0b4] hover:text-[#b23a3a]">
-                        <Trash2 size={13} />
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
+                          <Minus size={10} />
+                        </button>
+                        <span className="w-4 text-center font-bold text-slate-800">{i.quantity}</span>
+                        <button onClick={() => add(i)} className="flex h-5 w-5 items-center justify-center rounded bg-[#16a4d4] text-white hover:bg-[#1390bb]">
+                          <Plus size={10} />
+                        </button>
+                      </div>
+                      <span className="w-16 text-right font-bold text-slate-800">{formatCurrency(Number(i.price) * i.quantity)}</span>
+                      <button onClick={() => removeLine(i.id)} title="Remove line" className="text-slate-400 hover:text-red-500">
+                        <Trash2 size={11} />
                       </button>
                     </div>
                   ))}
                   <div className="mt-4 space-y-3 border-t border-[#e8ebe8] pt-4">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] uppercase tracking-wide text-[#899397]">Total</span>
-                      <strong className="ns-number text-xl font-extrabold text-[#20343e]">{formatCurrency(total)}</strong>
+                      <strong className="ns-number text-lg font-extrabold text-[#20343e]">{formatCurrency(total)}</strong>
                     </div>
                     <SelectInput value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
                       <option value="CASH">Direct payment · Cash</option>
@@ -417,6 +437,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
         </div>
       )}
 
+      {/* ────────────────────── Posted Orders ────────────────────── */}
       <Section title="Posted orders" subtitle="Recent transactions recorded at this workstation">
         <div className="overflow-x-auto">
           {orders.length === 0 ? (
