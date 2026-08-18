@@ -269,11 +269,11 @@ export const SettingsPage: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {activeTab === 'financial' && (
-                <div className="rounded-md border border-[#f1a83f]/30 bg-[#f1a83f]/10 p-3.5 text-xs text-[#f1a83f]">
-                  <div className="font-bold flex items-center gap-1.5 text-[#f5f0e8]">
+                <div className="rounded-md border border-[#f1a83f]/40 bg-[#fdf7ea] p-3.5 text-xs text-[#7a5a1e]">
+                  <div className="font-bold flex items-center gap-1.5 text-[#7a5a1e]">
                     <span>⏰ Late Check-out Dynamic Policy</span>
                   </div>
-                  <p className="mt-1 text-[11px] text-[#e0d6c8] leading-relaxed">
+                  <p className="mt-1 text-[11px] text-[#6b6255] leading-relaxed">
                     Set the hourly rate (GHS) below. Any guest departing past standard check-out time is billed at <strong>rate × hours late</strong> (1 hr late = 1×, 2 hrs late = 2×, etc.). Saving settings automatically synchronizes all historical stays.
                   </p>
                 </div>
@@ -304,7 +304,7 @@ export const SettingsPage: React.FC = () => {
                   Irreversibly wipes all operational and catalog data: guests, reservations, stays, folios,
                   payments, POS orders, pool activity, expenses, inventory, events, rooms and menus.
                   Users, roles, permissions and settings are kept. Type{' '}
-                  <span className="font-mono text-red-300">RESET</span> and enter your password to confirm.
+                  <span className="font-mono text-red-600">RESET</span> and enter your password to confirm.
                 </p>
               </div>
             </div>

@@ -2,18 +2,25 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
-import { useThemeStore } from '../../stores/themeStore';
+import { useThemeStore, type ThemePreference } from '../../stores/themeStore';
 import { villaAssets } from '../../assets';
-import { Bell, ChevronDown, LogOut, Search, Settings2 } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Search, Settings2, Sun, Moon, Monitor } from 'lucide-react';
 import { NotificationPanel } from './NotificationPanel';
+
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: React.ComponentType<{ size?: number | string }> }[] = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'System', icon: Monitor },
+];
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { unreadCount, getUnreadCount } = useNotificationStore();
-  const { theme } = useThemeStore();
+  const { theme, themePreference, setThemePreference } = useThemeStore();
   const [openDropdown, setOpenDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
+  const [showThemeMenu, setShowThemeMenu] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
@@ -55,6 +62,34 @@ export const Header: React.FC = () => {
         )}
 
         <div className="ml-auto flex items-center gap-1.5">
+          <div className="relative">
+            <button
+              onClick={() => { setShowThemeMenu(v => !v); setShowNotifications(false); }}
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100"
+              aria-label="Theme"
+              title={`Theme: ${themePreference}`}
+            >
+              {themePreference === 'dark' ? <Moon size={17} /> : themePreference === 'light' ? <Sun size={17} /> : <Monitor size={17} />}
+            </button>
+            {showThemeMenu && (
+              <div className="absolute right-0 top-12 w-44 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_50px_rgba(20,35,43,.14)]">
+                <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-[.12em] text-slate-400">Theme</div>
+                {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => { setThemePreference(value); setShowThemeMenu(false); }}
+                    className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-semibold ${
+                      themePreference === value ? 'bg-[#f1a83f]/15 text-[#a8761e]' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Icon size={14} />
+                    {label}
+                    {themePreference === value && <span className="ml-auto text-[9px] font-extrabold uppercase">On</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}

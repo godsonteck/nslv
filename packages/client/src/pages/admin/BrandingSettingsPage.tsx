@@ -186,7 +186,7 @@ export const BrandingSettingsPage: React.FC = () => {
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'logoUrl')}
-                className="block w-full text-[11px] text-[#D9DFE7] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
+                className="block w-full text-[11px] text-[#5b6672] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
               />
               <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[#2B303E] bg-[#0E1117]">
                 {logoValue ? (
@@ -205,7 +205,7 @@ export const BrandingSettingsPage: React.FC = () => {
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'loginBgUrl')}
-                className="block w-full text-[11px] text-[#D9DFE7] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
+                className="block w-full text-[11px] text-[#5b6672] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
               />
               <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[#2B303E] bg-[#0E1117]">
                 {loginBgValue ? (

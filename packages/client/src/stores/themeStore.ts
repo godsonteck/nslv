@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { themeApi, type ThemeConfig } from '../services/apiService';
 
+export type ThemePreference = 'light' | 'dark' | 'system';
+
 const DEFAULT_THEME: ThemeConfig = {
   villaName: 'NS Luxury Villa',
   villaTagline: 'Property Operations',
@@ -25,6 +27,7 @@ const DEFAULT_THEME: ThemeConfig = {
 };
 
 const THEME_CACHE_KEY = 'nslv_theme_config';
+const PREF_CACHE_KEY = 'nslv_theme_preference';
 
 function getInitialTheme(): ThemeConfig {
   if (typeof window === 'undefined') return DEFAULT_THEME;
@@ -39,13 +42,32 @@ function getInitialTheme(): ThemeConfig {
   return DEFAULT_THEME;
 }
 
-const initialTheme = getInitialTheme();
+function getInitialPreference(): ThemePreference {
+  if (typeof window === 'undefined') return 'system';
+  const v = localStorage.getItem(PREF_CACHE_KEY);
+  if (v === 'light' || v === 'dark' || v === 'system') return v;
+  return getInitialTheme().enableDarkMode ? 'dark' : 'light';
+}
 
-function applyThemeDirect(theme: ThemeConfig | null) {
+function prefersDark(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)')?.matches === true;
+}
+
+function resolveDark(theme: ThemeConfig | null, preference: ThemePreference | null): boolean {
+  if (preference === 'dark') return true;
+  if (preference === 'light') return false;
+  if (preference === 'system') return prefersDark();
+  return Boolean(theme?.enableDarkMode);
+}
+
+const initialTheme = getInitialTheme();
+const initialPreference = getInitialPreference();
+
+function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference | null) {
   if (!theme || typeof document === 'undefined') return;
 
   const root = document.documentElement;
-  const dark = Boolean(theme.enableDarkMode);
+  const dark = resolveDark(theme, preference);
 
   root.setAttribute('data-theme', dark ? 'dark' : 'light');
 
@@ -79,22 +101,34 @@ function applyThemeDirect(theme: ThemeConfig | null) {
 }
 
 // Immediately apply cached theme on startup (0ms FOUC)
-applyThemeDirect(initialTheme);
+applyThemeDirect(initialTheme, initialPreference);
+
+// Keep the theme in sync when the OS dark-mode preference changes (system mode)
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+    useThemeStore.getState().applyTheme();
+  });
+}
 
 interface ThemeStore {
   theme: ThemeConfig | null;
   isLoading: boolean;
+  themePreference: ThemePreference;
+  effectiveDark: boolean;
 
   // Actions
   loadTheme: () => Promise<void>;
   updateTheme: (config: Partial<ThemeConfig>) => Promise<void>;
   resetTheme: () => Promise<void>;
+  setThemePreference: (preference: ThemePreference) => void;
   applyTheme: () => void;
 }
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
   theme: initialTheme,
   isLoading: false,
+  themePreference: initialPreference,
+  effectiveDark: resolveDark(initialTheme, initialPreference),
 
   loadTheme: async () => {
     try {
@@ -143,7 +177,18 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     }
   },
 
+  setThemePreference: (preference: ThemePreference) => {
+    try {
+      localStorage.setItem(PREF_CACHE_KEY, preference);
+    } catch {}
+    set({ themePreference: preference });
+    get().applyTheme();
+  },
+
   applyTheme: () => {
-    applyThemeDirect(get().theme);
+    const { theme, themePreference } = get();
+    const dark = resolveDark(theme, themePreference);
+    set({ effectiveDark: dark });
+    applyThemeDirect(theme, themePreference);
   },
 }));

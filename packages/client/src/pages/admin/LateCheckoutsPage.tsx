@@ -424,7 +424,7 @@ export const LateCheckoutsPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedRecord(r)}
-                          className="text-[#f1a83f] hover:text-white"
+                          className="text-[#f1a83f] hover:text-[#8a6420]"
                           title="View Full Stay & Fee Audit"
                         >
                           <Eye size={14} /> Details
@@ -436,7 +436,7 @@ export const LateCheckoutsPage: React.FC = () => {
                             setDeletingRecord(r);
                             setDeleteReason('');
                           }}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                          className="text-red-400 hover:text-red-600 hover:bg-red-50"
                           title="Delete / Waive Late Check-out"
                         >
                           <Trash2 size={14} />
