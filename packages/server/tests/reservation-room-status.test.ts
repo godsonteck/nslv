@@ -7,10 +7,16 @@ const mocks = vi.hoisted(() => ({
   guestFindUnique: vi.fn(),
   reservationCreate: vi.fn(),
   roomUpdate: vi.fn(),
+  userFindMany: vi.fn(),
+  notificationCreateMany: vi.fn(),
 }));
 
 vi.mock('../src/config', () => ({
-  prisma: { $transaction: mocks.transaction },
+  prisma: {
+    $transaction: mocks.transaction,
+    user: { findMany: mocks.userFindMany },
+    notification: { createMany: mocks.notificationCreateMany },
+  },
 }));
 
 import { ReservationService } from '../src/services/reservations.service';
@@ -31,6 +37,8 @@ describe('reservation room status', () => {
     mocks.guestFindUnique.mockResolvedValue({ id: 'guest-1' });
     mocks.reservationCreate.mockResolvedValue({ id: 'reservation-1' });
     mocks.roomUpdate.mockResolvedValue({});
+    mocks.userFindMany.mockResolvedValue([]);
+    mocks.notificationCreateMany.mockResolvedValue({ count: 0 });
   });
 
   it('marks a room reserved as soon as a future reservation is confirmed', async () => {

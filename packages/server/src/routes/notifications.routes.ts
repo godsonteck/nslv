@@ -61,8 +61,9 @@ router.get('/unread/count', async (req: Request, res: Response, next: NextFuncti
  */
 router.patch('/:id/read', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const notification = await NotificationService.markAsRead(id);
+    const notification = await NotificationService.markAsRead(id, authReq.user.userId);
     res.status(200).json({
       success: true,
       data: notification,
@@ -95,8 +96,9 @@ router.patch('/mark-all-read', async (req: Request, res: Response, next: NextFun
  */
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    await NotificationService.delete(id);
+    await NotificationService.delete(id, authReq.user.userId);
     res.status(200).json({
       success: true,
       message: 'Notification deleted',

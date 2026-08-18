@@ -9,6 +9,8 @@ import { AppError } from '../middleware/error';
 import { randomUUID } from 'node:crypto';
 import { PaymentService } from './payments.service';
 import { FolioService } from './folios.service';
+import { NotificationService } from './notification.service';
+import { PERMISSIONS } from '@nslv/shared';
 
 export interface CheckInDTO {
   reservationId: string;
@@ -85,7 +87,7 @@ export class StayService {
       const reservation = await tx.reservation.findUnique({
         where: { id: data.reservationId },
         include: {
-          guests: { where: { isPrimary: true } },
+          guests: { where: { isPrimary: true }, include: { guest: true } },
           room: true,
         },
       });
@@ -199,8 +201,23 @@ export class StayService {
         resourceId: reservation.id,
         afterData: { checkInId: checkIn.id, roomId: reservation.roomId, folioId: folio.id },
       });
-      return { checkIn, folio };
-      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+      const primaryGuest = reservation.guests[0]?.guest;
+      const guestName = primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'Guest';
+      return { checkIn, folio, guestName, roomNumber: reservation.room?.number || '—', reservationId: reservation.id, confirmationNo: reservation.confirmationNo };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }).then((result) => {
+        NotificationService.notifyStaff(
+          [PERMISSIONS.CHECKIN_PERFORM],
+          {
+            type: 'RESERVATION',
+            title: 'Guest checked in',
+            message: `${result.guestName} · Room ${result.roomNumber} (${result.confirmationNo})`,
+            priority: 'HIGH',
+            data: { reservationId: result.reservationId, checkInId: result.checkIn.id, roomId: result.checkIn.roomId },
+          },
+          data.checkedInBy,
+        );
+        return result;
+      });
     } catch (error) {
       if ((error as { code?: string }).code === 'P2034') {
         throw new AppError('The reservation changed while check-in was being processed. Please retry.', 409, 'CHECKIN_CONFLICT');
@@ -399,7 +416,7 @@ export class StayService {
         const reservation = await tx.reservation.findUnique({
           where: { id: data.reservationId },
           include: {
-            guests: { where: { isPrimary: true } },
+            guests: { where: { isPrimary: true }, include: { guest: true } },
             folios: {
               include: { items: true, payments: true },
             },
@@ -523,8 +540,25 @@ export class StayService {
           resourceId: reservation.id,
           afterData: { checkOutId: checkOut.id, roomId: reservation.roomId, folioId: folio?.id, finalBalance },
         });
-        return { checkOut, folio };
-      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+        const primaryGuest = reservation.guests[0]?.guest;
+        const guestName = primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'Guest';
+        return { checkOut, folio, guestName, roomNumber: reservation.roomId, confirmationNo: reservation.confirmationNo };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }).then((result) => {
+        if (!result.isRetry) {
+          NotificationService.notifyStaff(
+            [PERMISSIONS.CHECKOUT_PERFORM],
+            {
+              type: 'RESERVATION',
+              title: 'Guest checked out',
+              message: `${result.guestName} · ${result.confirmationNo}${result.folio ? ` · Final balance GHS ${result.folio.balance}` : ''}`,
+              priority: 'MEDIUM',
+              data: { reservationId: result.checkOut.reservationId, checkOutId: result.checkOut.id, roomId: result.checkOut.roomId },
+            },
+            data.checkedOutBy,
+          );
+        }
+        return result;
+      });
     } catch (error) {
       if ((error as { code?: string }).code === 'P2034' || (error as { code?: string }).code === 'P2002') {
         throw new AppError('The stay changed or was checked out concurrently. Please retry.', 409, 'CHECKOUT_CONFLICT');

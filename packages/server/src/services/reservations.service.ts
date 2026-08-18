@@ -9,6 +9,8 @@ import { randomBytes } from 'node:crypto';
 import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
 import { PaymentService } from './payments.service';
+import { NotificationService } from './notification.service';
+import { PERMISSIONS } from '@nslv/shared';
 
 export interface CreateReservationDTO {
   guestId: string;
@@ -260,10 +262,34 @@ export class ReservationService {
 
     // Atomic transaction for double booking protection
     try {
-      return await prisma.$transaction(
+      const reservation = await prisma.$transaction(
         (tx) => this.createReservationInTx(tx, data, checkIn, checkOut),
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       );
+
+      const primaryGuest = Array.isArray(reservation.guests) ? reservation.guests.find((g: any) => g.isPrimary)?.guest : null;
+      const guestName = primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'A guest';
+      const roomNo = reservation.room?.number || '—';
+      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
+      await NotificationService.notifyStaff(
+        [PERMISSIONS.RESERVATIONS_VIEW],
+        {
+          type: 'RESERVATION',
+          title: 'New reservation',
+          message: `${guestName} · Room ${roomNo} · ${nights} night${nights === 1 ? '' : 's'} (${reservation.confirmationNo})`,
+          priority: 'MEDIUM',
+          data: {
+            reservationId: reservation.id,
+            confirmationNo: reservation.confirmationNo,
+            roomId: reservation.roomId,
+            checkInDate: checkIn.toISOString(),
+            checkOutDate: checkOut.toISOString(),
+          },
+        },
+        data.createdBy,
+      );
+
+      return reservation;
     } catch (error) {
       if ((error as { code?: string }).code === 'P2034') {
         throw new AppError('The room was booked or changed concurrently. Refresh availability and retry.', 409, 'RESERVATION_CONFLICT');
@@ -440,6 +466,22 @@ export class ReservationService {
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
 
+    const first = reservations[0];
+    const primaryGuest = Array.isArray(first?.guests) ? first.guests.find((g: any) => g.isPrimary)?.guest : null;
+    const guestName = primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'A guest';
+    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
+    await NotificationService.notifyStaff(
+      [PERMISSIONS.RESERVATIONS_VIEW],
+      {
+        type: 'RESERVATION',
+        title: 'New party booking',
+        message: `${guestName} · ${reservations.length} room${reservations.length === 1 ? '' : 's'} · ${nights} night${nights === 1 ? '' : 's'} (${bookingId})`,
+        priority: 'MEDIUM',
+        data: { bookingId, reservationIds: reservations.map((r) => r.id), checkInDate: checkIn.toISOString(), checkOutDate: checkOut.toISOString() },
+      },
+      data.createdBy,
+    );
+
     return { bookingId, reservations };
     } catch (error) {
       if ((error as { code?: string }).code === 'P2034') {
@@ -569,11 +611,25 @@ export class ReservationService {
       }
 
       return updated;
+    }).then((updated) => {
+      NotificationService.notifyStaff(
+        [PERMISSIONS.RESERVATIONS_VIEW],
+        {
+          type: 'RESERVATION',
+          title: 'Reservation cancelled',
+          message: `${updated.confirmationNo}${reason ? ` — ${reason}` : ''}`,
+          priority: 'MEDIUM',
+          data: { reservationId: updated.id, confirmationNo: updated.confirmationNo, roomId: updated.roomId },
+        },
+        cancelledBy,
+      );
+      return updated;
     });
   }
 
   /** Mark reservation as NO_SHOW */
   static async markNoShow(id: string, markedBy: string, reason?: string) {
+    const cancelReason = reason?.trim() || 'Guest did not arrive (No-show)';
     return prisma.$transaction(async (tx) => {
       const reservation = await tx.reservation.findUnique({ where: { id } });
       if (!reservation) throw new AppError('Reservation not found.', 404, 'NOT_FOUND');
@@ -582,7 +638,6 @@ export class ReservationService {
       }
       await this.assertNoUnsettledDeposit(tx, id);
 
-      const cancelReason = reason?.trim() || 'Guest did not arrive (No-show)';
       const updated = await tx.reservation.update({
         where: { id },
         data: {
@@ -623,6 +678,19 @@ export class ReservationService {
         afterData: { status: 'NO_SHOW', cancelReason },
       });
 
+      return updated;
+    }).then((updated) => {
+      NotificationService.notifyStaff(
+        [PERMISSIONS.RESERVATIONS_VIEW],
+        {
+          type: 'RESERVATION',
+          title: 'Reservation marked no-show',
+          message: `${updated.confirmationNo} — ${cancelReason}`,
+          priority: 'HIGH',
+          data: { reservationId: updated.id, confirmationNo: updated.confirmationNo, roomId: updated.roomId },
+        },
+        markedBy,
+      );
       return updated;
     });
   }

@@ -6,7 +6,7 @@ const originalPaymentId = '553061d5-97c9-4e71-977c-1d776e82ea04';
 const idempotencyKey = '9dd18b1a-47f7-42dc-931c-1eb1a644628b';
 
 vi.mock('../src/config', () => ({
-  prisma: { payment: { findUnique: mocks.findUnique }, dailyClose: { findUnique: vi.fn().mockResolvedValue(null) }, $transaction: mocks.transaction },
+  prisma: { payment: { findUnique: mocks.findUnique }, dailyClose: { findUnique: vi.fn().mockResolvedValue(null) }, user: { findMany: vi.fn().mockResolvedValue([]) }, notification: { createMany: vi.fn().mockResolvedValue({ count: 0 }) }, $transaction: mocks.transaction },
 }));
 vi.mock('../src/services/audit.service', () => ({ AuditService: { logInTransaction: vi.fn() } }));
 

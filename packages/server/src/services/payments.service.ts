@@ -6,6 +6,8 @@ import { Prisma, PaymentMethod, PaymentStatus, PaymentType, OrderPaymentStatus }
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { DailyCloseService, lockBusinessDay } from './daily-close.service';
+import { NotificationService } from './notification.service';
+import { PERMISSIONS } from '@nslv/shared';
 
 export interface ProcessPaymentDTO {
   folioId?: string;
@@ -142,7 +144,20 @@ export class PaymentService {
       return existing;
     }
     try {
-      return await prisma.$transaction(async (tx) => this.processPaymentInTx(tx, data), { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+      return await prisma.$transaction(async (tx) => this.processPaymentInTx(tx, data), { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }).then((payment) => {
+        NotificationService.notifyStaff(
+          [PERMISSIONS.PAYMENTS_VIEW],
+          {
+            type: 'PAYMENT',
+            title: 'Payment received',
+            message: `GHS ${Number(payment.amount).toFixed(2)} via ${String(payment.method || '—').replace('_', ' ')}${payment.reference ? ` · ${payment.reference}` : ''}`,
+            priority: 'MEDIUM',
+            data: { paymentId: payment.id, reservationId: payment.reservationId, amount: payment.amount.toString(), method: payment.method },
+          },
+          data.processedBy,
+        );
+        return payment;
+      });
     } catch (error) {
       if ((error as { code?: string }).code === 'P2002') {
         const duplicate = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
@@ -220,6 +235,18 @@ export class PaymentService {
         resourceId: pendingRefund.id,
         afterData: { originalPaymentId: original.id, amount: refundAmount.toString(), folioId: original.folioId, reason: data.reason },
       });
+
+      await NotificationService.notifyStaff(
+        [PERMISSIONS.PAYMENTS_REFUND],
+        {
+          type: 'PAYMENT',
+          title: 'Refund request awaiting approval',
+          message: `GHS ${refundAmount.toFixed(2)} on payment ${original.reference || original.id.slice(0, 8)} — ${data.reason}`,
+          priority: 'HIGH',
+          data: { paymentId: pendingRefund.id, originalPaymentId: original.id, amount: refundAmount.toString() },
+        },
+        data.processedBy,
+      );
 
       return pendingRefund;
     }

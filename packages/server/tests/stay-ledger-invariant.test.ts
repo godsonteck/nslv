@@ -16,6 +16,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../src/config', () => ({
   prisma: {
     $transaction: mocks.transaction,
+    user: { findMany: vi.fn().mockResolvedValue([]) },
+    notification: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
   },
 }));
 vi.mock('../src/services/audit.service', () => ({ AuditService: { logInTransaction: vi.fn() } }));

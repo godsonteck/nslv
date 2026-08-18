@@ -6,6 +6,8 @@ const existingPayment = { id: 'payment-1', type: 'PAYMENT', idempotencyKey: '9dd
 vi.mock('../src/config', () => ({
   prisma: {
     payment: { findUnique: mocks.findUnique },
+    user: { findMany: vi.fn().mockResolvedValue([]) },
+    notification: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
     $transaction: mocks.transaction,
   },
 }));

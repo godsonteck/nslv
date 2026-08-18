@@ -19,6 +19,8 @@ const mocks = vi.hoisted(() => ({
   folioItemCreate: vi.fn(),
   folioUpdate: vi.fn(),
   auditLogCreate: vi.fn(),
+  userFindMany: vi.fn(),
+  notificationCreateMany: vi.fn(),
 }));
 
 vi.mock('../src/config', () => ({
@@ -33,6 +35,8 @@ vi.mock('../src/config', () => ({
     },
     guest: { findUnique: mocks.guestFindUnique, findMany: mocks.guestFindMany },
     auditLog: { create: mocks.auditLogCreate },
+    user: { findMany: mocks.userFindMany },
+    notification: { createMany: mocks.notificationCreateMany },
   },
 }));
 
@@ -86,6 +90,8 @@ describe('Surgical Reservation Fixes', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.userFindMany.mockResolvedValue([]);
+    mocks.notificationCreateMany.mockResolvedValue({ count: 0 });
     setupTx();
   });
 
@@ -667,6 +673,79 @@ describe('Surgical Reservation Fixes', () => {
         expect(err.code).toBe('DEPOSIT_REFUND_REQUIRED');
         expect(err.statusCode).toBe(409);
       }
+    });
+  });
+
+  // ==========================================================
+  // FIX #6: NOTIFICATION DISPATCH MUST NEVER FAIL CORE OPERATIONS
+  // Notification delivery is best-effort. A notification DB failure
+  // must not fail, roll back, or falsely 500 a committed reservation.
+  // ==========================================================
+  describe('Fix #6: Notification failures cannot break reservations', () => {
+    const room = {
+      id: 'room-1',
+      isActive: true,
+      status: 'AVAILABLE',
+      roomType: { basePrice: 250, maxAdults: 2, maxChildren: 1 },
+    };
+
+    beforeEach(() => {
+      mocks.reservationFindFirst.mockResolvedValue(null);
+      mocks.roomFindUnique.mockResolvedValue(room);
+      mocks.guestFindUnique.mockResolvedValue({ id: 'guest-1' });
+      mocks.reservationCreate.mockImplementation(({ data }) => Promise.resolve({ id: 'res-1', ...data }));
+      mocks.reservationFindUnique.mockResolvedValue({ id: 'res-1', totalAmount: 500, guests: [{ guestId: 'guest-1' }] });
+      mocks.reservationUpdate.mockResolvedValue({ id: 'res-1', status: 'CANCELLED' });
+      mocks.paymentAggregate.mockResolvedValue({ _sum: { amount: null } });
+      mocks.paymentCreate.mockResolvedValue({ id: 'payment-1' });
+      mocks.paymentFindFirst.mockResolvedValue(null);
+    });
+
+    it('creates the reservation even when the notification recipient lookup fails', async () => {
+      mocks.userFindMany.mockRejectedValue(new Error('notification database is down'));
+
+      const res = await ReservationService.createReservation({
+        guestId: 'guest-1',
+        roomId: 'room-1',
+        checkInDate: '2030-06-01',
+        checkOutDate: '2030-06-03',
+      });
+
+      expect(res.id).toBe('res-1');
+      expect(res.totalAmount).toBe(500);
+      expect(mocks.roomUpdate).toHaveBeenCalledWith({ where: { id: 'room-1' }, data: { status: 'RESERVED' } });
+    });
+
+    it('creates the reservation even when the notification insert fails', async () => {
+      mocks.userFindMany.mockResolvedValue([{ id: 'user-manager' }]);
+      mocks.notificationCreateMany.mockRejectedValue(new Error('notification insert failed'));
+
+      const res = await ReservationService.createReservation({
+        guestId: 'guest-1',
+        roomId: 'room-1',
+        checkInDate: '2030-06-01',
+        checkOutDate: '2030-06-03',
+      });
+
+      expect(res.id).toBe('res-1');
+      expect(res.totalAmount).toBe(500);
+    });
+
+    it('cancels the reservation even when the notification dispatch fails', async () => {
+      mocks.reservationFindUnique.mockResolvedValue({
+        id: 'res-1',
+        status: 'CONFIRMED',
+        roomId: 'room-1',
+        checkInDate: new Date('2030-06-01'),
+        checkOutDate: new Date('2030-06-03'),
+      });
+      mocks.roomFindUnique.mockResolvedValue({ id: 'room-1', status: 'RESERVED' });
+      mocks.userFindMany.mockRejectedValue(new Error('notification database is down'));
+
+      const res = await ReservationService.cancelReservation('res-1', 'user-1', 'Guest changed plans');
+
+      expect(res.status).toBe('CANCELLED');
+      expect(mocks.roomUpdate).toHaveBeenCalledWith({ where: { id: 'room-1' }, data: { status: 'AVAILABLE' } });
     });
   });
 });
