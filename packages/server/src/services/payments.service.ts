@@ -539,4 +539,85 @@ export class PaymentService {
 
     return updated;
   }
+
+  /**
+   * Admin-only hard delete of a payment record (mistake / duplicate correction).
+   * Refuses to remove financially materialized records: payments already posted
+   * to a guest folio, payments referenced by a refund, or payments inside a
+   * business day that has already been closed. Use the refund/reversal flow
+   * for those instead so the ledger and daily close stay consistent.
+   */
+  static async deletePayment(paymentId: string, deletedBy: string) {
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: { refunds: { select: { id: true } } },
+    });
+    if (!payment) throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
+    if (payment.refunds.length > 0) {
+      throw new AppError('Cannot delete this payment — a refund references it. Use the refund flow to reverse it instead.', 409, 'PAYMENT_HAS_REFUNDS');
+    }
+    if (payment.type === 'REFUND') {
+      throw new AppError('Cannot delete a refund record — it is the system reversal. Refunds are never hard-deleted.', 409, 'PAYMENT_IS_REFUND');
+    }
+    if (payment.source && payment.sourceId) {
+      throw new AppError('Cannot delete this payment — it settles a POS order. Use the refund flow to reverse it instead.', 409, 'PAYMENT_SOURCE_LINKED');
+    }
+    const postedItem = await prisma.folioItem.findFirst({
+      where: { referenceId: payment.id, referenceType: 'PAYMENT' },
+      select: { folioId: true },
+    });
+    if (payment.folioId || postedItem) {
+      throw new AppError('Cannot delete this payment — it has already been posted to a guest folio. Use the refund flow to reverse it instead.', 409, 'PAYMENT_POSTED_TO_FOLIO');
+    }
+
+    try {
+      return await prisma.$transaction(async (tx) => {
+        await lockBusinessDay(tx, payment.processedAt);
+        await DailyCloseService.assertBusinessDayOpen(payment.processedAt);
+        // Re-check inside the serialized lock: the record may have changed while we waited.
+        const latest = await tx.payment.findUnique({ where: { id: paymentId }, include: { refunds: { select: { id: true } } } });
+        if (!latest) throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
+        if (latest.refunds.length > 0) {
+          throw new AppError('Cannot delete this payment — a refund references it. Use the refund flow to reverse it instead.', 409, 'PAYMENT_HAS_REFUNDS');
+        }
+        if (latest.type === 'REFUND') {
+          throw new AppError('Cannot delete a refund record — it is the system reversal. Refunds are never hard-deleted.', 409, 'PAYMENT_IS_REFUND');
+        }
+        if (latest.source && latest.sourceId) {
+          throw new AppError('Cannot delete this payment — it settles a POS order. Use the refund flow to reverse it instead.', 409, 'PAYMENT_SOURCE_LINKED');
+        }
+        if (latest.folioId) {
+          throw new AppError('Cannot delete this payment — it has already been posted to a guest folio. Use the refund flow to reverse it instead.', 409, 'PAYMENT_POSTED_TO_FOLIO');
+        }
+
+        await tx.payment.delete({ where: { id: paymentId } });
+
+        await AuditService.logInTransaction(tx, {
+          userId: deletedBy,
+          action: 'payment.deleted',
+          resource: 'payment',
+          resourceId: paymentId,
+          beforeData: {
+            amount: payment.amount.toString(),
+            method: payment.method,
+            type: payment.type,
+            status: payment.status,
+            reservationId: payment.reservationId,
+            guestId: payment.guestId,
+            reference: payment.reference || null,
+            idempotencyKey: payment.idempotencyKey || null,
+            description: payment.description || null,
+            processedAt: payment.processedAt.toISOString(),
+          },
+        });
+
+        return { id: payment.id, amount: payment.amount, method: payment.method, type: payment.type };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2003') {
+        throw new AppError('Cannot delete this payment — it is still referenced by other records. Use the refund flow instead.', 409, 'PAYMENT_IN_USE');
+      }
+      throw error;
+    }
+  }
 }

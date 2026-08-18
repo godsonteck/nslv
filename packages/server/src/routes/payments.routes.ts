@@ -75,4 +75,17 @@ router.post('/:id/reject-refund', requireManagerOrAdmin, async (req, res, next) 
   }
 });
 
+// Admin-only hard delete of a payment record (mistake / duplicate correction).
+// Safely guarded server-side: refuses folio-posted, refund-referenced, or
+// closed-business-day records — those must go through the refund flow.
+router.delete('/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const data = await PaymentService.deletePayment(req.params.id as string, userId);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

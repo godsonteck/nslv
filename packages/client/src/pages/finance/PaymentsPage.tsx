@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { paymentsApi, staysApi } from '../../services/apiService';
-import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2, CheckCircle2, XCircle, Clock, Trash2 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
@@ -80,6 +80,7 @@ export const PaymentsPage: React.FC = () => {
   
   const isPrivileged = useAuthStore((s) => s.hasRole('admin') || s.hasRole('manager') || s.hasPermission('payments.refund'));
   const canRequestOrRefund = useAuthStore((s) => s.hasRole('admin') || s.hasRole('manager') || s.hasPermission('payments.refund') || s.hasPermission('payments.create'));
+  const isAdmin = useAuthStore((s) => s.hasRole('admin'));
 
   const load = async () => {
     try {
@@ -160,6 +161,21 @@ export const PaymentsPage: React.FC = () => {
     setRefundMethod((payment.method as DirectPaymentMethod) || 'CASH');
     setRefundReason('');
     setRefundReference('');
+  };
+
+  const handleDeletePayment = async (payment: PaymentRecord) => {
+    const label = `${payment.type === 'REFUND' ? 'refund' : payment.type === 'DEPOSIT' ? 'deposit' : 'payment'} of ${formatCurrency(money(payment.amount))}`;
+    if (!window.confirm(`Permanently delete this ${label} (${payment.method || '—'})? This cannot be undone. Only records not yet posted to a folio and without refunds can be deleted.`)) return;
+    try {
+      setBusyId(payment.id);
+      await paymentsApi.remove(payment.id);
+      showToast('success', 'Payment record deleted.');
+      void load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to delete payment record');
+    } finally {
+      setBusyId(null);
+    }
   };
 
   const submitRefund = async (event: React.FormEvent) => {
@@ -350,10 +366,25 @@ export const PaymentsPage: React.FC = () => {
                           ) : (
                             <span className="text-[11px] font-medium text-amber-700">Awaiting Manager</span>
                           )
-                        ) : isCompletedPayment && canRequestOrRefund ? (
-                          <Button variant="outline" size="sm" onClick={() => openRefund(p)}>
-                            <Undo2 size={13} /> {isPrivileged ? 'Approve refund' : 'Request refund'}
-                          </Button>
+                        ) : isAdmin || (isCompletedPayment && canRequestOrRefund) ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            {isCompletedPayment && canRequestOrRefund && (
+                              <Button variant="outline" size="sm" onClick={() => openRefund(p)}>
+                                <Undo2 size={13} /> {isPrivileged ? 'Approve refund' : 'Request refund'}
+                              </Button>
+                            )}
+                            {isAdmin && (
+                              <button
+                                type="button"
+                                title="Delete payment record"
+                                onClick={() => handleDeletePayment(p)}
+                                disabled={busyId === p.id}
+                                className="rounded-md p-1.5 text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                              >
+                                {busyId === p.id ? <Clock size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                              </button>
+                            )}
+                          </div>
                         ) : (
                           '—'
                         )}

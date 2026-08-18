@@ -73,9 +73,16 @@ export const ReservationsPage: React.FC = () => {
         roomsApi.getRooms(),
         guestsApi.list(),
       ]);
-      setData(r.data || []);
+      const list = r.data || [];
+      setData(list);
       setRooms(rm.data || []);
       setGuests(g.data || []);
+      // Keep an open detail panel in sync with the freshly loaded data so
+      // recorded payments, amounts and balance stay current after a refresh.
+      setDetailsRes((prev: any) => {
+        if (!prev) return prev;
+        return list.find((x: any) => x.id === prev.id) || prev;
+      });
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to load reservations');
     } finally {
@@ -503,18 +510,15 @@ export const ReservationsPage: React.FC = () => {
                           {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                         </td>
                         <td className="px-5 py-4 text-xs">
-                          {Number(r.depositAmount || 0) > 0 ? (
+                          {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
                             <>
-                              <div className="font-extrabold text-[#16a4d4]">{formatCurrency(r.depositAmount)}</div>
-                              {recordedDepositTotal(r) > 0 ? (
-                                <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-[#2e7d32]">
-                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#2e7d32]" />
-                                  {recordedDepositTotal(r) >= Number(r.depositAmount) ? 'Paid' : `${formatCurrency(recordedDepositTotal(r))} paid`}
-                                </div>
-                              ) : (
-                                <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-[#b0743a]">
-                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#b0743a]" />
-                                  Unrecorded
+                              <div className="font-extrabold text-[#16a4d4]">{formatCurrency(recordedDepositTotal(r))} paid</div>
+                              {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
+                                <div className="mt-0.5 text-[10px] text-[#899397]">{formatCurrency(r.depositAmount)} expected</div>
+                              )}
+                              {recordedDepositTotal(r) < Number(r.totalAmount || 0) && (
+                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
+                                  Balance due {formatCurrency(Math.max(0, Number(r.totalAmount || 0) - recordedDepositTotal(r)))}
                                 </div>
                               )}
                             </>
@@ -1078,11 +1082,14 @@ export const ReservationsPage: React.FC = () => {
                     <span className="font-extrabold text-[#20343e]">Total Reservation Amount</span>
                     <span className="font-extrabold text-[#20343e]">{formatCurrency(detailsRes.totalAmount)}</span>
                   </div>
-                  {Number(detailsRes.depositAmount || 0) > 0 && (
+                  {(Number(detailsRes.depositAmount || 0) > 0 || recordedDepositTotal(detailsRes) > 0) && (
                     <div className="space-y-1.5 bg-[#f7f9f8] p-2 rounded-lg">
                       <div className="flex justify-between">
                         <span className="text-[#16a4d4] font-bold">Partial Payment</span>
-                        <span className="font-extrabold text-[#16a4d4]">{formatCurrency(recordedDepositTotal(detailsRes))} / {formatCurrency(detailsRes.depositAmount)}</span>
+                        <span className="font-extrabold text-[#16a4d4]">
+                          {formatCurrency(recordedDepositTotal(detailsRes))} paid
+                          {Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && ` / ${formatCurrency(detailsRes.depositAmount)} expected`}
+                        </span>
                       </div>
                       {recordedDeposits(detailsRes).length > 0 ? (
                         recordedDeposits(detailsRes).map((p: any) => (
@@ -1097,6 +1104,12 @@ export const ReservationsPage: React.FC = () => {
                         ))
                       ) : (
                         <div className="text-[11px] text-[#b0743a]">Not yet recorded — collect at check-in</div>
+                      )}
+                      {recordedDepositTotal(detailsRes) < Number(detailsRes.totalAmount || 0) && (
+                        <div className="flex justify-between border-t border-[#e4e9e5] pt-1.5">
+                          <span className="text-[#5f6b6f]">Balance left to pay</span>
+                          <span className="font-extrabold text-[#b0743a]">{formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
+                        </div>
                       )}
                     </div>
                   )}
@@ -1192,15 +1205,21 @@ export const ReservationsPage: React.FC = () => {
           {detailsRes && (
             <>
               <div className="rounded-xl bg-[#f7f9f8] p-3 text-xs text-[#26363e]">
-                {Number(detailsRes.depositAmount || 0) > 0 ? (
+                {Number(detailsRes.depositAmount || 0) > 0 || recordedDepositTotal(detailsRes) > 0 ? (
                   <>
-                    Partial payment expected: <span className="font-extrabold text-[#16a4d4]">{formatCurrency(detailsRes.depositAmount)}</span>
-                    {recordedDepositTotal(detailsRes) > 0 && (
+                    {Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && (
                       <>
+                        Partial payment expected: <span className="font-extrabold text-[#16a4d4]">{formatCurrency(detailsRes.depositAmount)}</span>
                         <span className="mx-1 text-[#899397]">·</span>
-                        <span className="text-[#2e7d32] font-bold">{formatCurrency(recordedDepositTotal(detailsRes))} recorded</span>
                       </>
                     )}
+                    {recordedDepositTotal(detailsRes) > 0 && (
+                      <>
+                        <span className="text-[#2e7d32] font-bold">{formatCurrency(recordedDepositTotal(detailsRes))} recorded</span>
+                        <span className="mx-1 text-[#899397]">·</span>
+                      </>
+                    )}
+                    <span className="text-[#b0743a] font-bold">Balance due {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
                   </>
                 ) : (
                   <span>No partial payment was logged on this reservation — record the amount the guest paid.</span>
