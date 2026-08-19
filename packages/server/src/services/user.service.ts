@@ -361,7 +361,7 @@ export class UserService {
   static async createRole(input: { name: string; description?: string | null; permissionCodes: string[] }, createdByUserId: string) {
     void input;
     void createdByUserId;
-    throw new AppError('NS Luxury Villa uses the four official system roles. Configure their permissions instead of creating a new role.', 400, 'SYSTEM_ROLES_ONLY');
+    throw new AppError('NS Luxury Villa uses the official system roles. Configure their permissions instead of creating a new role.', 400, 'SYSTEM_ROLES_ONLY');
   }
 
   /**
@@ -371,7 +371,7 @@ export class UserService {
     const existing = await prisma.role.findUnique({ where: { id } });
     if (!existing) throw new AppError('Role not found.', 404, 'ROLE_NOT_FOUND');
     if (!existing.isSystem || !Object.values(SYSTEM_ROLES).includes(existing.name as typeof SYSTEM_ROLES[keyof typeof SYSTEM_ROLES])) {
-      throw new AppError('Only the four official system roles can be configured.', 400, 'SYSTEM_ROLES_ONLY');
+      throw new AppError('Only the official system roles can be configured.', 400, 'SYSTEM_ROLES_ONLY');
     }
     if (input.name && input.name !== existing.name) {
       throw new AppError('Official system role names cannot be changed.', 400, 'SYSTEM_ROLE_NAME_IMMUTABLE');

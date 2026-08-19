@@ -139,15 +139,13 @@ export const ALL_PERMISSION_CODES: PermissionCode[] = Object.values(PERMISSIONS)
 /**
  * Default system role names.
  * These are created at seed and cannot be deleted.
- * Restaurant and Bar can be managed separately (staff assigned to only one outlet)
- * OR together via the F&B role for staff who cover both outlets.
+ * Restaurant and Bar are separate outlets with their own roles and workspaces.
  * The Pool is managed by Reception alongside front-office guest service.
  */
 export const SYSTEM_ROLES = {
   ADMIN: 'Admin',
   MANAGER: 'Manager',
   RECEPTION: 'Reception',
-  FNB: 'F&B',
   RESTAURANT: 'Restaurant',
   BAR: 'Bar',
 } as const;
@@ -234,23 +232,6 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRoleName, PermissionCode[]> 
     PERMISSIONS.PAYMENTS_VIEW,
     PERMISSIONS.PAYMENTS_CREATE,
     PERMISSIONS.POOL_VIEW,
-    PERMISSIONS.NOTIFICATIONS_VIEW,
-  ],
-
-  [SYSTEM_ROLES.FNB]: [
-    PERMISSIONS.DASHBOARD_VIEW,
-    PERMISSIONS.RESTAURANT_VIEW,
-    PERMISSIONS.RESTAURANT_ORDERS,
-    PERMISSIONS.RESTAURANT_MENU,
-    PERMISSIONS.RESTAURANT_ROOM_CHARGE,
-    PERMISSIONS.RESTAURANT_SALES,
-    PERMISSIONS.BAR_VIEW,
-    PERMISSIONS.BAR_ORDERS,
-    PERMISSIONS.BAR_MENU,
-    PERMISSIONS.BAR_ROOM_CHARGE,
-    PERMISSIONS.BAR_SALES,
-    PERMISSIONS.INVENTORY_VIEW,
-    PERMISSIONS.CATEGORIES_VIEW,
     PERMISSIONS.NOTIFICATIONS_VIEW,
   ],
 

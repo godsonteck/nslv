@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AlertCircle, ArrowRight, Building2, ClipboardList, ShieldCheck, Users, UtensilsCrossed } from 'lucide-react';
+import { AlertCircle, ArrowRight, Building2, ClipboardList, ShieldCheck, Users, UtensilsCrossed, Wine } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
 
@@ -16,7 +16,8 @@ const portals: Record<string, PortalDefinition> = {
   Admin: { name: 'Administration', summary: 'System access, people, settings and traceability.', icon: <ShieldCheck size={22} />, available: [{ label: 'Users', to: '/admin/users' }, { label: 'Roles & permissions', to: '/admin/roles' }, { label: 'Audit logs', to: '/admin/audit' }, { label: 'Settings', to: '/admin/settings' }], pending: ['Operational reporting', 'Financial oversight'] },
   Manager: { name: 'Operations management', summary: 'A single place to supervise the villa’s daily operations.', icon: <Building2 size={22} />, available: [], pending: ['Live occupancy and arrivals', 'Department performance', 'Operational reports'] },
   Reception: { name: 'Reception', summary: 'Front-office workflows built for fast, accurate guest service.', icon: <Users size={22} />, available: [{ label: 'Front desk', to: '/frontdesk' }, { label: 'Pool services', to: '/pool/services' }], pending: ['Reservations and availability', 'Check-in and check-out', 'Guest folios and payments'] },
-  'F&B': { name: 'Food & beverage', summary: 'One operational workspace for restaurant and bar service.', icon: <UtensilsCrossed size={22} />, available: [{ label: 'F&B workspace', to: '/fnb' }, { label: 'Restaurant POS', to: '/restaurant/pos' }, { label: 'Bar POS', to: '/bar/pos' }], pending: [] },
+  Restaurant: { name: 'Restaurant', summary: 'Dining and kitchen operations with the restaurant POS.', icon: <UtensilsCrossed size={22} />, available: [{ label: 'Restaurant workspace', to: '/restaurant' }, { label: 'Restaurant POS', to: '/restaurant/pos' }], pending: [] },
+  Bar: { name: 'Bar', summary: 'Bar and lounge service with the bar POS.', icon: <Wine size={22} />, available: [{ label: 'Bar workspace', to: '/bar' }, { label: 'Bar POS', to: '/bar/pos' }], pending: [] },
 };
 
 export const PortalHome: React.FC = () => {

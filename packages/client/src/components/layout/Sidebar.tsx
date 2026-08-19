@@ -21,7 +21,6 @@ const ALL_SECTIONS: NavSection[] = [
     { label: 'Pool services', to: '/pool/services', icon: Waves, perms: ['pool.view'] },
   ] },
   { title: 'Departments', items: [
-    { label: 'F&B workspace', to: '/fnb', icon: UtensilsCrossed, perms: ['restaurant.view', 'bar.view'] },
     { label: 'Restaurant workspace', to: '/restaurant', icon: UtensilsCrossed, perms: ['restaurant.view'] },
     { label: 'Restaurant POS', to: '/restaurant/pos', icon: UtensilsCrossed, perms: ['restaurant.view'] },
     { label: 'Bar workspace', to: '/bar', icon: Wine, perms: ['bar.view'] },
@@ -58,22 +57,10 @@ export const Sidebar: React.FC = () => {
   const villaName = theme?.villaName || 'NSVilla';
   const villaTagline = theme?.villaTagline || 'Hospitality operations platform';
   const villaLogo = theme?.logoUrl || villaAssets.logo;
-  const hasRestaurant = perms.includes('restaurant.view' as any);
-  const hasBar = perms.includes('bar.view' as any);
-  const hasBoth = hasRestaurant && hasBar;
-
   const sections = ALL_SECTIONS
     .map(section => ({
       ...section,
-      items: section.items.filter(item => {
-        // If user has both restaurant + bar, hide the individual workspace entries (show combined F&B hub only)
-        if (hasBoth && (item.to === '/restaurant' || item.to === '/bar')) return false;
-        // If user only has restaurant (not bar), hide the combined F&B hub
-        if (hasRestaurant && !hasBar && item.to === '/fnb') return false;
-        // If user only has bar (not restaurant), hide the combined F&B hub
-        if (hasBar && !hasRestaurant && item.to === '/fnb') return false;
-        return item.perms.some(p => perms.includes(p));
-      }),
+      items: section.items.filter(item => item.perms.some(p => perms.includes(p))),
     }))
     .filter(section => section.items.length > 0);
 

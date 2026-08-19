@@ -69,26 +69,7 @@ async function main() {
     }
   }
 
-  // 2b. Consolidate legacy outlet roles into F&B
-  console.log('🍽️ Consolidating legacy outlet roles into F&B...');
-  const fnbRole = await prisma.role.findUnique({ where: { name: SYSTEM_ROLES.FNB } });
-  if (fnbRole) {
-    for (const legacyName of ['Restaurant', 'Bar', 'Pool']) {
-      const legacy = await prisma.role.findUnique({ where: { name: legacyName } });
-      if (!legacy) continue;
-      const legacyUsers = await prisma.userRole.findMany({ where: { roleId: legacy.id } });
-      for (const ur of legacyUsers) {
-        await prisma.userRole.upsert({
-          where: { userId_roleId: { userId: ur.userId, roleId: fnbRole.id } },
-          update: {},
-          create: { userId: ur.userId, roleId: fnbRole.id },
-        });
-      }
-      await prisma.rolePermission.deleteMany({ where: { roleId: legacy.id } });
-      await prisma.userRole.deleteMany({ where: { roleId: legacy.id } });
-      await prisma.role.delete({ where: { id: legacy.id } });
-    }
-  }
+  // 2b. (Removed) F&B role no longer exists — Restaurant and Bar are separate outlets.
 
   // 3. Seed default system settings
   console.log('⚙️ Seeding default system settings...');

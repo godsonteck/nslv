@@ -219,11 +219,6 @@ export const Dashboard: React.FC = () => {
   const canRooms = useAuthStore((s) => s.hasPermission('rooms.view'));
   const roleName = user?.roles?.[0]?.name ?? '';
 
-  // The consolidated F&B role has its own outlet workspace at /fnb.
-  if (roleName === 'F&B' && !canRooms) {
-    return <Navigate to="/fnb" replace />;
-  }
-
   // Restaurant / Bar / Pool get a department-scoped dashboard. Everyone with
   // room management (Admin, Manager, Reception) sees the full property view.
   if (!canRooms) {

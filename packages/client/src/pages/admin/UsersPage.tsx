@@ -44,12 +44,6 @@ const ROLE_ACCESS_MAP: Record<string, { description: string; interfaces: string[
     color: 'text-blue-400',
     badgeBg: 'bg-blue-950/60 text-blue-300 border-blue-800/40',
   },
-  'F&B': {
-    description: 'Food & Beverage staff — access both restaurant dining POS and bar/lounge POS from one workspace.',
-    interfaces: ['F&B Workspace Hub', 'Restaurant Dining POS', 'Bar & Lounge POS', 'Inventory', 'Menu Categories'],
-    color: 'text-amber-400',
-    badgeBg: 'bg-amber-950/60 text-amber-300 border-amber-800/40',
-  },
   'Restaurant': {
     description: 'Restaurant-only staff — access restaurant kitchen/dining orders and Restaurant POS.',
     interfaces: ['Restaurant Workspace', 'Restaurant POS & Kitchen Orders', 'Inventory Items', 'Menu Categories'],

@@ -10,7 +10,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:prod": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "db:move-pool": "tsx scripts/move-pool-to-reception.ts",
+    "db:split-outlets": "tsx scripts/split-fnb-to-outlets.ts",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:reset": "prisma migrate reset --force",

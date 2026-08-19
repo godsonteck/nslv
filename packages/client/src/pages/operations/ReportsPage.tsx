@@ -228,13 +228,12 @@ export default function ReportsPage() {
     }
 
     rows.push(['']);
-    rows.push(['=== 8. FOOD & BEVERAGE DETAIL ===']);
+    rows.push(['=== 8. RESTAURANT & BAR DETAIL ===']);
     rows.push(['Metric', 'Value']);
     rows.push(['Restaurant Orders Completed', String(fnbD.restaurantOrderCount || 0)]);
     rows.push(['Restaurant Revenue', `GHS ${(fnbD.restaurantRevenue || 0).toFixed(2)}`]);
     rows.push(['Bar Orders Completed', String(fnbD.barOrderCount || 0)]);
     rows.push(['Bar Revenue', `GHS ${(fnbD.barRevenue || 0).toFixed(2)}`]);
-    rows.push(['Combined F&B Revenue', `GHS ${(fnbD.totalFnBRevenue || 0).toFixed(2)}`]);
 
     rows.push(['']);
     rows.push(['=== 9. PAYMENT METHOD BREAKDOWN ===']);
@@ -735,9 +734,9 @@ export default function ReportsPage() {
             </div>
           </Section>
 
-          {/* Section 4b: F&B Activity */}
+          {/* Section 4b: Restaurant & Bar Activity */}
           <Section
-            title="🍽️ Food & Beverage Activity"
+            title="🍽️ Restaurant & Bar Activity"
             subtitle="Restaurant and bar order counts with revenue totals"
           >
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
