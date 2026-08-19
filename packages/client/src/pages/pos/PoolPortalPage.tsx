@@ -167,9 +167,13 @@ export default function PoolPortalPage() {
       // Find matching transaction
       const matchedTx = transactions.find((tx) => {
         if (usedTxIds.has(tx.id)) return false;
+        // 1) Explicit link: transaction notes reference this entry id (no time limit)
+        const refMatch = tx.notes && tx.notes.includes(`#ENT:${entry.id}`);
+        if (refMatch) return true;
+        // 2) Fallback for unmarked/legacy transactions: same name on the same calendar day
         const nameMatch = tx.notes && tx.notes.toLowerCase().includes(entry.visitorName.toLowerCase());
-        const timeMatch = Math.abs(new Date(tx.createdAt).getTime() - new Date(entry.createdAt).getTime()) < 1000 * 60 * 15; // within 15 min
-        return nameMatch && timeMatch;
+        const dayMatch = isSameDay(tx.createdAt, new Date(entry.createdAt));
+        return nameMatch && dayMatch;
       });
 
       if (matchedTx) {
@@ -277,12 +281,13 @@ export default function PoolPortalPage() {
       setBusy(true);
 
       // 1. Record Attendance Entry
-      await posApi.createPoolAttendance({
+      const attRes = await posApi.createPoolAttendance({
         visitorName: nameTrimmed,
         phone: phone.trim() || undefined,
         partySize: count,
         notes: isComplimentary ? `Complimentary access · ${notes.trim()}` : notes.trim() || undefined,
       });
+      const entryId = attRes?.data?.id;
 
       let txData: any = null;
 
@@ -298,7 +303,7 @@ export default function PoolPortalPage() {
             serviceId: svcId,
             quantity: count,
             paymentMethod,
-            notes: notes ? `${nameTrimmed} (${count} pax) · ${notes}` : `${nameTrimmed} (${count} pax)`,
+            notes: `${notes ? `${nameTrimmed} (${count} pax) · ${notes}` : `${nameTrimmed} (${count} pax)`}${entryId ? ` · #ENT:${entryId}` : ''}`,
             idempotencyKey: crypto.randomUUID(),
           });
           txData = res?.data;
@@ -363,7 +368,7 @@ export default function PoolPortalPage() {
         serviceId: chargeServiceId || services[0]?.id,
         quantity: count,
         paymentMethod: chargePayMethod,
-        notes: `${chargingEntry.visitorName} (${count} pax) · Payment recorded`,
+        notes: `${chargingEntry.visitorName} (${count} pax) · Payment recorded${chargingEntry.id ? ` · #ENT:${chargingEntry.id}` : ''}`,
         idempotencyKey: crypto.randomUUID(),
       });
 
