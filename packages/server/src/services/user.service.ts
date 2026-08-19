@@ -16,10 +16,26 @@ export class UserService {
    * Create a new user account (Admin only)
    */
   static async createUser(input: CreateUserInput, createdByUserId: string) {
-    const assignedRole = await prisma.role.findUnique({ where: { id: input.roleId }, select: { name: true, isSystem: true } });
-    if (!assignedRole || !assignedRole.isSystem || !Object.values(SYSTEM_ROLES).includes(assignedRole.name as typeof SYSTEM_ROLES[keyof typeof SYSTEM_ROLES])) {
-      throw new AppError('Users can only be assigned one of the four official system roles.', 400, 'INVALID_SYSTEM_ROLE');
+    const rawRoleIds = input.roleIds && input.roleIds.length > 0
+      ? input.roleIds
+      : input.roleId
+        ? [input.roleId]
+        : [];
+
+    const roleIdsToAssign = Array.from(new Set(rawRoleIds));
+    if (roleIdsToAssign.length === 0) {
+      throw new AppError('At least one role must be assigned to the user.', 400, 'ROLE_REQUIRED');
     }
+
+    const assignedRoles = await prisma.role.findMany({
+      where: { id: { in: roleIdsToAssign } },
+      select: { id: true, name: true, isSystem: true },
+    });
+
+    if (assignedRoles.length !== roleIdsToAssign.length) {
+      throw new AppError('One or more selected roles were not found.', 400, 'INVALID_ROLE');
+    }
+
     // Check email uniqueness
     const existingEmail = await prisma.user.findUnique({
       where: { email: input.email },
@@ -52,14 +68,16 @@ export class UserService {
         },
       });
 
-      // Assign role
-      await tx.userRole.create({
-        data: {
-          userId: newUser.id,
-          roleId: input.roleId,
-          assignedBy: createdByUserId,
-        },
-      });
+      // Assign all roles
+      for (const rId of roleIdsToAssign) {
+        await tx.userRole.create({
+          data: {
+            userId: newUser.id,
+            roleId: rId,
+            assignedBy: createdByUserId,
+          },
+        });
+      }
 
       return newUser;
     });
@@ -69,7 +87,7 @@ export class UserService {
       action: 'user.created',
       resource: 'user',
       resourceId: user.id,
-      afterData: { email: user.email, username: user.username, roleId: input.roleId },
+      afterData: { email: user.email, username: user.username, roleIds: roleIdsToAssign },
     });
 
     return this.getUserById(user.id);
@@ -131,10 +149,25 @@ export class UserService {
       status: existing.status,
     };
 
-    if (input.roleId) {
-      const assignedRole = await prisma.role.findUnique({ where: { id: input.roleId }, select: { name: true, isSystem: true } });
-      if (!assignedRole || !assignedRole.isSystem || !Object.values(SYSTEM_ROLES).includes(assignedRole.name as typeof SYSTEM_ROLES[keyof typeof SYSTEM_ROLES])) {
-        throw new AppError('Users can only be assigned one of the four official system roles.', 400, 'INVALID_SYSTEM_ROLE');
+    const hasRoleUpdate = input.roleIds !== undefined || input.roleId !== undefined;
+    const rawRoleIds = input.roleIds !== undefined
+      ? input.roleIds
+      : input.roleId
+        ? [input.roleId]
+        : undefined;
+
+    const roleIdsToAssign = rawRoleIds ? Array.from(new Set(rawRoleIds)) : undefined;
+
+    if (roleIdsToAssign !== undefined) {
+      if (roleIdsToAssign.length === 0) {
+        throw new AppError('A user must have at least one assigned role.', 400, 'ROLE_REQUIRED');
+      }
+      const assignedRoles = await prisma.role.findMany({
+        where: { id: { in: roleIdsToAssign } },
+        select: { id: true, name: true },
+      });
+      if (assignedRoles.length !== roleIdsToAssign.length) {
+        throw new AppError('One or more selected roles were not found.', 400, 'INVALID_ROLE');
       }
     }
 
@@ -142,7 +175,7 @@ export class UserService {
       const adminRole = await tx.role.findUnique({ where: { name: ADMIN_ROLE_NAME } });
       const targetRoles = await tx.userRole.findMany({ where: { userId: id } });
       const currentlyAdmin = !!adminRole && targetRoles.some((role) => role.roleId === adminRole.id);
-      const willRemainAdmin = !adminRole || !input.roleId || input.roleId === adminRole.id;
+      const willRemainAdmin = !adminRole || !roleIdsToAssign || roleIdsToAssign.includes(adminRole.id);
       const willRemainActive = input.status === undefined || input.status === 'ACTIVE';
 
       if (currentlyAdmin && (!willRemainAdmin || !willRemainActive)) {
@@ -168,16 +201,18 @@ export class UserService {
         },
       });
 
-      // Update role if provided
-      if (input.roleId) {
+      // Update roles if provided
+      if (roleIdsToAssign) {
         await tx.userRole.deleteMany({ where: { userId: id } });
-        await tx.userRole.create({
-          data: {
-            userId: id,
-            roleId: input.roleId,
-            assignedBy: updatedByUserId,
-          },
-        });
+        for (const rId of roleIdsToAssign) {
+          await tx.userRole.create({
+            data: {
+              userId: id,
+              roleId: rId,
+              assignedBy: updatedByUserId,
+            },
+          });
+        }
       }
     });
 

@@ -83,15 +83,21 @@ export const totpVerifySchema = z.object({
 // User Management Schemas
 // ──────────────────────────────────────────
 
-export const createUserSchema = z.object({
-  email: emailSchema,
-  username: usernameSchema,
-  password: passwordSchema,
-  firstName: nameSchema,
-  lastName: nameSchema,
-  phone: phoneSchema,
-  roleId: uuidSchema,
-});
+export const createUserSchema = z
+  .object({
+    email: emailSchema,
+    username: usernameSchema,
+    password: passwordSchema,
+    firstName: nameSchema,
+    lastName: nameSchema,
+    phone: phoneSchema,
+    roleId: uuidSchema.optional(),
+    roleIds: z.array(uuidSchema).optional(),
+  })
+  .refine((data) => !!data.roleId || (!!data.roleIds && data.roleIds.length > 0), {
+    message: 'At least one role must be assigned',
+    path: ['roleId'],
+  });
 
 export const updateUserSchema = z.object({
   email: emailSchema.optional(),
@@ -100,6 +106,7 @@ export const updateUserSchema = z.object({
   phone: phoneSchema,
   status: z.enum(['ACTIVE', 'SUSPENDED', 'DEACTIVATED']).optional(),
   roleId: uuidSchema.optional(),
+  roleIds: z.array(uuidSchema).optional(),
 });
 
 export const updateProfileSchema = z.object({

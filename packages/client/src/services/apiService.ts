@@ -105,7 +105,8 @@ export const usersApi = {
     firstName: string;
     lastName: string;
     phone?: string | null;
-    roleId: string;
+    roleId?: string;
+    roleIds?: string[];
   }): Promise<UserRecord> =>
     apiFetch<UserRecord>('/users', {
       method: 'POST',
@@ -119,6 +120,7 @@ export const usersApi = {
     phone: string | null;
     status: string;
     roleId: string;
+    roleIds: string[];
   }>): Promise<UserRecord> =>
     apiFetch<UserRecord>(`/users/${id}`, {
       method: 'PUT',
