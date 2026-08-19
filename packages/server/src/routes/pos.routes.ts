@@ -155,7 +155,7 @@ router.get('/pool/attendance', requirePermission('pool.view'), async (_req, res,
   } catch (error) { next(error); }
 });
 
-router.post('/pool/attendance', requirePermission('pool.manage'), validateBody(createPoolAttendanceSchema), async (req, res, next) => {
+router.post('/pool/attendance', requirePermission('pool.view'), validateBody(createPoolAttendanceSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createPoolAttendance({ ...req.body, partySize: Number(req.body.partySize), recordedBy: userId });
