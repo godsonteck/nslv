@@ -208,6 +208,51 @@ export default function ReportsPage() {
       }
     }
 
+    const poolD = data?.pool || {};
+    const fnbD = data?.foodAndBeverage || {};
+    const pmBreak = data?.financials?.paymentMethodBreakdown || {};
+    const expDet: any[] = data?.financials?.expenseDetail || [];
+
+    rows.push(['']);
+    rows.push(['=== 7. POOL FACILITY DETAIL ===']);
+    rows.push(['Metric', 'Value']);
+    rows.push(['Total Swimmers Registered', String(poolD.swimmersCount || 0)]);
+    rows.push(['Total Groups / Visits', String(poolD.groupsCount || 0)]);
+    rows.push(['Paid Transactions Processed', String(poolD.transactionsCount || 0)]);
+    rows.push(['Total Pool Revenue', `GHS ${(poolD.revenue || 0).toFixed(2)}`]);
+    if (Object.keys(poolD.byMethod || {}).length > 0) {
+      rows.push(['Pool Revenue by Payment Method:']);
+      for (const [method, info] of Object.entries(poolD.byMethod || {}) as any[]) {
+        rows.push([`  ${method}`, `GHS ${info.amount.toFixed(2)} (${info.count} tx)`]);
+      }
+    }
+
+    rows.push(['']);
+    rows.push(['=== 8. FOOD & BEVERAGE DETAIL ===']);
+    rows.push(['Metric', 'Value']);
+    rows.push(['Restaurant Orders Completed', String(fnbD.restaurantOrderCount || 0)]);
+    rows.push(['Restaurant Revenue', `GHS ${(fnbD.restaurantRevenue || 0).toFixed(2)}`]);
+    rows.push(['Bar Orders Completed', String(fnbD.barOrderCount || 0)]);
+    rows.push(['Bar Revenue', `GHS ${(fnbD.barRevenue || 0).toFixed(2)}`]);
+    rows.push(['Combined F&B Revenue', `GHS ${(fnbD.totalFnBRevenue || 0).toFixed(2)}`]);
+
+    rows.push(['']);
+    rows.push(['=== 9. PAYMENT METHOD BREAKDOWN ===']);
+    rows.push(['Payment Method', 'Amount Collected (GHS)']);
+    rows.push(['Cash', (pmBreak.CASH || 0).toFixed(2)]);
+    rows.push(['Card / POS', (pmBreak.CARD || 0).toFixed(2)]);
+    rows.push(['Mobile Money', (pmBreak.MOBILE_MONEY || 0).toFixed(2)]);
+    rows.push(['Bank Transfer', (pmBreak.BANK_TRANSFER || 0).toFixed(2)]);
+
+    if (expDet.length > 0) {
+      rows.push(['']);
+      rows.push(['=== 10. APPROVED EXPENSES DETAIL ===']);
+      rows.push(['Date', 'Category', 'Description', 'Amount (GHS)', 'Payment Method']);
+      for (const e of expDet) {
+        rows.push([e.incurredOn || '', e.category || '', e.description || '', e.amount.toFixed(2), e.paymentMethod || '']);
+      }
+    }
+
     if (daily.length > 0) {
       rows.push(['']);
       rows.push(['=== 7. TIMELINE BREAKDOWN (DAY-BY-DAY) ===']);
@@ -253,8 +298,12 @@ export default function ReportsPage() {
   const dept = fin?.departmentRevenue || data?.departmentRevenue || {};
   const cash = fin?.cash || data?.cash || {};
   const expensesByCat = fin?.expensesByCategory || {};
+  const expenseDetail: any[] = fin?.expenseDetail || [];
+  const payMethodBreakdown = fin?.paymentMethodBreakdown || {};
   const dailyTimeline = data?.dailyBreakdown || [];
   const evts = data?.events || {};
+  const poolData = data?.pool || {};
+  const fnbData = data?.foodAndBeverage || {};
 
   return (
     <ShellPage
@@ -638,6 +687,110 @@ export default function ReportsPage() {
             </div>
           </Section>
 
+          {/* Section 4a: Pool Facility Detail */}
+          <Section
+            title="🏊 Pool Facility — Swimmer Traffic & Revenue"
+            subtitle={`Pool attendance headcount, paid transactions, and revenue split by payment method`}
+          >
+            <div className="p-5 space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Total Swimmers</div>
+                  <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{poolData.swimmersCount || 0}</div>
+                  <div className="text-[10px] text-[#6E737B] mt-1">Registered in period (all entries)</div>
+                </div>
+                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Groups / Visits</div>
+                  <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{poolData.groupsCount || 0}</div>
+                  <div className="text-[10px] text-[#6E737B] mt-1">Individual attendance entries</div>
+                </div>
+                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Paid Transactions</div>
+                  <div className="text-2xl font-extrabold text-emerald-400 mt-1">{poolData.transactionsCount || 0}</div>
+                  <div className="text-[10px] text-[#6E737B] mt-1">Charged pool pass receipts</div>
+                </div>
+                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Pool Revenue</div>
+                  <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{formatCurrency(poolData.revenue || 0)}</div>
+                  <div className="text-[10px] text-[#6E737B] mt-1">All paid pool transactions</div>
+                </div>
+              </div>
+
+              {Object.keys(poolData.byMethod || {}).length > 0 && (
+                <div>
+                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Pool Revenue by Payment Method</div>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {Object.entries(poolData.byMethod || {}).map(([method, info]: any) => (
+                      <div key={method} className="p-3 bg-[#14161D] rounded-lg border border-[#2B303E] flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-bold text-[#F4F4F2]">{method}</div>
+                          <div className="text-[10px] text-[#6E737B]">{info.count} transaction{info.count !== 1 ? 's' : ''}</div>
+                        </div>
+                        <div className="text-sm font-extrabold text-amber-300">{formatCurrency(info.amount)}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Section>
+
+          {/* Section 4b: F&B Activity */}
+          <Section
+            title="🍽️ Food & Beverage Activity"
+            subtitle="Restaurant and bar order counts with revenue totals"
+          >
+            <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Orders</div>
+                <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{fnbData.restaurantOrderCount || 0}</div>
+                <div className="text-[10px] text-[#6E737B] mt-1">Completed / Served orders</div>
+              </div>
+              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Revenue</div>
+                <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{formatCurrency(fnbData.restaurantRevenue || 0)}</div>
+                <div className="text-[10px] text-[#6E737B] mt-1">Kitchen & dining sales</div>
+              </div>
+              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><Wine size={12} /> Bar Orders</div>
+                <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{fnbData.barOrderCount || 0}</div>
+                <div className="text-[10px] text-[#6E737B] mt-1">Completed / Served orders</div>
+              </div>
+              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><Wine size={12} /> Bar Revenue</div>
+                <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{formatCurrency(fnbData.barRevenue || 0)}</div>
+                <div className="text-[10px] text-[#6E737B] mt-1">Beverage POS sales</div>
+              </div>
+            </div>
+          </Section>
+
+          {/* Section 4c: Payment Method Breakdown */}
+          <Section
+            title="💳 Revenue by Payment Method"
+            subtitle="How guests paid — cash, card, mobile money, and bank transfer breakdown"
+          >
+            <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { label: 'Cash', key: 'CASH', color: 'text-emerald-400' },
+                { label: 'Card / POS', key: 'CARD', color: 'text-blue-400' },
+                { label: 'Mobile Money', key: 'MOBILE_MONEY', color: 'text-[#f1a83f]' },
+                { label: 'Bank Transfer', key: 'BANK_TRANSFER', color: 'text-purple-400' },
+              ].map(({ label, key, color }) => (
+                <div key={key} className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                  <div className={`text-[10px] uppercase font-bold ${color}`}>{label}</div>
+                  <div className={`text-2xl font-extrabold mt-1 ${color}`}>
+                    {formatCurrency(payMethodBreakdown[key] || 0)}
+                  </div>
+                  <div className="text-[10px] text-[#6E737B] mt-1">
+                    {payMethodBreakdown[key] > 0
+                      ? `${((payMethodBreakdown[key] / Math.max(1, Object.values(payMethodBreakdown as Record<string,number>).reduce((a, b) => a + b, 0))) * 100).toFixed(1)}% of total`
+                      : 'No payments in period'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
           {/* Section 4: Department Revenue Breakdown */}
           <Section
             title="💰 Department Revenue Breakdown"
@@ -750,8 +903,44 @@ export default function ReportsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Expense Detail List */}
+              {expenseDetail.length > 0 && (
+                <div className="pt-2">
+                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Approved Expenses — Full Ledger</div>
+                  <div className="overflow-x-auto rounded-xl border border-[#2B303E]">
+                    <table className="w-full text-xs text-left text-[#A0A5AD]">
+                      <thead className="text-[10px] uppercase font-bold text-[#6E737B] bg-[#14161D] border-b border-[#2B303E]">
+                        <tr>
+                          <th className="p-2.5">Date</th>
+                          <th className="p-2.5">Category</th>
+                          <th className="p-2.5">Description</th>
+                          <th className="p-2.5 text-right">Amount</th>
+                          <th className="p-2.5">Paid By</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#2B303E]/50 text-[11px]">
+                        {expenseDetail.map((exp: any) => (
+                          <tr key={exp.id} className="hover:bg-[#14161D]/60 transition-colors">
+                            <td className="p-2.5 font-mono text-[#A0A5AD]">{exp.incurredOn || '—'}</td>
+                            <td className="p-2.5">
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#232733] text-amber-300">
+                                {exp.category}
+                              </span>
+                            </td>
+                            <td className="p-2.5 text-[#F4F4F2] font-medium max-w-[200px] truncate">{exp.description || '—'}</td>
+                            <td className="p-2.5 text-right font-extrabold text-red-400 font-mono">{formatCurrency(exp.amount)}</td>
+                            <td className="p-2.5 text-[#A0A5AD]">{exp.paymentMethod || 'CASH'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           </Section>
+
 
           {/* Section 6: Events & Event Spaces */}
           <Section

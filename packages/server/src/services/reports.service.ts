@@ -77,6 +77,13 @@ export class ReportService {
       _sum: { totalAmount: true },
     });
 
+    // Pool swimmer headcount today
+    const poolAttendanceToday = await prisma.poolAttendance.aggregate({
+      where: { createdAt: { gte: startOfDay, lte: endOfDay } },
+      _sum: { partySize: true },
+      _count: { id: true },
+    });
+
     // Outstanding balances in open folios
     const openFolios = await prisma.folio.aggregate({
       where: { status: 'OPEN' },
@@ -100,6 +107,8 @@ export class ReportService {
       restaurantRevenueToday: Number(restaurantToday._sum.totalAmount || 0),
       barRevenueToday: Number(barToday._sum.totalAmount || 0),
       poolRevenueToday: Number(poolToday._sum.totalAmount || 0),
+      poolSwimmersToday: Number(poolAttendanceToday._sum.partySize || 0),
+      poolGroupsToday: Number(poolAttendanceToday._count.id || 0),
       outstandingBalanceTotal: Number(openFolios._sum.balance || 0),
     };
   }
@@ -252,8 +261,33 @@ export class ReportService {
       _sum: { totalAmount: true },
     });
 
+    // Pool swimmer/attendance headcount in period
+    const poolAttendanceAgg = await prisma.poolAttendance.aggregate({
+      where: { ...(whereDate ? { createdAt: whereDate } : {}) },
+      _sum: { partySize: true },
+      _count: { id: true },
+    });
+    const poolSwimmersCount = Number(poolAttendanceAgg._sum.partySize || 0);
+    const poolGroupsCount = Number(poolAttendanceAgg._count.id || 0);
+
+    // Pool transaction counts
+    const poolTxCount = await prisma.poolTransaction.count({
+      where: { ...(whereDate ? { createdAt: whereDate } : {}) },
+    });
+
+    // Restaurant & Bar order counts
+    const restaurantOrderCount = await prisma.restaurantOrder.count({
+      where: { ...(whereDate ? { createdAt: whereDate } : {}), status: { in: ['COMPLETED', 'SERVED'] } },
+    });
+    const barOrderCount = await prisma.barOrder.count({
+      where: { ...(whereDate ? { createdAt: whereDate } : {}), status: { in: ['COMPLETED', 'SERVED'] } },
+    });
+
     const [
       cashPayments,
+      cardPayments,
+      mobilePayments,
+      bankTransferPayments,
       refunds,
       cashRefunds,
       cashExpenses,
@@ -264,6 +298,9 @@ export class ReportService {
       approvedExpenses,
     ] = await Promise.all([
       prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'PAYMENT', method: 'CASH', voidedAt: null }, _sum: { amount: true } }),
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'PAYMENT', method: 'CARD', voidedAt: null }, _sum: { amount: true } }),
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'PAYMENT', method: 'MOBILE_MONEY', voidedAt: null }, _sum: { amount: true } }),
+      prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'PAYMENT', method: 'BANK_TRANSFER', voidedAt: null }, _sum: { amount: true } }),
       prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'REFUND', voidedAt: null }, _sum: { amount: true } }),
       prisma.payment.aggregate({ where: { processedAt: whereDate, status: 'COMPLETED', type: 'REFUND', method: 'CASH', voidedAt: null }, _sum: { amount: true } }),
       prisma.expense.aggregate({ where: { incurredOn: whereDate, status: 'APPROVED', paymentMethod: 'CASH' }, _sum: { amount: true } }),
@@ -292,12 +329,28 @@ export class ReportService {
     // Expenses breakdown by category
     const expenseRecords = await prisma.expense.findMany({
       where: { incurredOn: whereDate, status: 'APPROVED' },
-      select: { category: true, amount: true },
+      select: { id: true, category: true, amount: true, description: true, paymentMethod: true, incurredOn: true },
+      orderBy: { incurredOn: 'desc' },
     });
     const expensesByCategory: Record<string, number> = {};
     for (const exp of expenseRecords) {
       const cat = exp.category || 'GENERAL';
       expensesByCategory[cat] = (expensesByCategory[cat] || 0) + Number(exp.amount || 0);
+    }
+
+    // Pool transaction method breakdown
+    const poolTxByMethod = await prisma.poolTransaction.groupBy({
+      by: ['paymentMethod'],
+      where: { ...(whereDate ? { createdAt: whereDate } : {}) },
+      _sum: { totalAmount: true },
+      _count: { id: true },
+    });
+    const poolByMethod: Record<string, { amount: number; count: number }> = {};
+    for (const row of poolTxByMethod) {
+      poolByMethod[row.paymentMethod || 'CASH'] = {
+        amount: Number(row._sum.totalAmount || 0),
+        count: Number(row._count.id || 0),
+      };
     }
 
     const restaurant = Number(restaurantSales._sum.totalAmount || 0);
@@ -544,6 +597,20 @@ export class ReportService {
         totalLateCheckoutRefunds,
         netLateCheckoutFees,
       },
+      pool: {
+        swimmersCount: poolSwimmersCount,
+        groupsCount: poolGroupsCount,
+        transactionsCount: poolTxCount,
+        revenue: pool,
+        byMethod: poolByMethod,
+      },
+      foodAndBeverage: {
+        restaurantOrderCount,
+        barOrderCount,
+        restaurantRevenue: restaurant,
+        barRevenue: bar,
+        totalFnBRevenue: restaurant + bar,
+      },
       financials: {
         totalCollectedRevenue: Number(totalPayments._sum.amount || 0),
         accruedRevenue: totalRevenueAccrued,
@@ -556,6 +623,12 @@ export class ReportService {
           refunds: Number(cashRefunds._sum.amount || 0),
           approvedExpenses: Number(cashExpenses._sum.amount || 0),
           netMovement: Number(cashPayments._sum.amount || 0) - Number(cashRefunds._sum.amount || 0) - Number(cashExpenses._sum.amount || 0),
+        },
+        paymentMethodBreakdown: {
+          CASH: Number(cashPayments._sum.amount || 0),
+          CARD: Number(cardPayments._sum.amount || 0),
+          MOBILE_MONEY: Number(mobilePayments._sum.amount || 0),
+          BANK_TRANSFER: Number(bankTransferPayments._sum.amount || 0),
         },
         refunds: Number(refunds._sum.amount || 0),
         receivables: Number(openReceivables._sum.balance || 0),
@@ -571,6 +644,14 @@ export class ReportService {
           lateCheckout: netLateCheckoutFees,
         },
         expensesByCategory,
+        expenseDetail: expenseRecords.map((e) => ({
+          id: e.id,
+          category: e.category || 'GENERAL',
+          description: e.description || '',
+          amount: Number(e.amount || 0),
+          paymentMethod: e.paymentMethod || 'CASH',
+          incurredOn: e.incurredOn ? e.incurredOn.toISOString().slice(0, 10) : '',
+        })),
       },
       dailyBreakdown,
       events,

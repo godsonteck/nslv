@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { X, Bell, Trash2, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Bell, Trash2, Check, ArrowUpRight } from 'lucide-react';
 import { useNotificationStore } from '../../stores/notificationStore';
 import { showToast } from '../ui';
 import type { NotificationRecord } from '../../services/apiService';
+
+const notificationTarget = (notification: NotificationRecord): string => {
+  const d = notification.data || {};
+  if (d.checkInId || d.checkOutId) return '/frontdesk';
+  switch (notification.type) {
+    case 'RESERVATION':
+      return '/reservations';
+    case 'PAYMENT':
+      return '/payments';
+    default:
+      return '/dashboard';
+  }
+};
 
 const priorityColor = (priority: string): string => {
   switch (priority) {
@@ -38,12 +52,17 @@ const NotificationItem: React.FC<{
   notification: NotificationRecord;
   onDelete: (id: string) => Promise<void>;
   onMarkAsRead: (id: string) => Promise<void>;
-}> = ({ notification, onDelete, onMarkAsRead }) => {
+  onOpen: (notification: NotificationRecord) => void;
+}> = ({ notification, onDelete, onMarkAsRead, onOpen }) => {
   const [deleting, setDeleting] = useState(false);
 
   return (
-    <div className={`border rounded-lg p-3 transition-all ${notification.isRead ? 'bg-slate-50 border-slate-200' : 'bg-white border-blue-300'}`}>
-      <div className="flex items-start gap-3">
+    <div className={`border rounded-lg transition-all ${notification.isRead ? 'bg-slate-50 border-slate-200' : 'bg-white border-blue-300'}`}>
+      <button
+        onClick={() => onOpen(notification)}
+        className="group flex w-full items-start gap-3 rounded-t-lg p-3 text-left"
+        title="Open notification"
+      >
         <span className="text-lg mt-0.5">{typeIcon(notification.type)}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
@@ -57,12 +76,13 @@ const NotificationItem: React.FC<{
               </span>
             )}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1.5">
+          <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1.5">
             {new Date(notification.createdAt).toLocaleString()}
+            <ArrowUpRight size={11} className="opacity-0 transition group-hover:opacity-100" />
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-slate-200">
+      </button>
+      <div className="flex items-center gap-1.5 px-3 pb-2 border-t border-slate-200">
         {!notification.isRead && (
           <button
             onClick={async () => await onMarkAsRead(notification.id)}
@@ -93,6 +113,7 @@ const NotificationItem: React.FC<{
 };
 
 export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const navigate = useNavigate();
   const {
     notifications,
     unreadCount,
@@ -108,6 +129,12 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
     void loadNotifications();
     void getUnreadCount();
   }, []);
+
+  const openNotification = async (notification: NotificationRecord) => {
+    if (!notification.isRead) await markAsRead(notification.id);
+    onClose();
+    navigate(notificationTarget(notification));
+  };
 
   return (
     <div className="absolute right-0 top-12 w-96 max-h-[600px] rounded-2xl border border-slate-200 bg-white shadow-2xl flex flex-col">
@@ -158,6 +185,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
               notification={notification}
               onDelete={deleteNotification}
               onMarkAsRead={markAsRead}
+              onOpen={openNotification}
             />
           ))
         )}

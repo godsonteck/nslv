@@ -1,7 +1,7 @@
 // ============================================
 // NS LUXURY VILLA — Pool Services & Entry Counter
 // Record Entry, Charge Pool Services, Print Receipts & Correct Mistakes
-// Admin Pool Price Adjustment & Service Management
+// Admin Pool Price Adjustment, Tally Reconciliation & Ledger
 // ============================================
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
@@ -21,9 +21,11 @@ import {
   Settings,
   Plus,
   Power,
-  DollarSign,
   Save,
   X,
+  DollarSign,
+  Info,
+  Check,
 } from 'lucide-react';
 import { posApi } from '../../services/apiService';
 import { Button, FormField, TextInput, SelectInput, showToast, LoadingState, Modal } from '../../components/ui';
@@ -34,6 +36,17 @@ import { villaAssets } from '../../assets';
 
 const POOL_PAYMENT_METHODS = ['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'];
 
+// Helper to check if a date is on the same local calendar day
+function isSameDay(dateStr: string | Date, targetDate: Date = new Date()): boolean {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  return (
+    d.getFullYear() === targetDate.getFullYear() &&
+    d.getMonth() === targetDate.getMonth() &&
+    d.getDate() === targetDate.getDate()
+  );
+}
+
 export default function PoolPortalPage() {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
@@ -41,6 +54,7 @@ export default function PoolPortalPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [activeTab, setActiveTab] = useState<'entries' | 'transactions'>('entries');
 
   // Entry Form State
   const [visitorName, setVisitorName] = useState('');
@@ -59,6 +73,13 @@ export default function PoolPortalPage() {
   const [editPartySize, setEditPartySize] = useState('1');
   const [editNotes, setEditNotes] = useState('');
   const [editBusy, setEditBusy] = useState(false);
+
+  // Quick Charge / Add Payment Modal State (for previously recorded unpaid entries)
+  const [chargingEntry, setChargingEntry] = useState<any | null>(null);
+  const [chargeServiceId, setChargeServiceId] = useState('');
+  const [chargeUnitPrice, setChargeUnitPrice] = useState('');
+  const [chargePayMethod, setChargePayMethod] = useState('CASH');
+  const [chargeBusy, setChargeBusy] = useState(false);
 
   // Deleting Modal State
   const [deletingItem, setDeletingItem] = useState<{ type: 'attendance' | 'transaction'; id: string; name: string; amount?: number } | null>(null);
@@ -97,16 +118,13 @@ export default function PoolPortalPage() {
       setTransactions(txs.data || []);
 
       if (loadedServices.length > 0) {
-        // If current selection is invalid or not set, select first available
         if (!selectedServiceId || !loadedServices.some((s) => s.id === selectedServiceId)) {
           setSelectedServiceId(loadedServices[0].id);
           setCustomUnitPrice(String(loadedServices[0].price || '100'));
-        } else {
-          // Refresh unit price if already selected
-          const cur = loadedServices.find((s) => s.id === selectedServiceId);
-          if (cur && !customUnitPrice) {
-            setCustomUnitPrice(String(cur.price || '0'));
-          }
+        }
+        if (!chargeServiceId) {
+          setChargeServiceId(loadedServices[0].id);
+          setChargeUnitPrice(String(loadedServices[0].price || '100'));
         }
       }
     } catch (e) {
@@ -114,7 +132,7 @@ export default function PoolPortalPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedServiceId, customUnitPrice]);
+  }, [selectedServiceId, chargeServiceId]);
 
   useEffect(() => {
     void load();
@@ -134,12 +152,39 @@ export default function PoolPortalPage() {
   const countNum = Math.max(1, Number(partySize) || 1);
   const totalDue = isComplimentary ? 0 : unitPriceNum * countNum;
 
-  // Stats
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todayAttendance = attendance.filter((entry) => String(entry.createdAt || '').slice(0, 10) === todayStr);
-  const totalVisitorsToday = todayAttendance.reduce((sum, entry) => sum + Number(entry.partySize || 0), 0);
-  const todayTransactions = transactions.filter((tx) => String(tx.createdAt || '').slice(0, 10) === todayStr);
-  const salesToday = todayTransactions.reduce((sum, tx) => sum + Number(tx.totalAmount || 0), 0);
+  // Accurate Local-Time Stats Calculation
+  const todayAttendance = useMemo(() => attendance.filter((entry) => isSameDay(entry.createdAt)), [attendance]);
+  const todayTransactions = useMemo(() => transactions.filter((tx) => isSameDay(tx.createdAt)), [transactions]);
+
+  const totalVisitorsToday = useMemo(() => todayAttendance.reduce((sum, entry) => sum + Number(entry.partySize || 0), 0), [todayAttendance]);
+  const salesToday = useMemo(() => todayTransactions.reduce((sum, tx) => sum + Number(tx.totalAmount || 0), 0), [todayTransactions]);
+  const totalPaidSwimmersToday = useMemo(() => todayTransactions.reduce((sum, tx) => sum + Number(tx.quantity || 0), 0), [todayTransactions]);
+
+  // Match each attendance record with its transaction without double-matching
+  const matchedAttendanceList = useMemo(() => {
+    const usedTxIds = new Set<string>();
+    return attendance.map((entry) => {
+      // Find matching transaction
+      const matchedTx = transactions.find((tx) => {
+        if (usedTxIds.has(tx.id)) return false;
+        const nameMatch = tx.notes && tx.notes.toLowerCase().includes(entry.visitorName.toLowerCase());
+        const timeMatch = Math.abs(new Date(tx.createdAt).getTime() - new Date(entry.createdAt).getTime()) < 1000 * 60 * 15; // within 15 min
+        return nameMatch && timeMatch;
+      });
+
+      if (matchedTx) {
+        usedTxIds.add(matchedTx.id);
+      }
+
+      return {
+        ...entry,
+        matchedTx,
+        isPaid: !!matchedTx,
+        amountPaid: matchedTx ? Number(matchedTx.totalAmount || 0) : 0,
+        paymentMethod: matchedTx ? matchedTx.paymentMethod : entry.notes?.toLowerCase().includes('complimentary') ? 'COMPLIMENTARY' : 'UNPAID',
+      };
+    });
+  }, [attendance, transactions]);
 
   // Print Official Pool Receipt
   const printPoolReceipt = (data: {
@@ -236,7 +281,7 @@ export default function PoolPortalPage() {
         visitorName: nameTrimmed,
         phone: phone.trim() || undefined,
         partySize: count,
-        notes: notes.trim() || undefined,
+        notes: isComplimentary ? `Complimentary access · ${notes.trim()}` : notes.trim() || undefined,
       });
 
       let txData: any = null;
@@ -289,6 +334,59 @@ export default function PoolPortalPage() {
       showToast('error', error instanceof Error ? error.message : 'Failed to record pool entry');
     } finally {
       setBusy(false);
+    }
+  };
+
+  // Open Quick Charge Modal for unpaid previous entries
+  const openChargeEntry = (entry: any) => {
+    setChargingEntry(entry);
+    const svc = services[0];
+    if (svc) {
+      setChargeServiceId(svc.id);
+      setChargeUnitPrice(String(svc.price || '100'));
+    }
+    setChargePayMethod('CASH');
+  };
+
+  // Save Quick Charge for previous unpaid entry
+  const handleSaveChargeEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chargingEntry) return;
+
+    const count = Number(chargingEntry.partySize || 1);
+    const unitPrice = Number(chargeUnitPrice) || 100;
+    const total = count * unitPrice;
+
+    try {
+      setChargeBusy(true);
+      const res = await posApi.createPoolTransaction({
+        serviceId: chargeServiceId || services[0]?.id,
+        quantity: count,
+        paymentMethod: chargePayMethod,
+        notes: `${chargingEntry.visitorName} (${count} pax) · Payment recorded`,
+        idempotencyKey: crypto.randomUUID(),
+      });
+
+      showToast('success', `Payment of ${formatCurrency(total)} recorded for ${chargingEntry.visitorName}!`);
+
+      printPoolReceipt({
+        receiptNo: res?.data?.transactionNo,
+        visitorName: chargingEntry.visitorName,
+        phone: chargingEntry.phone,
+        partySize: count,
+        serviceName: services.find((s) => s.id === chargeServiceId)?.name || 'Pool Day Pass',
+        unitPrice: unitPrice,
+        totalAmount: total,
+        paymentMethod: chargePayMethod,
+        notes: chargingEntry.notes,
+      });
+
+      setChargingEntry(null);
+      await load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to record payment');
+    } finally {
+      setChargeBusy(false);
     }
   };
 
@@ -473,12 +571,34 @@ export default function PoolPortalPage() {
         </div>
       }
     >
-      {/* 4 Summary Stat Cards */}
+      {/* 4 Summary Stat Cards with Accurate Reconciliation */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="People / Swimmers Today" value={`${totalVisitorsToday} Swimmers`} icon={Users} accent />
-        <StatTile label="Entries Today" value={`${todayAttendance.length} Groups`} icon={ClipboardCheck} />
-        <StatTile label="Pool Sales Today" value={formatCurrency(salesToday)} icon={Waves} accent />
-        <StatTile label="Paid Charges Logged" value={`${todayTransactions.length} Paid`} note="Pool receipts" icon={ReceiptText} />
+        <StatTile
+          label="Total Swimmers Today"
+          value={`${totalVisitorsToday} Swimmers`}
+          note={`${todayAttendance.length} registered group${todayAttendance.length !== 1 ? 's' : ''}`}
+          icon={Users}
+          accent
+        />
+        <StatTile
+          label="Paid Swimmers / Sales"
+          value={`${totalPaidSwimmersToday} Swimmers`}
+          note={`${todayTransactions.length} transaction${todayTransactions.length !== 1 ? 's' : ''}`}
+          icon={ClipboardCheck}
+        />
+        <StatTile
+          label="Pool Sales Today"
+          value={formatCurrency(salesToday)}
+          note="Accrued from paid pool passes"
+          icon={Waves}
+          accent
+        />
+        <StatTile
+          label="Complimentary / Unpaid"
+          value={`${Math.max(0, totalVisitorsToday - totalPaidSwimmersToday)} Swimmers`}
+          note="Residents or uncollected entries"
+          icon={ReceiptText}
+        />
       </div>
 
       {loading ? (
@@ -486,7 +606,7 @@ export default function PoolPortalPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Left Column: Unified Record Entry & Cashier Form */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-5">
             <Section title="Record Entry &amp; Charge" subtitle="Enter visitor details, select pass rate, and print receipt.">
               <form onSubmit={(e) => handleSubmitEntry(e, true)} className="space-y-4 p-5">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -634,86 +754,240 @@ export default function PoolPortalPage() {
             </Section>
           </div>
 
-          {/* Right Column: Attendance & Entries Log with Re-Print, Edit, and Delete */}
-          <div className="lg:col-span-6">
-            <Section
-              title="Recent Pool Entries &amp; Receipts"
-              subtitle="All registered swimmers. Re-print receipts, edit mistakes, or delete."
-            >
-              {attendance.length === 0 ? (
-                <div className="p-12 text-center text-xs text-[#6E737B]">
-                  <Waves size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
-                  No pool entries recorded yet.
-                </div>
-              ) : (
-                <div className="divide-y divide-[#2B303E]/50 max-h-[640px] overflow-y-auto">
-                  {attendance.map((entry) => {
-                    const matchedTx = transactions.find(
-                      (tx) =>
-                        tx.notes?.includes(entry.visitorName) ||
-                        String(tx.createdAt || '').slice(0, 16) === String(entry.createdAt || '').slice(0, 16)
-                    );
-                    const amountPaid = matchedTx ? Number(matchedTx.totalAmount || 0) : 0;
-                    const paymentMethodName = matchedTx?.paymentMethod || 'FREE / ENTRY';
+          {/* Right Column: Attendance & Entries Log + Cashier Transactions Tab */}
+          <div className="lg:col-span-7 space-y-4">
+            {/* Tab Navigation */}
+            <div className="flex items-center justify-between border-b border-[#2B303E] pb-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('entries')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    activeTab === 'entries'
+                      ? 'bg-[#C5A880] text-[#10131A]'
+                      : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#14161D]'
+                  }`}
+                >
+                  Swimmer Entries Log ({attendance.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('transactions')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    activeTab === 'transactions'
+                      ? 'bg-[#C5A880] text-[#10131A]'
+                      : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#14161D]'
+                  }`}
+                >
+                  Paid Transactions &amp; Receipts ({transactions.length})
+                </button>
+              </div>
 
-                    return (
+              <div className="text-[11px] text-[#6E737B]">
+                Showing {activeTab === 'entries' ? attendance.length : transactions.length} records
+              </div>
+            </div>
+
+            {activeTab === 'entries' ? (
+              <Section
+                title="Registered Swimmer Entries"
+                subtitle="All visitor entries. Re-print receipts, attach payments to unpaid entries, or edit."
+              >
+                {matchedAttendanceList.length === 0 ? (
+                  <div className="p-12 text-center text-xs text-[#6E737B]">
+                    <Waves size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
+                    No pool entries recorded yet.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[#2B303E]/50 max-h-[640px] overflow-y-auto">
+                    {matchedAttendanceList.map((entry) => {
+                      const amountPaid = entry.amountPaid;
+                      const isPaid = entry.isPaid;
+                      const paymentMethodName = entry.paymentMethod;
+
+                      return (
+                        <div
+                          key={entry.id}
+                          className="p-4 hover:bg-[#14161D]/60 transition-colors flex items-start justify-between gap-3 text-xs"
+                        >
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-[#F4F4F2] text-sm truncate">
+                                {entry.visitorName}
+                              </span>
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-[#232733] text-amber-300">
+                                <Users size={11} /> {entry.partySize} {entry.partySize > 1 ? 'Swimmers' : 'Swimmer'}
+                              </span>
+                              <span
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  isPaid
+                                    ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
+                                    : entry.paymentMethod === 'COMPLIMENTARY'
+                                      ? 'bg-blue-950/60 text-blue-300 border border-blue-800/40'
+                                      : 'bg-amber-950/60 text-amber-300 border border-amber-800/40'
+                                }`}
+                              >
+                                {isPaid
+                                  ? `PAID · ${formatCurrency(amountPaid)} (${paymentMethodName})`
+                                  : entry.paymentMethod === 'COMPLIMENTARY'
+                                    ? 'COMPLIMENTARY'
+                                    : 'UNPAID / ENTRY ONLY'}
+                              </span>
+                            </div>
+
+                            <div className="text-[11px] text-[#6E737B] flex items-center gap-2">
+                              <span>
+                                {new Date(entry.createdAt).toLocaleString([], {
+                                  dateStyle: 'short',
+                                  timeStyle: 'short',
+                                })}
+                              </span>
+                              {entry.phone && (
+                                <span className="flex items-center gap-1 font-mono text-[#A0A5AD]">
+                                  <Phone size={10} /> {entry.phone}
+                                </span>
+                              )}
+                            </div>
+
+                            {entry.notes && (
+                              <div className="text-[10px] text-[#A0A5AD] italic bg-[#14161D] px-2 py-0.5 rounded inline-block">
+                                Note: {entry.notes}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons: Pay/Print, Edit, Delete */}
+                          <div className="flex items-center gap-1 shrink-0">
+                            {!isPaid ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openChargeEntry(entry)}
+                                className="text-emerald-400 border-emerald-500/40 hover:bg-emerald-950/30 font-bold"
+                                title="Collect payment and generate receipt"
+                              >
+                                <DollarSign size={13} /> Collect GHS
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  printPoolReceipt({
+                                    receiptNo: entry.matchedTx?.transactionNo,
+                                    visitorName: entry.visitorName,
+                                    phone: entry.phone,
+                                    partySize: entry.partySize,
+                                    serviceName: entry.matchedTx?.service?.name || 'Pool Day Pass',
+                                    unitPrice: entry.matchedTx ? Number(entry.matchedTx.unitPrice || 0) : 0,
+                                    totalAmount: amountPaid,
+                                    paymentMethod: paymentMethodName,
+                                    createdAt: entry.createdAt,
+                                    notes: entry.notes,
+                                  })
+                                }
+                                className="text-[#C5A880] border-[#C5A880]/40 hover:bg-[#C5A880]/10"
+                                title="Print Official Receipt"
+                              >
+                                <Printer size={13} /> Print
+                              </Button>
+                            )}
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditAttendance(entry)}
+                              className="text-[#A0A5AD] hover:text-[#F4F4F2]"
+                              title="Edit / Correct Entry"
+                            >
+                              <Edit2 size={13} />
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                setDeletingItem({
+                                  type: 'attendance',
+                                  id: entry.id,
+                                  name: `${entry.visitorName} (${entry.partySize} pax)`,
+                                })
+                              }
+                              className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                              title="Delete Entry"
+                            >
+                              <Trash2 size={13} />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </Section>
+            ) : (
+              <Section
+                title="Paid Pool Transactions &amp; Receipts"
+                subtitle="Official cashier payment ledger for pool passes and rentals."
+              >
+                {transactions.length === 0 ? (
+                  <div className="p-12 text-center text-xs text-[#6E737B]">
+                    <ReceiptText size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
+                    No paid transactions recorded yet.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[#2B303E]/50 max-h-[640px] overflow-y-auto">
+                    {transactions.map((tx) => (
                       <div
-                        key={entry.id}
+                        key={tx.id}
                         className="p-4 hover:bg-[#14161D]/60 transition-colors flex items-start justify-between gap-3 text-xs"
                       >
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-[#F4F4F2] text-sm truncate">
-                              {entry.visitorName}
+                            <span className="font-extrabold text-[#F4F4F2] text-sm">
+                              {tx.transactionNo || 'POL-TX'}
                             </span>
-                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-[#232733] text-amber-300">
-                              <Users size={11} /> {entry.partySize} {entry.partySize > 1 ? 'Swimmers' : 'Swimmer'}
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#232733] text-amber-300 font-mono">
+                              {tx.service?.name || 'Pool Pass'} × {tx.quantity}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-mono">
+                              {formatCurrency(Number(tx.totalAmount || 0))}
                             </span>
                           </div>
 
                           <div className="text-[11px] text-[#6E737B] flex items-center gap-2">
-                            <span>{new Date(entry.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
-                            {entry.phone && (
-                              <span className="flex items-center gap-1 font-mono text-[#A0A5AD]">
-                                <Phone size={10} /> {entry.phone}
-                              </span>
-                            )}
+                            <span>
+                              {new Date(tx.createdAt).toLocaleString([], {
+                                dateStyle: 'short',
+                                timeStyle: 'short',
+                              })}
+                            </span>
+                            <span className="font-bold text-[#A0A5AD]">Method: {tx.paymentMethod}</span>
                           </div>
 
-                          {entry.notes && (
+                          {tx.notes && (
                             <div className="text-[10px] text-[#A0A5AD] italic bg-[#14161D] px-2 py-0.5 rounded inline-block">
-                              Note: {entry.notes}
+                              {tx.notes}
                             </div>
                           )}
-
-                          <div className="pt-1 flex items-center gap-2 text-[11px]">
-                            {amountPaid > 0 ? (
-                              <span className="font-extrabold text-emerald-400 font-mono">
-                                Paid: {formatCurrency(amountPaid)} ({paymentMethodName})
-                              </span>
-                            ) : (
-                              <span className="text-[#6E737B] font-mono">Entry Logged</span>
-                            )}
-                          </div>
                         </div>
 
-                        {/* Action Buttons: Print, Edit, Delete */}
+                        {/* Action Buttons: Print, Delete */}
                         <div className="flex items-center gap-1 shrink-0">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() =>
                               printPoolReceipt({
-                                receiptNo: matchedTx?.transactionNo,
-                                visitorName: entry.visitorName,
-                                phone: entry.phone,
-                                partySize: entry.partySize,
-                                serviceName: matchedTx?.service?.name || 'Pool Day Pass',
-                                unitPrice: matchedTx ? Number(matchedTx.unitPrice || 0) : 0,
-                                totalAmount: amountPaid,
-                                paymentMethod: paymentMethodName,
-                                createdAt: entry.createdAt,
-                                notes: entry.notes,
+                                receiptNo: tx.transactionNo,
+                                visitorName: tx.notes?.split('(')[0]?.trim() || 'Pool Guest',
+                                partySize: tx.quantity || 1,
+                                serviceName: tx.service?.name || 'Pool Day Pass',
+                                unitPrice: Number(tx.unitPrice || 0),
+                                totalAmount: Number(tx.totalAmount || 0),
+                                paymentMethod: tx.paymentMethod,
+                                createdAt: tx.createdAt,
+                                notes: tx.notes,
                               })
                             }
                             className="text-[#C5A880] border-[#C5A880]/40 hover:bg-[#C5A880]/10"
@@ -725,37 +999,117 @@ export default function PoolPortalPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => openEditAttendance(entry)}
-                            className="text-[#A0A5AD] hover:text-[#F4F4F2]"
-                            title="Edit / Correct Entry"
-                          >
-                            <Edit2 size={13} />
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
                             onClick={() =>
                               setDeletingItem({
-                                type: 'attendance',
-                                id: entry.id,
-                                name: `${entry.visitorName} (${entry.partySize} pax)`,
+                                type: 'transaction',
+                                id: tx.id,
+                                name: `${tx.transactionNo} (${formatCurrency(Number(tx.totalAmount || 0))})`,
                               })
                             }
                             className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
-                            title="Delete Entry"
+                            title="Delete Transaction"
                           >
                             <Trash2 size={13} />
                           </Button>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Section>
+                    ))}
+                  </div>
+                )}
+              </Section>
+            )}
           </div>
         </div>
+      )}
+
+      {/* Quick Collect Payment Modal (for converting unpaid entries into paid) */}
+      {chargingEntry && (
+        <Modal
+          open={!!chargingEntry}
+          onClose={() => setChargingEntry(null)}
+          title={`Collect Payment · ${chargingEntry.visitorName} (${chargingEntry.partySize} pax)`}
+        >
+          <form onSubmit={handleSaveChargeEntry} className="space-y-4 text-xs">
+            <div className="p-3 bg-[#14161D] border border-[#2B303E] rounded-xl text-xs space-y-1">
+              <div className="flex justify-between text-[#A0A5AD]">
+                <span>Visitor Name:</span>
+                <span className="font-bold text-[#F4F4F2]">{chargingEntry.visitorName}</span>
+              </div>
+              <div className="flex justify-between text-[#A0A5AD]">
+                <span>Swimmers Count:</span>
+                <span className="font-bold text-amber-300">{chargingEntry.partySize} Swimmers</span>
+              </div>
+            </div>
+
+            <FormField label="Select Pool Pass / Service" required>
+              <SelectInput
+                value={chargeServiceId}
+                onChange={(e) => {
+                  setChargeServiceId(e.target.value);
+                  const svc = services.find((s) => s.id === e.target.value);
+                  if (svc) setChargeUnitPrice(String(svc.price || '0'));
+                }}
+              >
+                {services.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} — {formatCurrency(Number(s.price || 0))}
+                  </option>
+                ))}
+              </SelectInput>
+            </FormField>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FormField label="Rate per Swimmer (GHS)" required>
+                <TextInput
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={chargeUnitPrice}
+                  onChange={(e) => setChargeUnitPrice(e.target.value)}
+                />
+              </FormField>
+
+              <FormField label="Payment Method" required>
+                <SelectInput
+                  value={chargePayMethod}
+                  onChange={(e) => setChargePayMethod(e.target.value)}
+                >
+                  {POOL_PAYMENT_METHODS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </SelectInput>
+              </FormField>
+            </div>
+
+            <div className="p-3 bg-[#181B24] border border-[#C5A880]/40 rounded-xl flex justify-between items-center text-sm font-bold">
+              <span className="text-[#F4F4F2]">Total To Collect:</span>
+              <span className="text-amber-300 font-mono">
+                {formatCurrency(Number(chargingEntry.partySize || 1) * (Number(chargeUnitPrice) || 0))}
+              </span>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={chargeBusy}
+                onClick={() => setChargingEntry(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                loading={chargeBusy}
+                className="bg-[#C5A880] text-[#10131A] font-bold"
+              >
+                <Check size={14} /> Collect &amp; Print Receipt
+              </Button>
+            </div>
+          </form>
+        </Modal>
       )}
 
       {/* Edit Entry Modal */}
