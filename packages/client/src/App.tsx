@@ -26,6 +26,8 @@ const RestaurantPOSPage = lazy(() => import('./pages/pos/RestaurantPOSPage'));
 const BarPOSPage = lazy(() => import('./pages/pos/BarPOSPage'));
 const PoolPortalPage = lazy(() => import('./pages/pos/PoolPortalPage'));
 const FandBPortalPage = lazy(() => import('./pages/operations/FandBPortalPage'));
+const RestaurantPortalPage = lazy(() => import('./pages/operations/RestaurantPortalPage'));
+const BarPortalPage = lazy(() => import('./pages/operations/BarPortalPage'));
 const EventsPage = lazy(() => import('./pages/operations/EventsPage'));
 
 const PaymentsPage = lazy(() => import('./pages/finance/PaymentsPage'));
@@ -103,6 +105,8 @@ export const App: React.FC = () => {
           <Route path="manager" element={<PortalGuard role="Manager"><Suspense fallback={<PageLoader />}><ManagerPortalPage /></Suspense></PortalGuard>} />
           <Route path="reception" element={<PortalGuard role="Reception"><Suspense fallback={<PageLoader />}><FrontDeskPage /></Suspense></PortalGuard>} />
           <Route path="fnb" element={<PortalGuard role="F&B"><Suspense fallback={<PageLoader />}><FandBPortalPage /></Suspense></PortalGuard>} />
+          <Route path="restaurant" element={<PortalGuard role="Restaurant"><Suspense fallback={<PageLoader />}><RestaurantPortalPage /></Suspense></PortalGuard>} />
+          <Route path="bar" element={<PortalGuard role="Bar"><Suspense fallback={<PageLoader />}><BarPortalPage /></Suspense></PortalGuard>} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="account" element={<Suspense fallback={<PageLoader />}><AccountPage /></Suspense>} />
 

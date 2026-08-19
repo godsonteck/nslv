@@ -4,7 +4,7 @@
 // ============================================
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { UserPlus, Edit2, ShieldOff, ShieldCheck, Trash2 } from 'lucide-react';
+import { UserPlus, Edit2, ShieldOff, ShieldCheck, Trash2, Info, Monitor } from 'lucide-react';
 import {
   PageHeader,
   Button,
@@ -23,6 +23,40 @@ import { usersApi, rolesApi, type UserRecord } from '../../services/apiService';
 import { ApiClientError } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
+
+/** What each named role unlocks — shown as a preview when admin selects a role */
+const ROLE_ACCESS_MAP: Record<string, { description: string; interfaces: string[]; color: string }> = {
+  'Admin': {
+    description: 'Full system access — can manage users, roles, settings, and all operations.',
+    interfaces: ['All Pages', 'User Management', 'Roles & Access', 'Settings', 'Reports', 'Audit Logs', 'All Departments'],
+    color: 'text-red-400',
+  },
+  'Manager': {
+    description: 'Operational manager — oversees all departments, reservations, and reporting.',
+    interfaces: ['Dashboard', 'Reservations', 'Guests', 'Rooms', 'Front Desk', 'Restaurant POS', 'Bar POS', 'Pool', 'Payments', 'Expenses', 'Inventory', 'Reports', 'Events'],
+    color: 'text-[#f1a83f]',
+  },
+  'Reception': {
+    description: 'Front office staff — handles check-in/out, reservations, guest folios, and pool.',
+    interfaces: ['Dashboard', 'Reservations', 'Guests', 'Rooms', 'Front Desk', 'Guest Bills', 'Payments', 'Pool Services'],
+    color: 'text-blue-400',
+  },
+  'F&B': {
+    description: 'Food & Beverage staff — accesses both restaurant and bar POS systems.',
+    interfaces: ['Dashboard', 'F&B Workspace (combined)', 'Restaurant POS', 'Bar POS', 'Inventory', 'Categories'],
+    color: 'text-amber-400',
+  },
+  'Restaurant': {
+    description: 'Restaurant-only staff — dedicated access to restaurant orders and POS.',
+    interfaces: ['Dashboard', 'Restaurant Workspace', 'Restaurant POS', 'Inventory', 'Categories'],
+    color: 'text-orange-400',
+  },
+  'Bar': {
+    description: 'Bar-only staff — dedicated access to bar & lounge orders and POS.',
+    interfaces: ['Dashboard', 'Bar Workspace', 'Bar POS', 'Inventory', 'Categories'],
+    color: 'text-purple-400',
+  },
+};
 
 interface UserModalProps {
   open: boolean;
@@ -181,6 +215,34 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
         </SelectInput>
         {errors.roleId && <p className="text-xs text-[#EF4444] mt-1">{errors.roleId}</p>}
       </FormField>
+
+      {/* Role access preview panel */}
+      {form.roleId && (() => {
+        const selectedRole = roles.find(r => r.id === form.roleId);
+        const access = selectedRole ? ROLE_ACCESS_MAP[selectedRole.name] : null;
+        if (!access) return null;
+        return (
+          <div className="mt-1 p-3 rounded-xl bg-[#14161D] border border-[#2B303E] text-xs space-y-2">
+            <div className={`flex items-center gap-1.5 font-bold ${access.color}`}>
+              <Info size={13} />
+              <span>What "{selectedRole?.name}" role can access:</span>
+            </div>
+            <p className="text-[#A0A5AD] leading-relaxed">{access.description}</p>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {access.interfaces.map(iface => (
+                <span
+                  key={iface}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#232733] text-[#F4F4F2] border border-[#2B303E]"
+                >
+                  <Monitor size={9} className={access.color} />
+                  {iface}
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="flex justify-end gap-3 mt-4 pt-3 border-t border-[#2B303E]">
         <Button variant="ghost" onClick={onClose}>Cancel</Button>
         <Button variant="primary" loading={saving} onClick={save}>{isEdit ? 'Save Changes' : 'Create User'}</Button>

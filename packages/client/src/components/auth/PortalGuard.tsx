@@ -2,10 +2,12 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
-export type PortalRole = 'Admin' | 'Manager' | 'Reception' | 'F&B';
+export type PortalRole = 'Admin' | 'Manager' | 'Reception' | 'F&B' | 'Restaurant' | 'Bar';
 
 const portalPath = (portal: string): string => {
   if (portal === 'F&B') return '/fnb';
+  if (portal === 'Restaurant') return '/restaurant';
+  if (portal === 'Bar') return '/bar';
   return `/${portal.toLowerCase()}`;
 };
 
