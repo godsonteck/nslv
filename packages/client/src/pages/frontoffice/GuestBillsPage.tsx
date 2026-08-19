@@ -11,7 +11,7 @@ import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceU
 import { staysApi, foliosApi } from '../../services/apiService';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { villaAssets } from '../../assets';
-import { receiptCompanyBlock } from '../../lib/company';
+import { receiptCompanyBlock, printPaymentReceipt } from '../../lib/company';
 
 interface BillStay {
   id: string;
@@ -311,9 +311,25 @@ export const GuestBillsPage: React.FC = () => {
                 <div className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#7d898d]">Payments received</div>
                 <div className="mt-2 space-y-2">
                   {selectedBill.folio.payments.map((p: any) => (
-                    <div key={p.id} className="flex items-center justify-between rounded-xl bg-[#f0f7f2] px-4 py-2.5">
+                    <div key={p.id} className="flex items-center justify-between gap-2 rounded-xl bg-[#f0f7f2] px-4 py-2.5">
                       <span className="text-[11px] font-bold text-[#26363e]">{p.method} payment</span>
-                      <span className="text-[11px] font-extrabold text-[#2d8a68]">− {formatCurrency(money(p.amount))}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-[11px] font-extrabold text-[#2d8a68]">− {formatCurrency(money(p.amount))}</span>
+                        <button
+                          type="button"
+                          title="Print payment receipt"
+                          onClick={() =>
+                            printPaymentReceipt(p, {
+                              guestName: formatGuestName(selectedBill.stay.guest, 'Guest'),
+                              bookingRef: selectedBill.stay.reservation.id.slice(0, 8).toUpperCase(),
+                              roomNumber: String(selectedBill.stay.room?.number ?? ''),
+                            })
+                          }
+                          className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
+                        >
+                          <Printer size={13} />
+                        </button>
+                      </span>
                     </div>
                   ))}
                 </div>

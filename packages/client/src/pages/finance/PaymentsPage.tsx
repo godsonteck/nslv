@@ -6,11 +6,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { paymentsApi, staysApi } from '../../services/apiService';
-import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2, CheckCircle2, XCircle, Clock, Trash2 } from 'lucide-react';
+import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2, CheckCircle2, XCircle, Clock, Trash2, Printer } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
+import { printPaymentReceipt } from '../../lib/company';
 
 interface PaymentRecord {
   id: string;
@@ -312,6 +313,7 @@ export const PaymentsPage: React.FC = () => {
                 {visible.map((p) => {
                   const isPendingRefund = p.type === 'REFUND' && p.status === 'PENDING';
                   const isCompletedPayment = ['PAYMENT', 'DEPOSIT'].includes(p.type) && ['COMPLETED', 'PARTIALLY_REFUNDED'].includes(p.status);
+                  const canPrint = ['PAYMENT', 'DEPOSIT', 'REFUND'].includes(p.type) && ['COMPLETED', 'PARTIALLY_REFUNDED'].includes(p.status);
 
                   return (
                     <tr key={p.id} className={`hover:bg-[#fbfcfa] transition-colors ${isPendingRefund ? 'bg-amber-500/5' : ''}`}>
@@ -370,8 +372,18 @@ export const PaymentsPage: React.FC = () => {
                           ) : (
                             <span className="text-[11px] font-medium text-amber-700">Awaiting Manager</span>
                           )
-                        ) : isAdmin || (isCompletedPayment && canRequestOrRefund) ? (
+                        ) : isAdmin || (isCompletedPayment && canRequestOrRefund) || canPrint ? (
                           <div className="flex items-center justify-end gap-1.5">
+                            {canPrint && (
+                              <button
+                                type="button"
+                                title="Print receipt"
+                                onClick={() => printPaymentReceipt(p, { guestName: p.guest ? formatGuestName(p.guest) : undefined })}
+                                className="rounded-md p-1.5 text-[#718086] hover:bg-[#f7f8f6] hover:text-[#16a4d4] transition-colors"
+                              >
+                                <Printer size={14} />
+                              </button>
+                            )}
                             {isCompletedPayment && canRequestOrRefund && (
                               <Button variant="outline" size="sm" onClick={() => openRefund(p)}>
                                 <Undo2 size={13} /> {isPrivileged ? 'Approve refund' : 'Request refund'}

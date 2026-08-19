@@ -6,6 +6,7 @@ import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, 
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
+import { printPaymentReceipt } from '../../lib/company';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -1093,13 +1094,29 @@ export const ReservationsPage: React.FC = () => {
                       </div>
                       {recordedDeposits(detailsRes).length > 0 ? (
                         recordedDeposits(detailsRes).map((p: any) => (
-                          <div key={p.id} className="flex justify-between text-[11px]">
+                          <div key={p.id} className="flex items-center justify-between gap-2 text-[11px]">
                             <span className="text-[#5f6b6f]">
                               Recorded · {p.method}
                               {p.reference ? ` · ${p.reference}` : ''}
                               {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
                             </span>
-                            <span className="text-[#2e7d32] font-bold">{formatCurrency(p.amount)}</span>
+                            <span className="flex items-center gap-1.5">
+                              <span className="text-[#2e7d32] font-bold">{formatCurrency(p.amount)}</span>
+                              <button
+                                type="button"
+                                title="Print payment receipt"
+                                onClick={() =>
+                                  printPaymentReceipt(p, {
+                                    type: 'DEPOSIT',
+                                    guestName: guestName(detailsRes.guests?.[0]?.guest),
+                                    bookingRef: detailsRes.bookingId || detailsRes.confirmationNo,
+                                  })
+                                }
+                                className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
+                              >
+                                <Printer size={12} />
+                              </button>
+                            </span>
                           </div>
                         ))
                       ) : (
