@@ -220,7 +220,7 @@ router.get('/pool/transactions', requirePermission('pool.view'), async (_req, re
   }
 });
 
-router.post('/pool/transactions', requirePermission('pool.manage'), validateBody(createPoolTransactionSchema), async (req, res, next) => {
+router.post('/pool/transactions', requirePermission('pool.view'), validateBody(createPoolTransactionSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createPoolTransaction({ ...req.body, processedBy: userId });
