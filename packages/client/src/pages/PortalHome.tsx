@@ -15,8 +15,8 @@ type PortalDefinition = {
 const portals: Record<string, PortalDefinition> = {
   Admin: { name: 'Administration', summary: 'System access, people, settings and traceability.', icon: <ShieldCheck size={22} />, available: [{ label: 'Users', to: '/admin/users' }, { label: 'Roles & permissions', to: '/admin/roles' }, { label: 'Audit logs', to: '/admin/audit' }, { label: 'Settings', to: '/admin/settings' }], pending: ['Operational reporting', 'Financial oversight'] },
   Manager: { name: 'Operations management', summary: 'A single place to supervise the villa’s daily operations.', icon: <Building2 size={22} />, available: [], pending: ['Live occupancy and arrivals', 'Department performance', 'Operational reports'] },
-  Reception: { name: 'Reception', summary: 'Front-office workflows built for fast, accurate guest service.', icon: <Users size={22} />, available: [], pending: ['Reservations and availability', 'Check-in and check-out', 'Guest folios and payments'] },
-  'F&B': { name: 'Food & beverage', summary: 'One operational workspace for restaurant, bar and pool service.', icon: <UtensilsCrossed size={22} />, available: [{ label: 'F&B workspace', to: '/fnb' }, { label: 'Restaurant POS', to: '/restaurant/pos' }, { label: 'Bar POS', to: '/bar/pos' }, { label: 'Pool services', to: '/pool/services' }], pending: [] },
+  Reception: { name: 'Reception', summary: 'Front-office workflows built for fast, accurate guest service.', icon: <Users size={22} />, available: [{ label: 'Front desk', to: '/frontdesk' }, { label: 'Pool services', to: '/pool/services' }], pending: ['Reservations and availability', 'Check-in and check-out', 'Guest folios and payments'] },
+  'F&B': { name: 'Food & beverage', summary: 'One operational workspace for restaurant and bar service.', icon: <UtensilsCrossed size={22} />, available: [{ label: 'F&B workspace', to: '/fnb' }, { label: 'Restaurant POS', to: '/restaurant/pos' }, { label: 'Bar POS', to: '/bar/pos' }], pending: [] },
 };
 
 export const PortalHome: React.FC = () => {

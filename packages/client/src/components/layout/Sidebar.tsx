@@ -18,12 +18,12 @@ const ALL_SECTIONS: NavSection[] = [
     { label: 'Guests', to: '/guests', icon: Users, perms: ['guests.view'] },
     { label: 'Rooms', to: '/rooms', icon: BedDouble, perms: ['rooms.view'] },
     { label: 'Events', to: '/events', icon: CalendarClock, perms: ['events.view'] },
+    { label: 'Pool services', to: '/pool/services', icon: Waves, perms: ['pool.view'] },
   ] },
   { title: 'Departments', items: [
-    { label: 'F&B workspace', to: '/fnb', icon: UtensilsCrossed, perms: ['restaurant.view', 'bar.view', 'pool.view'] },
+    { label: 'F&B workspace', to: '/fnb', icon: UtensilsCrossed, perms: ['restaurant.view', 'bar.view'] },
     { label: 'Restaurant POS', to: '/restaurant/pos', icon: UtensilsCrossed, perms: ['restaurant.view'] },
     { label: 'Bar POS', to: '/bar/pos', icon: Wine, perms: ['bar.view'] },
-    { label: 'Pool services', to: '/pool/services', icon: Waves, perms: ['pool.view'] },
   ] },
   { title: 'Finance & insight', items: [
     { label: 'Payments', to: '/payments', icon: CreditCard, perms: ['payments.view'] },

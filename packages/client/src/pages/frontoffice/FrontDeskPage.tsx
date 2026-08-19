@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { reservationsApi, staysApi, roomsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
-import { LogIn, LogOut, RefreshCw, UserRound, BedDouble } from 'lucide-react';
+import { LogIn, LogOut, RefreshCw, UserRound, BedDouble, Waves, ArrowRight } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
@@ -19,7 +20,9 @@ const isArrivalDue = (reservation: any, now = new Date()) =>
   now < hotelBoundary(reservation.checkOutDate, 12);
 
 export const FrontDeskPage: React.FC = () => {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const permissions = user?.permissions ?? [];
   const greeting = formatUserGreeting(user);
 
   const [stays, setStays] = useState<any[]>([]);
@@ -146,6 +149,20 @@ export const FrontDeskPage: React.FC = () => {
           icon={LogOut}
         />
       </div>
+
+      {permissions.includes('pool.view') && (
+        <button
+          onClick={() => navigate('/pool/services')}
+          className="group ns-card flex w-full items-center gap-4 p-5 text-left transition hover:border-[#b9d6da] hover:shadow-sm"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#e9f4f5] text-[#2e7f8c]"><Waves size={19} /></span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[14px] font-extrabold text-[#20343e]">Pool desk</div>
+            <div className="mt-0.5 text-[11px] text-[#8a9598]">Record pool attendance and manage pool services</div>
+          </div>
+          <ArrowRight size={16} className="text-[#2e7f8c] transition group-hover:translate-x-0.5" />
+        </button>
+      )}
 
       <Section title="Arrival desk" subtitle="Due arrivals include late arrivals from prior nights. Check-in starts at 2:00 PM.">
         <Toolbar search={q} onSearch={setQ} placeholder="Find a guest or reservation…" />
