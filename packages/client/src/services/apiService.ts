@@ -669,8 +669,9 @@ export const posApi = {
     apiFetch<any>(`/pos/pool/attendance/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
   deletePoolAttendance: async (id: string): Promise<any> =>
     apiFetch<any>(`/pos/pool/attendance/${id}`, { method: 'DELETE' }, token()),
-  getPoolServices: async (): Promise<{ success: true; data: any[] }> => {
-    const data = await apiFetch<any[]>('/pos/pool/services', {}, token());
+  getPoolServices: async (params?: { includeUnavailable?: boolean }): Promise<{ success: true; data: any[] }> => {
+    const qs = params?.includeUnavailable ? '?includeUnavailable=true' : '';
+    const data = await apiFetch<any[]>(`/pos/pool/services${qs}`, {}, token());
     return { success: true, data };
   },
   createPoolService: async (body: any): Promise<any> => apiFetch<any>('/pos/pool/services', { method: 'POST', body: JSON.stringify(body) }, token()),

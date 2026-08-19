@@ -326,9 +326,10 @@ export class POSService {
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
-  static async getPoolServices() {
-    const services = await prisma.poolService.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
-    if (services.length === 0) {
+  static async getPoolServices(includeUnavailable = false) {
+    const where = includeUnavailable ? {} : { isAvailable: true };
+    const services = await prisma.poolService.findMany({ where, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
+    if (services.length === 0 && !includeUnavailable) {
       const existingCat = await prisma.itemCategory.findFirst({ where: { type: 'POOL' } });
       const catName = existingCat?.name || 'DAY_PASS';
       if (!existingCat) {
@@ -348,7 +349,7 @@ export class POSService {
           create: def,
         }).catch(() => {});
       }
-      return prisma.poolService.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
+      return prisma.poolService.findMany({ where, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
     }
     return services;
   }

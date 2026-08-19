@@ -1,6 +1,7 @@
 // ============================================
 // NS LUXURY VILLA — Pool Services & Entry Counter
 // Record Entry, Charge Pool Services, Print Receipts & Correct Mistakes
+// Admin Pool Price Adjustment & Service Management
 // ============================================
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
@@ -17,6 +18,12 @@ import {
   CreditCard,
   Phone,
   CheckCircle,
+  Settings,
+  Plus,
+  Power,
+  DollarSign,
+  Save,
+  X,
 } from 'lucide-react';
 import { posApi } from '../../services/apiService';
 import { Button, FormField, TextInput, SelectInput, showToast, LoadingState, Modal } from '../../components/ui';
@@ -30,6 +37,7 @@ const POOL_PAYMENT_METHODS = ['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'];
 export default function PoolPortalPage() {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
+  const [allServices, setAllServices] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -44,7 +52,7 @@ export default function PoolPortalPage() {
   const [isComplimentary, setIsComplimentary] = useState(false);
   const [notes, setNotes] = useState('');
 
-  // Editing Modal State
+  // Editing Entry Modal State
   const [editingEntry, setEditingEntry] = useState<any | null>(null);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -56,29 +64,57 @@ export default function PoolPortalPage() {
   const [deletingItem, setDeletingItem] = useState<{ type: 'attendance' | 'transaction'; id: string; name: string; amount?: number } | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
 
+  // Admin Pricing Management State
+  const [pricingModalOpen, setPricingModalOpen] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [editServiceName, setEditServiceName] = useState('');
+  const [editServicePrice, setEditServicePrice] = useState('');
+  const [editServiceCategory, setEditServiceCategory] = useState('DAY_PASS');
+  const [editServiceDesc, setEditServiceDesc] = useState('');
+  const [priceSaving, setPriceSaving] = useState(false);
+
+  // New Service Form State
+  const [showAddService, setShowAddService] = useState(false);
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServicePrice, setNewServicePrice] = useState('');
+  const [newServiceCategory, setNewServiceCategory] = useState('DAY_PASS');
+  const [newServiceDesc, setNewServiceDesc] = useState('');
+  const [newServiceSaving, setNewServiceSaving] = useState(false);
+
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const [att, svc, txs] = await Promise.all([
+      const [att, svc, allSvc, txs] = await Promise.all([
         posApi.getPoolAttendance(),
         posApi.getPoolServices(),
+        posApi.getPoolServices({ includeUnavailable: true }),
         posApi.getPoolTransactions(),
       ]);
       setAttendance(att.data || []);
       const loadedServices = svc.data || [];
       setServices(loadedServices);
+      setAllServices(allSvc.data || loadedServices);
       setTransactions(txs.data || []);
 
-      if (loadedServices.length > 0 && !selectedServiceId) {
-        setSelectedServiceId(loadedServices[0].id);
-        setCustomUnitPrice(String(loadedServices[0].price || '100'));
+      if (loadedServices.length > 0) {
+        // If current selection is invalid or not set, select first available
+        if (!selectedServiceId || !loadedServices.some((s) => s.id === selectedServiceId)) {
+          setSelectedServiceId(loadedServices[0].id);
+          setCustomUnitPrice(String(loadedServices[0].price || '100'));
+        } else {
+          // Refresh unit price if already selected
+          const cur = loadedServices.find((s) => s.id === selectedServiceId);
+          if (cur && !customUnitPrice) {
+            setCustomUnitPrice(String(cur.price || '0'));
+          }
+        }
       }
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to load pool data');
     } finally {
       setLoading(false);
     }
-  }, [selectedServiceId]);
+  }, [selectedServiceId, customUnitPrice]);
 
   useEffect(() => {
     void load();
@@ -122,7 +158,9 @@ export default function PoolPortalPage() {
     if (!win) return;
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
     const receiptDate = data.createdAt ? new Date(data.createdAt).toLocaleString() : new Date().toLocaleString();
-    const receiptNo = data.receiptNo || `POL-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.floor(100 + Math.random() * 900)}`;
+    const receiptNo =
+      data.receiptNo ||
+      `POL-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.floor(100 + Math.random() * 900)}`;
 
     win.document.write(`<!DOCTYPE html><html><head><title>POOL RECEIPT - ${receiptNo}</title><style>
       body{font-family:'Courier New',monospace;font-size:12px;color:#111;padding:24px;width:320px;margin:0 auto}
@@ -317,15 +355,122 @@ export default function PoolPortalPage() {
     }
   };
 
+  // Admin: Start Editing a Pool Service / Price
+  const startEditingService = (svc: any) => {
+    setEditingServiceId(svc.id);
+    setEditServiceName(svc.name);
+    setEditServicePrice(String(svc.price));
+    setEditServiceCategory(svc.category || 'DAY_PASS');
+    setEditServiceDesc(svc.description || '');
+  };
+
+  // Admin: Save Service Updates (Name, Price, Category, Description)
+  const handleSaveServicePrice = async (svcId: string) => {
+    const priceVal = Number(editServicePrice);
+    if (isNaN(priceVal) || priceVal < 0) {
+      showToast('error', 'Please enter a valid price greater than or equal to 0.');
+      return;
+    }
+    if (!editServiceName.trim()) {
+      showToast('error', 'Service name cannot be empty.');
+      return;
+    }
+
+    try {
+      setPriceSaving(true);
+      await posApi.updatePoolService(svcId, {
+        name: editServiceName.trim(),
+        price: priceVal,
+        category: editServiceCategory,
+        description: editServiceDesc.trim() || undefined,
+      });
+      showToast('success', `Pool price for "${editServiceName.trim()}" updated to ${formatCurrency(priceVal)}!`);
+      setEditingServiceId(null);
+      await load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to update pool price');
+    } finally {
+      setPriceSaving(false);
+    }
+  };
+
+  // Admin: Toggle Availability
+  const handleToggleServiceAvailability = async (svcId: string, currentStatus: boolean) => {
+    try {
+      await posApi.togglePoolService(svcId, !currentStatus);
+      showToast('success', `Pool service ${!currentStatus ? 'activated' : 'deactivated'}.`);
+      await load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to toggle service status');
+    }
+  };
+
+  // Admin: Delete Service
+  const handleDeleteService = async (svcId: string, svcName: string) => {
+    if (!window.confirm(`Are you sure you want to remove pool service "${svcName}"?`)) return;
+    try {
+      await posApi.deletePoolService(svcId);
+      showToast('success', `Pool service "${svcName}" deleted.`);
+      await load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to delete service');
+    }
+  };
+
+  // Admin: Create New Pool Service / Pass
+  const handleCreateNewService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const nameTrim = newServiceName.trim();
+    if (!nameTrim) {
+      showToast('error', 'Service name is required.');
+      return;
+    }
+    const priceVal = Number(newServicePrice);
+    if (isNaN(priceVal) || priceVal < 0) {
+      showToast('error', 'Price must be a valid number.');
+      return;
+    }
+
+    try {
+      setNewServiceSaving(true);
+      await posApi.createPoolService({
+        name: nameTrim,
+        price: priceVal,
+        category: newServiceCategory || 'DAY_PASS',
+        description: newServiceDesc.trim() || undefined,
+      });
+      showToast('success', `Pool service "${nameTrim}" created at ${formatCurrency(priceVal)}!`);
+      setNewServiceName('');
+      setNewServicePrice('');
+      setNewServiceDesc('');
+      setShowAddService(false);
+      await load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to create pool service');
+    } finally {
+      setNewServiceSaving(false);
+    }
+  };
+
   return (
     <ShellPage
       eyebrow="POOL · RECEPTION DESK &amp; CASHIER"
       title="Pool services"
       subtitle="Sell pool passes, record visitor attendance, print official receipts, and manage entries."
       actions={
-        <Button variant="outline" size="sm" onClick={load}>
-          <RefreshCw size={14} /> Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPricingModalOpen(true)}
+            className="border-[#C5A880]/50 text-[#C5A880] hover:bg-[#C5A880]/10 font-bold"
+          >
+            <Settings size={14} /> Adjust Pool Prices
+          </Button>
+          <Button variant="outline" size="sm" onClick={load}>
+            <RefreshCw size={14} /> Refresh
+          </Button>
+        </div>
       }
     >
       {/* 4 Summary Stat Cards */}
@@ -374,7 +519,18 @@ export default function PoolPortalPage() {
                     />
                   </FormField>
 
-                  <FormField label="Pass / Service Type" required>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-semibold text-[#A0A5AD]">Pass / Service Type *</label>
+                      <button
+                        type="button"
+                        onClick={() => setPricingModalOpen(true)}
+                        className="text-[11px] text-[#C5A880] hover:underline font-semibold flex items-center gap-1"
+                        title="Adjust prices or add new pool passes"
+                      >
+                        <Settings size={11} /> Adjust Prices
+                      </button>
+                    </div>
                     <SelectInput
                       value={selectedServiceId}
                       onChange={(e) => handleServiceChange(e.target.value)}
@@ -386,7 +542,7 @@ export default function PoolPortalPage() {
                         </option>
                       ))}
                     </SelectInput>
-                  </FormField>
+                  </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -700,6 +856,237 @@ export default function PoolPortalPage() {
                 className="bg-red-600 hover:bg-red-500 text-white font-bold"
               >
                 Confirm Delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Admin: Adjust Pool Prices & Services Modal */}
+      {pricingModalOpen && (
+        <Modal
+          open={pricingModalOpen}
+          onClose={() => {
+            setPricingModalOpen(false);
+            setEditingServiceId(null);
+            setShowAddService(false);
+          }}
+          title="Adjust Pool Prices & Services"
+        >
+          <div className="space-y-5 text-xs max-h-[75vh] overflow-y-auto pr-1">
+            <div className="flex items-center justify-between">
+              <div className="text-[#A0A5AD]">
+                Manage standard pool pass rates, rental items, and prices charged at reception.
+              </div>
+              {!showAddService && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAddService(true)}
+                  className="bg-[#C5A880]/10 border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880]/20 font-bold shrink-0"
+                >
+                  <Plus size={13} /> Add Pass Rate
+                </Button>
+              )}
+            </div>
+
+            {/* Add New Service Form */}
+            {showAddService && (
+              <form
+                onSubmit={handleCreateNewService}
+                className="p-4 rounded-xl bg-[#14161D] border border-[#C5A880]/40 space-y-3"
+              >
+                <div className="flex items-center justify-between font-bold text-[#C5A880]">
+                  <span>Add New Pool Pass / Service</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddService(false)}
+                    className="text-[#6E737B] hover:text-[#F4F4F2]"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField label="Pass / Service Name" required>
+                    <TextInput
+                      required
+                      value={newServiceName}
+                      onChange={(e) => setNewServiceName(e.target.value)}
+                      placeholder="e.g. VIP Day Pass"
+                    />
+                  </FormField>
+                  <FormField label="Price (GHS)" required>
+                    <TextInput
+                      required
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={newServicePrice}
+                      onChange={(e) => setNewServicePrice(e.target.value)}
+                      placeholder="e.g. 150"
+                    />
+                  </FormField>
+                </div>
+                <FormField label="Description (Optional)">
+                  <TextInput
+                    value={newServiceDesc}
+                    onChange={(e) => setNewServiceDesc(e.target.value)}
+                    placeholder="e.g. Includes towel and welcome drink"
+                  />
+                </FormField>
+                <div className="flex justify-end gap-2 pt-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAddService(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    loading={newServiceSaving}
+                    className="bg-[#C5A880] text-[#10131A] font-bold"
+                  >
+                    <Save size={13} /> Save New Pass
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {/* List of Pool Services with Inline Price Adjustment */}
+            <div className="space-y-3">
+              {allServices.map((svc) => {
+                const isEditing = editingServiceId === svc.id;
+
+                return (
+                  <div
+                    key={svc.id}
+                    className={`p-4 rounded-xl border transition-all ${
+                      svc.isAvailable
+                        ? 'bg-[#181B24] border-[#2B303E]'
+                        : 'bg-[#14161D]/50 border-[#2B303E]/40 opacity-70'
+                    }`}
+                  >
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <FormField label="Service Name" required>
+                            <TextInput
+                              value={editServiceName}
+                              onChange={(e) => setEditServiceName(e.target.value)}
+                            />
+                          </FormField>
+                          <FormField label="Price (GHS)" required>
+                            <TextInput
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={editServicePrice}
+                              onChange={(e) => setEditServicePrice(e.target.value)}
+                            />
+                          </FormField>
+                        </div>
+                        <FormField label="Description">
+                          <TextInput
+                            value={editServiceDesc}
+                            onChange={(e) => setEditServiceDesc(e.target.value)}
+                          />
+                        </FormField>
+                        <div className="flex justify-end gap-2 pt-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={priceSaving}
+                            onClick={() => setEditingServiceId(null)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="primary"
+                            size="sm"
+                            loading={priceSaving}
+                            onClick={() => handleSaveServicePrice(svc.id)}
+                            className="bg-[#C5A880] text-[#10131A] font-bold"
+                          >
+                            <Save size={13} /> Save Price
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-[#F4F4F2] text-sm">{svc.name}</span>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                svc.isAvailable
+                                  ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
+                                  : 'bg-zinc-800 text-zinc-400'
+                              }`}
+                            >
+                              {svc.isAvailable ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                          {svc.description && (
+                            <div className="text-[11px] text-[#A0A5AD]">{svc.description}</div>
+                          )}
+                          <div className="text-base font-extrabold text-amber-300 font-mono pt-1">
+                            {formatCurrency(Number(svc.price || 0))}
+                          </div>
+                        </div>
+
+                        {/* Actions: Edit Price, Toggle Available, Delete */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => startEditingService(svc)}
+                            className="text-[#C5A880] border-[#C5A880]/40 hover:bg-[#C5A880]/10 font-bold"
+                            title="Edit Price and Details"
+                          >
+                            <Edit2 size={13} /> Change Price
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleServiceAvailability(svc.id, svc.isAvailable)}
+                            className={svc.isAvailable ? 'text-amber-400 hover:bg-amber-950/40' : 'text-emerald-400 hover:bg-emerald-950/40'}
+                            title={svc.isAvailable ? 'Deactivate Pass' : 'Activate Pass'}
+                          >
+                            <Power size={13} />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteService(svc.id, svc.name)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                            title="Delete Service"
+                          >
+                            <Trash2 size={13} />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-[#2B303E]">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => setPricingModalOpen(false)}
+                className="bg-[#C5A880] text-[#10131A] font-bold px-6"
+              >
+                Done
               </Button>
             </div>
           </div>

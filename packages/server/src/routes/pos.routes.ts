@@ -179,9 +179,10 @@ router.delete('/pool/attendance/:id', requirePermission('pool.view'), async (req
   } catch (error) { next(error); }
 });
 
-router.get('/pool/services', requirePermission('pool.view'), async (_req, res, next) => {
+router.get('/pool/services', requirePermission('pool.view'), async (req, res, next) => {
   try {
-    const data = await POSService.getPoolServices();
+    const includeUnavailable = req.query.includeUnavailable === 'true';
+    const data = await POSService.getPoolServices(includeUnavailable);
     res.json({ success: true, data });
   } catch (error) {
     next(error);
