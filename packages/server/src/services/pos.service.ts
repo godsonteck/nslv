@@ -326,8 +326,31 @@ export class POSService {
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
-  static getPoolServices() {
-    return prisma.poolService.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
+  static async getPoolServices() {
+    const services = await prisma.poolService.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
+    if (services.length === 0) {
+      const existingCat = await prisma.itemCategory.findFirst({ where: { type: 'POOL' } });
+      const catName = existingCat?.name || 'DAY_PASS';
+      if (!existingCat) {
+        await prisma.itemCategory.create({
+          data: { type: 'POOL', name: 'DAY_PASS', description: 'Pool Day Passes and Services' },
+        }).catch(() => {});
+      }
+      const defaultServices = [
+        { name: 'Day Pass — Adult', category: catName, description: 'Full day pool & deck access', price: new Prisma.Decimal(100) },
+        { name: 'Day Pass — Child', category: catName, description: 'Full day pool access for children', price: new Prisma.Decimal(50) },
+        { name: 'Pool Towel Rental', category: catName, description: 'Fresh clean pool towel', price: new Prisma.Decimal(25) },
+      ];
+      for (const def of defaultServices) {
+        await prisma.poolService.upsert({
+          where: { name: def.name },
+          update: { isAvailable: true },
+          create: def,
+        }).catch(() => {});
+      }
+      return prisma.poolService.findMany({ where: { isAvailable: true }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
+    }
+    return services;
   }
 
   static async createPoolService(data: { name: string; category: string; price: number; description?: string }) {
@@ -374,6 +397,64 @@ export class POSService {
     assertPositiveInteger(data.partySize, 'Number of visitors');
     return prisma.poolAttendance.create({
       data: { visitorName, phone: data.phone?.trim() || undefined, partySize: data.partySize, notes: data.notes?.trim() || undefined, recordedBy: data.recordedBy },
+    });
+  }
+
+  static async updatePoolAttendance(id: string, data: { visitorName?: string; phone?: string; partySize?: number; notes?: string }) {
+    const existing = await prisma.poolAttendance.findUnique({ where: { id } });
+    if (!existing) throw new Error('Pool attendance record not found.');
+    if (data.partySize !== undefined) assertPositiveInteger(data.partySize, 'Number of visitors');
+    return prisma.poolAttendance.update({
+      where: { id },
+      data: {
+        visitorName: data.visitorName?.trim() || existing.visitorName,
+        phone: data.phone !== undefined ? (data.phone?.trim() || null) : existing.phone,
+        partySize: data.partySize !== undefined ? data.partySize : existing.partySize,
+        notes: data.notes !== undefined ? (data.notes?.trim() || null) : existing.notes,
+      },
+    });
+  }
+
+  static async deletePoolAttendance(id: string) {
+    const existing = await prisma.poolAttendance.findUnique({ where: { id } });
+    if (!existing) throw new Error('Pool attendance record not found.');
+    return prisma.poolAttendance.delete({ where: { id } });
+  }
+
+  static async deletePoolTransaction(id: string, userId: string) {
+    return prisma.$transaction(async tx => {
+      const existing = await tx.poolTransaction.findUnique({ where: { id } });
+      if (!existing) throw new Error('Pool transaction not found.');
+
+      if (existing.folioItemId) {
+        const item = await tx.folioItem.findUnique({ where: { id: existing.folioItemId } });
+        if (item && !item.voidedAt) {
+          await tx.folioItem.update({
+            where: { id: item.id },
+            data: { voidedAt: new Date(), voidedBy: userId, voidReason: 'Pool transaction deleted' },
+          });
+          await tx.folio.update({
+            where: { id: item.folioId },
+            data: { balance: { decrement: item.amount } },
+          });
+        }
+      }
+
+      // Void any direct payments
+      await tx.payment.updateMany({
+        where: { source: 'POOL_TRANSACTION', sourceId: id, voidedAt: null },
+        data: { voidedAt: new Date(), voidedBy: userId, voidReason: 'Pool transaction deleted' },
+      });
+
+      await AuditService.logInTransaction(tx, {
+        userId,
+        action: 'pos.pool_transaction_deleted',
+        resource: 'pool_transaction',
+        resourceId: id,
+        beforeData: { transactionNo: existing.transactionNo, amount: existing.totalAmount.toString() },
+      });
+
+      return tx.poolTransaction.delete({ where: { id } });
     });
   }
 

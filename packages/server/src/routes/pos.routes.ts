@@ -163,6 +163,22 @@ router.post('/pool/attendance', requirePermission('pool.view'), validateBody(cre
   } catch (error) { next(error); }
 });
 
+router.patch('/pool/attendance/:id', requirePermission('pool.view'), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await POSService.updatePoolAttendance(id, req.body);
+    res.json({ success: true, data });
+  } catch (error) { next(error); }
+});
+
+router.delete('/pool/attendance/:id', requirePermission('pool.view'), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await POSService.deletePoolAttendance(id);
+    res.json({ success: true, data });
+  } catch (error) { next(error); }
+});
+
 router.get('/pool/services', requirePermission('pool.view'), async (_req, res, next) => {
   try {
     const data = await POSService.getPoolServices();
@@ -225,6 +241,17 @@ router.post('/pool/transactions', requirePermission('pool.view'), validateBody(c
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await POSService.createPoolTransaction({ ...req.body, processedBy: userId });
     res.status(201).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/pool/transactions/:id', requirePermission('pool.view'), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await POSService.deletePoolTransaction(id, userId);
+    res.json({ success: true, data });
   } catch (error) {
     next(error);
   }
