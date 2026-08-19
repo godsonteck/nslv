@@ -523,7 +523,7 @@ export const staysApi = {
   },
   checkIn: async (body: { reservationId: string; idVerified?: boolean; idDocumentType?: string; idDocumentNumber?: string; notes?: string }): Promise<any> =>
     apiFetch<any>('/stays/check-in', { method: 'POST', body: JSON.stringify(body) }, token()),
-  checkOut: async (body: { reservationId: string; roomCondition?: string; paymentMethod?: string; notes?: string }): Promise<any> =>
+checkOut: async (body: { reservationId: string; roomCondition?: string; paymentMethod?: string; tenders?: { method: string; amount: number; reference?: string }[]; notes?: string }): Promise<any> =>
     apiFetch<any>('/stays/check-out', { method: 'POST', body: JSON.stringify(body) }, token()),
   getCheckoutPolicy: async (): Promise<{ success: true; data: { hourlyRate: number; checkoutTime: string } }> => {
     const data = await apiFetch<{ hourlyRate: number; checkoutTime: string }>('/stays/checkout-policy', {}, token());
@@ -612,7 +612,7 @@ export const paymentsApi = {
     const data = await apiFetch<any[]>(`/payments?${qs}`, {}, token());
     return { success: true, data };
   },
-  processPayment: async (body: { folioId?: string; reservationId?: string; guestId?: string; amount: number; method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; idempotencyKey: string; description?: string; paymentType?: 'PAYMENT' | 'DEPOSIT' }): Promise<any> =>
+processPayment: async (body: { folioId?: string; reservationId?: string; guestId?: string; amount: number; method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; tenders?: { method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; amount: number; reference?: string }[]; idempotencyKey: string; description?: string; paymentType?: 'PAYMENT' | 'DEPOSIT' }): Promise<any> =>
     apiFetch<any>('/payments', { method: 'POST', body: JSON.stringify(body) }, token()),
   refund: async (paymentId: string, body: { amount: number; method?: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'; reference?: string; reason: string; idempotencyKey: string; allowClosedFolioReopen?: boolean }): Promise<any> =>
     apiFetch<any>(`/payments/${paymentId}/refunds`, { method: 'POST', body: JSON.stringify(body) }, token()),

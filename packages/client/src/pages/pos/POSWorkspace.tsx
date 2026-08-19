@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { categoriesApi, posApi, staysApi } from '../../services/apiService';
 import { Plus, Minus, RefreshCw, Receipt, Search, Printer, Pencil, Trash2, Power, ShoppingBag } from 'lucide-react';
 import { Button, SelectInput, TextInput, showToast, LoadingState, statusBadge, Modal, FormField } from '../../components/ui';
+import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section } from '../../components/common/WorkspaceUI';
 import { formatCurrency, PERMISSIONS } from '@nslv/shared';
 import { useAuthStore } from '../../stores/authStore';
@@ -33,6 +34,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [paymentType, setPaymentType] = useState('CASH');
+  const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
   const [idempotencyKey, setIdempotencyKey] = useState<string | null>(null);
   const [selectedStay, setSelectedStay] = useState('');
   const [q, setQ] = useState('');
@@ -85,6 +87,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
   const add = (item: any) => {
     setIdempotencyKey(null);
+    setTenders([makeTenderRow()]);
     setCart((c) => {
       const x = c.find((i) => i.id === item.id);
       return x ? c.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)) : [...c, { ...item, quantity: 1 }];
@@ -92,10 +95,12 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   };
   const dec = (id: string) => {
     setIdempotencyKey(null);
+    setTenders([makeTenderRow()]);
     setCart((c) => c.flatMap((i) => (i.id === id ? (i.quantity > 1 ? [{ ...i, quantity: i.quantity - 1 }] : []) : [i])));
   };
   const removeLine = (id: string) => {
     setIdempotencyKey(null);
+    setTenders([makeTenderRow()]);
     setCart((c) => c.filter((i) => i.id !== id));
   };
   const total = useMemo(() => cart.reduce((s, i) => s + Number(i.price || 0) * i.quantity, 0), [cart]);
@@ -104,22 +109,29 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
   const submit = async () => {
     if (!cart.length) return;
+    if (paymentType === 'SPLIT' && !tendersCoverTotal(tenders, total)) {
+      showToast('error', 'Tender amounts must fully cover the order total');
+      return;
+    }
     try {
       setSubmitting(true);
       const requestKey = idempotencyKey ?? crypto.randomUUID();
       setIdempotencyKey(requestKey);
       const stay = stays.find((s) => s.id === selectedStay);
+      const splitTenders = paymentType === 'SPLIT' ? parseTenders(tenders) : undefined;
       const body = {
         items: cart.map((i) => ({ itemId: i.id, quantity: i.quantity })),
         guestId: stay?.guestId,
         roomId: paymentType === 'ROOM_CHARGE' ? stay?.roomId || undefined : undefined,
-        paymentMethod: paymentType,
+        paymentMethod: paymentType === 'SPLIT' ? (splitTenders?.[0]?.method ?? 'CASH') : paymentType,
+        ...(splitTenders ? { tenders: splitTenders } : {}),
         idempotencyKey: requestKey,
       };
       if (kind === 'restaurant') await posApi.createRestaurantOrder(body);
       else await posApi.createBarOrder(body);
       showToast('success', paymentType === 'ROOM_CHARGE' ? 'Order posted to the guest folio' : 'Order recorded successfully');
       setCart([]);
+      setTenders([makeTenderRow()]);
       setIdempotencyKey(null);
       load();
     } catch (e) {
@@ -403,8 +415,12 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                       <option value="CARD">Direct payment · Card</option>
                       <option value="MOBILE_MONEY">Direct payment · Mobile Money</option>
                       <option value="BANK_TRANSFER">Direct payment · Bank transfer</option>
+                      <option value="SPLIT">Split payment (e.g. cash + mobile money)</option>
                       <option value="ROOM_CHARGE">Charge to guest folio</option>
                     </SelectInput>
+                    {paymentType === 'SPLIT' && (
+                      <TenderSplit total={total} rows={tenders} onChange={setTenders} />
+                    )}
                     {paymentType === 'ROOM_CHARGE' && (
                       <SelectInput value={selectedStay} onChange={(e) => setSelectedStay(e.target.value)} required>
                         <option value="">Select in-house guest</option>
@@ -418,7 +434,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                     <Button
                       className="w-full"
                       loading={submitting}
-                      disabled={!cart.length || (paymentType === 'ROOM_CHARGE' && !selectedStay)}
+                      disabled={!cart.length || (paymentType === 'ROOM_CHARGE' && !selectedStay) || (paymentType === 'SPLIT' && !tendersCoverTotal(tenders, total))}
                       onClick={submit}
                     >
                       <Receipt size={14} /> Post order

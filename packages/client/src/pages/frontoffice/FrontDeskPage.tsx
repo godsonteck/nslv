@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
 import { LogIn, LogOut, RefreshCw, UserRound, BedDouble } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
+import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 
 const hotelBoundary = (value: unknown, timeStr: string | number = 12) => {
@@ -37,6 +38,8 @@ export const FrontDeskPage: React.FC = () => {
     roomCondition: 'CLEAN',
     paymentMethod: 'CASH',
   });
+  const [splitOpen, setSplitOpen] = useState(false);
+  const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
   const load = async () => {
     try {
@@ -71,10 +74,11 @@ export const FrontDeskPage: React.FC = () => {
       if (action.type === 'in') {
         await staysApi.checkIn({ reservationId: action.row.id, ...form });
       } else {
+        const splitTenders = splitOpen ? parseTenders(tenders) : undefined;
         await staysApi.checkOut({
           reservationId: action.row.reservationId || action.row.id,
           roomCondition: form.roomCondition,
-          paymentMethod: form.paymentMethod,
+          ...(splitTenders ? { tenders: splitTenders } : { paymentMethod: form.paymentMethod }),
         });
       }
       showToast('success', action.type === 'in' ? 'Guest checked in' : 'Payment recorded and guest checked out');
@@ -102,6 +106,24 @@ export const FrontDeskPage: React.FC = () => {
   };
 
   const activeLateInfo = action?.type === 'out' ? getLateInfo(action.row) : null;
+
+  // The server settles the exact outstanding folio balance plus any late fee.
+  const checkoutTotal =
+    action?.type === 'out'
+      ? (() => {
+          const f =
+            (action.row.reservation?.folios || []).find((x: any) => x.status === 'OPEN') ??
+            (action.row.reservation?.folios || [])[0] ??
+            null;
+          return (f ? Number(f.balance) || 0 : 0) + (activeLateInfo?.fee ?? 0);
+        })()
+      : 0;
+
+  const openCheckout = (stay: any) => {
+    setSplitOpen(false);
+    setTenders([makeTenderRow()]);
+    setAction({ type: 'out', row: stay });
+  };
 
   return (
     <ShellPage
@@ -186,7 +208,7 @@ export const FrontDeskPage: React.FC = () => {
                     </div>
                   </div>
                   {statusBadge(stay.status || 'CHECKED_IN')}
-                  <Button size="sm" variant={late ? 'primary' : 'outline'} onClick={() => setAction({ type: 'out', row: stay })}>
+                  <Button size="sm" variant={late ? 'primary' : 'outline'} onClick={() => openCheckout(stay)}>
                     <LogOut size={14} /> Check out
                   </Button>
                 </div>
@@ -237,21 +259,51 @@ export const FrontDeskPage: React.FC = () => {
                   <option value="DAMAGED">Damaged</option>
                 </SelectInput>
               </FormField>
+
+              <div className="rounded-xl bg-[#f7f8f6] p-3 text-xs text-[#27383F]">
+                <div className="flex items-center justify-between font-bold">
+                  <span>Amount due at settlement</span>
+                  <span className="ns-number">GHS {checkoutTotal.toFixed(2)}</span>
+                </div>
+                {activeLateInfo && (
+                  <p className="mt-1 text-[11px] text-[#A06010]">Includes the late checkout fee of GHS {activeLateInfo.fee.toFixed(2)}.</p>
+                )}
+              </div>
+
               <FormField label="Settlement method">
-                <SelectInput value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}>
+                <SelectInput value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })} disabled={splitOpen}>
                   <option>CASH</option>
                   <option>CARD</option>
                   <option>MOBILE_MONEY</option>
                   <option>BANK_TRANSFER</option>
                 </SelectInput>
               </FormField>
+
+              <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
+                <input
+                  type="checkbox"
+                  checked={splitOpen}
+                  onChange={(e) => {
+                    setSplitOpen(e.target.checked);
+                    setTenders([makeTenderRow()]);
+                  }}
+                  className="h-3.5 w-3.5 accent-[#174B59]"
+                />
+                Split settlement across methods (e.g. cash + mobile money)
+              </label>
+
+              {splitOpen && checkoutTotal > 0 && (
+                <div className="rounded-xl border border-slate-200 p-3">
+                  <TenderSplit total={checkoutTotal} rows={tenders} onChange={setTenders} />
+                </div>
+              )}
             </>
           )}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setAction(null)}>
               Cancel
             </Button>
-            <Button type="submit" loading={busy}>
+            <Button type="submit" loading={busy} disabled={splitOpen && !tendersCoverTotal(tenders, checkoutTotal)}>
               {action?.type === 'in' ? 'Confirm check-in' : 'Settle & check out'}
             </Button>
           </div>

@@ -60,6 +60,36 @@ async function recordDirectPayment(
   return payment;
 }
 
+// Records a split direct settlement as one Payment row per tender.  The first
+// row keeps the base idempotency key; subsequent rows use a `key#n` suffix so
+// a repeated submission replays on the first row without duplicating entries.
+async function recordDirectTenders(
+  tx: Prisma.TransactionClient,
+  data: { tenders: { method: string; amount: number; reference?: string }[]; source: string; sourceId: string; idempotencyKey: string; processedBy: string; description: string },
+) {
+  const payments: Awaited<ReturnType<typeof recordDirectPayment>>[] = [];
+  for (let i = 0; i < data.tenders.length; i++) {
+    const t = data.tenders[i];
+    const payment = await recordDirectPayment(tx, {
+      amount: new Prisma.Decimal(t.amount),
+      method: t.method,
+      source: data.source,
+      sourceId: data.sourceId,
+      idempotencyKey: i === 0 ? data.idempotencyKey : `${data.idempotencyKey}#${i}`,
+      processedBy: data.processedBy,
+      description: t.reference ? `${data.description} · ${t.reference}` : data.description,
+    });
+    payments.push(payment);
+  }
+  return payments;
+}
+
+export interface TenderLine {
+  method: 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER';
+  amount: number;
+  reference?: string;
+}
+
 export interface RestaurantOrderDTO {
   guestId?: string;
   roomId?: string;
@@ -69,6 +99,7 @@ export interface RestaurantOrderDTO {
   createdBy: string;
   idempotencyKey: string;
   items: { itemId: string; quantity: number; notes?: string }[];
+  tenders?: TenderLine[];
 }
 
 export interface BarOrderDTO extends Omit<RestaurantOrderDTO, 'tableNo'> {}
@@ -169,6 +200,7 @@ export class POSService {
 
       let folioItemId: string | undefined;
       if (data.paymentMethod === 'ROOM_CHARGE') {
+        if (data.tenders?.length) throw new Error('Split tenders cannot be charged to a room folio.');
         if (!data.roomId) throw new Error('A room is required when charging an order to a guest folio.');
         const { folio, guestId } = await findOpenFolio(tx, data.roomId, data.guestId);
         const summary = resolved.map(i => `${i.quantity}× ${byId.get(i.itemId)!.name}`).join(', ');
@@ -178,7 +210,20 @@ export class POSService {
         await tx.restaurantOrder.update({ where: { id: order.id }, data: { guestId, folioItemId, paymentStatus: 'CHARGED_TO_FOLIO', status: 'COMPLETED' } });
         await AuditService.logInTransaction(tx, { userId: data.createdBy, action: 'folio.charge_posted', resource: 'restaurant_order', resourceId: order.id, afterData: { folioId: folio.id, folioItemId, amount: totalAmount.toString() } });
       } else {
-        await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'RESTAURANT_ORDER', sourceId: order.id, idempotencyKey: data.idempotencyKey, processedBy: data.createdBy, description: `Restaurant order ${order.orderNo}` });
+        const tenders = data.tenders?.length
+          ? data.tenders
+          : [{ method: data.paymentMethod, amount: totalAmount.toNumber() }];
+        const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));
+        if (!tendersTotal.eq(totalAmount)) {
+          throw new Error(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the order total (${totalAmount.toFixed(2)}).`);
+        }
+        for (const t of tenders) {
+          if (!['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'].includes(t.method)) {
+            throw new Error('Invalid tender method. Room charge must be the sole payment method.');
+          }
+          if (!Number.isFinite(t.amount) || t.amount <= 0) throw new Error('Each tender amount must be greater than zero.');
+        }
+        await recordDirectTenders(tx, { tenders, source: 'RESTAURANT_ORDER', sourceId: order.id, idempotencyKey: data.idempotencyKey, processedBy: data.createdBy, description: `Restaurant order ${order.orderNo}` });
         await tx.restaurantOrder.update({ where: { id: order.id }, data: { paymentStatus: 'PAID', status: 'COMPLETED' } });
       }
       return tx.restaurantOrder.findUniqueOrThrow({ where: { id: order.id }, include: { orderItems: { include: { item: true } } } });
@@ -251,6 +296,7 @@ export class POSService {
 
       let folioItemId: string | undefined;
       if (data.paymentMethod === 'ROOM_CHARGE') {
+        if (data.tenders?.length) throw new Error('Split tenders cannot be charged to a room folio.');
         if (!data.roomId) throw new Error('A room is required when charging an order to a guest folio.');
         const { folio, guestId } = await findOpenFolio(tx, data.roomId, data.guestId);
         const summary = resolved.map(i => `${i.quantity}× ${byId.get(i.itemId)!.name}`).join(', ');
@@ -260,7 +306,20 @@ export class POSService {
         await tx.barOrder.update({ where: { id: order.id }, data: { guestId, folioItemId, paymentStatus: 'CHARGED_TO_FOLIO', status: 'COMPLETED' } });
         await AuditService.logInTransaction(tx, { userId: data.createdBy, action: 'folio.charge_posted', resource: 'bar_order', resourceId: order.id, afterData: { folioId: folio.id, folioItemId, amount: totalAmount.toString() } });
       } else {
-        await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'BAR_ORDER', sourceId: order.id, idempotencyKey: data.idempotencyKey, processedBy: data.createdBy, description: `Bar order ${order.orderNo}` });
+        const tenders = data.tenders?.length
+          ? data.tenders
+          : [{ method: data.paymentMethod, amount: totalAmount.toNumber() }];
+        const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));
+        if (!tendersTotal.eq(totalAmount)) {
+          throw new Error(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the order total (${totalAmount.toFixed(2)}).`);
+        }
+        for (const t of tenders) {
+          if (!['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'].includes(t.method)) {
+            throw new Error('Invalid tender method. Room charge must be the sole payment method.');
+          }
+          if (!Number.isFinite(t.amount) || t.amount <= 0) throw new Error('Each tender amount must be greater than zero.');
+        }
+        await recordDirectTenders(tx, { tenders, source: 'BAR_ORDER', sourceId: order.id, idempotencyKey: data.idempotencyKey, processedBy: data.createdBy, description: `Bar order ${order.orderNo}` });
         await tx.barOrder.update({ where: { id: order.id }, data: { paymentStatus: 'PAID', status: 'COMPLETED' } });
       }
       return tx.barOrder.findUniqueOrThrow({ where: { id: order.id }, include: { orderItems: { include: { item: true } } } });

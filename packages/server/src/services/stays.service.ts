@@ -26,6 +26,9 @@ export interface CheckOutDTO {
   checkedOutBy: string;
   roomCondition?: RoomCondition | 'DIRTY' | 'CLEAN' | 'DAMAGED';
   paymentMethod?: PaymentMethod | string;
+  // Split settlement: each tender becomes its own Payment row summing to the
+  // outstanding folio balance.  Mutually exclusive with paymentMethod.
+  tenders?: { method: string; amount: number; reference?: string }[];
   idempotencyKey?: string;
   notes?: string;
 }
@@ -479,8 +482,13 @@ export class StayService {
         // through PaymentService.processPaymentInTx to enforce daily-close locking,
         // payment method validation, idempotency, and audit logging.
         if (finalBalance > 0) {
-          if (!data.paymentMethod?.trim()) throw new AppError('Select a payment method to settle the outstanding balance.', 422, 'PAYMENT_METHOD_REQUIRED');
+          const tenders = data.tenders?.length ? data.tenders : data.paymentMethod?.trim() ? [{ method: data.paymentMethod, amount: finalBalance }] : [];
+          if (!tenders.length) throw new AppError('Select a payment method to settle the outstanding balance.', 422, 'PAYMENT_METHOD_REQUIRED');
           if (!folio) throw new AppError('An open folio is required to settle this stay.', 409, 'OPEN_FOLIO_REQUIRED');
+          const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));
+          if (!tendersTotal.eq(new Prisma.Decimal(finalBalance))) {
+            throw new AppError(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the outstanding balance (${finalBalance.toFixed(2)}).`, 422, 'TENDER_MISMATCH');
+          }
 
           const checkoutPaymentIdempotencyKey = data.idempotencyKey || `checkout-payment-${reservation.id}`;
           await PaymentService.processPaymentInTx(tx, {
@@ -488,7 +496,8 @@ export class StayService {
             reservationId: reservation.id,
             guestId: primaryGuestId,
             amount: finalBalance,
-            method: data.paymentMethod,
+            method: tenders[0].method,
+            tenders,
             idempotencyKey: checkoutPaymentIdempotencyKey,
             description: 'Final settlement at check-out',
             processedBy: data.checkedOutBy,
@@ -508,7 +517,7 @@ export class StayService {
             checkedOutBy: data.checkedOutBy,
             roomCondition: (data.roomCondition as RoomCondition) || RoomCondition.DIRTY,
             finalBalance,
-            paymentMethod: (data.paymentMethod as PaymentMethod) || null,
+            paymentMethod: (data.paymentMethod as PaymentMethod) || (data.tenders?.[0]?.method as PaymentMethod) || null,
             notes: data.notes,
           },
         });

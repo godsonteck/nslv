@@ -4,6 +4,7 @@ import { reservationsApi, roomsApi, guestsApi, paymentsApi } from '../../service
 import { useAuthStore } from '../../stores/authStore';
 import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
+import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { printPaymentReceipt } from '../../lib/company';
@@ -57,6 +58,8 @@ export const ReservationsPage: React.FC = () => {
   // Record a partial payment against an existing reservation
   const [depositOpen, setDepositOpen] = useState(false);
   const [depositForm, setDepositForm] = useState({ amount: '', method: 'CASH', reference: '' });
+  const [depositSplitOpen, setDepositSplitOpen] = useState(false);
+  const [depositTenders, setDepositTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
   const canDeleteCancelled = useAuthStore((s) => s.hasRole('admin'));
   const canEdit = useAuthStore((s) => s.hasPermission('reservations.edit'));
@@ -268,6 +271,8 @@ export const ReservationsPage: React.FC = () => {
     if (!r) return;
     const expected = Number(r.depositAmount || 0) - recordedDepositTotal(r);
     setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '' });
+    setDepositSplitOpen(false);
+    setDepositTenders([makeTenderRow()]);
     setDepositOpen(true);
   };
 
@@ -284,6 +289,11 @@ export const ReservationsPage: React.FC = () => {
       showToast('error', `Partial payment cannot exceed the outstanding amount of ${formatCurrency(Math.max(0, remaining))}.`);
       return;
     }
+    const splitTenders = depositSplitOpen ? parseTenders(depositTenders) : undefined;
+    if (depositSplitOpen && !tendersCoverTotal(depositTenders, amount)) {
+      showToast('error', 'Tender amounts must equal the partial payment amount.');
+      return;
+    }
     const primaryGuest = [...(r.guests || [])].sort((a: any, b: any) => Number(b.isPrimary) - Number(a.isPrimary))[0];
     try {
       setSaving(true);
@@ -291,8 +301,9 @@ export const ReservationsPage: React.FC = () => {
         reservationId: r.id,
         guestId: primaryGuest?.guestId,
         amount,
-        method: depositForm.method as any,
-        reference: depositForm.reference.trim() || undefined,
+        method: (splitTenders?.[0]?.method ?? depositForm.method) as any,
+        ...(splitTenders ? { tenders: splitTenders } : {}),
+        reference: depositSplitOpen ? undefined : depositForm.reference.trim() || undefined,
         paymentType: 'DEPOSIT',
         idempotencyKey: crypto.randomUUID(),
         description: `Partial payment recorded for ${r.confirmationNo || 'reservation'}`,
@@ -1256,23 +1267,44 @@ export const ReservationsPage: React.FC = () => {
                 />
               </FormField>
               <FormField label="Payment method">
-                <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))}>
+                <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))} disabled={depositSplitOpen}>
                   <option value="CASH">Cash</option>
                   <option value="CARD">Card</option>
                   <option value="MOBILE_MONEY">Mobile Money</option>
                   <option value="BANK_TRANSFER">Bank Transfer</option>
                 </SelectInput>
               </FormField>
+
+              <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
+                <input
+                  type="checkbox"
+                  checked={depositSplitOpen}
+                  onChange={(e) => {
+                    setDepositSplitOpen(e.target.checked);
+                    setDepositTenders([makeTenderRow()]);
+                  }}
+                  className="h-3.5 w-3.5 accent-[#174B59]"
+                />
+                Split payment across methods (e.g. cash + mobile money)
+              </label>
+
+              {depositSplitOpen && (
+                <div className="rounded-xl border border-slate-200 p-3">
+                  <TenderSplit total={Number(depositForm.amount) || 0} rows={depositTenders} onChange={setDepositTenders} />
+                </div>
+              )}
+
               <FormField label="Reference (optional)">
                 <TextInput
                   placeholder="Receipt / transaction number"
                   value={depositForm.reference}
+                  disabled={depositSplitOpen}
                   onChange={(e) => setDepositForm((f) => ({ ...f, reference: e.target.value }))}
                 />
               </FormField>
               <div className="flex justify-end gap-2 pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setDepositOpen(false)}>Cancel</Button>
-                <Button variant="primary" size="sm" loading={saving} onClick={recordDeposit}>Record payment</Button>
+                <Button variant="primary" size="sm" loading={saving} disabled={depositSplitOpen && !tendersCoverTotal(depositTenders, Number(depositForm.amount) || 0)} onClick={recordDeposit}>Record payment</Button>
               </div>
             </>
           )}

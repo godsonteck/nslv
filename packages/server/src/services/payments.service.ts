@@ -17,6 +17,9 @@ export interface ProcessPaymentDTO {
   currency?: string;
   method: PaymentMethod | string;
   reference?: string;
+  // Split settlements: each tender becomes its own Payment row (idempotency
+  // keys `key`, `key#1`, `key#2`, …) and the tender amounts must sum to amount.
+  tenders?: { method: string; amount: number; reference?: string }[];
   idempotencyKey: string;
   description?: string;
   paymentType?: 'PAYMENT' | 'DEPOSIT';
@@ -111,19 +114,46 @@ export class PaymentService {
       }
     }
 
-    const payment = await tx.payment.create({ data: {
-      folioId: targetFolio?.id, reservationId: reservation.id,
-      guestId: expectedGuestId,
-      amount, currency: data.currency || 'GHS', method: data.method as PaymentMethod, reference: data.reference,
-      idempotencyKey: data.idempotencyKey, status: PaymentStatus.COMPLETED, type: paymentType as PaymentType,
-      description: data.description || (paymentType === 'DEPOSIT' ? 'Reservation deposit collected' : 'Guest payment settlement'),
-      processedBy: data.processedBy,
-    } });
+    // Resolve the settlement into one or more tender lines.  Every tender must
+    // use a direct method and the tender amounts must exactly cover `amount`.
+    const tenders = data.tenders?.length
+      ? data.tenders
+      : [{ method: data.method, amount: data.amount, reference: data.reference }];
+    const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));
+    for (const t of tenders) {
+      if (!['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'].includes(t.method)) {
+        throw new AppError('Invalid payment method.', 422, 'INVALID_PAYMENT_METHOD');
+      }
+      if (!Number.isFinite(t.amount) || t.amount <= 0) throw new Error('Each tender amount must be greater than zero.');
+    }
+    if (!tendersTotal.eq(amount)) {
+      throw new Error(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the payment amount (${amount.toFixed(2)}).`);
+    }
+
+    // One immutable Payment ledger row per tender.  The first carries the base
+    // idempotency key so a replay still short-circuits above; the rest use a
+    // `key#n` suffix scoped to the same settlement.
+    const createdPayments = [];
+    for (let i = 0; i < tenders.length; i++) {
+      const t = tenders[i];
+      const p = await tx.payment.create({ data: {
+        folioId: targetFolio?.id, reservationId: reservation.id,
+        guestId: expectedGuestId,
+        amount: new Prisma.Decimal(t.amount), currency: data.currency || 'GHS', method: t.method as PaymentMethod, reference: t.reference,
+        idempotencyKey: i === 0 ? data.idempotencyKey : `${data.idempotencyKey}#${i}`,
+        status: PaymentStatus.COMPLETED, type: paymentType as PaymentType,
+        description: data.description || (paymentType === 'DEPOSIT' ? 'Reservation deposit collected' : 'Guest payment settlement'),
+        processedBy: data.processedBy,
+      } });
+      createdPayments.push(p);
+    }
+    const payment = createdPayments[0];
 
     if (targetFolio) {
+      const tenderLabel = tenders.map(t => `${t.method} ${new Prisma.Decimal(t.amount).toFixed(2)}${t.reference ? ` · ${t.reference}` : ''}`).join(', ');
       await tx.folioItem.create({ data: {
         folioId: targetFolio.id, type: paymentType === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
-        description: `${paymentType === 'DEPOSIT' ? 'Deposit collected' : 'Payment received'} (${data.method}${data.reference ? ` · ${data.reference}` : ''})`,
+        description: `${paymentType === 'DEPOSIT' ? 'Deposit collected' : 'Payment received'} (${tenderLabel})`,
         amount: amount.negated(), quantity: 1, unitPrice: amount.negated(), department: 'FRONT_DESK',
         referenceId: payment.id, referenceType: 'PAYMENT', postedBy: data.processedBy,
       } });
@@ -131,7 +161,7 @@ export class PaymentService {
     }
     await AuditService.logInTransaction(tx, {
       userId: data.processedBy, action: 'payment.created', resource: 'payment', resourceId: payment.id,
-      afterData: { folioId: targetFolio?.id, reservationId: reservation.id, amount: amount.toString(), method: payment.method, type: paymentType },
+      afterData: { folioId: targetFolio?.id, reservationId: reservation.id, amount: amount.toString(), method: data.method, tenders: tenders.map(t => ({ method: t.method, amount: t.amount })), type: paymentType },
     });
     return payment;
   }
@@ -145,14 +175,20 @@ export class PaymentService {
     }
     try {
       return await prisma.$transaction(async (tx) => this.processPaymentInTx(tx, data), { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }).then((payment) => {
+        const totalAmount = data.tenders?.length
+          ? data.tenders.reduce((sum, t) => sum + t.amount, 0)
+          : Number(payment.amount);
+        const methodLabel = data.tenders?.length
+          ? data.tenders.map((t) => String(t.method || '—').replace('_', ' ')).join(' + ')
+          : String(payment.method || '—').replace('_', ' ');
         NotificationService.notifyStaff(
           [PERMISSIONS.PAYMENTS_VIEW],
           {
             type: 'PAYMENT',
             title: 'Payment received',
-            message: `GHS ${Number(payment.amount).toFixed(2)} via ${String(payment.method || '—').replace('_', ' ')}${payment.reference ? ` · ${payment.reference}` : ''}`,
+            message: `GHS ${totalAmount.toFixed(2)} via ${methodLabel}${payment.reference ? ` · ${payment.reference}` : ''}`,
             priority: 'MEDIUM',
-            data: { paymentId: payment.id, reservationId: payment.reservationId, amount: payment.amount.toString(), method: payment.method },
+            data: { paymentId: payment.id, reservationId: payment.reservationId, amount: totalAmount.toString(), method: methodLabel },
           },
           data.processedBy,
         );

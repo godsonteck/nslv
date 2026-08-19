@@ -9,6 +9,7 @@ import { paymentsApi, staysApi } from '../../services/apiService';
 import { CreditCard, Plus, RefreshCw, WalletCards, ReceiptText, Undo2, CheckCircle2, XCircle, Clock, Trash2, Printer } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
+import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { printPaymentReceipt } from '../../lib/company';
@@ -78,6 +79,8 @@ export const PaymentsPage: React.FC = () => {
   const [refundMethod, setRefundMethod] = useState<DirectPaymentMethod>('CASH');
   const [q, setQ] = useState('');
   const [form, setForm] = useState<PaymentForm>({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+  const [splitOpen, setSplitOpen] = useState(false);
+  const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
   
   const isPrivileged = useAuthStore((s) => s.hasRole('admin') || s.hasRole('manager') || s.hasPermission('payments.refund'));
   const canRequestOrRefund = useAuthStore((s) => s.hasRole('admin') || s.hasRole('manager') || s.hasPermission('payments.refund') || s.hasPermission('payments.create'));
@@ -112,6 +115,8 @@ export const PaymentsPage: React.FC = () => {
 
   const openModal = () => {
     setForm({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+    setSplitOpen(false);
+    setTenders([makeTenderRow()]);
     setIdempotencyKey(crypto.randomUUID());
     setOpen(true);
   };
@@ -127,12 +132,18 @@ export const PaymentsPage: React.FC = () => {
       showToast('error', 'A positive amount is required.');
       return;
     }
+    const splitTenders = splitOpen ? parseTenders(tenders) : undefined;
+    if (splitOpen && !tendersCoverTotal(tenders, amount)) {
+      showToast('error', 'Tender amounts must equal the payment amount.');
+      return;
+    }
     try {
       setBusy(true);
       await paymentsApi.processPayment({
         folioId: folio.id,
         amount,
-        method: form.method,
+        method: splitTenders?.[0]?.method ?? form.method,
+        ...(splitTenders ? { tenders: splitTenders } : {}),
         idempotencyKey: idempotencyKey || crypto.randomUUID(),
         reference: form.reference || undefined,
         description: form.description || undefined,
@@ -457,7 +468,7 @@ export const PaymentsPage: React.FC = () => {
               />
             </FormField>
             <FormField label="Payment method" required>
-              <SelectInput value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value as DirectPaymentMethod })}>
+              <SelectInput value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value as DirectPaymentMethod })} disabled={splitOpen}>
                 <option value="CASH">Cash</option>
                 <option value="CARD">Card</option>
                 <option value="MOBILE_MONEY">Mobile Money</option>
@@ -466,10 +477,26 @@ export const PaymentsPage: React.FC = () => {
             </FormField>
           </div>
 
+          <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
+            <input
+              type="checkbox"
+              checked={splitOpen}
+              onChange={(e) => {
+                setSplitOpen(e.target.checked);
+                setTenders([makeTenderRow()]);
+              }}
+              className="h-3.5 w-3.5 accent-[#174B59]"
+            />
+            Split payment across methods (e.g. cash + mobile money)
+          </label>
+
+          {splitOpen && (
+            <div className="rounded-xl border border-slate-200 p-3">
+              <TenderSplit total={Number(form.amount) || 0} rows={tenders} onChange={setTenders} />
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Reference (Optional)">
-              <TextInput value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
-            </FormField>
             <FormField label="Description (Optional)">
               <TextInput value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </FormField>
@@ -479,7 +506,7 @@ export const PaymentsPage: React.FC = () => {
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" loading={busy}>
+            <Button type="submit" loading={busy} disabled={splitOpen && !tendersCoverTotal(tenders, Number(form.amount) || 0)}>
               <ReceiptText size={14} /> Record payment
             </Button>
           </div>

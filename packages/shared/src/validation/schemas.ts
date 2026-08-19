@@ -212,10 +212,21 @@ export const checkInSchema = z.object({
 
 export const paymentMethodSchema = z.enum(['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER']);
 
+// A single tender line in a split / multi-method settlement.  When present,
+// each tender produces its own Payment ledger row so daily cash / Mobile Money
+// reports stay accurate.
+export const tenderSchema = z.object({
+  method: paymentMethodSchema,
+  amount: positiveNumber,
+  reference: z.string().max(100).trim().optional(),
+});
+export const tendersSchema = z.array(tenderSchema).min(1).max(5).optional();
+
 export const checkOutSchema = z.object({
   reservationId: uuidSchema,
   roomCondition: z.enum(['DIRTY', 'CLEAN', 'DAMAGED']).optional(),
   paymentMethod: paymentMethodSchema.optional(),
+  tenders: tendersSchema,
   idempotencyKey: uuidSchema.optional(),
   notes: optionalString,
 });
@@ -229,6 +240,9 @@ export const processPaymentSchema = z.object({
   currency: z.string().max(10).optional(),
   method: paymentMethodSchema,
   reference: z.string().max(100).trim().optional(),
+  // Split settlements: one Payment row is written per tender and the tender
+  // amounts must sum to `amount`.  When omitted the single `method` is used.
+  tenders: tendersSchema,
   // Every write to the payments ledger must be retry-safe.  This is required
   // rather than optional so a repeated browser submission cannot become a
   // second settlement entry.
@@ -278,6 +292,9 @@ export const createOrderSchema = z.object({
   items: z
     .array(z.object({ itemId: uuidSchema, quantity: positiveInt, notes: optionalString }))
     .min(1, 'At least one item is required'),
+  // Split direct payments for an order.  Tenders sum to the order total and
+  // each becomes its own Payment row.  Not allowed together with ROOM_CHARGE.
+  tenders: tendersSchema,
 });
 
 export const createPoolAttendanceSchema = z.object({
