@@ -190,6 +190,23 @@ html[data-theme='dark'] [class~="text-gray-600" i] {
   color: var(--ns-ink-2) !important;
 }
 
+/* Gold accent text (used on surfaces that flip dark) stays readable in dark mode.
+   Dark-gold tones that are otherwise only legible on light cards are lifted to the
+   light gold accent. Near-black text on gold buttons must stay dark for contrast. */
+html[data-theme='dark'] [class~="text-[#C5A880]" i],
+html[data-theme='dark'] [class~="text-[#a8761e]" i],
+html[data-theme='dark'] [class~="text-[#8a6420]" i],
+html[data-theme='dark'] [class~="text-[#a06010]" i],
+html[data-theme='dark'] [class~="text-[#a05d20]" i],
+html[data-theme='dark'] [class~="text-[#b0743a]" i] {
+  color: var(--ns-gold) !important;
+}
+
+html[data-theme='dark'] [class~="text-[#10131a]" i][class~="bg-[#C5A880]" i],
+html[data-theme='dark'] [class~="text-[#10131a]" i][class~="bg-[#f1a83f]" i] {
+  color: #10131a !important;
+}
+
 html[data-theme='dark'] [class~="text-[#667278]" i],
 html[data-theme='dark'] [class~="text-[#657278]" i],
 html[data-theme='dark'] [class~="text-[#59676d]" i],

@@ -33,6 +33,7 @@ import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceU
 import { formatCurrency } from '@nslv/shared';
 import { receiptCompanyBlock } from '../../lib/company';
 import { villaAssets } from '../../assets';
+import { useAuthStore } from '../../stores/authStore';
 
 const POOL_PAYMENT_METHODS = ['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'];
 
@@ -48,6 +49,7 @@ function isSameDay(dateStr: string | Date, targetDate: Date = new Date()): boole
 }
 
 export default function PoolPortalPage() {
+  const canAdjustPrices = useAuthStore((s) => s.hasPermission('pool.manage') || s.hasRole('Admin') || s.hasRole('Manager'));
   const [attendance, setAttendance] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [allServices, setAllServices] = useState<any[]>([]);
@@ -562,14 +564,16 @@ export default function PoolPortalPage() {
       subtitle="Sell pool passes, record visitor attendance, print official receipts, and manage entries."
       actions={
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPricingModalOpen(true)}
-            className="border-[#C5A880]/50 text-[#C5A880] hover:bg-[#C5A880]/10 font-bold"
-          >
-            <Settings size={14} /> Adjust Pool Prices
-          </Button>
+          {canAdjustPrices && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPricingModalOpen(true)}
+              className="border-[#C5A880]/50 text-[#C5A880] hover:bg-[#C5A880]/10 font-bold"
+            >
+              <Settings size={14} /> Adjust Pool Prices
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={load}>
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -647,14 +651,16 @@ export default function PoolPortalPage() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="text-xs font-semibold text-[#A0A5AD]">Pass / Service Type *</label>
-                      <button
-                        type="button"
-                        onClick={() => setPricingModalOpen(true)}
-                        className="text-[11px] text-[#C5A880] hover:underline font-semibold flex items-center gap-1"
-                        title="Adjust prices or add new pool passes"
-                      >
-                        <Settings size={11} /> Adjust Prices
-                      </button>
+                      {canAdjustPrices && (
+                        <button
+                          type="button"
+                          onClick={() => setPricingModalOpen(true)}
+                          className="text-[11px] text-[#C5A880] hover:underline font-semibold flex items-center gap-1"
+                          title="Adjust prices or add new pool passes"
+                        >
+                          <Settings size={11} /> Adjust Prices
+                        </button>
+                      )}
                     </div>
                     <SelectInput
                       value={selectedServiceId}
