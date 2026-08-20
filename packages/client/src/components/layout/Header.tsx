@@ -31,9 +31,21 @@ export const Header: React.FC = () => {
   const villaLogo = theme?.logoUrl || villaAssets.logo;
 
   React.useEffect(() => {
-    const interval = setInterval(() => void getUnreadCount(), 30000);
     void getUnreadCount();
-    return () => clearInterval(interval);
+    if (typeof document === 'undefined') return;
+    const tick = () => {
+      if (document.hidden) return;
+      void getUnreadCount();
+    };
+    const interval = setInterval(tick, 30000);
+    const onVisible = () => {
+      if (!document.hidden) void getUnreadCount();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [getUnreadCount]);
 
   const submitSearch = (e: React.FormEvent) => {

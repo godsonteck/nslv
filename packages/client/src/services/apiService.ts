@@ -279,7 +279,7 @@ export const notificationsApi = {
   },
 
   getUnreadCount: async (): Promise<{ success: true; data: { unreadCount: number } }> => {
-    const data = await apiFetch<{ unreadCount: number }>('/notifications/unread/count', {}, token());
+    const data = await apiFetch<{ unreadCount: number }>('/notifications/unread/count', { cache: 'no-store' }, token());
     return { success: true, data };
   },
 
