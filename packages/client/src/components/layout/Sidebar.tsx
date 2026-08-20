@@ -42,7 +42,7 @@ const ALL_SECTIONS: NavSection[] = [
     { label: 'Categories', to: '/admin/categories', icon: Tags, perms: ['categories.view'] },
     { label: 'Settings', to: '/admin/settings', icon: Settings, perms: ['settings.view'] },
     { label: 'Branding', to: '/admin/branding', icon: Palette, perms: ['settings.edit'] },
-    { label: 'Late checkouts', to: '/admin/late-checkouts', icon: Clock, perms: ['audit.view', 'reports.view', 'settings.view', 'dashboard.view'] },
+    { label: 'Late checkouts', to: '/admin/late-checkouts', icon: Clock, perms: ['reports.view'] },
     { label: 'Audit logs', to: '/admin/audit', icon: ScrollText, perms: ['audit.view'] },
   ] },
 ];
