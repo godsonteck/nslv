@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { categoriesApi, posApi, staysApi } from '../../services/apiService';
+import { clearGetCache } from '../../services/api';
 import { Plus, Minus, RefreshCw, Receipt, Search, Printer, Pencil, Trash2, Power, ShoppingBag } from 'lucide-react';
 import { Button, SelectInput, TextInput, showToast, LoadingState, statusBadge, Modal, FormField } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
@@ -249,7 +250,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
               <Plus size={14} /> Add item
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={load}>
+          <Button variant="outline" size="sm" onClick={() => { clearGetCache(); void load(); }}>
             <RefreshCw size={14} /> Refresh
           </Button>
         </div>

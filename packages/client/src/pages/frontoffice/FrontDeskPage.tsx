@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reservationsApi, staysApi, roomsApi } from '../../services/apiService';
+import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
 import { LogIn, LogOut, RefreshCw, UserRound, BedDouble, Waves, ArrowRight } from 'lucide-react';
@@ -69,6 +70,11 @@ export const FrontDeskPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [q]);
 
+  const refresh = () => {
+    clearGetCache();
+    void load();
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!action) return;
@@ -134,7 +140,7 @@ export const FrontDeskPage: React.FC = () => {
       title={greeting}
       subtitle="Arrivals, in-house guests and payment-safe departures."
       actions={
-        <Button variant="outline" size="sm" onClick={load}>
+        <Button variant="outline" size="sm" onClick={refresh}>
           <RefreshCw size={14} /> Refresh
         </Button>
       }

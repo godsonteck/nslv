@@ -27,9 +27,21 @@ router.get('/dashboard', requirePermission('dashboard.view'), async (_req, res, 
 router.get('/comprehensive', requirePermission('reports.view'), async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
-    const start = startDate ? new Date(startDate as string) : undefined;
-    const end = endDate ? new Date(endDate as string) : undefined;
-    const data = await ReportService.getComprehensiveReport(start, end);
+    // Client sends YYYY-MM-DD. Parse start as start-of-day and end as end-of-day
+    // so `lte` covers the full end date instead of excluding it. Full ISO
+    // timestamps (from other callers) are parsed as-is.
+    const parseBound = (value: string, boundary: 'start' | 'end') => {
+      if (!value) return undefined;
+      const iso = /^\d{4}-\d{2}-\d{2}$/.test(value)
+        ? `${value}${boundary === 'start' ? 'T00:00:00.000Z' : 'T23:59:59.999Z'}`
+        : value;
+      const d = new Date(iso);
+      return isNaN(d.getTime()) ? undefined : d;
+    };
+    const data = await ReportService.getComprehensiveReport(
+      parseBound(String(startDate ?? ''), 'start'),
+      parseBound(String(endDate ?? ''), 'end'),
+    );
     res.json({ success: true, data });
   } catch (error) {
     next(error);

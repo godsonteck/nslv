@@ -105,7 +105,7 @@ export const App: React.FC = () => {
           <Route path="reception" element={<PortalGuard role="Reception"><Suspense fallback={<PageLoader />}><FrontDeskPage /></Suspense></PortalGuard>} />
           <Route path="restaurant" element={<PortalGuard role="Restaurant"><Suspense fallback={<PageLoader />}><RestaurantPortalPage /></Suspense></PortalGuard>} />
           <Route path="bar" element={<PortalGuard role="Bar"><Suspense fallback={<PageLoader />}><BarPortalPage /></Suspense></PortalGuard>} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<RequirePermission any={['dashboard.view']}><Dashboard /></RequirePermission>} />
           <Route path="account" element={<Suspense fallback={<PageLoader />}><AccountPage /></Suspense>} />
 
           {/* Front Office Routes */}
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
           <Route path="admin/categories" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['categories.view']}><CategoriesPage /></RequirePermission></Suspense>} />
           <Route path="admin/rooms" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['rooms.manage']}><RoomConfigPage /></RequirePermission></Suspense>} />
           <Route path="admin/event-spaces" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['events.edit']}><EventSpacesPage /></RequirePermission></Suspense>} />
-          <Route path="admin/late-checkouts" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['dashboard.view', 'reports.view', 'audit.view', 'settings.view']}><LateCheckoutsPage /></RequirePermission></Suspense>} />
+          <Route path="admin/late-checkouts" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view']}><LateCheckoutsPage /></RequirePermission></Suspense>} />
 
           {/* Error pages */}
           <Route path="unauthorized" element={<Suspense fallback={<PageLoader />}><UnauthorizedPage /></Suspense>} />

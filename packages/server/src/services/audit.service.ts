@@ -84,8 +84,15 @@ export class AuditService {
 
     if (params.startDate || params.endDate) {
       const createdAt: Record<string, Date> = {};
-      if (params.startDate) createdAt['gte'] = new Date(params.startDate);
-      if (params.endDate) createdAt['lte'] = new Date(params.endDate);
+      // Accept YYYY-MM-DD (as start-of-day / end-of-day) or full ISO (as-is).
+      const parseBound = (value: string, boundary: 'start' | 'end') => {
+        const iso = /^\d{4}-\d{2}-\d{2}$/.test(value)
+          ? `${value}${boundary === 'start' ? 'T00:00:00.000Z' : 'T23:59:59.999Z'}`
+          : value;
+        return new Date(iso);
+      };
+      if (params.startDate) createdAt['gte'] = parseBound(params.startDate, 'start');
+      if (params.endDate) createdAt['lte'] = parseBound(params.endDate, 'end');
       where['createdAt'] = createdAt;
     }
 

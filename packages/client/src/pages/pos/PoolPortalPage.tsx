@@ -28,6 +28,7 @@ import {
   Check,
 } from 'lucide-react';
 import { posApi } from '../../services/apiService';
+import { clearGetCache } from '../../services/api';
 import { Button, FormField, TextInput, SelectInput, showToast, LoadingState, Modal } from '../../components/ui';
 import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
@@ -139,6 +140,11 @@ export default function PoolPortalPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const refresh = () => {
+    clearGetCache();
+    void load();
+  };
 
   // When service selection changes, update unit price
   const handleServiceChange = (id: string) => {
@@ -574,7 +580,7 @@ export default function PoolPortalPage() {
               <Settings size={14} /> Adjust Pool Prices
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={load}>
+          <Button variant="outline" size="sm" onClick={refresh}>
             <RefreshCw size={14} /> Refresh
           </Button>
         </div>

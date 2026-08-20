@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { reportsApi, roomsApi, staysApi, posApi } from '../services/apiService';
+import { clearGetCache } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import { ArrowRight, BedDouble, CalendarCheck, CreditCard, LogIn, LogOut, RefreshCw, Users, UtensilsCrossed, Wine, Waves, Printer } from 'lucide-react';
@@ -74,6 +75,7 @@ const PropertyDashboard: React.FC = () => {
   const load = async (initial = false) => {
     try {
       initial ? setLoading(true) : setRefreshing(true);
+      if (!initial) clearGetCache();
       setError('');
       const a = await reportsApi.getDashboardMetrics();
       const b = canRooms ? await staysApi.getActiveStays() : null;
@@ -142,6 +144,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
   const load = async (initial = false) => {
     try {
       initial ? setLoading(true) : setRefreshing(true);
+      if (!initial) clearGetCache();
       setError('');
       const [a, o] = await Promise.all([
         reportsApi.getDashboardMetrics(),

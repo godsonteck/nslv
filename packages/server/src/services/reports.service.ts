@@ -361,7 +361,7 @@ export class ReportService {
     const totalRevenueAccrued = accommodation + restaurant + bar + pool + netLateCheckoutFees;
 
     // ADR (Average Daily Rate) and RevPAR (Revenue Per Available Room)
-    const daysInPeriod = startDate && endDate ? Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1) : 30;
+    const daysInPeriod = startDate && endDate ? Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))) : 30;
     const totalAvailableRoomNights = Math.max(1, totalRooms * daysInPeriod);
     const averageDailyRate = totalRoomNights > 0 ? Number((accommodation / totalRoomNights).toFixed(2)) : 0;
     const revPAR = totalAvailableRoomNights > 0 ? Number((accommodation / totalAvailableRoomNights).toFixed(2)) : 0;

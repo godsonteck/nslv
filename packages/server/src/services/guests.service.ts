@@ -23,6 +23,31 @@ export interface CreateGuestDTO {
 }
 
 export class GuestService {
+  /** Fields considered sensitive — only visible to users holding guests.view_sensitive */
+  static readonly SENSITIVE_FIELDS: readonly string[] = [
+    'idDocumentType',
+    'idDocumentNumber',
+    'dateOfBirth',
+    'email',
+    'phone',
+    'address',
+    'city',
+    'country',
+    'nationality',
+    'preferences',
+    'notes',
+  ];
+
+  /** Strip sensitive fields from a guest record (list or detail shape) */
+  static sanitize<T extends Record<string, unknown>>(guest: T): T {
+    if (!guest) return guest;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(guest)) {
+      if (!GuestService.SENSITIVE_FIELDS.includes(key)) out[key] = guest[key];
+    }
+    return out as T;
+  }
+
   /** Get guests list with search & pagination */
   static async getGuests(filters?: { search?: string; isVip?: boolean }) {
     const where: any = {};

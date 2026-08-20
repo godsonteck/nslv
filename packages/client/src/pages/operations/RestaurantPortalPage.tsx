@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { posApi, reportsApi } from '../../services/apiService';
+import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import { UtensilsCrossed, RefreshCw, ArrowRight, ClipboardCheck, TrendingUp, ShoppingBag } from 'lucide-react';
@@ -25,6 +26,7 @@ export const RestaurantPortalPage: React.FC = () => {
   const load = async (initial = false) => {
     try {
       initial ? setLoading(true) : setRefreshing(true);
+      if (!initial) clearGetCache();
       const [dash, rOrders] = await Promise.allSettled([
         reportsApi.getDashboardMetrics(),
         posApi.getRestaurantOrders(),

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { guestsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { Plus, RefreshCw, UserRound, Search, Mail, Phone, MapPin, Calendar, CreditCard, BedDouble, Shield, Sparkles, Pencil, Eye } from 'lucide-react';
@@ -7,8 +8,10 @@ import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/W
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 
 export const GuestsPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') ?? '';
   const [data, setData] = useState<any[]>([]);
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(initialSearch);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -53,6 +56,11 @@ export const GuestsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch !== null && urlSearch !== q) setQ(urlSearch);
+  }, [searchParams, q]);
 
   useEffect(() => {
     const t = setTimeout(() => void load(), 250);

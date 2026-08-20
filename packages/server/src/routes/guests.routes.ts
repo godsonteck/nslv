@@ -2,14 +2,17 @@
 // NS LUXURY VILLA — Guest Routes
 // ============================================
 
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 import { GuestService } from '../services/guests.service';
-import { authenticate, requirePermission, verifyActiveUser } from '../middleware/auth';
+import { authenticate, requirePermission, verifyActiveUser, type AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { createGuestSchema, updateGuestSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
+
+const canViewSensitive = (req: Request) =>
+  (req as AuthenticatedRequest).user.permissions.includes('guests.view_sensitive');
 
 router.get('/', requirePermission('guests.view'), async (req, res, next) => {
   try {
@@ -18,7 +21,8 @@ router.get('/', requirePermission('guests.view'), async (req, res, next) => {
       search: search as string,
       isVip: isVip === 'true' ? true : isVip === 'false' ? false : undefined,
     });
-    res.json({ success: true, data });
+    const visible = canViewSensitive(req) ? data : data.map((g) => GuestService.sanitize(g));
+    res.json({ success: true, data: visible });
   } catch (error) {
     next(error);
   }
@@ -29,7 +33,8 @@ router.get('/:id', requirePermission('guests.view'), async (req, res, next) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const data = await GuestService.getGuestById(id);
     if (!data) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Guest not found' } });
-    res.json({ success: true, data });
+    const visible = canViewSensitive(req) ? data : GuestService.sanitize(data);
+    res.json({ success: true, data: visible });
   } catch (error) {
     next(error);
   }

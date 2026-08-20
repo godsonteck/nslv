@@ -26,8 +26,14 @@ export class ExpenseService {
     }
     if (filters?.startDate || filters?.endDate) {
       where.incurredOn = {};
-      if (filters?.startDate) where.incurredOn.gte = new Date(filters.startDate);
-      if (filters?.endDate) where.incurredOn.lte = new Date(filters.endDate);
+      const parseBound = (value: string, boundary: 'start' | 'end') => {
+        const iso = /^\d{4}-\d{2}-\d{2}$/.test(value)
+          ? `${value}${boundary === 'start' ? 'T00:00:00.000Z' : 'T23:59:59.999Z'}`
+          : value;
+        return new Date(iso);
+      };
+      if (filters?.startDate) where.incurredOn.gte = parseBound(filters.startDate, 'start');
+      if (filters?.endDate) where.incurredOn.lte = parseBound(filters.endDate, 'end');
     }
 
     const [items, total] = await Promise.all([

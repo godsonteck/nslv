@@ -70,14 +70,22 @@ router.post('/recalculate-late-fees', requirePermission('settings.edit'), async 
 });
 
 // Get all late check-outs audit for admin portal
-router.get('/late-checkouts', requirePermission('dashboard.view'), async (req, res, next) => {
+router.get('/late-checkouts', requirePermission('reports.view'), async (req, res, next) => {
   try {
     const { startDate, endDate, search } = req.query;
-    const start = startDate ? new Date(startDate as string) : undefined;
-    const end = endDate ? new Date(endDate as string) : undefined;
+    // Accept either YYYY-MM-DD (parse as start-of-day / end-of-day so the whole
+    // end date is covered) or a full ISO timestamp (parse as-is).
+    const parseBound = (value: string, boundary: 'start' | 'end') => {
+      if (!value) return undefined;
+      const iso = /^\d{4}-\d{2}-\d{2}$/.test(value)
+        ? `${value}${boundary === 'start' ? 'T00:00:00.000Z' : 'T23:59:59.999Z'}`
+        : value;
+      const d = new Date(iso);
+      return isNaN(d.getTime()) ? undefined : d;
+    };
     const data = await StayService.getLateCheckoutsAudit({
-      startDate: start,
-      endDate: end,
+      startDate: parseBound(String(startDate ?? ''), 'start'),
+      endDate: parseBound(String(endDate ?? ''), 'end'),
       search: search ? String(search) : undefined,
     });
     res.json({ success: true, data });

@@ -97,6 +97,15 @@ const INFLIGHT = new Map<string, Promise<unknown>>();
 const getCacheKey = (method: string, url: string, accessToken?: string | null) =>
   `${method}:${url}:${accessToken ?? ''}`;
 
+/**
+ * Drop all cached GET responses so the next read performs a real network fetch.
+ * Used by explicit "Refresh" buttons, which must always show current data even
+ * when a previous load happened within the cache TTL.
+ */
+export function clearGetCache(): void {
+  GET_CACHE.clear();
+}
+
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {},
