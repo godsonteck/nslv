@@ -76,6 +76,10 @@ export const PERMISSIONS = {
   EXPENSES_APPROVE: 'expenses.approve',
   EXPENSES_DELETE: 'expenses.delete',
 
+  // Cash Register / Float
+  CASH_REGISTER_VIEW: 'cash_register.view',
+  CASH_REGISTER_MANAGE: 'cash_register.manage',
+
   // Inventory
   INVENTORY_VIEW: 'inventory.view',
   INVENTORY_MANAGE: 'inventory.manage',
@@ -232,6 +236,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRoleName, PermissionCode[]> 
     PERMISSIONS.PAYMENTS_VIEW,
     PERMISSIONS.PAYMENTS_CREATE,
     PERMISSIONS.POOL_VIEW,
+    PERMISSIONS.CASH_REGISTER_VIEW,
+    PERMISSIONS.CASH_REGISTER_MANAGE,
     PERMISSIONS.NOTIFICATIONS_VIEW,
   ],
 
@@ -303,6 +309,8 @@ export const PERMISSION_DESCRIPTIONS: Record<PermissionCode, string> = {
   [PERMISSIONS.EXPENSES_CREATE]: 'Create expense records',
   [PERMISSIONS.EXPENSES_APPROVE]: 'Approve or reject expenses',
   [PERMISSIONS.EXPENSES_DELETE]: 'Delete expense records',
+  [PERMISSIONS.CASH_REGISTER_VIEW]: 'View cash register / float',
+  [PERMISSIONS.CASH_REGISTER_MANAGE]: 'Manage cash register entries (open, close, record inflows/outflows)',
   [PERMISSIONS.INVENTORY_VIEW]: 'View inventory',
   [PERMISSIONS.INVENTORY_MANAGE]: 'Manage inventory items and suppliers',
   [PERMISSIONS.INVENTORY_ADJUST]: 'Make inventory adjustments',
@@ -353,6 +361,7 @@ export const PERMISSION_MODULES = [
   'bar',
   'pool',
   'expenses',
+  'cash_register',
   'inventory',
   'reports',
   'staff',

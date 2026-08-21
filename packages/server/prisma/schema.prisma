@@ -715,6 +715,48 @@ model DailyClose {
   @@map("daily_closes")
 }
 
+model CashRegister {
+  id          String   @id @default(uuid())
+  businessDate DateTime @unique @map("business_date")
+  openingCash  Decimal  @default(0) @map("opening_cash") // Starting float for the day
+  notes        String?  // Opening notes (e.g., "Week 1 starting float")
+  closedBy     String?  @map("closed_by") // Who closed/adjusted the register
+  closedAt     DateTime? @map("closed_at") // When it was closed/adjusted
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  entries      CashRegisterEntry[]
+
+  @@map("cash_registers")
+}
+
+model CashRegisterEntry {
+  id              String   @id @default(uuid())
+  cashRegisterId  String   @map("cash_register_id")
+  type            CashEntryType @map("type") // OPENING | INFLOW | OUTFLOW
+  amount          Decimal
+  description     String
+  category        String?  // For outflows: FUEL, SUPPLIES, STAFF_MEALS, etc.
+  recipient       String?  // For outflows: who received the money
+  receiptRef      String?  @map("receipt_ref")
+  recordedBy      String   @map("recorded_by")
+  recordedAt      DateTime @default(now()) @map("recorded_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  cashRegister CashRegister @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
+
+  @@index([cashRegisterId])
+  @@index([type])
+  @@index([recordedAt])
+  @@map("cash_register_entries")
+}
+
+enum CashEntryType {
+  OPENING
+  INFLOW
+  OUTFLOW
+}
+
 model InventoryItem {
   id          String   @id @default(uuid())
   sku         String   @unique

@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { villaAssets } from '../../assets';
-import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, CalendarClock, Palette, KeyRound, ScrollText, Tags, Clock } from 'lucide-react';
+import { CalendarDays, Users, BedDouble, LayoutDashboard, CreditCard, BarChart3, Settings, ShieldCheck, UtensilsCrossed, Utensils, Wine, Waves, UserRound, ClipboardList, ReceiptText, CalendarClock, Palette, KeyRound, ScrollText, Tags, Clock, WalletCards } from 'lucide-react';
 import type { PermissionCode } from '@nslv/shared';
 
 interface NavItem { label: string; to: string; icon: typeof LayoutDashboard; perms: PermissionCode[]; }
@@ -28,6 +28,7 @@ const ALL_SECTIONS: NavSection[] = [
   ] },
   { title: 'Finance & insight', items: [
     { label: 'Payments', to: '/payments', icon: CreditCard, perms: ['payments.view'] },
+    { label: 'Cash at hand', to: '/cash-at-hand', icon: WalletCards, perms: ['cash_register.view'] },
     { label: 'Reports', to: '/reports', icon: BarChart3, perms: ['reports.view'] },
     { label: 'Expenditure', to: '/expenses', icon: ReceiptText, perms: ['expenses.view'] },
     { label: 'Inventory', to: '/inventory', icon: ClipboardList, perms: ['inventory.view'] },

@@ -31,6 +31,7 @@ const EventsPage = lazy(() => import('./pages/operations/EventsPage'));
 
 const PaymentsPage = lazy(() => import('./pages/finance/PaymentsPage'));
 const ExpensesPage = lazy(() => import('./pages/finance/ExpensesPage'));
+const CashRegisterPage = lazy(() => import('./pages/finance/CashRegisterPage'));
 const InventoryPage = lazy(() => import('./pages/operations/InventoryPage'));
 const ReportsPage = lazy(() => import('./pages/operations/ReportsPage'));
 
@@ -122,6 +123,7 @@ export const App: React.FC = () => {
 
           {/* Finance & Operations Routes */}
           <Route path="payments" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['payments.view']}><PaymentsPage /></RequirePermission></Suspense>} />
+          <Route path="cash-at-hand" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['cash_register.view']}><CashRegisterPage /></RequirePermission></Suspense>} />
           <Route path="expenses" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['expenses.view']}><ExpensesPage /></RequirePermission></Suspense>} />
           <Route path="inventory" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['inventory.view']}><InventoryPage /></RequirePermission></Suspense>} />
           <Route path="reports" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view']}><ReportsPage /></RequirePermission></Suspense>} />
