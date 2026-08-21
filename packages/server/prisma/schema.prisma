@@ -1037,6 +1037,7 @@ enum ItemCategoryType {
   INVENTORY
   EXPENDITURE
   ROOM_TYPE
+  CASH_REGISTER
 }
 
 enum OrderStatus {

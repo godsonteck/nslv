@@ -751,6 +751,60 @@ export const expensesApi = {
 };
 
 // ──────────────────────────────────────────
+// Cash Register / Float
+// ──────────────────────────────────────────
+export interface CashEntryRecord {
+  id: string;
+  type: 'OPENING' | 'INFLOW' | 'OUTFLOW';
+  amount: number;
+  description: string;
+  category?: string;
+  recipient?: string;
+  receiptRef?: string;
+  recordedBy: string;
+  recordedAt: string;
+}
+
+export interface CashRegisterSummary {
+  businessDate: string;
+  openingCash: number;
+  inflows: number;
+  outflows: number;
+  netCash: number;
+  entries: CashEntryRecord[];
+  byCategory: Record<string, number>;
+}
+
+export const cashRegisterApi = {
+  getSummary: async (businessDate: string): Promise<{ success: true; data: CashRegisterSummary | null }> => {
+    const data = await apiFetch<CashRegisterSummary | null>(`/cash-register?businessDate=${businessDate}`, {}, token());
+    return { success: true, data };
+  },
+
+  getDashboardSummary: async (businessDate: string): Promise<{ success: true; data: CashRegisterSummary | null }> => {
+    const data = await apiFetch<CashRegisterSummary | null>(`/cash-register/summary?businessDate=${businessDate}`, {}, token());
+    return { success: true, data };
+  },
+
+  setOpeningCash: async (body: { businessDate: string; amount: number; notes?: string }): Promise<any> =>
+    apiFetch<any>('/cash-register/opening', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  addEntry: async (body: {
+    businessDate: string;
+    type: 'INFLOW' | 'OUTFLOW';
+    amount: number;
+    description: string;
+    category?: string;
+    recipient?: string;
+    receiptRef?: string;
+  }): Promise<any> =>
+    apiFetch<any>('/cash-register/entries', { method: 'POST', body: JSON.stringify(body) }, token()),
+
+  deleteEntry: async (id: string): Promise<any> =>
+    apiFetch<any>(`/cash-register/entries/${id}`, { method: 'DELETE' }, token()),
+};
+
+// ──────────────────────────────────────────
 // Inventory
 // ──────────────────────────────────────────
 export interface InventoryItemRecord {
