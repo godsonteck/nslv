@@ -4,7 +4,7 @@ import { reservationsApi, staysApi, roomsApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
-import { LogIn, LogOut, RefreshCw, UserRound, BedDouble, Waves, ArrowRight } from 'lucide-react';
+import { LogIn, LogOut, RefreshCw, UserRound, BedDouble, Waves, ArrowRight, WalletCards } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
@@ -167,6 +167,20 @@ export const FrontDeskPage: React.FC = () => {
             <div className="mt-0.5 text-[11px] text-[#8a9598]">Record pool attendance and manage pool services</div>
           </div>
           <ArrowRight size={16} className="text-[#2e7f8c] transition group-hover:translate-x-0.5" />
+        </button>
+      )}
+
+      {permissions.includes('cash_register.view') && (
+        <button
+          onClick={() => navigate('/cash-at-hand')}
+          className="group ns-card flex w-full items-center gap-4 p-5 text-left transition hover:border-[#b9d6da] hover:shadow-sm"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef5e9] text-[#547a3b]"><WalletCards size={19} /></span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[14px] font-extrabold text-[#20343e]">Cash at hand</div>
+            <div className="mt-0.5 text-[11px] text-[#8a9598]">Record cash handed to Reception and money taken out for expenses or other purposes</div>
+          </div>
+          <ArrowRight size={16} className="text-[#547a3b] transition group-hover:translate-x-0.5" />
         </button>
       )}
 
