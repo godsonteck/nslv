@@ -5,12 +5,28 @@
 
 import { Router } from 'express';
 import { CashRegisterService } from '../services/cash-register.service';
-import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import type { NextFunction, Request, Response } from 'express';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { z } from 'zod';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
+
+/**
+ * Reception is the designated cash-desk role. Keep the permission check too
+ * so delegated users can be granted access without changing their role.
+ */
+const requireCashRegisterAccess = (manage = false) => (req: Request, res: Response, next: NextFunction) => {
+  const user = (req as AuthenticatedRequest).user;
+  const roles = user?.roles.map((role) => role.toLowerCase()) ?? [];
+  const permission = manage ? 'cash_register.manage' : 'cash_register.view';
+  if (roles.includes('admin') || roles.includes('reception') || user?.permissions.includes(permission)) {
+    next();
+    return;
+  }
+  res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Cash at Hand is available to Reception staff only.' } });
+};
 
 const openingSchema = z.object({
   businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
@@ -33,7 +49,7 @@ const dateQuerySchema = z.object({
 });
 
 // GET /api/v1/cash-register - get register with entries
-router.get('/', requirePermission('cash_register.view'), validateQuery(dateQuerySchema), async (req, res, next) => {
+router.get('/', requireCashRegisterAccess(), validateQuery(dateQuerySchema), async (req, res, next) => {
   try {
     const { businessDate } = req.query as { businessDate: string };
     const register = await CashRegisterService.listEntries(businessDate);
@@ -49,7 +65,7 @@ router.get('/', requirePermission('cash_register.view'), validateQuery(dateQuery
 });
 
 // GET /api/v1/cash-register/summary - quick summary for dashboard
-router.get('/summary', requirePermission('cash_register.view'), validateQuery(dateQuerySchema), async (req, res, next) => {
+router.get('/summary', requireCashRegisterAccess(), validateQuery(dateQuerySchema), async (req, res, next) => {
   try {
     const { businessDate } = req.query as { businessDate: string };
     const summary = await CashRegisterService.getSummary(businessDate);
@@ -60,7 +76,7 @@ router.get('/summary', requirePermission('cash_register.view'), validateQuery(da
 });
 
 // POST /api/v1/cash-register/opening - set opening float
-router.post('/opening', requirePermission('cash_register.manage'), validateBody(openingSchema), async (req, res, next) => {
+router.post('/opening', requireCashRegisterAccess(true), validateBody(openingSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const register = await CashRegisterService.setOpeningCash(req.body, userId);
@@ -71,7 +87,7 @@ router.post('/opening', requirePermission('cash_register.manage'), validateBody(
 });
 
 // POST /api/v1/cash-register/entries - add inflow/outflow
-router.post('/entries', requirePermission('cash_register.manage'), validateBody(entrySchema), async (req, res, next) => {
+router.post('/entries', requireCashRegisterAccess(true), validateBody(entrySchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const entry = await CashRegisterService.addEntry(req.body, userId);
@@ -82,7 +98,7 @@ router.post('/entries', requirePermission('cash_register.manage'), validateBody(
 });
 
 // DELETE /api/v1/cash-register/entries/:id - delete entry (not opening)
-router.delete('/entries/:id', requirePermission('cash_register.manage'), async (req, res, next) => {
+router.delete('/entries/:id', requireCashRegisterAccess(true), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
