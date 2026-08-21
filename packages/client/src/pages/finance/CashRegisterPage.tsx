@@ -11,8 +11,11 @@ interface CashRegisterSummary { businessDate: string; openingCash: number; inflo
 const token = () => useAuthStore.getState().tokens?.accessToken ?? null;
 
 export const CashRegisterPage: React.FC = () => {
-  const { hasPermission } = useAuthStore();
-  const canManage = hasPermission(PERMISSIONS.CASH_REGISTER_MANAGE);
+  const { hasPermission, user } = useAuthStore();
+  // The server remains authoritative. This role fallback lets an existing
+  // Reception session reach the new page before its client profile refreshes.
+  const isReception = user?.roles?.some((role) => role.name === 'Reception') ?? false;
+  const canManage = hasPermission(PERMISSIONS.CASH_REGISTER_MANAGE) || isReception;
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [summary, setSummary] = useState<CashRegisterSummary | null>(null);
   const [loading, setLoading] = useState(false);
