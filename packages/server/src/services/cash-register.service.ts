@@ -433,12 +433,17 @@ export class CashRegisterService {
 
     // Find the most recent OPENING entry (manual count or auto-carry-forward)
     // and replay all subsequent cash movements.
+    // Find the most recent OPENING entry (manual count or auto-carry-forward)
+    // and replay all subsequent cash movements.
+    // If no previous register exists, start from the query date (not epoch).
     const anchor = await prisma.cashRegister.findFirst({
       where: { businessDate: { lte: date }, entries: { some: { type: 'OPENING' } } },
       orderBy: { businessDate: 'desc' },
       select: { id: true, businessDate: true, openingCash: true, notes: true },
     });
-    const replayFrom = anchor?.businessDate ?? new Date('1970-01-01T00:00:00.000Z');
+    // If no previous register exists, start replay from the query date (not epoch)
+    // This prevents replaying all historical data when no previous register exists.
+    const replayFrom = anchor?.businessDate ?? date;
 
     // Refunds remain in the payments ledger but are intentionally outside the
     // cash-at-hand workflow until refund reconciliation is introduced.
@@ -457,11 +462,16 @@ export class CashRegisterService {
     ]);
 
     // Start from the anchor's opening cash (manual count or carried forward)
+    // If no anchor exists, start from 0 (no previous register)
     let runningBalance = anchor?.openingCash.toNumber() ?? 0;
     let todayInflows = 0;
     let todayOutflows = 0;
     let todayCashSales = 0;
     const byCategory: Record<string, number> = {};
+
+    // If no anchor, we're starting fresh from the query date
+    // carriedIntoToday should be 0 if no anchor (no previous register)
+    const hasAnchor = !!anchor;
 
     // Replay manual entries. Refund movements are retained in their own ledger,
     // but deliberately do not affect Cash at Hand until refund reconciliation
@@ -490,7 +500,10 @@ export class CashRegisterService {
     }
 
     // Calculate what was carried into today (balance before today's activity)
-    const carriedIntoToday = runningBalance - todayInflows + todayOutflows - todayCashSales;
+    // If no anchor exists, carried forward is 0 (no previous register)
+    const carriedIntoToday = hasAnchor
+      ? runningBalance - todayInflows + todayOutflows - todayCashSales
+      : 0;
 
     return {
       businessDate: date,
@@ -499,9 +512,9 @@ export class CashRegisterService {
       // What receptionist manually counted this morning (if they did a count)
       manualOpeningCount: register?.openingCash.toNumber() ?? 0,
       // Auto-carried amount from previous day
-      autoCarriedForward: anchor?.openingCash.toNumber() ?? 0,
-      carriedFromDate: anchor?.businessDate ?? null,
-      openingNotes: anchor?.notes ?? null,
+      autoCarriedForward: hasAnchor ? anchor.openingCash.toNumber() : 0,
+      carriedFromDate: hasAnchor ? anchor.businessDate : null,
+      openingNotes: hasAnchor ? anchor.notes : null,
       // Today's activity
       manualInflows: todayInflows,
       manualOutflows: todayOutflows,
