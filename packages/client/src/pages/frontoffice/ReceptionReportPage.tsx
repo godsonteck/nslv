@@ -862,7 +862,7 @@ export default function ReceptionReportPage() {
             <div className="space-y-6">
               <Section
                 title="Reception Shift Float & Cash Drawer Reconciliation"
-                subtitle="Complete formula balancing cash at hand, room revenue inflows, expense disbursements, and bank deposits."
+                subtitle="Opening float + cash received from guests − expenses taken − MoMo deposits sent = expected physical cash at hand."
               >
                 <div className="grid gap-6 md:grid-cols-2">
                   {/* Balancing Math Ledger */}
@@ -902,8 +902,10 @@ export default function ReceptionReportPage() {
                       )}
 
                       {rec.cashDepositedToBank > 0 && (
-                        <div className="flex items-center justify-between text-purple-700 p-2 rounded">
-                          <span className="font-semibold">Cash Taken to Bank (-)</span>
+                        <div className="flex items-center justify-between text-amber-700 bg-amber-50/50 p-2 rounded">
+                          <span className="font-semibold flex items-center gap-1.5">
+                            <Smartphone size={12} /> MoMo Deposits from Cash (-)
+                          </span>
                           <span className="font-mono font-extrabold">-{formatCurrency(rec.cashDepositedToBank)}</span>
                         </div>
                       )}
@@ -947,6 +949,57 @@ export default function ReceptionReportPage() {
                   </div>
                 </div>
               </Section>
+
+              {/* MoMo Deposits From Cash — Itemized */}
+              {rec.momoDepositsList && rec.momoDepositsList.length > 0 && (
+                <Section
+                  title={`MoMo Deposits from Physical Cash (${rec.momoDepositsList.length})`}
+                  subtitle="Each entry below is cash physically taken from the reception drawer and sent via Mobile Money — these reduce the available cash balance."
+                >
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="border-b border-slate-200 bg-amber-50/60 text-[10px] font-extrabold uppercase tracking-wider text-slate-600">
+                        <tr>
+                          <th className="px-4 py-3">Date</th>
+                          <th className="px-4 py-3">Time</th>
+                          <th className="px-4 py-3">Description / Purpose</th>
+                          <th className="px-4 py-3">MoMo Reference</th>
+                          <th className="px-4 py-3">Recorded By</th>
+                          <th className="px-4 py-3 text-right">Cash Taken</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {rec.momoDepositsList.map((m: any) => (
+                          <tr key={m.id} className="hover:bg-amber-50/30 transition">
+                            <td className="px-4 py-3 font-mono text-slate-500 text-[11px]">{m.date}</td>
+                            <td className="px-4 py-3 font-mono text-slate-500 text-[11px]">{m.time}</td>
+                            <td className="px-4 py-3 font-medium text-slate-900">{m.description}</td>
+                            <td className="px-4 py-3">
+                              <span className="rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-mono text-[10px] font-extrabold text-amber-900">
+                                {m.reference}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-slate-600 font-semibold">{m.recordedBy}</td>
+                            <td className="px-4 py-3 text-right font-extrabold text-amber-700 text-sm">
+                              -{formatCurrency(m.amount)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot className="border-t-2 border-slate-300 bg-slate-50 font-extrabold">
+                        <tr>
+                          <td colSpan={5} className="px-4 py-3 text-right uppercase text-[11px] text-slate-600">
+                            Total Cash Sent via MoMo:
+                          </td>
+                          <td className="px-4 py-3 text-right text-amber-700 text-sm">
+                            -{formatCurrency(rec.momoDepositsFromCash || rec.cashDepositedToBank || 0)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </Section>
+              )}
             </div>
           )}
         </>

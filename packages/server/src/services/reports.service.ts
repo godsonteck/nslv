@@ -1020,10 +1020,12 @@ export class ReportService {
       orderBy: { recordedAt: 'desc' },
     });
 
-    const outflowEntries = cashRegisterEntries.filter((e) => e.type === 'OUTFLOW');
+    // MOMO_DEPOSIT outflows = cash physically taken from the drawer and sent via Mobile Money.
+    // These are NOT expenses; they reduce the physical cash balance.
+    const outflowEntries = cashRegisterEntries.filter((e) => e.type === 'OUTFLOW' && e.category !== 'MOMO_DEPOSIT');
     const openingEntries = cashRegisterEntries.filter((e) => e.type === 'OPENING');
-    const manualInflowEntries = cashRegisterEntries.filter((e) => e.type === 'INFLOW' && e.category !== 'MOMO_DEPOSIT');
-    const momoDepositEntries = cashRegisterEntries.filter((e) => e.category === 'MOMO_DEPOSIT' || (e.description && e.description.toLowerCase().includes('momo')));
+    const manualInflowEntries = cashRegisterEntries.filter((e) => e.type === 'INFLOW');
+    const momoDepositEntries = cashRegisterEntries.filter((e) => e.category === 'MOMO_DEPOSIT');
 
     // Also fetch approved cash expenses from Expense table for comprehensive reconciliation
     const approvedCashExpenses = await prisma.expense.findMany({
@@ -1190,7 +1192,18 @@ export class ReportService {
         manualInflows: totalManualInflows,
         moneyTakenForExpenses: totalReceptionExpenses,
         cashRefundsPaid: cashRefunds,
-        cashDepositedToBank: totalMomoDeposits,
+        // MoMo deposits = cash physically taken from drawer and sent via Mobile Money
+        cashDepositedToBank: totalMomoDeposits,  // kept for backward compat
+        momoDepositsFromCash: totalMomoDeposits,
+        momoDepositsList: momoDepositEntries.map((e) => ({
+          id: e.id,
+          date: e.recordedAt.toISOString().slice(0, 10),
+          time: e.recordedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          amount: Number(e.amount || 0),
+          description: e.description || 'MoMo deposit',
+          reference: e.receiptRef || '—',
+          recordedBy: e.recordedBy || '—',
+        })),
         expectedCashAtHand,
       },
       operationalHighlights: {

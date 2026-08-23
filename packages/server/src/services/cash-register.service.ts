@@ -310,7 +310,7 @@ export class CashRegisterService {
       return prisma.cashRegisterEntry.create({
         data: {
           cashRegisterId: register.id,
-          type: 'INFLOW',
+          type: 'OUTFLOW',
           amount,
           description: input.description,
           category: 'MOMO_DEPOSIT',
@@ -331,7 +331,7 @@ export class CashRegisterService {
       return client.cashRegisterEntry.create({
         data: {
           cashRegisterId: register.id,
-          type: 'INFLOW',
+          type: 'OUTFLOW',
           amount,
           description: input.description,
           category: 'MOMO_DEPOSIT',

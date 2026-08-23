@@ -541,23 +541,28 @@ ${itemsHtml}`;
         </form>
       </Modal>
 
-      <Modal open={momoDepositOpen} onClose={() => setMomoDepositOpen(false)} title="Record MoMo Deposit">
+      <Modal open={momoDepositOpen} onClose={() => setMomoDepositOpen(false)} title="Record MoMo Deposit (from Drawer Cash)">
         <form onSubmit={saveMomoDeposit} className="space-y-4">
+          <p className="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+            <strong>Cash Deduction:</strong> This records physical cash taken from the reception drawer and transferred/deposited into a Mobile Money wallet. It reduces the available cash at hand.
+          </p>
           <FormField label="Business date" required>
             <input type="date" value={selectedDate} readOnly className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm" />
           </FormField>
-          <FormField label="Amount (GHS)" required>
+          <FormField label="Amount to Deposit (GHS)" required>
             <TextInput type="number" min="0.01" step="0.01" value={momoDepositAmount} onChange={(e) => setMomoDepositAmount(e.target.value)} placeholder="0.00" required />
           </FormField>
-          <FormField label="Description" required>
-            <TextInput value={momoDepositDescription} onChange={(e) => setMomoDepositDescription(e.target.value)} placeholder="e.g. Cash deposited to MTN MoMo" required />
+          <FormField label="Description / Wallet details" required>
+            <TextInput value={momoDepositDescription} onChange={(e) => setMomoDepositDescription(e.target.value)} placeholder="e.g. Cash deposited to MTN MoMo 0244XXXXXX" required />
           </FormField>
-          <FormField label="Reference (optional)">
-            <TextInput value={momoDepositReference} onChange={(e) => setMomoDepositReference(e.target.value)} placeholder="Transaction ID / reference" />
+          <FormField label="Transaction Reference / ID (optional)">
+            <TextInput value={momoDepositReference} onChange={(e) => setMomoDepositReference(e.target.value)} placeholder="MoMo transaction ID / SMS reference" />
           </FormField>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => setMomoDepositOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" loading={saving}><Smartphone size={14} /> Save MoMo deposit</Button>
+            <Button type="submit" variant="primary" loading={saving} className="bg-amber-600 hover:bg-amber-700 text-white">
+              <Smartphone size={14} /> Deduct cash & record MoMo deposit
+            </Button>
           </div>
         </form>
       </Modal>
