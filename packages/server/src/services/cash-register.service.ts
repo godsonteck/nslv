@@ -508,26 +508,31 @@ export class CashRegisterService {
     return {
       businessDate: date,
       // What was in the drawer at start of today (carried from previous day)
+      carriedForward: carriedIntoToday,
       carriedIntoToday,
       // What receptionist manually counted this morning (if they did a count)
-      manualOpeningCount: register?.openingCash.toNumber() ?? 0,
+      openingCash: register?.openingCash ? Number(register.openingCash) : (hasAnchor ? Number(anchor.openingCash) : 0),
+      manualOpeningCount: register?.openingCash ? Number(register.openingCash) : 0,
       // Auto-carried amount from previous day
-      autoCarriedForward: hasAnchor ? anchor.openingCash.toNumber() : 0,
+      autoCarriedForward: hasAnchor ? Number(anchor.openingCash) : 0,
       carriedFromDate: hasAnchor ? anchor.businessDate : null,
       openingNotes: hasAnchor ? anchor.notes : null,
       // Today's activity
+      inflows: todayInflows,
       manualInflows: todayInflows,
+      outflows: todayOutflows,
       manualOutflows: todayOutflows,
       cashSales: todayCashSales,
       // Kept as a zero compatibility field for daily-close consumers. Refunds
       // are not part of cash-at-hand until refund reconciliation is enabled.
       cashRefunds: 0,
-      // Expected cash in drawer right now
+      // Expected / Net cash in drawer on this date
+      netCash: runningBalance,
       expectedCash: runningBalance,
       // All entries for today
       entries: (register?.entries ?? []).filter((entry) => entry.category !== 'REFUND'),
       // Cash payments from POS for today
-      cashPayments: payments.filter((p) => p.processedAt >= date).map((p) => ({ ...p, amount: p.amount.toNumber() })),
+      cashPayments: payments.filter((p) => p.processedAt >= date).map((p) => ({ ...p, amount: p.amount ? Number(p.amount) : 0 })),
       byCategory,
     };
   }

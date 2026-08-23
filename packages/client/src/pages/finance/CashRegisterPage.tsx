@@ -63,13 +63,18 @@ interface CashPayment {
 
 interface CashRegisterSummary {
   businessDate: string;
-  openingCash: number;
-  carriedForward: number;
+  openingCash?: number;
+  carriedForward?: number;
+  carriedIntoToday?: number;
   carriedFromDate?: string | null;
-  inflows: number;
-  outflows: number;
-  cashSales: number;
-  netCash: number;
+  inflows?: number;
+  manualInflows?: number;
+  outflows?: number;
+  manualOutflows?: number;
+  cashSales?: number;
+  cashRefunds?: number;
+  netCash?: number;
+  expectedCash?: number;
   entries: CashEntry[];
   cashPayments: CashPayment[];
   byCategory: Record<string, number>;
@@ -349,13 +354,13 @@ ${itemsHtml}`;
   return (
     <div className="space-y-6">
       {/* Low cash alert banner */}
-      {summary && summary.netCash < 200 && (
+      {summary && (summary.netCash ?? summary.expectedCash ?? 0) < 200 && (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-center gap-3">
           <ShieldAlert className="text-amber-600" size={24} />
           <div className="flex-1">
             <div className="font-bold text-amber-800">Low Cash Alert</div>
             <div className="text-sm text-amber-700">
-              Cash at hand (GHS {summary.netCash.toFixed(2)}) is below GHS 200. Consider recording a MoMo deposit or requesting float top-up.
+              Cash at hand (GHS {(summary.netCash ?? summary.expectedCash ?? 0).toFixed(2)}) is below GHS 200. Consider recording a MoMo deposit or requesting float top-up.
             </div>
           </div>
         </div>
@@ -411,7 +416,7 @@ ${itemsHtml}`;
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <SummaryCard
           label="Brought forward"
-          amount={summary?.carriedForward ?? 0}
+          amount={summary?.carriedForward ?? summary?.carriedIntoToday ?? 0}
           icon={<DollarSign size={16} />}
           note={summary?.carriedFromDate ? `Calculated from ${new Date(summary.carriedFromDate!).toLocaleDateString()}` : 'No counted balance recorded yet'}
           color="blue"
@@ -425,21 +430,21 @@ ${itemsHtml}`;
         />
         <SummaryCard
           label="Cash received"
-          amount={summary?.inflows ?? 0}
+          amount={summary?.inflows ?? summary?.manualInflows ?? 0}
           icon={<ArrowUp size={16} />}
           note="Manual additions recorded today"
           color="emerald"
         />
         <SummaryCard
           label="Cash out"
-          amount={summary?.outflows ?? 0}
+          amount={summary?.outflows ?? summary?.manualOutflows ?? 0}
           icon={<ArrowDown size={16} />}
           note="Payouts recorded today"
           color="rose"
         />
         <SummaryCard
           label="Available cash at hand"
-          amount={summary?.netCash ?? 0}
+          amount={summary?.netCash ?? summary?.expectedCash ?? 0}
           icon={<Calculator size={16} />}
           note="Live balance for the next handover"
           color="slate"
