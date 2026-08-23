@@ -528,6 +528,37 @@ export class CashRegisterService {
     });
   }
 
+  /**
+   * Clear all non-opening entries for a business date
+   */
+  static async clearAllEntriesForDate(businessDate: string, userId: string) {
+    const date = new Date(`${businessDate.slice(0, 10)}T00:00:00.000Z`);
+    
+    return prisma.$transaction(async (tx) => {
+      await CashRegisterService.lockRegister(tx, date);
+      const register = await tx.cashRegister.findUnique({ where: { businessDate: date } });
+      if (!register) return { deleted: 0, message: 'No register found for this date' };
+
+      // Delete all non-opening entries
+      const deleted = await tx.cashRegisterEntry.deleteMany({
+        where: {
+          cashRegisterId: register.id,
+          type: { not: 'OPENING' },
+        },
+      });
+
+      await AuditService.logInTransaction(tx, {
+        userId,
+        action: 'cash_register.entries_cleared',
+        resource: 'cash_register',
+        resourceId: register.id,
+        afterData: { businessDate, deletedCount: deleted.count },
+      });
+
+      return { deleted: deleted.count, message: `Cleared ${deleted.count} entries for ${businessDate}` };
+    });
+  }
+
   private static async lockRegister(tx: { $executeRaw?: (query: TemplateStringsArray, ...values: unknown[]) => Promise<unknown> }, date: Date) {
     if (tx.$executeRaw) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${date.toISOString()}))`;
   }

@@ -64,6 +64,10 @@ const bankDepositSchema = z.object({
   reference: z.string().max(200).optional(),
 });
 
+const clearAllSchema = z.object({
+  businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
+});
+
 // GET /api/v1/cash-register - get register with entries (full summary with carry-forward)
 router.get('/', requireCashRegisterAccess(), validateQuery(dateQuerySchema), async (req, res, next) => {
   try {
@@ -164,6 +168,18 @@ router.post('/bank-deposit', requireCashRegisterAccess(true), validateBody(bankD
     const userId = (req as AuthenticatedRequest).user.userId;
     const entry = await CashRegisterService.recordBankDeposit({ ...req.body, processedBy: userId }, undefined);
     res.status(201).json({ success: true, data: entry, message: 'Bank deposit recorded.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/v1/cash-register/entries - clear all entries for a date (except opening)
+router.delete('/entries', requireCashRegisterAccess(true), validateQuery(clearAllSchema), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const { businessDate } = req.query as { businessDate: string };
+    const result = await CashRegisterService.clearAllEntriesForDate(businessDate, userId);
+    res.json({ success: true, data: result, message: result.message });
   } catch (error) {
     next(error);
   }

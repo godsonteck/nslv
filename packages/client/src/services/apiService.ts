@@ -803,6 +803,13 @@ export const cashRegisterApi = {
   deleteEntry: async (id: string): Promise<any> =>
     apiFetch<any>(`/cash-register/entries/${id}`, { method: 'DELETE' }, token()),
 
+  clearAllEntries: async (businessDate: string): Promise<any> => {
+    const qs = new URLSearchParams();
+    qs.set('businessDate', businessDate);
+    const data = await apiFetch<any>(`/cash-register/entries?${qs}`, { method: 'DELETE' }, token());
+    return { success: true, data };
+  },
+
   getLowCashAlert: async (businessDate: string, threshold?: number): Promise<any> => {
     const qs = new URLSearchParams();
     qs.set('businessDate', businessDate);
