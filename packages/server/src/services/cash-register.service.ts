@@ -440,7 +440,9 @@ export class CashRegisterService {
     });
     const replayFrom = anchor?.businessDate ?? new Date('1970-01-01T00:00:00.000Z');
 
-    // Get all manual entries (INFLOW/OUTFLOW) and auto-created cash payment entries
+    // Refunds remain in the payments ledger but are intentionally outside the
+    // cash-at-hand workflow until refund reconciliation is introduced.
+    // Only completed cash sales contribute to this live handover balance.
     const [manualEntries, payments] = await Promise.all([
       prisma.cashRegisterEntry.findMany({
         where: { type: { not: 'OPENING' }, cashRegister: { businessDate: { gte: replayFrom, lt: end } } },
@@ -448,7 +450,7 @@ export class CashRegisterService {
         orderBy: { recordedAt: 'asc' },
       }),
       prisma.payment.findMany({
-        where: { processedAt: { gte: replayFrom, lt: end }, method: 'CASH', status: 'COMPLETED', voidedAt: null },
+        where: { processedAt: { gte: replayFrom, lt: end }, method: 'CASH', type: 'PAYMENT', status: 'COMPLETED', voidedAt: null },
         select: { id: true, amount: true, type: true, source: true, sourceId: true, reference: true, description: true, processedAt: true, processedBy: true },
         orderBy: { processedAt: 'asc' },
       }),
@@ -459,7 +461,6 @@ export class CashRegisterService {
     let todayInflows = 0;
     let todayOutflows = 0;
     let todayCashSales = 0;
-    let todayCashRefunds = 0;
     const byCategory: Record<string, number> = {};
 
     // Replay manual entries
@@ -479,15 +480,14 @@ export class CashRegisterService {
     // Replay actual cash payments from POS (these may already have INFLOW entries created)
     for (const payment of payments) {
       const amount = payment.amount.toNumber();
-      runningBalance += (payment.type === 'REFUND' ? -amount : amount);
+      runningBalance += amount;
       if (payment.processedAt >= date) {
-        if (payment.type === 'REFUND') todayCashRefunds += amount;
-        else todayCashSales += amount;
+        todayCashSales += amount;
       }
     }
 
     // Calculate what was carried into today (balance before today's activity)
-    const carriedIntoToday = runningBalance - todayInflows + todayOutflows - todayCashSales + todayCashRefunds;
+    const carriedIntoToday = runningBalance - todayInflows + todayOutflows - todayCashSales;
 
     return {
       businessDate: date,
@@ -503,7 +503,9 @@ export class CashRegisterService {
       manualInflows: todayInflows,
       manualOutflows: todayOutflows,
       cashSales: todayCashSales,
-      cashRefunds: todayCashRefunds,
+      // Kept as a zero compatibility field for daily-close consumers. Refunds
+      // are not part of cash-at-hand until refund reconciliation is enabled.
+      cashRefunds: 0,
       // Expected cash in drawer right now
       expectedCash: runningBalance,
       // All entries for today
@@ -530,7 +532,7 @@ export class CashRegisterService {
 
   /**
    * Reset a day's cash-register input completely.  Payments are deliberately
-   * not deleted here: cash sales/refunds are the source financial records and
+   * not deleted here: cash sales are source financial records and
    * must remain auditable.  The register has a cascade foreign key, so this
    * removes its opening count and every manual inflow/outflow together.
    */
@@ -589,7 +591,6 @@ export class CashRegisterService {
       { label: 'Cash sales recorded (POS)', value: `GHS ${summary.cashSales.toFixed(2)}`, checked: summary.cashSales > 0 },
       { label: 'Manual inflows recorded', value: `GHS ${summary.manualInflows.toFixed(2)}`, checked: summary.manualInflows > 0 },
       { label: 'Expenses/outflows recorded', value: `GHS ${summary.manualOutflows.toFixed(2)}`, checked: summary.manualOutflows > 0 },
-      { label: 'Cash refunds recorded', value: `GHS ${summary.cashRefunds.toFixed(2)}`, checked: summary.cashRefunds > 0 },
       { label: 'Expected cash in drawer', value: `GHS ${summary.expectedCash.toFixed(2)}`, checked: true },
       { label: 'All entries have receipts/references', value: summary.entries.every(e => e.type === 'OPENING' || e.receiptRef || e.recipient), checked: summary.entries.every(e => e.type === 'OPENING' || e.receiptRef || e.recipient) },
       { label: 'No unexplained variances', value: 'Verify physical count matches expected', checked: false },

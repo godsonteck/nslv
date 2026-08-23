@@ -12,7 +12,7 @@ vi.mock('../src/services/categories.service', () => ({ CategoryService: { assert
 import { CashRegisterService } from '../src/services/cash-register.service';
 
 describe('cash-register carry-forward', () => {
-  it('carries the last counted balance and includes cash sales, refunds, and manual movements', async () => {
+  it('carries the last counted balance and includes cash sales and manual movements, not refunds', async () => {
     const day = new Date('2026-08-23T00:00:00.000Z');
     mocks.registerFindUnique.mockResolvedValue(null);
     mocks.registerFindFirst.mockResolvedValue({ businessDate: new Date('2026-08-22T00:00:00.000Z'), openingCash: { toNumber: () => 100 }, notes: 'Night handover' });
@@ -22,11 +22,12 @@ describe('cash-register carry-forward', () => {
     ]);
     mocks.paymentFindMany.mockResolvedValue([
       { id: 'sale', amount: { toNumber: () => 80 }, type: 'PAYMENT', processedAt: day },
-      { id: 'refund', amount: { toNumber: () => 5 }, type: 'REFUND', processedAt: day },
     ]);
 
     const result = await CashRegisterService.getSummary('2026-08-23');
-    expect(result).toMatchObject({ carriedIntoToday: 100, cashSales: 80, cashRefunds: 5, manualInflows: 25, manualOutflows: 10, expectedCash: 190 });
+    expect(result).toMatchObject({ carriedIntoToday: 100, cashSales: 80, manualInflows: 25, manualOutflows: 10, expectedCash: 195 });
+    expect(result.cashPayments).toHaveLength(1);
+    expect(mocks.paymentFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ type: 'PAYMENT' }) }));
   });
 
   it('resets the opening and every manual cash movement for the selected date', async () => {

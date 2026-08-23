@@ -53,7 +53,7 @@ interface CashEntry {
 interface CashPayment {
   id: string;
   amount: number;
-  type: 'PAYMENT' | 'REFUND';
+  type: 'PAYMENT';
   source?: string;
   sourceId?: string;
   reference?: string;
@@ -69,7 +69,6 @@ interface CashRegisterSummary {
   inflows: number;
   outflows: number;
   cashSales: number;
-  cashRefunds: number;
   netCash: number;
   entries: CashEntry[];
   cashPayments: CashPayment[];
@@ -285,7 +284,7 @@ ${itemsHtml}`;
   };
 
   const clearAllEntries = async () => {
-    if (!window.confirm(`Reset the cash register for ${selectedDate}? This removes the opening balance and every manual cash entry for that date. Completed cash sales and refunds stay recorded for accounting. This cannot be undone.`)) return;
+    if (!window.confirm(`Reset the cash register for ${selectedDate}? This removes the opening balance and every manual cash entry for that date. Completed cash sales stay recorded for accounting. This cannot be undone.`)) return;
     try {
       await cashRegisterApi.clearAllEntries(selectedDate);
       showToast('success', 'Cash register reset. You can enter a new opening balance and new cash movements.');
@@ -326,16 +325,12 @@ ${itemsHtml}`;
   const paymentColumns = [
     { key: 'processedAt', header: 'Time', render: (row: CashPayment) => new Date(row.processedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
     { key: 'type', header: 'Movement', render: (row: CashPayment) => (
-      <span className={row.type === 'REFUND' ? 'text-rose-600 font-semibold' : 'text-emerald-700 font-semibold'}>
-        {row.type === 'REFUND' ? 'Cash refund' : 'Cash sale'}
-      </span>
+      <span className="text-emerald-700 font-semibold">Cash sale</span>
     ) },
     { key: 'description', header: 'Source', render: (row: CashPayment) => row.description || row.source || 'Cash payment' },
     { key: 'reference', header: 'Reference', render: (row: CashPayment) => row.reference || row.sourceId || '—' },
     { key: 'amount', header: 'Amount', align: 'right' as const, render: (row: CashPayment) => (
-      <span className={row.type === 'REFUND' ? 'text-rose-600 font-semibold' : 'text-emerald-700 font-semibold'}>
-        {row.type === 'REFUND' ? '−' : '+'}{formatCurrency(Number(row.amount))}
-      </span>
+      <span className="text-emerald-700 font-semibold">+{formatCurrency(Number(row.amount))}</span>
     ) },
   ];
 
@@ -369,7 +364,7 @@ ${itemsHtml}`;
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Cash at Hand</h1>
-          <p className="text-slate-500 mt-1">Live handover balance — brought forward + cash sales + cash received − refunds − money paid out</p>
+          <p className="text-slate-500 mt-1">Live handover balance — brought forward + cash sales + cash received − money paid out</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {canManage && (
@@ -435,10 +430,10 @@ ${itemsHtml}`;
           color="emerald"
         />
         <SummaryCard
-          label="Cash out / refunds"
-          amount={(summary?.outflows ?? 0) + (summary?.cashRefunds ?? 0)}
+          label="Cash out"
+          amount={summary?.outflows ?? 0}
           icon={<ArrowDown size={16} />}
-          note="Payouts and cash refunds"
+          note="Payouts recorded today"
           color="rose"
         />
         <SummaryCard
