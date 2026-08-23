@@ -193,12 +193,19 @@ export class BackupService {
    */
   static getSnapshot(id: string): BackupPayload {
     this.ensureBackupDir();
-    const files = fs.readdirSync(BACKUP_DIR).filter((f) => f.includes(id) && f.endsWith('.json'));
-    if (files.length === 0) {
+    const cleanId = decodeURIComponent(id).trim();
+    const allFiles = fs.readdirSync(BACKUP_DIR).filter((f) => f.endsWith('.json'));
+
+    const match = allFiles.find((f) => {
+      const base = f.replace(/\.json$/, '');
+      return f === cleanId || base === cleanId || f.includes(cleanId) || cleanId.includes(base);
+    });
+
+    if (!match) {
       throw new AppError('Snapshot not found.', 404, 'SNAPSHOT_NOT_FOUND');
     }
 
-    const filePath = path.join(BACKUP_DIR, files[0]);
+    const filePath = path.join(BACKUP_DIR, match);
     const raw = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(raw) as BackupPayload;
   }
@@ -293,13 +300,24 @@ export class BackupService {
    */
   static deleteSnapshot(userId: string, id: string): boolean {
     this.ensureBackupDir();
-    const files = fs.readdirSync(BACKUP_DIR).filter((f) => f.includes(id) && f.endsWith('.json'));
-    if (files.length === 0) {
-      throw new AppError('Snapshot not found.', 404, 'SNAPSHOT_NOT_FOUND');
+    const cleanId = decodeURIComponent(id).trim();
+    const allFiles = fs.readdirSync(BACKUP_DIR).filter((f) => f.endsWith('.json'));
+
+    const match = allFiles.find((f) => {
+      const base = f.replace(/\.json$/, '');
+      return f === cleanId || base === cleanId || f.includes(cleanId) || cleanId.includes(base);
+    });
+
+    if (!match) {
+      throw new AppError(`Snapshot "${id}" not found.`, 404, 'SNAPSHOT_NOT_FOUND');
     }
 
-    const filePath = path.join(BACKUP_DIR, files[0]);
-    fs.unlinkSync(filePath);
+    const filePath = path.join(BACKUP_DIR, match);
+    try {
+      fs.unlinkSync(filePath);
+    } catch (err: any) {
+      throw new AppError(`Failed to delete snapshot file: ${err.message}`, 500, 'DELETE_FAILED');
+    }
 
     AuditService.log({
       userId,

@@ -337,6 +337,11 @@ export const SettingsPage: React.FC = () => {
   const [selectedBackupForRestore, setSelectedBackupForRestore] = useState<BackupMetadata | null>(null);
   const [restoring, setRestoring] = useState(false);
 
+  // Delete Backup Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedBackupForDelete, setSelectedBackupForDelete] = useState<BackupMetadata | null>(null);
+  const [deletingBackup, setDeletingBackup] = useState(false);
+
   const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
   const canReset = useAuthStore((s) => s.hasPermission(PERMISSIONS.SYSTEM_CONFIGURE));
@@ -491,14 +496,23 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleDeleteBackup = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this backup file?')) return;
+  const handleOpenDeleteModal = (backup: BackupMetadata) => {
+    setSelectedBackupForDelete(backup);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteBackup = async () => {
+    if (!selectedBackupForDelete || deletingBackup) return;
+    setDeletingBackup(true);
     try {
-      await systemApi.deleteBackup(id);
-      showToast('success', 'Backup deleted.');
+      await systemApi.deleteBackup(selectedBackupForDelete.id);
+      setDeleteModalOpen(false);
+      showToast('success', `Snapshot "${selectedBackupForDelete.id}" deleted.`);
       await fetchBackups();
     } catch (err: any) {
       showToast('error', err?.message || 'Failed to delete backup.');
+    } finally {
+      setDeletingBackup(false);
     }
   };
 
@@ -803,7 +817,7 @@ export const SettingsPage: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteBackup(b.id)}
+                            onClick={() => handleOpenDeleteModal(b)}
                             title="Delete snapshot"
                             className="text-red-400 hover:text-red-300 hover:bg-red-950/30"
                           >
@@ -939,6 +953,49 @@ export const SettingsPage: React.FC = () => {
               className="bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5"
             >
               <RotateCcw size={14} /> Confirm & Reverse Data
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ─── MODAL: DELETE SNAPSHOT CONFIRMATION ───────────────────────────── */}
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => {
+          if (!deletingBackup) setDeleteModalOpen(false);
+        }}
+        title="Delete Snapshot File"
+        size="sm"
+      >
+        <div className="p-6 space-y-4">
+          <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-200">
+            <AlertTriangle size={18} className="text-red-400 mt-0.5 shrink-0" />
+            <div className="text-xs leading-relaxed">
+              Are you sure you want to permanently delete snapshot <code className="bg-red-950 px-1 py-0.5 rounded font-mono text-[11px] text-white">{selectedBackupForDelete?.id}</code>?
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-400 leading-relaxed">
+            This snapshot contains <strong>{selectedBackupForDelete?.totalRecords} records</strong> from {selectedBackupForDelete ? new Date(selectedBackupForDelete.createdAt).toLocaleString() : ''}. Once deleted from disk, it cannot be restored.
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={deletingBackup}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              loading={deletingBackup}
+              onClick={handleConfirmDeleteBackup}
+              className="gap-1.5 shadow-sm"
+            >
+              <Trash2 size={14} /> Delete Snapshot
             </Button>
           </div>
         </div>
