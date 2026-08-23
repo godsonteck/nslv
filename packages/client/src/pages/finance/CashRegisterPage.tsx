@@ -292,7 +292,7 @@ ${itemsHtml}`;
     try {
       await cashRegisterApi.clearAllEntries(selectedDate);
       showToast('success', 'All cash entries cleared for this date');
-      load();
+      await load();
     } catch (error: any) {
       showToast('error', error?.message ?? 'Failed to clear entries');
     }
