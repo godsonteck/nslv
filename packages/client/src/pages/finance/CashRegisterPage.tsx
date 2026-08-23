@@ -3,7 +3,6 @@ import { formatCurrency, PERMISSIONS } from '@nslv/shared';
 import {
   ArrowDown,
   ArrowUp,
-  Banknote,
   Calculator,
   ChevronLeft,
   ChevronRight,
@@ -12,11 +11,9 @@ import {
   Printer,
   RefreshCw,
   ShieldAlert,
+  Smartphone,
   Trash2,
   Users,
-  Clock,
-  CreditCard,
-  Building2,
 } from 'lucide-react';
 import {
   Button,
@@ -124,10 +121,10 @@ export const CashRegisterPage: React.FC = () => {
     receiptRef: '',
   });
 
-  const [bankDepositOpen, setBankDepositOpen] = useState(false);
-  const [bankDepositAmount, setBankDepositAmount] = useState('');
-  const [bankDepositDescription, setBankDepositDescription] = useState('');
-  const [bankDepositReference, setBankDepositReference] = useState('');
+  const [momoDepositOpen, setMomoDepositOpen] = useState(false);
+  const [momoDepositAmount, setMomoDepositAmount] = useState('');
+  const [momoDepositDescription, setMomoDepositDescription] = useState('');
+  const [momoDepositReference, setMomoDepositReference] = useState('');
 
   const token = () => useAuthStore.getState().tokens?.accessToken ?? null;
 
@@ -202,25 +199,25 @@ export const CashRegisterPage: React.FC = () => {
     }
   };
 
-  const saveBankDeposit = async (event: React.FormEvent) => {
+  const saveMomoDeposit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!bankDepositAmount || Number(bankDepositAmount) <= 0 || !bankDepositDescription.trim()) return showToast('error', 'Amount and description are required.');
+    if (!momoDepositAmount || Number(momoDepositAmount) <= 0 || !momoDepositDescription.trim()) return showToast('error', 'Amount and description are required.');
     setSaving(true);
     try {
       await cashRegisterApi.recordBankDeposit({
         businessDate: selectedDate,
-        amount: Number(bankDepositAmount),
-        description: bankDepositDescription.trim(),
-        reference: bankDepositReference || undefined,
+        amount: Number(momoDepositAmount),
+        description: momoDepositDescription.trim(),
+        reference: momoDepositReference || undefined,
       });
-      showToast('success', 'Bank deposit recorded.');
-      setBankDepositOpen(false);
-      setBankDepositAmount('');
-      setBankDepositDescription('');
-      setBankDepositReference('');
+      showToast('success', 'MoMo deposit recorded.');
+      setMomoDepositOpen(false);
+      setMomoDepositAmount('');
+      setMomoDepositDescription('');
+      setMomoDepositReference('');
       await load();
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to record bank deposit.');
+      showToast('error', error?.message ?? 'Unable to record MoMo deposit.');
     } finally {
       setSaving(false);
     }
@@ -288,10 +285,10 @@ ${itemsHtml}`;
   };
 
   const clearAllEntries = async () => {
-    if (!window.confirm(`Clear all cash entries for ${selectedDate}? This will remove all inflows/outflows but keep the opening balance. This cannot be undone.`)) return;
+    if (!window.confirm(`Reset the cash register for ${selectedDate}? This removes the opening balance and every manual cash entry for that date. Completed cash sales and refunds stay recorded for accounting. This cannot be undone.`)) return;
     try {
       await cashRegisterApi.clearAllEntries(selectedDate);
-      showToast('success', 'All cash entries cleared for this date');
+      showToast('success', 'Cash register reset. You can enter a new opening balance and new cash movements.');
       await load();
     } catch (error: any) {
       showToast('error', error?.message ?? 'Failed to clear entries');
@@ -362,7 +359,7 @@ ${itemsHtml}`;
           <div className="flex-1">
             <div className="font-bold text-amber-800">Low Cash Alert</div>
             <div className="text-sm text-amber-700">
-              Cash at hand (GHS {summary.netCash.toFixed(2)}) is below GHS 200. Consider recording a bank deposit or requesting float top-up.
+              Cash at hand (GHS {summary.netCash.toFixed(2)}) is below GHS 200. Consider recording a MoMo deposit or requesting float top-up.
             </div>
           </div>
         </div>
@@ -386,8 +383,8 @@ ${itemsHtml}`;
               <Button variant="primary" size="sm" onClick={() => openEntry('OUTFLOW')} className="gap-1.5">
                 <ArrowDown size={14} /> Record money out
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setBankDepositAmount(''); setBankDepositDescription(''); setBankDepositReference(''); setBankDepositOpen(true); }} className="gap-1.5">
-                <Banknote size={14} /> Bank deposit
+<Button variant="outline" size="sm" onClick={() => { setMomoDepositAmount(''); setMomoDepositDescription(''); setMomoDepositReference(''); setMomoDepositOpen(true); }} className="gap-1.5">
+                <Smartphone size={14} /> Record MoMo deposit
               </Button>
               <Button variant="secondary" size="sm" onClick={openHandover} className="gap-1.5">
                 <Users size={14} /> Shift handover
@@ -548,23 +545,23 @@ ${itemsHtml}`;
         </form>
       </Modal>
 
-      <Modal open={bankDepositOpen} onClose={() => setBankDepositOpen(false)} title="Record Bank Deposit">
-        <form onSubmit={saveBankDeposit} className="space-y-4">
+      <Modal open={momoDepositOpen} onClose={() => setMomoDepositOpen(false)} title="Record MoMo Deposit">
+        <form onSubmit={saveMomoDeposit} className="space-y-4">
           <FormField label="Business date" required>
             <input type="date" value={selectedDate} readOnly className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm" />
           </FormField>
           <FormField label="Amount (GHS)" required>
-            <TextInput type="number" min="0.01" step="0.01" value={bankDepositAmount} onChange={(e) => setBankDepositAmount(e.target.value)} placeholder="0.00" required />
+            <TextInput type="number" min="0.01" step="0.01" value={momoDepositAmount} onChange={(e) => setMomoDepositAmount(e.target.value)} placeholder="0.00" required />
           </FormField>
           <FormField label="Description" required>
-            <TextInput value={bankDepositDescription} onChange={(e) => setBankDepositDescription(e.target.value)} placeholder="e.g. Cash deposited to Ecobank" required />
+            <TextInput value={momoDepositDescription} onChange={(e) => setMomoDepositDescription(e.target.value)} placeholder="e.g. Cash deposited to MTN MoMo" required />
           </FormField>
           <FormField label="Reference (optional)">
-            <TextInput value={bankDepositReference} onChange={(e) => setBankDepositReference(e.target.value)} placeholder="Deposit slip / transaction reference" />
+            <TextInput value={momoDepositReference} onChange={(e) => setMomoDepositReference(e.target.value)} placeholder="Transaction ID / reference" />
           </FormField>
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setBankDepositOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" loading={saving}><Banknote size={14} /> Save bank deposit</Button>
+            <Button type="button" variant="ghost" onClick={() => setMomoDepositOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" loading={saving}><Smartphone size={14} /> Save MoMo deposit</Button>
           </div>
         </form>
       </Modal>

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  registerFindUnique: vi.fn(), registerFindFirst: vi.fn(), entryFindMany: vi.fn(), paymentFindMany: vi.fn(),
+  registerFindUnique: vi.fn(), registerFindFirst: vi.fn(), registerDelete: vi.fn(), entryFindMany: vi.fn(), entryCount: vi.fn(), paymentFindMany: vi.fn(), transaction: vi.fn(),
 }));
 vi.mock('../src/config', () => ({ prisma: {
-  cashRegister: { findUnique: mocks.registerFindUnique, findFirst: mocks.registerFindFirst },
-  cashRegisterEntry: { findMany: mocks.entryFindMany }, payment: { findMany: mocks.paymentFindMany },
+  cashRegister: { findUnique: mocks.registerFindUnique, findFirst: mocks.registerFindFirst, delete: mocks.registerDelete },
+  cashRegisterEntry: { findMany: mocks.entryFindMany, count: mocks.entryCount }, payment: { findMany: mocks.paymentFindMany }, $transaction: mocks.transaction,
 } }));
 vi.mock('../src/services/audit.service', () => ({ AuditService: { logInTransaction: vi.fn() } }));
 vi.mock('../src/services/categories.service', () => ({ CategoryService: { assertConfiguredValue: vi.fn() } }));
@@ -26,6 +26,16 @@ describe('cash-register carry-forward', () => {
     ]);
 
     const result = await CashRegisterService.getSummary('2026-08-23');
-    expect(result).toMatchObject({ carriedForward: 100, cashSales: 80, cashRefunds: 5, inflows: 25, outflows: 10, netCash: 190 });
+    expect(result).toMatchObject({ carriedIntoToday: 100, cashSales: 80, cashRefunds: 5, manualInflows: 25, manualOutflows: 10, expectedCash: 190 });
+  });
+
+  it('resets the opening and every manual cash movement for the selected date', async () => {
+    const tx = { cashRegister: { findUnique: vi.fn().mockResolvedValue({ id: 'register-1' }), delete: mocks.registerDelete }, cashRegisterEntry: { count: mocks.entryCount }, $executeRaw: vi.fn() };
+    mocks.transaction.mockImplementationOnce((callback) => callback(tx));
+    mocks.entryCount.mockResolvedValueOnce(4);
+    mocks.registerDelete.mockResolvedValueOnce({ id: 'register-1' });
+
+    await expect(CashRegisterService.clearAllEntriesForDate('2026-08-23', 'user-1')).resolves.toMatchObject({ deleted: 4 });
+    expect(mocks.registerDelete).toHaveBeenCalledWith({ where: { id: 'register-1' } });
   });
 });

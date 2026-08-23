@@ -173,7 +173,7 @@ router.post('/bank-deposit', requireCashRegisterAccess(true), validateBody(bankD
   }
 });
 
-// DELETE /api/v1/cash-register/entries - clear all entries for a date (except opening)
+// DELETE /api/v1/cash-register/entries - reset every manual cash-register entry for a date
 router.delete('/entries', requireCashRegisterAccess(true), validateQuery(clearAllSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;

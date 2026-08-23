@@ -313,7 +313,7 @@ export class CashRegisterService {
           type: 'INFLOW',
           amount,
           description: input.description,
-          category: 'BANK_DEPOSIT',
+          category: 'MOMO_DEPOSIT',
           recipient: null,
           receiptRef: input.reference || null,
           recordedBy: input.processedBy,
@@ -334,7 +334,7 @@ export class CashRegisterService {
           type: 'INFLOW',
           amount,
           description: input.description,
-          category: 'BANK_DEPOSIT',
+          category: 'MOMO_DEPOSIT',
           recipient: null,
           receiptRef: input.reference || null,
           recordedBy: input.processedBy,
@@ -529,7 +529,10 @@ export class CashRegisterService {
   }
 
   /**
-   * Clear all non-opening entries for a business date
+   * Reset a day's cash-register input completely.  Payments are deliberately
+   * not deleted here: cash sales/refunds are the source financial records and
+   * must remain auditable.  The register has a cascade foreign key, so this
+   * removes its opening count and every manual inflow/outflow together.
    */
   static async clearAllEntriesForDate(businessDate: string, userId: string) {
     const date = new Date(`${businessDate.slice(0, 10)}T00:00:00.000Z`);
@@ -539,23 +542,18 @@ export class CashRegisterService {
       const register = await tx.cashRegister.findUnique({ where: { businessDate: date } });
       if (!register) return { deleted: 0, message: 'No register found for this date' };
 
-      // Delete all non-opening entries
-      const deleted = await tx.cashRegisterEntry.deleteMany({
-        where: {
-          cashRegisterId: register.id,
-          type: { not: 'OPENING' },
-        },
-      });
+      const entryCount = await tx.cashRegisterEntry.count({ where: { cashRegisterId: register.id } });
+      await tx.cashRegister.delete({ where: { id: register.id } });
 
       await AuditService.logInTransaction(tx, {
         userId,
         action: 'cash_register.entries_cleared',
         resource: 'cash_register',
         resourceId: register.id,
-        afterData: { businessDate, deletedCount: deleted.count },
+        afterData: { businessDate, deletedCount: entryCount, reset: true },
       });
 
-      return { deleted: deleted.count, message: `Cleared ${deleted.count} entries for ${businessDate}` };
+      return { deleted: entryCount, message: `Reset the cash register for ${businessDate}` };
     });
   }
 

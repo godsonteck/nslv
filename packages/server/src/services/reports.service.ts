@@ -1022,8 +1022,8 @@ export class ReportService {
 
     const outflowEntries = cashRegisterEntries.filter((e) => e.type === 'OUTFLOW');
     const openingEntries = cashRegisterEntries.filter((e) => e.type === 'OPENING');
-    const manualInflowEntries = cashRegisterEntries.filter((e) => e.type === 'INFLOW' && e.category !== 'BANK_DEPOSIT');
-    const bankDepositEntries = cashRegisterEntries.filter((e) => e.category === 'BANK_DEPOSIT' || (e.description && e.description.toLowerCase().includes('bank')));
+    const manualInflowEntries = cashRegisterEntries.filter((e) => e.type === 'INFLOW' && e.category !== 'MOMO_DEPOSIT');
+    const momoDepositEntries = cashRegisterEntries.filter((e) => e.category === 'MOMO_DEPOSIT' || (e.description && e.description.toLowerCase().includes('momo')));
 
     // Also fetch approved cash expenses from Expense table for comprehensive reconciliation
     const approvedCashExpenses = await prisma.expense.findMany({
@@ -1107,12 +1107,12 @@ export class ReportService {
     // 4. Cash Float & Handover Reconciliation
     const totalOpeningCash = openingEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
     const totalManualInflows = manualInflowEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
-    const totalBankDeposits = bankDepositEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    const totalMomoDeposits = momoDepositEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
-    // Net expected cash at reception = Opening float + Cash collected at front desk + Manual inflows - Money taken for expenses - Cash refunds - Bank deposits
+    // Net expected cash at reception = Opening float + Cash collected at front desk + Manual inflows - Money taken for expenses - Cash refunds - MoMo deposits
     const expectedCashAtHand = Math.max(
       0,
-      totalOpeningCash + totalCashAmount + totalManualInflows - totalReceptionExpenses - cashRefunds - totalBankDeposits
+      totalOpeningCash + totalCashAmount + totalManualInflows - totalReceptionExpenses - cashRefunds - totalMomoDeposits
     );
 
     // 5. Operations: Check-ins and Check-outs in period
@@ -1190,7 +1190,7 @@ export class ReportService {
         manualInflows: totalManualInflows,
         moneyTakenForExpenses: totalReceptionExpenses,
         cashRefundsPaid: cashRefunds,
-        cashDepositedToBank: totalBankDeposits,
+        cashDepositedToBank: totalMomoDeposits,
         expectedCashAtHand,
       },
       operationalHighlights: {
