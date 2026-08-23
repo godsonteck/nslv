@@ -894,6 +894,13 @@ export const reportsApi = {
     const data = await apiFetch<any>(`/reports/comprehensive?${qs}`, {}, token());
     return { success: true, data };
   },
+  getReceptionReport: async (startDate?: string, endDate?: string): Promise<{ success: true; data: any }> => {
+    const qs = new URLSearchParams();
+    if (startDate) qs.set('startDate', startDate);
+    if (endDate) qs.set('endDate', endDate);
+    const data = await apiFetch<any>(`/reports/reception?${qs}`, {}, token());
+    return { success: true, data };
+  },
 };
 
 // ──────────────────────────────────────────

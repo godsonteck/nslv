@@ -679,4 +679,528 @@ export class ReportService {
       },
     };
   }
+
+  /**
+   * Get Reception Shift & Operations Report
+   * Dedicated reporting for Front Desk / Reception:
+   * - Total MoMo & Cash collections with transaction logs
+   * - Number of people booked (Adults & Children)
+   * - Number of rooms booked and category breakdown
+   * - Money taken from reception for expenses (itemized outflows & petty cash)
+   * - Float reconciliation & shift handover balance
+   */
+  static async getReceptionReport(startDate?: Date, endDate?: Date) {
+    const whereDate = startDate && endDate ? { gte: startDate, lte: endDate } : undefined;
+
+    // Load staff user lookup map for human-readable names
+    const users = await prisma.user.findMany({
+      select: { id: true, firstName: true, lastName: true, username: true },
+    });
+    const userMap = new Map<string, string>();
+    for (const u of users) {
+      const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.username;
+      userMap.set(u.id, name);
+    }
+    const getUserName = (id?: string | null) => (id ? userMap.get(id) || 'Staff' : 'Staff');
+
+    // 1. Payments & Collections
+    const [paymentsInPeriod, refundsInPeriod] = await Promise.all([
+      prisma.payment.findMany({
+        where: {
+          processedAt: whereDate,
+          status: 'COMPLETED',
+          type: { in: ['PAYMENT', 'DEPOSIT'] },
+          voidedAt: null,
+        },
+        include: {
+          guest: { select: { firstName: true, lastName: true, phone: true } },
+          reservation: {
+            select: {
+              confirmationNo: true,
+              room: { select: { number: true, roomType: { select: { name: true } } } },
+            },
+          },
+        },
+        orderBy: { processedAt: 'desc' },
+      }),
+      prisma.payment.findMany({
+        where: {
+          processedAt: whereDate,
+          status: 'COMPLETED',
+          type: 'REFUND',
+          voidedAt: null,
+        },
+        include: {
+          guest: { select: { firstName: true, lastName: true } },
+          reservation: { select: { confirmationNo: true } },
+        },
+        orderBy: { processedAt: 'desc' },
+      }),
+    ]);
+
+    let totalMomoAmount = 0;
+    let totalCashAmount = 0;
+    let totalCardAmount = 0;
+    let totalBankAmount = 0;
+    let otherAmount = 0;
+
+    const momoTransactions: Array<{
+      id: string;
+      amount: number;
+      reference: string;
+      description: string;
+      guestName: string;
+      phone: string;
+      roomNumber: string;
+      confirmationNo: string;
+      processedBy: string;
+      processedAt: string;
+    }> = [];
+
+    const cashTransactions: Array<{
+      id: string;
+      amount: number;
+      description: string;
+      guestName: string;
+      roomNumber: string;
+      confirmationNo: string;
+      processedBy: string;
+      processedAt: string;
+    }> = [];
+
+    const allPaymentRecords: Array<{
+      id: string;
+      amount: number;
+      method: string;
+      reference: string;
+      description: string;
+      guestName: string;
+      roomNumber: string;
+      confirmationNo: string;
+      processedBy: string;
+      processedAt: string;
+      type: string;
+    }> = [];
+
+    for (const p of paymentsInPeriod) {
+      const amt = Number(p.amount || 0);
+      const guestName = p.guest
+        ? `${p.guest.firstName || ''} ${p.guest.lastName || ''}`.trim()
+        : 'Guest';
+      const guestPhone = p.guest?.phone || '—';
+      const roomNum = p.reservation?.room?.number ? `Room ${p.reservation.room.number}` : '—';
+      const confNo = p.reservation?.confirmationNo || '—';
+      const staff = getUserName(p.processedBy);
+      const procAt = p.processedAt.toISOString();
+
+      if (p.method === 'MOBILE_MONEY') {
+        totalMomoAmount += amt;
+        momoTransactions.push({
+          id: p.id,
+          amount: amt,
+          reference: p.reference || '—',
+          description: p.description || 'Mobile Money payment',
+          guestName,
+          phone: guestPhone,
+          roomNumber: roomNum,
+          confirmationNo: confNo,
+          processedBy: staff,
+          processedAt: procAt,
+        });
+      } else if (p.method === 'CASH') {
+        totalCashAmount += amt;
+        cashTransactions.push({
+          id: p.id,
+          amount: amt,
+          description: p.description || 'Cash payment',
+          guestName,
+          roomNumber: roomNum,
+          confirmationNo: confNo,
+          processedBy: staff,
+          processedAt: procAt,
+        });
+      } else if (p.method === 'CARD') {
+        totalCardAmount += amt;
+      } else if (p.method === 'BANK_TRANSFER') {
+        totalBankAmount += amt;
+      } else {
+        otherAmount += amt;
+      }
+
+      allPaymentRecords.push({
+        id: p.id,
+        amount: amt,
+        method: p.method,
+        reference: p.reference || '—',
+        description: p.description || '',
+        guestName,
+        roomNumber: roomNum,
+        confirmationNo: confNo,
+        processedBy: staff,
+        processedAt: procAt,
+        type: p.type,
+      });
+    }
+
+    const totalRefunds = refundsInPeriod.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    const cashRefunds = refundsInPeriod
+      .filter((r) => r.method === 'CASH')
+      .reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+    const totalCollections = totalMomoAmount + totalCashAmount + totalCardAmount + totalBankAmount + otherAmount;
+    const netCollections = totalCollections - totalRefunds;
+
+    // 2. Bookings, People Headcount & Room Category Breakdown
+    const reservationsInPeriod = await prisma.reservation.findMany({
+      where: {
+        OR: [
+          { createdAt: whereDate },
+          { checkInDate: whereDate },
+        ],
+      },
+      include: {
+        room: {
+          include: {
+            roomType: true,
+          },
+        },
+        guests: {
+          include: {
+            guest: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const activeReservations = reservationsInPeriod.filter((r) => r.status !== 'CANCELLED');
+    const totalBookingsCount = reservationsInPeriod.length;
+    const activeBookingsCount = activeReservations.length;
+    const cancelledBookingsCount = reservationsInPeriod.filter((r) => r.status === 'CANCELLED').length;
+
+    let totalAdults = 0;
+    let totalChildren = 0;
+    let totalRoomNights = 0;
+    const uniqueRoomIds = new Set<string>();
+
+    // Room Category Breakdown Map
+    const categoryMap = new Map<string, {
+      categoryName: string;
+      basePrice: number;
+      bookingsCount: number;
+      roomNights: number;
+      adults: number;
+      children: number;
+      totalPeople: number;
+      totalRevenue: number;
+      depositCollected: number;
+      rooms: Set<string>;
+    }>();
+
+    const bookingList: Array<{
+      id: string;
+      confirmationNo: string;
+      guestName: string;
+      phone: string;
+      roomNumber: string;
+      categoryName: string;
+      checkInDate: string;
+      checkOutDate: string;
+      nights: number;
+      adults: number;
+      children: number;
+      totalPeople: number;
+      status: string;
+      source: string;
+      totalAmount: number;
+      depositAmount: number;
+      createdAt: string;
+    }> = [];
+
+    for (const r of reservationsInPeriod) {
+      const primaryGuest = r.guests?.[0]?.guest;
+      const guestName = primaryGuest
+        ? `${primaryGuest.firstName || ''} ${primaryGuest.lastName || ''}`.trim()
+        : 'Guest';
+      const phone = primaryGuest?.phone || '—';
+      const roomNum = r.room?.number || '—';
+      const categoryName = r.room?.roomType?.name || 'Standard';
+      const basePrice = Number(r.room?.roomType?.basePrice || r.baseRate || 0);
+
+      const checkIn = new Date(r.checkInDate);
+      const checkOut = new Date(r.checkOutDate);
+      const nights = Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)));
+      const adults = r.adults || 1;
+      const children = r.children || 0;
+      const totalPeople = adults + children;
+      const totalAmt = Number(r.totalAmount || 0);
+      const depAmt = Number(r.depositAmount || 0);
+
+      if (r.status !== 'CANCELLED') {
+        totalAdults += adults;
+        totalChildren += children;
+        totalRoomNights += nights;
+        if (r.roomId) uniqueRoomIds.add(r.roomId);
+
+        // Accumulate into category
+        let cat = categoryMap.get(categoryName);
+        if (!cat) {
+          cat = {
+            categoryName,
+            basePrice,
+            bookingsCount: 0,
+            roomNights: 0,
+            adults: 0,
+            children: 0,
+            totalPeople: 0,
+            totalRevenue: 0,
+            depositCollected: 0,
+            rooms: new Set<string>(),
+          };
+          categoryMap.set(categoryName, cat);
+        }
+        cat.bookingsCount += 1;
+        cat.roomNights += nights;
+        cat.adults += adults;
+        cat.children += children;
+        cat.totalPeople += totalPeople;
+        cat.totalRevenue += totalAmt;
+        cat.depositCollected += depAmt;
+        if (r.room?.number) cat.rooms.add(r.room.number);
+      }
+
+      bookingList.push({
+        id: r.id,
+        confirmationNo: r.confirmationNo,
+        guestName,
+        phone,
+        roomNumber: roomNum,
+        categoryName,
+        checkInDate: r.checkInDate.toISOString().slice(0, 10),
+        checkOutDate: r.checkOutDate.toISOString().slice(0, 10),
+        nights,
+        adults,
+        children,
+        totalPeople,
+        status: r.status,
+        source: r.source,
+        totalAmount: totalAmt,
+        depositAmount: depAmt,
+        createdAt: r.createdAt.toISOString(),
+      });
+    }
+
+    const categoriesBreakdown = Array.from(categoryMap.values()).map((c) => ({
+      categoryName: c.categoryName,
+      basePrice: c.basePrice,
+      bookingsCount: c.bookingsCount,
+      roomNights: c.roomNights,
+      adults: c.adults,
+      children: c.children,
+      totalPeople: c.totalPeople,
+      totalRevenue: c.totalRevenue,
+      depositCollected: c.depositCollected,
+      uniqueRoomsCount: c.rooms.size,
+      roomsList: Array.from(c.rooms).sort().join(', '),
+      percentageShare: activeBookingsCount > 0 ? Math.round((c.bookingsCount / activeBookingsCount) * 100) : 0,
+    })).sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+    const totalPeopleBooked = totalAdults + totalChildren;
+    const totalRoomsBooked = uniqueRoomIds.size;
+
+    // 3. Money Taken from Reception for Expenses (Outflows & Petty Cash)
+    // Query cash register outflow entries
+    const cashRegisterEntries = await prisma.cashRegisterEntry.findMany({
+      where: {
+        cashRegister: whereDate ? { businessDate: whereDate } : undefined,
+      },
+      include: {
+        cashRegister: { select: { businessDate: true } },
+      },
+      orderBy: { recordedAt: 'desc' },
+    });
+
+    const outflowEntries = cashRegisterEntries.filter((e) => e.type === 'OUTFLOW');
+    const openingEntries = cashRegisterEntries.filter((e) => e.type === 'OPENING');
+    const manualInflowEntries = cashRegisterEntries.filter((e) => e.type === 'INFLOW' && e.category !== 'BANK_DEPOSIT');
+    const bankDepositEntries = cashRegisterEntries.filter((e) => e.category === 'BANK_DEPOSIT' || (e.description && e.description.toLowerCase().includes('bank')));
+
+    // Also fetch approved cash expenses from Expense table for comprehensive reconciliation
+    const approvedCashExpenses = await prisma.expense.findMany({
+      where: {
+        incurredOn: whereDate,
+        status: 'APPROVED',
+        paymentMethod: 'CASH',
+      },
+      orderBy: { incurredOn: 'desc' },
+    });
+
+    // Expenses itemized list
+    const expenseDisbursements: Array<{
+      id: string;
+      date: string;
+      time: string;
+      amount: number;
+      category: string;
+      description: string;
+      recipient: string;
+      receiptRef: string;
+      recordedBy: string;
+      source: 'REGISTER_OUTFLOW' | 'EXPENSE_RECORD';
+    }> = [];
+
+    const expenseCategoryMap: Record<string, number> = {};
+    let totalReceptionExpenses = 0;
+
+    for (const out of outflowEntries) {
+      const amt = Number(out.amount || 0);
+      const cat = out.category || 'GENERAL_EXPENSE';
+      totalReceptionExpenses += amt;
+      expenseCategoryMap[cat] = (expenseCategoryMap[cat] || 0) + amt;
+
+      expenseDisbursements.push({
+        id: out.id,
+        date: out.recordedAt.toISOString().slice(0, 10),
+        time: out.recordedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        amount: amt,
+        category: cat,
+        description: out.description || 'Cash outflow',
+        recipient: out.recipient || '—',
+        receiptRef: out.receiptRef || '—',
+        recordedBy: getUserName(out.recordedBy),
+        source: 'REGISTER_OUTFLOW',
+      });
+    }
+
+    // Add any approved cash expense not already in cash register entries
+    for (const exp of approvedCashExpenses) {
+      const alreadyInList = expenseDisbursements.some(
+        (d) => d.receiptRef === exp.receiptRef || (d.amount === Number(exp.amount) && d.description.includes(exp.expenseNo))
+      );
+      if (!alreadyInList) {
+        const amt = Number(exp.amount || 0);
+        const cat = exp.category || 'GENERAL';
+        expenseCategoryMap[cat] = (expenseCategoryMap[cat] || 0) + amt;
+        totalReceptionExpenses += amt;
+
+        expenseDisbursements.push({
+          id: exp.id,
+          date: exp.incurredOn.toISOString().slice(0, 10),
+          time: exp.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          amount: amt,
+          category: cat,
+          description: `${exp.expenseNo}: ${exp.description || 'Cash Expense'}`,
+          recipient: exp.vendor || '—',
+          receiptRef: exp.receiptRef || exp.expenseNo,
+          recordedBy: getUserName(exp.createdBy),
+          source: 'EXPENSE_RECORD',
+        });
+      }
+    }
+
+    const expensesByCategory = Object.entries(expenseCategoryMap).map(([category, amount]) => ({
+      category,
+      amount,
+      percentage: totalReceptionExpenses > 0 ? Math.round((amount / totalReceptionExpenses) * 100) : 0,
+    })).sort((a, b) => b.amount - a.amount);
+
+    // 4. Cash Float & Handover Reconciliation
+    const totalOpeningCash = openingEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    const totalManualInflows = manualInflowEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    const totalBankDeposits = bankDepositEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+    // Net expected cash at reception = Opening float + Cash collected at front desk + Manual inflows - Money taken for expenses - Cash refunds - Bank deposits
+    const expectedCashAtHand = Math.max(
+      0,
+      totalOpeningCash + totalCashAmount + totalManualInflows - totalReceptionExpenses - cashRefunds - totalBankDeposits
+    );
+
+    // 5. Operations: Check-ins and Check-outs in period
+    const [checkInsCount, checkOutsCount, activeStaysCount] = await Promise.all([
+      prisma.checkIn.count({ where: { actualCheckIn: whereDate } }),
+      prisma.checkOut.count({ where: { actualCheckOut: whereDate } }),
+      prisma.checkIn.count({ where: { reservation: { status: 'CHECKED_IN' } } }),
+    ]);
+
+    // Late checkout fees in period
+    const lateFeeItems = await prisma.folioItem.findMany({
+      where: {
+        voidedAt: null,
+        referenceType: 'CHECKOUT',
+        description: { contains: 'late', mode: 'insensitive' },
+        ...(whereDate ? { postedAt: whereDate } : {}),
+      },
+      select: { amount: true, quantity: true, folioId: true },
+    });
+    const totalLateFees = lateFeeItems.reduce((sum, l) => sum + Number(l.amount || 0), 0);
+
+    return {
+      period: {
+        startDate: startDate ? startDate.toISOString().slice(0, 10) : undefined,
+        endDate: endDate ? endDate.toISOString().slice(0, 10) : undefined,
+      },
+      financialSummary: {
+        totalCollections,
+        netCollections,
+        totalRefunds,
+        momo: {
+          totalAmount: totalMomoAmount,
+          count: momoTransactions.length,
+          transactions: momoTransactions,
+        },
+        cash: {
+          totalAmount: totalCashAmount,
+          count: cashTransactions.length,
+          transactions: cashTransactions,
+        },
+        card: {
+          totalAmount: totalCardAmount,
+          count: paymentsInPeriod.filter((p) => p.method === 'CARD').length,
+        },
+        bankTransfer: {
+          totalAmount: totalBankAmount,
+          count: paymentsInPeriod.filter((p) => p.method === 'BANK_TRANSFER').length,
+        },
+        other: {
+          totalAmount: otherAmount,
+        },
+        allPaymentRecords,
+      },
+      bookingSummary: {
+        totalBookings: totalBookingsCount,
+        activeBookings: activeBookingsCount,
+        cancelledBookings: cancelledBookingsCount,
+        totalPeople: totalPeopleBooked,
+        adults: totalAdults,
+        children: totalChildren,
+        totalRoomsBooked,
+        totalRoomNights,
+        categories: categoriesBreakdown,
+        bookingsList: bookingList,
+      },
+      expensesSummary: {
+        totalTakenForExpenses: totalReceptionExpenses,
+        disbursementsCount: expenseDisbursements.length,
+        byCategory: expensesByCategory,
+        disbursementsList: expenseDisbursements,
+      },
+      cashReconciliation: {
+        openingCashFloat: totalOpeningCash,
+        cashCollectionsReceived: totalCashAmount,
+        manualInflows: totalManualInflows,
+        moneyTakenForExpenses: totalReceptionExpenses,
+        cashRefundsPaid: cashRefunds,
+        cashDepositedToBank: totalBankDeposits,
+        expectedCashAtHand,
+      },
+      operationalHighlights: {
+        checkInsCount,
+        checkOutsCount,
+        activeStaysCount,
+        lateCheckoutsCount: lateFeeItems.length,
+        totalLateFees,
+      },
+    };
+  }
 }
+

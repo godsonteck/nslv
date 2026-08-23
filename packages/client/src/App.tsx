@@ -21,6 +21,7 @@ const GuestsPage = lazy(() => import('./pages/frontoffice/GuestsPage'));
 const RoomsPage = lazy(() => import('./pages/frontoffice/RoomsPage'));
 const FrontDeskPage = lazy(() => import('./pages/frontoffice/FrontDeskPage'));
 const GuestBillsPage = lazy(() => import('./pages/frontoffice/GuestBillsPage'));
+const ReceptionReportPage = lazy(() => import('./pages/frontoffice/ReceptionReportPage'));
 
 const RestaurantPOSPage = lazy(() => import('./pages/pos/RestaurantPOSPage'));
 const BarPOSPage = lazy(() => import('./pages/pos/BarPOSPage'));
@@ -114,6 +115,8 @@ export const App: React.FC = () => {
           <Route path="guests" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['guests.view']}><GuestsPage /></RequirePermission></Suspense>} />
           <Route path="rooms" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['rooms.view']}><RoomsPage /></RequirePermission></Suspense>} />
           <Route path="frontdesk" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['checkin.perform', 'checkout.perform']}><FrontDeskPage /></RequirePermission></Suspense>} />
+          <Route path="reception/report" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view', 'checkin.perform', 'cash_register.view', 'reservations.view']}><ReceptionReportPage /></RequirePermission></Suspense>} />
+          <Route path="frontdesk/report" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view', 'checkin.perform', 'cash_register.view', 'reservations.view']}><ReceptionReportPage /></RequirePermission></Suspense>} />
           <Route path="bills" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['folios.view']}><GuestBillsPage /></RequirePermission></Suspense>} />
 
           {/* Department POS Routes */}

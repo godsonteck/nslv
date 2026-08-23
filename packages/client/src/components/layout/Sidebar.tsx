@@ -13,6 +13,7 @@ const ALL_SECTIONS: NavSection[] = [
   { title: 'Workspace', items: [
     { label: 'Overview', to: '/dashboard', icon: LayoutDashboard, perms: ['dashboard.view'] },
     { label: 'Front desk', to: '/frontdesk', icon: UserRound, perms: ['checkin.perform', 'checkout.perform'] },
+    { label: 'Reception report', to: '/reception/report', icon: BarChart3, perms: ['checkin.perform', 'reports.view', 'cash_register.view'] },
     { label: 'Guest bills', to: '/bills', icon: ReceiptText, perms: ['folios.view'] },
     { label: 'Reservations', to: '/reservations', icon: CalendarDays, perms: ['reservations.view'] },
     { label: 'Guests', to: '/guests', icon: Users, perms: ['guests.view'] },
