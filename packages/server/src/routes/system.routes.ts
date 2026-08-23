@@ -113,7 +113,7 @@ router.get(
   requirePermission(PERMISSIONS.SYSTEM_CONFIGURE),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const snapshot = BackupService.getSnapshot(req.params.id);
+      const snapshot = BackupService.getSnapshot(req.params.id as string);
       res.status(200).json({
         success: true,
         data: snapshot,
@@ -134,7 +134,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authReq = req as AuthenticatedRequest;
-      const result = await BackupService.restoreSnapshot(authReq.user.userId, req.params.id);
+      const result = await BackupService.restoreSnapshot(authReq.user.userId, req.params.id as string);
       res.status(200).json({
         success: true,
         data: result,
@@ -156,7 +156,7 @@ router.delete(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authReq = req as AuthenticatedRequest;
-      BackupService.deleteSnapshot(authReq.user.userId, req.params.id);
+      BackupService.deleteSnapshot(authReq.user.userId, req.params.id as string);
       res.status(200).json({
         success: true,
         message: `Snapshot "${req.params.id}" has been deleted.`,

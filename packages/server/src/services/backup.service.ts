@@ -156,7 +156,7 @@ export class BackupService {
       action: 'SYSTEM_BACKUP_CREATED',
       resource: 'BACKUP',
       resourceId: id,
-      afterData: JSON.stringify({ id, trigger, totalRecords, fileSizeBytes: stats.size }),
+      afterData: { id, trigger, totalRecords, fileSizeBytes: stats.size },
     }).catch(() => null);
 
     return metadata;
@@ -243,23 +243,16 @@ export class BackupService {
                 update: cleanRecord,
               });
               count++;
-            } else if (cleanRecord.key && model === 'systemSetting') {
+            } else if (cleanRecord.key && (model as string) === 'systemSetting') {
               await client.upsert({
                 where: { key: cleanRecord.key },
                 create: cleanRecord,
                 update: cleanRecord,
               });
               count++;
-            } else if (cleanRecord.businessDate && (model === 'cashRegister' || model === 'dailyClose')) {
+            } else if (cleanRecord.businessDate && ((model as string) === 'cashRegister' || (model as string) === 'dailyClose')) {
               await client.upsert({
                 where: { businessDate: new Date(cleanRecord.businessDate) },
-                create: cleanRecord,
-                update: cleanRecord,
-              });
-              count++;
-            } else if (cleanRecord.roleId && cleanRecord.permissionId && model === 'rolePermission') {
-              await client.upsert({
-                where: { roleId_permissionId: { roleId: cleanRecord.roleId, permissionId: cleanRecord.permissionId } },
                 create: cleanRecord,
                 update: cleanRecord,
               });
@@ -283,7 +276,7 @@ export class BackupService {
       action: 'SYSTEM_BACKUP_RESTORED',
       resource: 'BACKUP',
       resourceId: id,
-      afterData: JSON.stringify({ id, totalRestored, modelsRestored, restoredAt: new Date().toISOString() }),
+      afterData: { id, totalRestored, modelsRestored, restoredAt: new Date().toISOString() },
     }).catch(() => null);
 
     return {
