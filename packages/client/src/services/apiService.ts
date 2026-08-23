@@ -979,15 +979,33 @@ export const eventsApi = {
 // ──────────────────────────────────────────
 // System Administration
 // ──────────────────────────────────────────
+export interface SystemModuleCounts {
+  reservations: { total: number; reservations: number; stays: number; checkOuts: number; folios: number; guests: number };
+  posOrders: { total: number; restaurantOrders: number; barOrders: number };
+  pool: { total: number; poolTransactions: number; poolAttendance: number };
+  events: { total: number; eventBookings: number };
+  finance: { total: number; payments: number; cashRegisterEntries: number; cashRegisters: number; dailyCloses: number };
+  expenses: { total: number; expenses: number };
+  inventory: { total: number; inventoryItems: number };
+  catalogs: { total: number; restaurantItems: number; barItems: number; poolServices: number; itemCategories: number };
+  rooms: { total: number; rooms: number; roomTypes: number; roomAmenities: number };
+  auditLogs: { total: number; auditLogs: number };
+  notifications: { total: number; notifications: number };
+}
+
 export interface SystemResetResult {
+  isFullWipe: boolean;
+  modulesWiped: string[];
   counts: Record<string, number>;
   resetAt: string;
 }
 
 export const systemApi = {
-  reset: (confirmText: string, password: string): Promise<SystemResetResult> =>
+  getCounts: (): Promise<SystemModuleCounts> =>
+    apiFetch<SystemModuleCounts>('/system/counts', {}, token()),
+  reset: (confirmText: string, password: string, modules?: any): Promise<SystemResetResult> =>
     apiFetch<SystemResetResult>('/system/reset', {
       method: 'POST',
-      body: JSON.stringify({ confirmText, password }),
+      body: JSON.stringify({ confirmText, password, modules }),
     }, token()),
 };

@@ -457,9 +457,26 @@ export const createEventBookingSchema = z.object({
 export const updateEventBookingSchema = createEventBookingSchema.partial();
 
 // ── System ──
+export const resetSystemModulesSchema = z.object({
+  reservations: z.boolean().optional(),
+  posOrders: z.boolean().optional(),
+  pool: z.boolean().optional(),
+  events: z.boolean().optional(),
+  finance: z.boolean().optional(),
+  expenses: z.boolean().optional(),
+  inventory: z.boolean().optional(),
+  catalogs: z.boolean().optional(),
+  rooms: z.boolean().optional(),
+  auditLogs: z.boolean().optional(),
+  notifications: z.boolean().optional(),
+});
+
+export type ResetSystemModules = z.infer<typeof resetSystemModulesSchema>;
+
 export const resetSystemSchema = z.object({
   confirmText: z.literal('RESET', { invalid_type_error: 'Type RESET to confirm' }),
   password: z.string().min(1, 'Your password is required'),
+  modules: resetSystemModulesSchema.optional(),
 });
 
 // ── Imports ──
