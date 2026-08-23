@@ -212,64 +212,67 @@ export class BackupService {
     const modelsRestored: Record<string, number> = {};
     let totalRestored = 0;
 
-    await prisma.$transaction(async (tx) => {
-      // Restore in strict topological dependency order
-      for (const model of RESTORE_ORDER) {
-        const records = data[model];
-        if (!records || !Array.isArray(records) || records.length === 0) {
-          modelsRestored[model] = 0;
-          continue;
-        }
-
-        const client = (tx as any)[model];
-        if (!client) continue;
-
-        let count = 0;
-        for (const record of records) {
-          try {
-            // Clean date fields from strings to Dates
-            const cleanRecord = { ...record };
-            for (const [k, v] of Object.entries(cleanRecord)) {
-              if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v)) {
-                cleanRecord[k] = new Date(v);
-              }
-            }
-
-            // Primary key handling: upsert by id if has id, or findUnique
-            if (cleanRecord.id) {
-              await client.upsert({
-                where: { id: cleanRecord.id },
-                create: cleanRecord,
-                update: cleanRecord,
-              });
-              count++;
-            } else if (cleanRecord.key && (model as string) === 'systemSetting') {
-              await client.upsert({
-                where: { key: cleanRecord.key },
-                create: cleanRecord,
-                update: cleanRecord,
-              });
-              count++;
-            } else if (cleanRecord.businessDate && ((model as string) === 'cashRegister' || (model as string) === 'dailyClose')) {
-              await client.upsert({
-                where: { businessDate: new Date(cleanRecord.businessDate) },
-                create: cleanRecord,
-                update: cleanRecord,
-              });
-              count++;
-            } else {
-              await client.create({ data: cleanRecord }).catch(() => null);
-              count++;
-            }
-          } catch (insertErr) {
-            // Continue restoring subsequent records
+    await prisma.$transaction(
+      async (tx) => {
+        // Restore in strict topological dependency order
+        for (const model of RESTORE_ORDER) {
+          const records = data[model];
+          if (!records || !Array.isArray(records) || records.length === 0) {
+            modelsRestored[model] = 0;
+            continue;
           }
-        }
 
-        modelsRestored[model] = count;
-        totalRestored += count;
-      }
-    });
+          const client = (tx as any)[model];
+          if (!client) continue;
+
+          let count = 0;
+          for (const record of records) {
+            try {
+              // Clean date fields from strings to Dates
+              const cleanRecord = { ...record };
+              for (const [k, v] of Object.entries(cleanRecord)) {
+                if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v)) {
+                  cleanRecord[k] = new Date(v);
+                }
+              }
+
+              // Primary key handling: upsert by id if has id, or findUnique
+              if (cleanRecord.id) {
+                await client.upsert({
+                  where: { id: cleanRecord.id },
+                  create: cleanRecord,
+                  update: cleanRecord,
+                });
+                count++;
+              } else if (cleanRecord.key && (model as string) === 'systemSetting') {
+                await client.upsert({
+                  where: { key: cleanRecord.key },
+                  create: cleanRecord,
+                  update: cleanRecord,
+                });
+                count++;
+              } else if (cleanRecord.businessDate && ((model as string) === 'cashRegister' || (model as string) === 'dailyClose')) {
+                await client.upsert({
+                  where: { businessDate: new Date(cleanRecord.businessDate) },
+                  create: cleanRecord,
+                  update: cleanRecord,
+                });
+                count++;
+              } else {
+                await client.create({ data: cleanRecord }).catch(() => null);
+                count++;
+              }
+            } catch (insertErr) {
+              // Continue restoring subsequent records
+            }
+          }
+
+          modelsRestored[model] = count;
+          totalRestored += count;
+        }
+      },
+      { timeout: 30000 }
+    );
 
     await AuditService.log({
       userId,
