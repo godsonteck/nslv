@@ -463,8 +463,11 @@ export class CashRegisterService {
     let todayCashSales = 0;
     const byCategory: Record<string, number> = {};
 
-    // Replay manual entries
+    // Replay manual entries. Refund movements are retained in their own ledger,
+    // but deliberately do not affect Cash at Hand until refund reconciliation
+    // is enabled.
     for (const e of manualEntries) {
+      if (e.category === 'REFUND') continue;
       const amt = e.amount.toNumber();
       runningBalance += (e.type === 'INFLOW' ? amt : -amt);
       if (e.cashRegister.businessDate >= date) {
@@ -509,7 +512,7 @@ export class CashRegisterService {
       // Expected cash in drawer right now
       expectedCash: runningBalance,
       // All entries for today
-      entries: register?.entries ?? [],
+      entries: (register?.entries ?? []).filter((entry) => entry.category !== 'REFUND'),
       // Cash payments from POS for today
       cashPayments: payments.filter((p) => p.processedAt >= date).map((p) => ({ ...p, amount: p.amount.toNumber() })),
       byCategory,
@@ -520,12 +523,17 @@ export class CashRegisterService {
     return prisma.$transaction(async (tx) => {
       const entry = await tx.cashRegisterEntry.findUnique({ where: { id: entryId } });
       if (!entry) throw new AppError('Entry not found.', 404, 'NOT_FOUND');
-      if (entry.type === 'OPENING') throw new AppError('Cannot delete opening entry. Reset opening cash instead.', 422, 'CANNOT_DELETE_OPENING');
+      const register = await tx.cashRegister.findUnique({ where: { id: entry.cashRegisterId }, select: { businessDate: true } });
+      await CashRegisterService.lockRegister(tx, register?.businessDate || new Date());
 
-      await CashRegisterService.lockRegister(tx, entry.cashRegisterId ? (await tx.cashRegister.findUnique({ where: { id: entry.cashRegisterId }, select: { businessDate: true } }))?.businessDate || new Date() : new Date());
+      // Deleting a mistaken opening also clears its stored register value so it
+      // can never become a future carry-forward anchor.
+      if (entry.type === 'OPENING') {
+        await tx.cashRegister.update({ where: { id: entry.cashRegisterId }, data: { openingCash: 0, notes: null } });
+      }
 
       await tx.cashRegisterEntry.delete({ where: { id: entryId } });
-      await AuditService.logInTransaction(tx, { userId, action: 'cash_register.entry_deleted', resource: 'cash_register_entry', resourceId: entryId });
+      await AuditService.logInTransaction(tx, { userId, action: entry.type === 'OPENING' ? 'cash_register.opening_deleted' : 'cash_register.entry_deleted', resource: 'cash_register_entry', resourceId: entryId });
       return { id: entryId, deleted: true };
     });
   }

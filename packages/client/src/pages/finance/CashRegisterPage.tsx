@@ -243,11 +243,12 @@ ${itemsHtml}`;
     }
   };
 
-  const deleteEntry = async (entryId: string) => {
-    if (!window.confirm('Delete this cash movement?')) return;
+  const deleteEntry = async (entry: CashEntry) => {
+    const label = entry.type === 'OPENING' ? 'opening balance' : 'cash movement';
+    if (!window.confirm(`Delete this ${label}? This cannot be undone.`)) return;
     try {
-      await apiFetch(`/cash-register/entries/${entryId}`, { method: 'DELETE' }, token());
-      showToast('success', 'Cash movement deleted.');
+      await apiFetch(`/cash-register/entries/${entry.id}`, { method: 'DELETE' }, token());
+      showToast('success', `Cash ${label} deleted.`);
       await load();
     } catch (error: any) {
       showToast('error', error?.message ?? 'Unable to delete the cash movement.');
@@ -314,10 +315,10 @@ ${itemsHtml}`;
         {row.type === 'OUTFLOW' ? '−' : row.type === 'INFLOW' ? '+' : ''}{formatCurrency(row.amount)}
       </span>
     ) },
-    { key: 'actions', header: '', align: 'right' as const, render: (row: CashEntry) => canManage && row.type !== 'OPENING' ? (
+    { key: 'actions', header: '', align: 'right' as const, render: (row: CashEntry) => canManage ? (
       <div className="flex items-center gap-1 justify-end">
         <Button variant="ghost" size="sm" onClick={() => printReceipt(row)} title="Print receipt"><Printer size={14} /></Button>
-        <Button variant="ghost" size="sm" onClick={() => void deleteEntry(row.id)} title="Delete movement" className="text-rose-600 hover:bg-rose-50"><Trash2 size={14} /></Button>
+        <Button variant="ghost" size="sm" onClick={() => void deleteEntry(row)} title={row.type === 'OPENING' ? 'Delete opening balance' : 'Delete movement'} className="text-rose-600 hover:bg-rose-50"><Trash2 size={14} /></Button>
       </div>
     ) : null },
   ];

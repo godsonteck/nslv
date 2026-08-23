@@ -19,6 +19,7 @@ describe('cash-register carry-forward', () => {
     mocks.entryFindMany.mockResolvedValue([
       { type: 'INFLOW', amount: { toNumber: () => 25 }, cashRegister: { businessDate: day } },
       { type: 'OUTFLOW', amount: { toNumber: () => 10 }, category: 'FUEL', cashRegister: { businessDate: day } },
+      { type: 'OUTFLOW', amount: { toNumber: () => 50 }, category: 'REFUND', cashRegister: { businessDate: day } },
     ]);
     mocks.paymentFindMany.mockResolvedValue([
       { id: 'sale', amount: { toNumber: () => 80 }, type: 'PAYMENT', processedAt: day },
