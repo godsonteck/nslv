@@ -1,6 +1,6 @@
 // ============================================
 // NS LUXURY VILLA — System Settings Page
-// Section #28: Grouped Property & System Settings + Selective Reset
+// Section #28: Grouped Property & System Settings + Selective Reset & Data Recovery
 // ============================================
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
@@ -28,7 +28,13 @@ import {
   ScrollText,
   Sliders,
   CheckCircle2,
-  Info,
+  History,
+  Download,
+  RotateCcw,
+  Plus,
+  HardDrive,
+  Database,
+  FileJson,
 } from 'lucide-react';
 import {
   PageHeader,
@@ -39,7 +45,13 @@ import {
   Spinner,
   Modal,
 } from '../../components/ui';
-import { settingsApi, systemApi, staysApi, type SystemModuleCounts } from '../../services/apiService';
+import {
+  settingsApi,
+  systemApi,
+  staysApi,
+  type SystemModuleCounts,
+  type BackupMetadata,
+} from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
 
@@ -56,6 +68,7 @@ const TABS = [
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'security', label: 'Security & Access', icon: Shield },
   { id: 'regional', label: 'Regional & Localization', icon: Globe },
+  { id: 'backups', label: 'Data Recovery & Snapshots', icon: History },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -83,6 +96,7 @@ const TAB_KEYS: Record<TabId, string[]> = {
     'regional.timezone', 'regional.date_format', 'regional.currency_symbol',
     'regional.phone_country_code', 'regional.country', 'regional.language',
   ],
+  backups: [],
 };
 
 interface SettingFieldProps {
@@ -315,6 +329,14 @@ export const SettingsPage: React.FC = () => {
   const [moduleCounts, setModuleCounts] = useState<SystemModuleCounts | null>(null);
   const [selectedModules, setSelectedModules] = useState<ResetSelection>(DEFAULT_SELECTION);
 
+  // Data Recovery & Backups State
+  const [backups, setBackups] = useState<BackupMetadata[]>([]);
+  const [backupsLoading, setBackupsLoading] = useState(false);
+  const [creatingBackup, setCreatingBackup] = useState(false);
+  const [restoreModalOpen, setRestoreModalOpen] = useState(false);
+  const [selectedBackupForRestore, setSelectedBackupForRestore] = useState<BackupMetadata | null>(null);
+  const [restoring, setRestoring] = useState(false);
+
   const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
   const canReset = useAuthStore((s) => s.hasPermission(PERMISSIONS.SYSTEM_CONFIGURE));
@@ -352,9 +374,24 @@ export const SettingsPage: React.FC = () => {
     }
   }, []);
 
+  const fetchBackups = useCallback(async () => {
+    setBackupsLoading(true);
+    try {
+      const data = await systemApi.listBackups();
+      setBackups(data || []);
+    } catch {
+      // Non-blocking
+    } finally {
+      setBackupsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchSettings();
-  }, [fetchSettings]);
+    if (activeTab === 'backups') {
+      fetchBackups();
+    }
+  }, [fetchSettings, activeTab, fetchBackups]);
 
   const handleOpenReset = () => {
     setResetOpen(true);
@@ -401,6 +438,70 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  const handleCreateManualBackup = async () => {
+    setCreatingBackup(true);
+    try {
+      const meta = await systemApi.createBackup('Manual database backup before operational changes');
+      showToast('success', `Snapshot "${meta.id}" created (${meta.totalRecords} records).`);
+      await fetchBackups();
+    } catch (err: any) {
+      showToast('error', err?.message || 'Failed to create backup snapshot.');
+    } finally {
+      setCreatingBackup(false);
+    }
+  };
+
+  const handleDownloadBackup = async (backup: BackupMetadata) => {
+    try {
+      const data = await systemApi.getBackup(backup.id);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${backup.id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('info', `Downloaded backup file: ${backup.filename}`);
+    } catch (err: any) {
+      showToast('error', err?.message || 'Failed to download backup.');
+    }
+  };
+
+  const handleOpenRestoreModal = (backup: BackupMetadata) => {
+    setSelectedBackupForRestore(backup);
+    setRestoreModalOpen(true);
+  };
+
+  const handleConfirmRestore = async () => {
+    if (!selectedBackupForRestore || restoring) return;
+    setRestoring(true);
+    try {
+      const res = await systemApi.restoreBackup(selectedBackupForRestore.id);
+      setRestoreModalOpen(false);
+      showToast(
+        'success',
+        `Reversal complete! Restored ${res.restoredRecords} records from snapshot "${selectedBackupForRestore.id}".`,
+      );
+      await fetchSettings();
+      await fetchBackups();
+    } catch (err: any) {
+      showToast('error', err?.message || 'Failed to restore snapshot.');
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const handleDeleteBackup = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this backup file?')) return;
+    try {
+      await systemApi.deleteBackup(id);
+      showToast('success', 'Backup deleted.');
+      await fetchBackups();
+    } catch (err: any) {
+      showToast('error', err?.message || 'Failed to delete backup.');
+    }
+  };
+
   // Quick Preset Handlers
   const applyPreset = (preset: 'all' | 'ops' | 'finance' | 'none') => {
     if (preset === 'all') {
@@ -418,7 +519,6 @@ export const SettingsPage: React.FC = () => {
         auditLogs: true,
       });
     } else if (preset === 'ops') {
-      // Clear all operational transactions, but preserve configured Catalogs, Rooms & Inventory
       setSelectedModules({
         reservations: true,
         posOrders: true,
@@ -433,7 +533,6 @@ export const SettingsPage: React.FC = () => {
         auditLogs: true,
       });
     } else if (preset === 'finance') {
-      // Clear financial ledgers and orders
       setSelectedModules({
         reservations: true,
         posOrders: true,
@@ -505,8 +604,8 @@ export const SettingsPage: React.FC = () => {
       showToast(
         'success',
         result.isFullWipe
-          ? `Full system wipe complete. ${totalDeleted} records cleared.`
-          : `Selective reset complete. ${totalDeleted} records cleared for: ${result.modulesWiped.join(', ')}.`,
+          ? `Full system wipe complete. ${totalDeleted} records cleared. (Safety snapshot saved)`
+          : `Selective reset complete. ${totalDeleted} records cleared for: ${result.modulesWiped.join(', ')}. (Safety snapshot saved)`,
       );
 
       if (result.isFullWipe) {
@@ -515,6 +614,7 @@ export const SettingsPage: React.FC = () => {
       } else {
         await fetchSettings();
         await loadCounts();
+        await fetchBackups();
       }
     } catch (err: any) {
       setResetError(err?.message || 'Reset failed. Check your password and try again.');
@@ -530,12 +630,17 @@ export const SettingsPage: React.FC = () => {
     <div className="space-y-6">
       <PageHeader
         title="Property & System Settings"
-        subtitle="Configure villa business rules, tax rates, checkout policies & operational settings"
+        subtitle="Configure villa business rules, tax rates, checkout policies, snapshots & data recovery"
         actions={
           <div className="flex items-center gap-2">
             {activeTab === 'financial' && (
               <Button variant="outline" size="sm" loading={syncingLateFees} onClick={handleSyncLateFees}>
                 <RefreshCw size={14} /> Recalculate Past Late Fees
+              </Button>
+            )}
+            {activeTab === 'backups' && (
+              <Button variant="primary" size="sm" loading={creatingBackup} onClick={handleCreateManualBackup}>
+                <Plus size={14} /> Create System Snapshot
               </Button>
             )}
             {dirty && (
@@ -578,37 +683,173 @@ export const SettingsPage: React.FC = () => {
 
         {/* Tab Content */}
         <div className="flex-1 bg-[#1C1F28] border border-[#2B303E] rounded-xl p-6">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Spinner size={24} />
-            </div>
-          ) : (
-            <div className="space-y-5">
-              <div className="border-b border-[#2B303E] pb-3 mb-4 flex items-center justify-between">
+          {activeTab === 'backups' ? (
+            /* ─── DATA RECOVERY & SNAPSHOTS TAB ───────────────────────── */
+            <div className="space-y-6">
+              <div className="border-b border-[#2B303E] pb-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-bold text-[#F4F4F2]">
-                    {TABS.find((t) => t.id === activeTab)?.label}
+                  <h2 className="text-sm font-bold text-[#F4F4F2] flex items-center gap-2">
+                    <History size={16} className="text-[#16a4d4]" />
+                    Data Recovery, Snapshots & Rollbacks
                   </h2>
                   <p className="text-xs text-[#8A9598] mt-0.5">
-                    Configure live operational parameters and system policies
+                    Reverse deleted data from point-in-time snapshots or create manual system backups
                   </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={backupsLoading}
+                  onClick={fetchBackups}
+                  className="gap-1.5"
+                >
+                  <RefreshCw size={13} /> Refresh List
+                </Button>
+              </div>
+
+              {/* Informational Banner */}
+              <div className="flex items-start gap-3.5 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-blue-200">
+                <Shield size={20} className="text-blue-400 mt-0.5 shrink-0" />
+                <div className="text-xs leading-relaxed">
+                  <strong className="text-blue-300 font-bold">Automatic Pre-Reset Safety Net:</strong> Before any system or modular reset is performed, an automatic safety snapshot is saved here. If you or another administrator ever clear data and need to reverse it, click <strong className="text-emerald-300">Reverse / Restore</strong> on the snapshot below to instantly restore all deleted records.
                 </div>
               </div>
 
-              {displaySettings.length === 0 && (
-                <div className="text-xs text-[#8A9598] py-6 text-center">
-                  No configurable keys found for this category.
+              {/* Snapshots List */}
+              {backupsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Spinner size={24} />
+                </div>
+              ) : backups.length === 0 ? (
+                <div className="text-center py-12 border border-dashed border-[#2B303E] rounded-xl">
+                  <Database size={32} className="mx-auto text-slate-600 mb-2" />
+                  <h4 className="text-xs font-bold text-slate-300">No snapshots recorded yet</h4>
+                  <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">
+                    Click "Create System Snapshot" above to create an instant manual backup point, or perform a reset to generate an automatic pre-reset snapshot.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {backups.map((b) => {
+                    const isPreReset = b.trigger === 'PRE_RESET_SNAPSHOT';
+                    const dateStr = new Date(b.createdAt).toLocaleString();
+                    const sizeKb = (b.fileSizeBytes / 1024).toFixed(1);
+
+                    return (
+                      <div
+                        key={b.id}
+                        className="bg-[#14161D] border border-[#2B303E] rounded-xl p-4 hover:border-slate-600 transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                      >
+                        <div className="space-y-1.5 min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span
+                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${
+                                isPreReset
+                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                              }`}
+                            >
+                              {isPreReset ? '🛡️ Pre-Reset Safety Snapshot' : '💾 Manual Snapshot'}
+                            </span>
+                            <span className="text-xs font-bold text-[#F4F4F2]">{dateStr}</span>
+                            <span className="text-[11px] text-slate-500 font-mono">
+                              ({b.totalRecords} records · {sizeKb} KB)
+                            </span>
+                          </div>
+
+                          {b.description && (
+                            <p className="text-xs text-slate-400">{b.description}</p>
+                          )}
+
+                          <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                            {Object.entries(b.modelsCount || {})
+                              .filter(([_, count]) => count > 0)
+                              .slice(0, 7)
+                              .map(([model, count]) => (
+                                <span
+                                  key={model}
+                                  className="text-[9px] font-mono bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700"
+                                >
+                                  {model}: {count}
+                                </span>
+                              ))}
+                            {Object.keys(b.modelsCount || {}).filter((k) => (b.modelsCount as any)[k] > 0).length > 7 && (
+                              <span className="text-[9px] font-mono text-slate-500">+more</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2B303E]">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handleOpenRestoreModal(b)}
+                            className="gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white"
+                          >
+                            <RotateCcw size={13} /> Reverse / Restore
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadBackup(b)}
+                            title="Download JSON file to your computer"
+                            className="gap-1 text-slate-300"
+                          >
+                            <Download size={13} />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteBackup(b.id)}
+                            title="Delete snapshot"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-950/30"
+                          >
+                            <Trash2 size={13} />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
-              {displaySettings.map((setting) => (
-                <SettingField
-                  key={setting.key}
-                  setting={setting}
-                  draft={draft}
-                  onChange={handleChange}
-                />
-              ))}
             </div>
+          ) : (
+            /* ─── STANDARD SETTINGS TABS ──────────────────────────────── */
+            loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Spinner size={24} />
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="border-b border-[#2B303E] pb-3 mb-4 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-[#F4F4F2]">
+                      {TABS.find((t) => t.id === activeTab)?.label}
+                    </h2>
+                    <p className="text-xs text-[#8A9598] mt-0.5">
+                      Configure live operational parameters and system policies
+                    </p>
+                  </div>
+                </div>
+
+                {displaySettings.length === 0 && (
+                  <div className="text-xs text-[#8A9598] py-6 text-center">
+                    No configurable keys found for this category.
+                  </div>
+                )}
+                {displaySettings.map((setting) => (
+                  <SettingField
+                    key={setting.key}
+                    setting={setting}
+                    draft={draft}
+                    onChange={handleChange}
+                  />
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>
@@ -627,7 +868,7 @@ export const SettingsPage: React.FC = () => {
                   <span className="bg-red-900/30 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-800/40">Admin Only</span>
                 </div>
                 <p className="text-xs text-[#A0A5AD] mt-1 max-w-2xl leading-relaxed">
-                  Choose exactly which data modules you want to clear (Reservations, POS Orders, Expenses, Cash Ledger, Menus, Rooms, etc.) or wipe the entire database clean. Admin accounts and roles are permanently protected.
+                  Choose exactly which data modules you want to clear (Reservations, POS Orders, Expenses, Cash Ledger, Menus, Rooms, etc.) or wipe the entire database clean. A safety snapshot is automatically created before any wipe so you can reverse/restore at any time.
                 </p>
               </div>
             </div>
@@ -643,6 +884,66 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
+      {/* ─── MODAL: RESTORE / REVERSE SNAPSHOT ─────────────────────────────── */}
+      <Modal
+        open={restoreModalOpen}
+        onClose={() => {
+          if (!restoring) setRestoreModalOpen(false);
+        }}
+        title="Reverse Deleted Data — Restore Snapshot"
+        size="md"
+      >
+        <div className="p-6 space-y-5">
+          <div className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-emerald-200">
+            <RotateCcw size={18} className="text-emerald-400 mt-0.5 shrink-0" />
+            <div className="text-xs leading-relaxed">
+              <strong className="text-emerald-300 font-bold">Data Restoration:</strong> This will restore all{' '}
+              <strong className="text-white">{selectedBackupForRestore?.totalRecords} records</strong> from snapshot{' '}
+              <code className="bg-emerald-950 px-1 py-0.5 rounded font-mono text-[11px]">{selectedBackupForRestore?.id}</code> back into the live database.
+            </div>
+          </div>
+
+          <div className="bg-[#14161D] border border-[#2B303E] rounded-xl p-4 space-y-2 text-xs">
+            <div className="flex justify-between text-slate-400">
+              <span>Snapshot Created:</span>
+              <span className="font-semibold text-white">
+                {selectedBackupForRestore ? new Date(selectedBackupForRestore.createdAt).toLocaleString() : ''}
+              </span>
+            </div>
+            <div className="flex justify-between text-slate-400">
+              <span>Type:</span>
+              <span className="font-semibold text-[#16a4d4]">
+                {selectedBackupForRestore?.trigger === 'PRE_RESET_SNAPSHOT' ? 'Pre-Reset Safety Snapshot' : 'Manual Snapshot'}
+              </span>
+            </div>
+            <div className="flex justify-between text-slate-400">
+              <span>Total Records:</span>
+              <span className="font-semibold text-emerald-400">{selectedBackupForRestore?.totalRecords} records</span>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setRestoreModalOpen(false)}
+              disabled={restoring}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={restoring}
+              onClick={handleConfirmRestore}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5"
+            >
+              <RotateCcw size={14} /> Confirm & Reverse Data
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* ─── MODAL: SELECTIVE SYSTEM RESET ─────────────────────────────────── */}
       <Modal
         open={resetOpen}
@@ -657,7 +958,7 @@ export const SettingsPage: React.FC = () => {
           <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-200">
             <Lock size={18} className="text-red-400 mt-0.5 shrink-0" />
             <div className="text-xs leading-relaxed">
-              <strong className="text-red-300 font-bold">Irreversible Action:</strong> Selected categories will be permanently deleted from the database. Unchecked categories and administrator accounts will remain intact.
+              <strong className="text-red-300 font-bold">Safety Snapshot Created Automatically:</strong> An automatic pre-reset snapshot of all selected records will be saved to your <strong className="text-white">Data Recovery & Snapshots</strong> center before deletion. You can reverse/restore at any time.
             </div>
           </div>
 

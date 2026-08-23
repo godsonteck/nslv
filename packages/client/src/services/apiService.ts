@@ -998,6 +998,25 @@ export interface SystemResetResult {
   modulesWiped: string[];
   counts: Record<string, number>;
   resetAt: string;
+  snapshotId?: string;
+  snapshotRecords?: number;
+}
+
+export interface BackupMetadata {
+  id: string;
+  filename: string;
+  createdAt: string;
+  createdBy: string;
+  trigger: 'MANUAL' | 'PRE_RESET_SNAPSHOT' | 'AUTO_SCHEDULED';
+  description?: string;
+  totalRecords: number;
+  fileSizeBytes: number;
+  modelsCount: Record<string, number>;
+}
+
+export interface BackupRestoreResult {
+  restoredRecords: number;
+  modelsRestored: Record<string, number>;
 }
 
 export const systemApi = {
@@ -1007,5 +1026,22 @@ export const systemApi = {
     apiFetch<SystemResetResult>('/system/reset', {
       method: 'POST',
       body: JSON.stringify({ confirmText, password, modules }),
+    }, token()),
+  listBackups: (): Promise<BackupMetadata[]> =>
+    apiFetch<BackupMetadata[]>('/system/backups', {}, token()),
+  createBackup: (description?: string): Promise<BackupMetadata> =>
+    apiFetch<BackupMetadata>('/system/backups', {
+      method: 'POST',
+      body: JSON.stringify({ description }),
+    }, token()),
+  getBackup: (id: string): Promise<{ metadata: BackupMetadata; data: Record<string, any[]> }> =>
+    apiFetch<{ metadata: BackupMetadata; data: Record<string, any[]> }>(`/system/backups/${id}`, {}, token()),
+  restoreBackup: (id: string): Promise<BackupRestoreResult> =>
+    apiFetch<BackupRestoreResult>(`/system/backups/${id}/restore`, {
+      method: 'POST',
+    }, token()),
+  deleteBackup: (id: string): Promise<void> =>
+    apiFetch<void>(`/system/backups/${id}`, {
+      method: 'DELETE',
     }, token()),
 };

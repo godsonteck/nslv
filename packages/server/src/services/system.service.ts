@@ -6,6 +6,7 @@
 import argon2 from 'argon2';
 import { prisma } from '../config';
 import { AppError } from '../middleware/error';
+import { BackupService } from './backup.service';
 import type { ResetSystemModules } from '@nslv/shared';
 
 /**
@@ -202,6 +203,19 @@ export class SystemService {
       !modules ||
       Object.keys(modules).length === 0 ||
       Object.values(modules).every((v) => v === true);
+
+    // 🛡️ Pre-Reset Safety Snapshot: automatically backup all data before deletion so admin can reverse/restore
+    let preResetSnapshot;
+    try {
+      preResetSnapshot = await BackupService.createSnapshot(userId, 'PRE_RESET_SNAPSHOT', {
+        description: isFullWipe
+          ? 'Automatic pre-reset safety snapshot before Full System Wipe'
+          : `Automatic pre-reset safety snapshot before clearing: ${Object.keys(modules || {}).filter((k) => (modules as any)[k]).join(', ')}`,
+        modules,
+      });
+    } catch (snapshotErr) {
+      console.error('[SystemService] Failed to create pre-reset safety snapshot:', snapshotErr);
+    }
 
     const counts: Record<string, number> = {};
     const modulesWiped: string[] = [];
@@ -437,6 +451,8 @@ export class SystemService {
       modulesWiped,
       counts,
       resetAt: new Date().toISOString(),
+      snapshotId: preResetSnapshot?.id,
+      snapshotRecords: preResetSnapshot?.totalRecords,
     };
   }
 }
