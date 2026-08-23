@@ -9,6 +9,7 @@ import { randomBytes } from 'node:crypto';
 import { AuditService } from './audit.service';
 import { CategoryService } from './categories.service';
 import { DailyCloseService, lockBusinessDay } from './daily-close.service';
+import { CashRegisterService } from './cash-register.service';
 
 const makeExpenseNo = () => `EXP-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
@@ -118,6 +119,20 @@ export class ExpenseService {
         },
       });
       await AuditService.logInTransaction(tx, { userId: approvedBy, action: `expense.${status.toLowerCase()}`, resource: 'expense', resourceId: id, beforeData: existing as unknown as Record<string, unknown>, afterData: expense as unknown as Record<string, unknown> });
+
+      // Auto-record cash outflow in cash register when expense is approved and paid with CASH
+      if (status === 'APPROVED' && existing.paymentMethod === 'CASH') {
+        const businessDate = existing.incurredOn.toISOString().slice(0, 10);
+        await CashRegisterService.addEntry({
+          businessDate,
+          type: 'OUTFLOW',
+          amount: existing.amount.toNumber(),
+          description: `Expense: ${existing.description} (${existing.expenseNo})`,
+          category: 'EXPENSE',
+          receiptRef: existing.receiptRef ?? undefined,
+        }, approvedBy); // fire-and-forget (no tx = standalone mode)
+      }
+
       return expense;
     });
   }

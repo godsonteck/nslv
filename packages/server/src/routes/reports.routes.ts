@@ -50,7 +50,7 @@ router.get('/comprehensive', requirePermission('reports.view'), async (req, res,
 
 router.get('/daily-close/preview', requirePermission('reports.financial'), async (req, res, next) => {
   try {
-    const data = await DailyCloseService.preview(String(req.query.businessDate || ''), Number(req.query.openingCash));
+    const data = await DailyCloseService.preview(String(req.query.businessDate || ''));
     res.json({ success: true, data });
   } catch (error) { next(error); }
 });

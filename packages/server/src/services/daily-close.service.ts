@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../config';
 import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
+import { CashRegisterService } from './cash-register.service';
 
 const dayRange = (value: string) => {
   const start = new Date(`${value.slice(0, 10)}T00:00:00.000Z`);
@@ -25,37 +26,35 @@ export class DailyCloseService {
     if (closed) throw new AppError('This business day is closed; record a correcting entry on an open day instead.', 409, 'BUSINESS_DAY_CLOSED');
   }
 
-  static async preview(businessDate: string, openingCash: number) {
-    const { start, end } = dayRange(businessDate);
-    const cashWhere: Prisma.PaymentWhereInput = { processedAt: { gte: start, lt: end }, method: 'CASH', status: 'COMPLETED', voidedAt: null };
-    const [payments, refunds, expenses] = await Promise.all([
-      prisma.payment.aggregate({ where: { ...cashWhere, type: 'PAYMENT' }, _sum: { amount: true } }),
-      prisma.payment.aggregate({ where: { ...cashWhere, type: 'REFUND' }, _sum: { amount: true } }),
-      prisma.expense.aggregate({ where: { incurredOn: { gte: start, lt: end }, paymentMethod: 'CASH', status: 'APPROVED' }, _sum: { amount: true } }),
-    ]);
-    const opening = new Prisma.Decimal(openingCash);
-    const cashPayments = new Prisma.Decimal(payments._sum?.amount || 0);
-    const cashRefunds = new Prisma.Decimal(refunds._sum?.amount || 0);
-    const cashExpenses = new Prisma.Decimal(expenses._sum?.amount || 0);
-    const expectedCash = opening.plus(cashPayments).minus(cashRefunds).minus(cashExpenses);
-    return { businessDate: start, openingCash: opening, cashPayments, cashRefunds, cashExpenses, expectedCash };
+  static async preview(businessDate: string) {
+    const cashRegisterSummary = await CashRegisterService.getSummary(businessDate);
+    if (!cashRegisterSummary) {
+      throw new AppError('Cash register not initialized for this date. Initialize it first.', 422, 'CASH_REGISTER_NOT_INITIALIZED');
+    }
+    return {
+      businessDate: cashRegisterSummary.businessDate,
+      openingCash: new Prisma.Decimal(cashRegisterSummary.carriedIntoToday),
+      cashPayments: new Prisma.Decimal(cashRegisterSummary.cashSales),
+      cashRefunds: new Prisma.Decimal(cashRegisterSummary.cashRefunds),
+      cashExpenses: new Prisma.Decimal(cashRegisterSummary.manualOutflows),
+      expectedCash: new Prisma.Decimal(cashRegisterSummary.expectedCash),
+    };
   }
 
-  static async close(input: { businessDate: string; openingCash: number; actualCash: number; varianceNote?: string }, closedBy: string) {
-    const preview = await this.preview(input.businessDate, input.openingCash);
+  static async close(input: { businessDate: string; actualCash: number; varianceNote?: string }, closedBy: string) {
+    const preview = await this.preview(input.businessDate);
     const actualCash = new Prisma.Decimal(input.actualCash);
     const variance = actualCash.minus(preview.expectedCash);
     if (!variance.isZero() && !input.varianceNote?.trim()) throw new AppError('A variance explanation is required.', 422, 'VARIANCE_NOTE_REQUIRED');
     try {
       return await prisma.$transaction(async (tx) => {
         await lockBusinessDay(tx, input.businessDate);
-        // Recalculate after acquiring the lock. Settlement/refund/expense
-        // writers acquire this same lock before their closed-day check.
-        const lockedPreview = await this.preview(input.businessDate, input.openingCash);
+        // Recalculate after acquiring the lock.
+        const lockedPreview = await this.preview(input.businessDate);
         const lockedActualCash = new Prisma.Decimal(input.actualCash);
         const lockedVariance = lockedActualCash.minus(lockedPreview.expectedCash);
         if (!lockedVariance.isZero() && !input.varianceNote?.trim()) throw new AppError('A variance explanation is required.', 422, 'VARIANCE_NOTE_REQUIRED');
-        const existing = await tx.dailyClose.findUnique({ where: { businessDate: preview.businessDate } });
+        const existing = await tx.dailyClose.findUnique({ where: { businessDate: lockedPreview.businessDate } });
         if (existing) throw new AppError('This business day is already closed.', 409, 'DAY_ALREADY_CLOSED');
         const result = await tx.dailyClose.create({ data: { ...lockedPreview, actualCash: lockedActualCash, variance: lockedVariance, varianceNote: lockedVariance.isZero() ? null : input.varianceNote!.trim(), closedBy } });
         await AuditService.logInTransaction(tx, { userId: closedBy, action: 'daily_close.created', resource: 'daily_close', resourceId: result.id, afterData: { businessDate: input.businessDate, expectedCash: lockedPreview.expectedCash.toString(), actualCash: lockedActualCash.toString(), variance: lockedVariance.toString() } });

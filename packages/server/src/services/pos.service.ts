@@ -7,6 +7,7 @@ import { randomBytes } from 'node:crypto';
 import { CategoryService } from './categories.service';
 import { AuditService } from './audit.service';
 import { DailyCloseService, lockBusinessDay } from './daily-close.service';
+import { CashRegisterService } from './cash-register.service';
 
 
 const makeNumber = (prefix: string) => `${prefix}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
@@ -68,6 +69,7 @@ async function recordDirectTenders(
   data: { tenders: { method: string; amount: number; reference?: string }[]; source: string; sourceId: string; idempotencyKey: string; processedBy: string; description: string },
 ) {
   const payments: Awaited<ReturnType<typeof recordDirectPayment>>[] = [];
+  const cashTenders: { payment: Awaited<ReturnType<typeof recordDirectPayment>>; tender: { method: string; amount: number; reference?: string } }[] = [];
   for (let i = 0; i < data.tenders.length; i++) {
     const t = data.tenders[i];
     const payment = await recordDirectPayment(tx, {
@@ -80,7 +82,28 @@ async function recordDirectTenders(
       description: t.reference ? `${data.description} · ${t.reference}` : data.description,
     });
     payments.push(payment);
+    if (t.method === 'CASH') {
+      cashTenders.push({ payment, tender: t });
+    }
   }
+
+  // Fire-and-forget: record cash payments in cash register AFTER transaction commits
+  // This avoids transaction timeout issues
+  if (cashTenders.length > 0) {
+    const businessDate = new Date().toISOString().slice(0, 10);
+    for (const ct of cashTenders) {
+      CashRegisterService.recordCashPayment({
+        businessDate,
+        amount: ct.tender.amount,
+        description: data.description,
+        source: data.source as 'RESTAURANT' | 'BAR' | 'POOL' | 'FRONT_DESK',
+        sourceId: ct.payment.id,
+        reference: ct.tender.reference,
+        processedBy: data.processedBy,
+      }).catch((err) => console.error('Failed to record cash payment in cash register:', err));
+    }
+  }
+
   return payments;
 }
 
@@ -487,8 +510,20 @@ export class POSService {
         await tx.poolTransaction.update({ where: { id: transaction.id }, data: { guestId, folioItemId, paymentStatus: 'CHARGED_TO_FOLIO' } });
         await AuditService.logInTransaction(tx, { userId: data.processedBy, action: 'folio.charge_posted', resource: 'pool_transaction', resourceId: transaction.id, afterData: { folioId: folio.id, folioItemId, amount: totalAmount.toString() } });
       } else {
-        await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'POOL_TRANSACTION', sourceId: transaction.id, idempotencyKey: data.idempotencyKey, processedBy: data.processedBy, description: `Pool transaction ${transaction.transactionNo}` });
+        const payment = await recordDirectPayment(tx, { amount: totalAmount, method: data.paymentMethod, source: 'POOL_TRANSACTION', sourceId: transaction.id, idempotencyKey: data.idempotencyKey, processedBy: data.processedBy, description: `Pool transaction ${transaction.transactionNo}` });
         await tx.poolTransaction.update({ where: { id: transaction.id }, data: { paymentStatus: 'PAID' } });
+
+        // Auto-record cash payment in cash register
+        if (data.paymentMethod === 'CASH') {
+          await CashRegisterService.recordCashPayment({
+            businessDate: new Date().toISOString().slice(0, 10),
+            amount: totalAmount.toNumber(),
+            description: `Pool transaction ${transaction.transactionNo}`,
+            source: 'POOL',
+            sourceId: payment.id,
+            processedBy: data.processedBy,
+          });
+        }
       }
       return tx.poolTransaction.findUniqueOrThrow({ where: { id: transaction.id }, include: { service: true } });
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });

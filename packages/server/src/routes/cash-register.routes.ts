@@ -48,15 +48,29 @@ const dateQuerySchema = z.object({
   businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
 });
 
-// GET /api/v1/cash-register - get register with entries
+const alertQuerySchema = z.object({
+  businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
+  threshold: z.coerce.number().positive().optional(),
+});
+
+const handoverQuerySchema = z.object({
+  businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
+});
+
+const bankDepositSchema = z.object({
+  businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
+  amount: z.number().positive('Amount must be greater than zero'),
+  description: z.string().min(1, 'Description is required').max(500),
+  reference: z.string().max(200).optional(),
+});
+
+// GET /api/v1/cash-register - get register with entries (full summary with carry-forward)
 router.get('/', requireCashRegisterAccess(), validateQuery(dateQuerySchema), async (req, res, next) => {
   try {
     const { businessDate } = req.query as { businessDate: string };
-    const register = await CashRegisterService.listEntries(businessDate);
-    if (!register) {
-      res.json({ success: true, data: null });
-      return;
-    }
+    // Ensure register is initialized with carried-forward balance
+    const userId = (req as AuthenticatedRequest).user.userId;
+    await CashRegisterService.ensureRegisterInitialized(businessDate, userId);
     const summary = await CashRegisterService.getSummary(businessDate);
     res.json({ success: true, data: summary });
   } catch (error) {
@@ -75,12 +89,24 @@ router.get('/summary', requireCashRegisterAccess(), validateQuery(dateQuerySchem
   }
 });
 
-// POST /api/v1/cash-register/opening - set opening float
+// POST /api/v1/cash-register/initialize - ensure today's register exists with carried-forward balance
+router.post('/initialize', requireCashRegisterAccess(true), validateQuery(dateQuerySchema), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const { businessDate } = req.query as { businessDate: string };
+    const register = await CashRegisterService.ensureRegisterInitialized(businessDate, userId);
+    res.json({ success: true, data: register, message: 'Cash register initialized with carried-forward balance.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/cash-register/opening - manually set opening count (override carried-forward)
 router.post('/opening', requireCashRegisterAccess(true), validateBody(openingSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const register = await CashRegisterService.setOpeningCash(req.body, userId);
-    res.status(201).json({ success: true, data: register, message: 'Opening cash set successfully.' });
+    res.status(201).json({ success: true, data: register, message: 'Opening count recorded.' });
   } catch (error) {
     next(error);
   }
@@ -104,6 +130,40 @@ router.delete('/entries/:id', requireCashRegisterAccess(true), async (req, res, 
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const result = await CashRegisterService.deleteEntry(id, userId);
     res.json({ success: true, data: result, message: 'Entry deleted.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/cash-register/low-cash-alert - check if cash is below threshold
+router.get('/low-cash-alert', requireCashRegisterAccess(), validateQuery(alertQuerySchema), async (req, res, next) => {
+  try {
+    const { businessDate, threshold } = req.query as { businessDate: string; threshold?: string };
+    const alert = await CashRegisterService.checkLowCashAlert(businessDate, threshold ? Number(threshold) : 200);
+    res.json({ success: true, data: alert });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/cash-register/handover - generate shift handover checklist
+router.get('/handover', requireCashRegisterAccess(), validateQuery(handoverQuerySchema), async (req, res, next) => {
+  try {
+    const { businessDate } = req.query as { businessDate: string };
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const checklist = await CashRegisterService.getShiftHandoverChecklist(businessDate, userId);
+    res.json({ success: true, data: checklist });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/cash-register/bank-deposit - record cash taken to bank
+router.post('/bank-deposit', requireCashRegisterAccess(true), validateBody(bankDepositSchema), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const entry = await CashRegisterService.recordBankDeposit({ ...req.body, processedBy: userId }, undefined);
+    res.status(201).json({ success: true, data: entry, message: 'Bank deposit recorded.' });
   } catch (error) {
     next(error);
   }

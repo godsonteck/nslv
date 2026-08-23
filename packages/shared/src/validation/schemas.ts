@@ -271,7 +271,6 @@ export const refundPaymentSchema = z.object({
 
 export const dailyCloseSchema = z.object({
   businessDate: isoDateString,
-  openingCash: nonNegativeNumber,
   actualCash: nonNegativeNumber,
   varianceNote: z.string().min(3).max(500).trim().optional(),
 });

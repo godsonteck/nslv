@@ -802,6 +802,27 @@ export const cashRegisterApi = {
 
   deleteEntry: async (id: string): Promise<any> =>
     apiFetch<any>(`/cash-register/entries/${id}`, { method: 'DELETE' }, token()),
+
+  getLowCashAlert: async (businessDate: string, threshold?: number): Promise<any> => {
+    const qs = new URLSearchParams();
+    qs.set('businessDate', businessDate);
+    if (threshold) qs.set('threshold', String(threshold));
+    const data = await apiFetch<any>(`/cash-register/low-cash-alert?${qs}`, {}, token());
+    return { success: true, data };
+  },
+
+  getShiftHandover: async (businessDate: string): Promise<any> => {
+    const data = await apiFetch<any>(`/cash-register/handover?businessDate=${businessDate}`, {}, token());
+    return { success: true, data };
+  },
+
+  recordBankDeposit: async (body: {
+    businessDate: string;
+    amount: number;
+    description: string;
+    reference?: string;
+  }): Promise<any> =>
+    apiFetch<any>('/cash-register/bank-deposit', { method: 'POST', body: JSON.stringify(body) }, token()),
 };
 
 // ──────────────────────────────────────────

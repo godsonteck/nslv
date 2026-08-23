@@ -3,6 +3,7 @@
 
 import { prisma } from '../config';
 import { Prisma, PaymentMethod, PaymentStatus, PaymentType, OrderPaymentStatus } from '@prisma/client';
+import { CashRegisterService } from './cash-register.service';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { DailyCloseService, lockBusinessDay } from './daily-close.service';
@@ -146,8 +147,45 @@ export class PaymentService {
         processedBy: data.processedBy,
       } });
       createdPayments.push(p);
+
+      // Auto-record cash payment in cash register (fire-and-forget after transaction)
+      const cashTenders = tenders.filter(t => t.method === 'CASH');
+      if (cashTenders.length > 0) {
+        const businessDate = new Date().toISOString().slice(0, 10);
+        for (const t of cashTenders) {
+          const p = createdPayments.find(p => p.idempotencyKey === (t === cashTenders[0] ? data.idempotencyKey : `${data.idempotencyKey}#${tenders.indexOf(t)}`)) || createdPayments[0];
+          CashRegisterService.recordCashPayment({
+            businessDate,
+            amount: t.amount,
+            description: `Cash payment${paymentType === 'DEPOSIT' ? ' (deposit)' : ''} - ${reservation.id}`,
+            source: 'FRONT_DESK',
+            sourceId: p.id,
+            reference: t.reference,
+            processedBy: data.processedBy,
+          }).catch((err) => console.error('Failed to record cash payment in cash register:', err));
+        }
+      }
     }
     const payment = createdPayments[0];
+
+    // Fire-and-forget: auto-record cash payments in cash register AFTER transaction commits
+    const cashTenderIndices = tenders.map((t, i) => t.method === 'CASH' ? i : -1).filter(i => i !== -1);
+    if (cashTenderIndices.length > 0) {
+      const businessDate = new Date().toISOString().slice(0, 10);
+      for (const idx of cashTenderIndices) {
+        const t = tenders[idx];
+        const p = createdPayments[idx];
+        CashRegisterService.recordCashPayment({
+          businessDate,
+          amount: t.amount,
+          description: `Cash payment${paymentType === 'DEPOSIT' ? ' (deposit)' : ''} - ${reservation.id}`,
+          source: 'FRONT_DESK',
+          sourceId: p.id,
+          reference: t.reference,
+          processedBy: data.processedBy,
+        }).catch((err) => console.error('Failed to record cash payment in cash register:', err));
+      }
+    }
 
     if (targetFolio) {
       const tenderLabel = tenders.map(t => `${t.method} ${new Prisma.Decimal(t.amount).toFixed(2)}${t.reference ? ` · ${t.reference}` : ''}`).join(', ');
