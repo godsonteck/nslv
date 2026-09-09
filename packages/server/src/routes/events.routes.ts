@@ -113,4 +113,15 @@ router.delete('/:id', requirePermission('events.cancel'), async (req, res, next)
   }
 });
 
+router.post('/:id/calculate-price', requirePermission('events.view'), async (req, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const { startAt, endAt } = req.body;
+    const result = await EventsService.calculateBookingPrice(id, new Date(startAt), new Date(endAt));
+    res.json({ success: true, data: result.data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

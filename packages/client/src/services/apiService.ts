@@ -967,13 +967,16 @@ export const eventsApi = {
 
   spaces: (): Promise<EventSpaceRecord[]> => apiFetch<EventSpaceRecord[]>('/events/spaces', {}, token()),
 
-  createSpace: (body: { name: string; description?: string; location?: string; capacity?: number; pricePerHour?: number; isActive?: boolean }): Promise<EventSpaceRecord> =>
+  createSpace: (body: { name: string; description?: string; location?: string; capacity?: number; pricePerDay?: number; isActive?: boolean }): Promise<EventSpaceRecord> =>
     apiFetch<EventSpaceRecord>('/events/spaces', { method: 'POST', body: JSON.stringify(body) }, token()),
 
-  updateSpace: (id: string, body: Partial<{ name: string; description?: string; location?: string; capacity?: number; pricePerHour?: number; isActive?: boolean }>): Promise<EventSpaceRecord> =>
+  updateSpace: (id: string, body: Partial<{ name: string; description?: string; location?: string; capacity?: number; pricePerDay?: number; isActive?: boolean }>): Promise<EventSpaceRecord> =>
     apiFetch<EventSpaceRecord>(`/events/spaces/${id}`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
 
   deleteSpace: (id: string): Promise<any> => apiFetch<any>(`/events/spaces/${id}`, { method: 'DELETE' }, token()),
+
+  calculateBookingPrice: (eventSpaceId: string, startAt: string, endAt: string): Promise<{ success: true; data: { pricePerDay: number; totalDays: number; totalPrice: number } }> =>
+    apiFetch<{ success: true; data: { pricePerDay: number; totalDays: number; totalPrice: number } }>('/events/calculate-price', { method: 'POST', body: JSON.stringify({ eventSpaceId, startAt, endAt }) }, token()),
 };
 
 // ──────────────────────────────────────────
