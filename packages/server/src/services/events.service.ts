@@ -31,7 +31,7 @@ export interface EventSpaceDTO {
   description?: string;
   location?: string;
   capacity?: number;
-  pricePerHour?: number;
+  pricePerDay?: number;
   isActive?: boolean;
 }
 
@@ -67,14 +67,14 @@ export class EventsService {
   static async createSpace(data: EventSpaceDTO) {
     if (!data.name?.trim()) throw new Error('Event space name is required.');
     const capacity = Number.isInteger(data.capacity) ? Number(data.capacity) : 0;
-    const pricePerHour = assertMoney(data.pricePerHour, 'Price per hour');
+    const pricePerDay = assertMoney(data.pricePerDay, 'Price per day');
     return prisma.eventSpace.create({
       data: {
         name: data.name.trim(),
         description: data.description || null,
         location: data.location || null,
         capacity: capacity >= 0 ? capacity : 0,
-        pricePerHour,
+        pricePerDay,
         isActive: data.isActive ?? true,
       },
       include: { _count: { select: { bookings: true } } },
@@ -91,7 +91,7 @@ export class EventsService {
         ...(data.description !== undefined ? { description: data.description || null } : {}),
         ...(data.location !== undefined ? { location: data.location || null } : {}),
         ...(data.capacity !== undefined ? { capacity: Math.max(0, Math.trunc(Number(data.capacity) || 0)) } : {}),
-        ...(data.pricePerHour !== undefined ? { pricePerHour: assertMoney(data.pricePerHour, 'Price per hour') } : {}),
+        ...(data.pricePerDay !== undefined ? { pricePerDay: assertMoney(data.pricePerDay, 'Price per day') } : {}),
         ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
       },
       include: { _count: { select: { bookings: true } } },
