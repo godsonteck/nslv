@@ -123,16 +123,16 @@ export const MenuManagementPage: React.FC = () => {
 
   const openAdd = () => {
     setEditing(null);
-    setForm({ ...emptyForm, category: categoryOptions[0] || '' });
+    setForm({ name: '', category: categoryOptions[0] || '', price: '', description: '' });
     setOpen(true);
   };
 
-  const openEdit = (item: any) => {
+const openEdit = (item: any) => {
     setEditing(item);
     setForm({
-      name: item.name,
+      name: item.name || '',
       category: item.category || '',
-      price: String(item.price),
+      price: item.price ? String(item.price) : '',
       description: item.description || '',
     });
     setOpen(true);
