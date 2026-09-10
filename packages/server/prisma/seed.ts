@@ -532,6 +532,23 @@ async function main() {
   ];
   await prisma.poolService.createMany({ data: poolServices, skipDuplicates: true });
 
+  // 6. Seed pool item categories (used for validation when creating/updating services)
+  console.log('📂 Seeding pool item categories...');
+  const poolCategories = [
+    { name: 'DAY_PASS', description: 'Standard day pass', color: '#00A86B', order: 1 },
+    { name: 'CABANA_RENTAL', description: 'Cabana rental', color: '#F6AD55', order: 2 },
+    { name: 'TOWEL_RENTAL', description: 'Pool towel rental', color: '#A855F6', order: 3 },
+    { name: 'POOL_SNACKS', description: 'Pool snack bar items', color: '#8B4513', order: 4 },
+    { name: 'BEVERAGES', description: 'Beverage services', color: '#1E90FF', order: 5 },
+  ];
+  for (const cat of poolCategories) {
+    await prisma.itemCategory.upsert({
+      where: { name_type: { name: cat.name, type: 'POOL' } },
+      update: {},
+      create: { name: cat.name, type: 'POOL', description: cat.description, color: cat.color, order: cat.order, isActive: true },
+    });
+  }
+
   console.log('🎉 Seeding event spaces...');
   const eventSpaces = [
     { name: 'Poolside Deck', location: 'Ground floor by the pool', capacity: 80 },
