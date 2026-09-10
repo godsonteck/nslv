@@ -111,7 +111,7 @@ html[data-theme='dark'] textarea {
 }
 
 /* NSVILLA FRONTEND POLISH — compatibility for legacy page primitives */
-.bg-\[\#1C1F28\]{background-color:#fff!important}.bg-\[\#14161D\]{background-color:#fbfcfa!important}.bg-\[\#232733\]{background-color:#f3f6f4!important}.border-\[\#2B303E\]{border-color:#e5e9e6!important}
+.bg-\[\#1C1F28\]{background-color:#fff!important}.bg-\[\#14161D\]{background-color:#fbfcfa!important}.bg-\[\#232733\]{background-color:#f3f6f4!important}.bg-\[\#181B24\]{background-color:#f4f6f4!important}.bg-\[\#181b24\]{background-color:#f4f6f4!important}.border-\[\#2B303E\]{border-color:#e5e9e6!important}
 .text-\[\#F4F4F2\]{color:#20343e!important}.text-\[\#A0A5AD\]{color:#7a858a!important}.text-\[\#6E737B\]{color:#899397!important}.text-\[\#C5A880\]{color:#9b7648!important}.text-\[\#1A202C\]{color:#20343e!important}.text-\[\#1B4965\]{color:#174b59!important}
 .bg-\[\#0E1015\]{background-color:#173f4f!important}.bg-\[\#0E3440\]{background-color:#0e3440!important}
 .rounded-md{border-radius:14px}.shadow-2xl{box-shadow:0 18px 50px rgba(20,35,43,.12)!important}

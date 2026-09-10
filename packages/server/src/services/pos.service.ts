@@ -379,7 +379,8 @@ export class POSService {
 
   static async createPoolService(data: { name: string; category: string; price: number; description?: string }) {
     assertPositiveMoney(data.price, 'Price');
-    await CategoryService.assertConfiguredValue('POOL', data.category);
+    // Pool service categories are user-defined pass-type labels (e.g. 'DAY_PASS', 'NIGHT_PASS')
+    // and are not backed by the ItemCategory table, so no category assertion is needed here.
     return prisma.poolService.create({ data });
   }
 
@@ -387,7 +388,7 @@ export class POSService {
     const existing = await prisma.poolService.findUnique({ where: { id } });
     if (!existing) throw new Error('Pool service not found.');
     if (data.price !== undefined) assertPositiveMoney(data.price, 'Price');
-    if (data.category) await CategoryService.assertConfiguredValue('POOL', data.category);
+    // Pool service categories are free-form — no ItemCategory validation needed.
     return prisma.poolService.update({ where: { id }, data });
   }
 
