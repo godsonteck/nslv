@@ -220,17 +220,17 @@ export class EventsService {
     if (overlap) throw new Error(`${overlap.title} is already booked during that time for this space.`);
   }
 
-  /** Calculate total price based on event space pricePerDay and booking duration. */
-  static async calculateBookingPrice(eventSpaceId: string, startAt: Date, endAt: Date): Promise<{ success: true; data: { pricePerDay: number; totalDays: number; totalPrice: number } }> {
+  /** Calculate total price based on event space pricePerDay, booking duration, and guest count. */
+  static async calculateBookingPrice(eventSpaceId: string, startAt: Date, endAt: Date, guestCount: number = 0): Promise<{ success: true; data: { pricePerDay: number; totalDays: number; guestCount: number; totalPrice: number } }> {
     const space = await prisma.eventSpace.findUnique({ where: { id: eventSpaceId } });
     if (!space || !space.pricePerDay) {
-      return { success: true, data: { pricePerDay: 0, totalDays: 0, totalPrice: 0 } };
+      return { success: true, data: { pricePerDay: 0, totalDays: 0, guestCount: 0, totalPrice: 0 } };
     }
 
     const diffMs = endAt.getTime() - startAt.getTime();
     const totalDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-    const totalPrice = space.pricePerDay * totalDays;
+    const totalPrice = space.pricePerDay * totalDays * Math.max(1, guestCount);
 
-    return { success: true, data: { pricePerDay: space.pricePerDay, totalDays, totalPrice } };
+    return { success: true, data: { pricePerDay: space.pricePerDay, totalDays, guestCount, totalPrice } };
   }
 }
