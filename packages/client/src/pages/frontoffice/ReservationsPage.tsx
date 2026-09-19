@@ -11,10 +11,10 @@ import { printPaymentReceipt } from '../../lib/company';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
-type Person = { key: string; mode: 'existing' | 'new'; guestId: string; firstName: string; lastName: string; phone: string; email: string };
+type Person = { key: string; mode: 'existing' | 'new'; guestId: string; firstName: string; lastName: string; phone: string; email: string; address: string; city: string; country: string; nationality: string; idDocumentType: string; idDocumentNumber: string; dateOfBirth: string; preferences: string; notes: string; isVip: boolean };
 type RoomLine = { key: string; roomId: string; adults: string; children: string; primaryKey: string; additionalKeys: string[]; depositAmount: string; depositMethod: string; depositReference: string };
 
-const emptyPerson: Person = { key: uid(), mode: 'existing', guestId: '', firstName: '', lastName: '', phone: '', email: '' };
+const emptyPerson: Person = { key: uid(), mode: 'existing', guestId: '', firstName: '', lastName: '', phone: '', email: '', address: '', city: '', country: '', nationality: '', idDocumentType: '', idDocumentNumber: '', dateOfBirth: '', preferences: '', notes: '', isVip: false };
 const emptyRoomLine = (primaryKey: string): RoomLine => ({ key: uid(), roomId: '', adults: '1', children: '0', primaryKey, additionalKeys: [], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
 
 const guestName = (g: any) => (g ? `${g.firstName ?? ''} ${g.lastName ?? ''}`.trim() || '—' : '—');
@@ -35,7 +35,7 @@ export const ReservationsPage: React.FC = () => {
   // Single-room booking
   const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing');
   const [guestFilter, setGuestFilter] = useState('');
-  const [newGuest, setNewGuest] = useState({ firstName: '', lastName: '', phone: '', email: '' });
+  const [newGuest, setNewGuest] = useState({ firstName: '', lastName: '', phone: '', email: '', address: '', city: '', country: '', nationality: '', idDocumentType: '', idDocumentNumber: '', dateOfBirth: '', preferences: '', notes: '', isVip: false });
   const [form, setForm] = useState({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] as string[], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
 
   // Multi-room (one party) booking
@@ -146,7 +146,7 @@ export const ReservationsPage: React.FC = () => {
   const resetSingle = () => {
     setGuestMode('existing');
     setGuestFilter('');
-    setNewGuest({ firstName: '', lastName: '', phone: '', email: '' });
+    setNewGuest({ firstName: '', lastName: '', phone: '', email: '', address: '', city: '', country: '', nationality: '', idDocumentType: '', idDocumentNumber: '', dateOfBirth: '', preferences: '', notes: '', isVip: false });
     setForm({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
   };
 
@@ -187,6 +187,16 @@ export const ReservationsPage: React.FC = () => {
           lastName: p.lastName.trim() || undefined,
           phone: p.phone.trim() || undefined,
           email: p.email.trim() || undefined,
+          address: p.address.trim() || undefined,
+          city: p.city.trim() || undefined,
+          country: p.country.trim() || undefined,
+          nationality: p.nationality.trim() || undefined,
+          idDocumentType: p.idDocumentType || undefined,
+          idDocumentNumber: p.idDocumentNumber.trim() || undefined,
+          dateOfBirth: p.dateOfBirth ? new Date(p.dateOfBirth) : undefined,
+          preferences: p.preferences.trim() || undefined,
+          notes: p.notes.trim() || undefined,
+          isVip: p.isVip,
         });
         map.set(p.key, created.data?.id ?? created.id);
       }
@@ -232,6 +242,16 @@ export const ReservationsPage: React.FC = () => {
             lastName: newGuest.lastName.trim() || undefined,
             phone: newGuest.phone.trim() || undefined,
             email: newGuest.email.trim() || undefined,
+            address: newGuest.address.trim() || undefined,
+            city: newGuest.city.trim() || undefined,
+            country: newGuest.country.trim() || undefined,
+            nationality: newGuest.nationality.trim() || undefined,
+            idDocumentType: newGuest.idDocumentType || undefined,
+            idDocumentNumber: newGuest.idDocumentNumber.trim() || undefined,
+            dateOfBirth: newGuest.dateOfBirth ? new Date(newGuest.dateOfBirth) : undefined,
+            preferences: newGuest.preferences.trim() || undefined,
+            notes: newGuest.notes.trim() || undefined,
+            isVip: newGuest.isVip,
           });
           guestId = created.data?.id ?? created.id;
         }
@@ -674,19 +694,64 @@ export const ReservationsPage: React.FC = () => {
                           </FormField>
                         </div>
                       ) : (
-                        <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                          <FormField label={`First name · Person ${i + 1}`}>
-                            <TextInput value={p.firstName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, firstName: e.target.value } : x)))} placeholder="First name" />
+                        <div className="mt-2 space-y-3">
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <FormField label={`First name · Person ${i + 1}`}>
+                              <TextInput value={p.firstName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, firstName: e.target.value } : x)))} placeholder="First name" />
+                            </FormField>
+                            <FormField label="Last name">
+                              <TextInput value={p.lastName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, lastName: e.target.value } : x)))} placeholder="Last name" />
+                            </FormField>
+                            <FormField label="Phone">
+                              <TextInput value={p.phone} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, phone: e.target.value } : x)))} placeholder="+233 …" />
+                            </FormField>
+                            <FormField label="Email">
+                              <TextInput type="email" value={p.email} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, email: e.target.value } : x)))} placeholder="guest@example.com" />
+                            </FormField>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            <FormField label="Address">
+                              <TextInput value={p.address} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, address: e.target.value } : x)))} placeholder="Street address" />
+                            </FormField>
+                            <FormField label="City">
+                              <TextInput value={p.city} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, city: e.target.value } : x)))} placeholder="City / Region" />
+                            </FormField>
+                            <FormField label="Country">
+                              <TextInput value={p.country} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, country: e.target.value } : x)))} placeholder="Country" />
+                            </FormField>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            <FormField label="Document type">
+                              <SelectInput value={p.idDocumentType} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, idDocumentType: e.target.value } : x)))}>
+                                <option value="">Select type…</option>
+                                <option value="PASSPORT">Passport</option>
+                                <option value="NATIONAL_ID">National ID / Ghana Card</option>
+                                <option value="DRIVERS_LICENSE">Driver's License</option>
+                                <option value="OTHER">Other</option>
+                              </SelectInput>
+                            </FormField>
+                            <FormField label="Document number">
+                              <TextInput value={p.idDocumentNumber} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, idDocumentNumber: e.target.value } : x)))} placeholder="Doc #" />
+                            </FormField>
+                            <FormField label="Nationality">
+                              <TextInput value={p.nationality} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, nationality: e.target.value } : x)))} placeholder="Nationality" />
+                            </FormField>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <FormField label="Date of birth">
+                              <TextInput type="date" value={p.dateOfBirth} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, dateOfBirth: e.target.value } : x)))} />
+                            </FormField>
+                            <FormField label="Preferences">
+                              <TextInput value={p.preferences} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, preferences: e.target.value } : x)))} placeholder="e.g. High floor, quiet room" />
+                            </FormField>
+                          </div>
+                          <FormField label="Staff notes">
+                            <TextInput value={p.notes} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, notes: e.target.value } : x)))} placeholder="Internal notes" />
                           </FormField>
-                          <FormField label="Last name">
-                            <TextInput value={p.lastName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, lastName: e.target.value } : x)))} placeholder="Last name" />
-                          </FormField>
-                          <FormField label="Phone">
-                            <TextInput value={p.phone} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, phone: e.target.value } : x)))} placeholder="+233 …" />
-                          </FormField>
-                          <FormField label="Email">
-                            <TextInput type="email" value={p.email} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, email: e.target.value } : x)))} placeholder="guest@example.com" />
-                          </FormField>
+                          <div className="flex items-center gap-2">
+                            <input type="checkbox" id={`vip-${p.key}`} checked={p.isVip} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, isVip: e.target.checked } : x)))} className="h-4 w-4 rounded border-[#ced5ce] text-[#16a4d4] focus:ring-[#16a4d4]" />
+                            <label htmlFor={`vip-${p.key}`} className="text-xs font-bold text-[#26363e]">Mark as VIP Guest</label>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -832,19 +897,64 @@ export const ReservationsPage: React.FC = () => {
                     </FormField>
                   </div>
                 ) : (
-                  <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                    <FormField label="First name" required>
-                      <TextInput required value={newGuest.firstName} onChange={(e) => setNewGuest({ ...newGuest, firstName: e.target.value })} placeholder="New guest first name" />
+                  <div className="mt-3 space-y-3">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField label="First name" required>
+                        <TextInput required value={newGuest.firstName} onChange={(e) => setNewGuest({ ...newGuest, firstName: e.target.value })} placeholder="New guest first name" />
+                      </FormField>
+                      <FormField label="Last name">
+                        <TextInput value={newGuest.lastName} onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })} placeholder="New guest last name" />
+                      </FormField>
+                      <FormField label="Phone">
+                        <TextInput value={newGuest.phone} onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })} placeholder="+233 …" />
+                      </FormField>
+                      <FormField label="Email">
+                        <TextInput type="email" value={newGuest.email} onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })} placeholder="guest@example.com" />
+                      </FormField>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <FormField label="Address">
+                        <TextInput value={newGuest.address} onChange={(e) => setNewGuest({ ...newGuest, address: e.target.value })} placeholder="Street address" />
+                      </FormField>
+                      <FormField label="City">
+                        <TextInput value={newGuest.city} onChange={(e) => setNewGuest({ ...newGuest, city: e.target.value })} placeholder="City / Region" />
+                      </FormField>
+                      <FormField label="Country">
+                        <TextInput value={newGuest.country} onChange={(e) => setNewGuest({ ...newGuest, country: e.target.value })} placeholder="Country" />
+                      </FormField>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <FormField label="Document type">
+                        <SelectInput value={newGuest.idDocumentType} onChange={(e) => setNewGuest({ ...newGuest, idDocumentType: e.target.value })}>
+                          <option value="">Select type…</option>
+                          <option value="PASSPORT">Passport</option>
+                          <option value="NATIONAL_ID">National ID / Ghana Card</option>
+                          <option value="DRIVERS_LICENSE">Driver's License</option>
+                          <option value="OTHER">Other</option>
+                        </SelectInput>
+                      </FormField>
+                      <FormField label="Document number">
+                        <TextInput value={newGuest.idDocumentNumber} onChange={(e) => setNewGuest({ ...newGuest, idDocumentNumber: e.target.value })} placeholder="Doc #" />
+                      </FormField>
+                      <FormField label="Nationality">
+                        <TextInput value={newGuest.nationality} onChange={(e) => setNewGuest({ ...newGuest, nationality: e.target.value })} placeholder="Nationality" />
+                      </FormField>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField label="Date of birth">
+                        <TextInput type="date" value={newGuest.dateOfBirth} onChange={(e) => setNewGuest({ ...newGuest, dateOfBirth: e.target.value })} />
+                      </FormField>
+                      <FormField label="Preferences">
+                        <TextInput value={newGuest.preferences} onChange={(e) => setNewGuest({ ...newGuest, preferences: e.target.value })} placeholder="e.g. High floor, quiet room" />
+                      </FormField>
+                    </div>
+                    <FormField label="Staff notes">
+                      <TextInput value={newGuest.notes} onChange={(e) => setNewGuest({ ...newGuest, notes: e.target.value })} placeholder="Internal notes about this guest" />
                     </FormField>
-                    <FormField label="Last name">
-                      <TextInput value={newGuest.lastName} onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })} placeholder="New guest last name" />
-                    </FormField>
-                    <FormField label="Phone">
-                      <TextInput value={newGuest.phone} onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })} placeholder="+233 …" />
-                    </FormField>
-                    <FormField label="Email">
-                      <TextInput type="email" value={newGuest.email} onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })} placeholder="guest@example.com" />
-                    </FormField>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" id="new-guest-vip" checked={newGuest.isVip} onChange={(e) => setNewGuest({ ...newGuest, isVip: e.target.checked })} className="h-4 w-4 rounded border-[#ced5ce] text-[#16a4d4] focus:ring-[#16a4d4]" />
+                      <label htmlFor="new-guest-vip" className="text-xs font-bold text-[#26363e]">Mark as VIP Guest</label>
+                    </div>
                   </div>
                 )}
                 <div className="mt-4">
