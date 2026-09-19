@@ -44,6 +44,8 @@ export const ReservationsPage: React.FC = () => {
   const [roomLines, setRoomLines] = useState<RoomLine[]>([]);
   const [bookingDates, setBookingDates] = useState({ checkInDate: '', checkOutDate: '' });
   const [availableRoomIds, setAvailableRoomIds] = useState<Set<string> | null>(null);
+  const [editAvailableRoomIds, setEditAvailableRoomIds] = useState<Set<string> | null>(null);
+  const [editAvailabilityLoading, setEditAvailabilityLoading] = useState(false);
 
   // Manage guests on an existing reservation
   const [manageOpen, setManageOpen] = useState(false);
@@ -119,6 +121,27 @@ export const ReservationsPage: React.FC = () => {
   }, [multi, bookingDates.checkInDate, bookingDates.checkOutDate, form.checkInDate, form.checkOutDate]);
 
   const bookableRooms = availableRoomIds === null ? [] : rooms.filter((room) => availableRoomIds.has(room.id));
+
+  // Availability check for the edit form — re-run whenever dates change
+  useEffect(() => {
+    if (!editRes) return;
+    const { checkInDate, checkOutDate } = editForm;
+    if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) {
+      setEditAvailableRoomIds(null);
+      return;
+    }
+    let cancelled = false;
+    setEditAvailabilityLoading(true);
+    reservationsApi.checkAvailability(checkInDate, checkOutDate)
+      .then((result) => {
+        if (!cancelled) setEditAvailableRoomIds(new Set((result.data || []).map((room: any) => room.id)));
+      })
+      .catch(() => {
+        if (!cancelled) setEditAvailableRoomIds(null);
+      })
+      .finally(() => { if (!cancelled) setEditAvailabilityLoading(false); });
+    return () => { cancelled = true; };
+  }, [editRes, editForm.checkInDate, editForm.checkOutDate]);
 
   const resetSingle = () => {
     setGuestMode('existing');
@@ -850,26 +873,36 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField label="Room" required>
-                  <SelectInput required value={form.roomId} onChange={(e) => setForm({ ...form, roomId: e.target.value })}>
-                    <option value="">Select room</option>
-                    {bookableRooms.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        Room {r.number} · {r.roomType?.name || 'Room'} ({Number(r.roomType?.basePrice || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })})
-                      </option>
-                    ))}
-                  </SelectInput>
+                <FormField label="Arrival" required>
+                  <TextInput type="date" required value={form.checkInDate} onChange={(e) => setForm({ ...form, checkInDate: e.target.value, roomId: '' })} />
                 </FormField>
-                <FormField label="Adults" required>
-                  <TextInput type="number" min="1" required value={form.adults} onChange={(e) => setForm({ ...form, adults: e.target.value })} />
+                <FormField label="Departure" required>
+                  <TextInput type="date" required value={form.checkOutDate} onChange={(e) => setForm({ ...form, checkOutDate: e.target.value, roomId: '' })} />
                 </FormField>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField label="Arrival" required>
-                  <TextInput type="date" required value={form.checkInDate} onChange={(e) => setForm({ ...form, checkInDate: e.target.value })} />
+                <FormField label="Room" required>
+                  {!form.checkInDate || !form.checkOutDate || form.checkOutDate <= form.checkInDate ? (
+                    <div className="flex h-10 items-center rounded-xl border border-dashed border-[#d0d9d4] bg-[#f7f8f6] px-3 text-xs text-[#8a9598]">
+                      Select arrival &amp; departure dates first
+                    </div>
+                  ) : bookableRooms.length === 0 ? (
+                    <div className="flex h-10 items-center rounded-xl border border-dashed border-[#f0c0a0] bg-[#fff8f4] px-3 text-xs text-[#b05a20] font-semibold">
+                      No rooms available for selected dates
+                    </div>
+                  ) : (
+                    <SelectInput required value={form.roomId} onChange={(e) => setForm({ ...form, roomId: e.target.value })}>
+                      <option value="">Select room</option>
+                      {bookableRooms.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          Room {r.number} · {r.roomType?.name || 'Room'} ({Number(r.roomType?.basePrice || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })})
+                        </option>
+                      ))}
+                    </SelectInput>
+                  )}
                 </FormField>
-                <FormField label="Departure" required>
-                  <TextInput type="date" required value={form.checkOutDate} onChange={(e) => setForm({ ...form, checkOutDate: e.target.value })} />
+                <FormField label="Adults" required>
+                  <TextInput type="number" min="1" required value={form.adults} onChange={(e) => setForm({ ...form, adults: e.target.value })} />
                 </FormField>
               </div>
 
@@ -908,16 +941,34 @@ export const ReservationsPage: React.FC = () => {
         </form>
       </Modal>
 
-      <Modal open={!!editRes} onClose={() => setEditRes(null)} title={editRes ? `Edit ${editRes.confirmationNo || 'reservation'}` : 'Edit reservation'} size="lg">
+      <Modal open={!!editRes} onClose={() => { setEditRes(null); setEditAvailableRoomIds(null); }} title={editRes ? `Edit ${editRes.confirmationNo || 'reservation'}` : 'Edit reservation'} size="lg">
         <form onSubmit={saveEdit} className="space-y-4">
           <div className="rounded-xl bg-[#f7f8f6] p-3 text-xs text-[#667278]">{String(editRes?.status).toUpperCase() === 'CHECKED_IN' ? 'This guest is in house. You can extend or shorten departure and update stay details; any accommodation difference is posted to the open folio.' : 'Changes are checked against live availability. The room rate and booking total are recalculated from the revised stay dates.'}</div>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Arrival" required><TextInput type="date" required disabled={String(editRes?.status).toUpperCase() === 'CHECKED_IN'} value={editForm.checkInDate} onChange={(e) => setEditForm({ ...editForm, checkInDate: e.target.value })} /></FormField>
             <FormField label="Departure" required><TextInput type="date" required value={editForm.checkOutDate} onChange={(e) => setEditForm({ ...editForm, checkOutDate: e.target.value })} /></FormField>
             <FormField label="Room" required>
-              <SelectInput required disabled={String(editRes?.status).toUpperCase() === 'CHECKED_IN'} value={editForm.roomId} onChange={(e) => setEditForm({ ...editForm, roomId: e.target.value })}>
-                {rooms.filter((room) => room.isActive && !['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)).map((room) => <option key={room.id} value={room.id}>Room {room.number} · {room.roomType?.name || 'Room'}</option>)}
-              </SelectInput>
+              {String(editRes?.status).toUpperCase() === 'CHECKED_IN' ? (
+                <SelectInput required disabled value={editForm.roomId}>
+                  {rooms.filter((room) => room.isActive && !['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)).map((room) => <option key={room.id} value={room.id}>Room {room.number} · {room.roomType?.name || 'Room'}</option>)}
+                </SelectInput>
+              ) : editAvailabilityLoading ? (
+                <div className="flex h-10 items-center rounded-xl border border-[#eef1ee] bg-[#f7f8f6] px-3 text-xs text-[#8a9598]">Checking availability…</div>
+              ) : editAvailableRoomIds === null ? (
+                <div className="flex h-10 items-center rounded-xl border border-dashed border-[#d0d9d4] bg-[#f7f8f6] px-3 text-xs text-[#8a9598]">Select valid arrival &amp; departure dates to see available rooms</div>
+              ) : (
+                <SelectInput required value={editForm.roomId} onChange={(e) => setEditForm({ ...editForm, roomId: e.target.value })}>
+                  <option value="">Select room</option>
+                  {rooms
+                    .filter((room) => room.isActive && !['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status))
+                    .filter((room) => editAvailableRoomIds.has(room.id) || room.id === editRes?.roomId)
+                    .map((room) => (
+                      <option key={room.id} value={room.id}>
+                        Room {room.number} · {room.roomType?.name || 'Room'}{room.id === editRes?.roomId ? ' (current)' : ''}
+                      </option>
+                    ))}
+                </SelectInput>
+              )}
             </FormField>
             <FormField label="Source"><TextInput value={editForm.source} onChange={(e) => setEditForm({ ...editForm, source: e.target.value })} placeholder="WALK_IN" /></FormField>
             <FormField label="Adults" required><TextInput type="number" min="1" required value={editForm.adults} onChange={(e) => setEditForm({ ...editForm, adults: e.target.value })} /></FormField>
