@@ -30,6 +30,7 @@ export const ReservationsPage: React.FC = () => {
   const [status, setStatus] = useState('ALL');
   const [sortField, setSortField] = useState<'checkInDate' | 'checkOutDate' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [dateFilter, setDateFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -494,6 +495,15 @@ export const ReservationsPage: React.FC = () => {
     }
     return parties.flat();
   })();
+
+  // Apply optional date filter: keep only reservations whose stay covers the chosen date
+  const displayRows = dateFilter
+    ? grouped.filter((r) => {
+        const cin = String(r.checkInDate).slice(0, 10);
+        const cout = String(r.checkOutDate).slice(0, 10);
+        return cin <= dateFilter && dateFilter <= cout;
+      })
+    : grouped;
   const partyInfo = new Map<string, { count: number; total: number }>();
   data.forEach((r) => {
     if (!r.bookingId) return;
@@ -523,13 +533,35 @@ export const ReservationsPage: React.FC = () => {
       }
     >
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile label="Reservations in view" value={data.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
+        <StatTile label="Reservations in view" value={displayRows.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
         <StatTile label="Confirmed / pending" value={confirmed} note="Current filtered result" onClick={() => scrollToTable('CONFIRMED_PENDING')} />
         <StatTile label="Checked in" value={active} note="Active stays" onClick={() => scrollToTable('CHECKED_IN')} />
       </div>
       <div ref={tableRef}>
       <Section title="Booking ledger" subtitle="Search by guest, reservation or room">
         <Toolbar search={q} onSearch={setQ} placeholder="Search guest, booking code or room…">
+          {/* Date filter */}
+          <div className="flex items-center gap-1">
+            <div className="relative flex items-center">
+              <CalendarDays size={13} className="pointer-events-none absolute left-2.5 text-[#8a9598]" />
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="ns-input h-10 pl-8 pr-3 text-xs"
+                title="Filter by stay date"
+              />
+            </div>
+            {dateFilter && (
+              <button
+                onClick={() => setDateFilter('')}
+                className="flex h-10 items-center gap-1 rounded-xl border border-[#e0e5e2] bg-[#e8f2f4] px-2.5 text-[11px] font-semibold text-[#16a4d4] hover:bg-[#d6e9ee]"
+                title="Clear date filter"
+              >
+                <X size={12} /> Clear
+              </button>
+            )}
+          </div>
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="ns-input h-10 px-3 text-xs">
             <option>ALL</option>
             <option>CONFIRMED</option>
@@ -542,12 +574,21 @@ export const ReservationsPage: React.FC = () => {
         </Toolbar>
         {loading ? (
           <LoadingState />
-        ) : data.length === 0 ? (
+        ) : displayRows.length === 0 ? (
           <div className="p-5">
             <div className="rounded-2xl border border-dashed border-[#dfe4e0] p-12 text-center">
               <CalendarDays className="mx-auto text-[#a0aaad]" />
-              <h3 className="mt-3 text-sm font-extrabold">No reservations yet</h3>
-              <p className="mt-1 text-xs text-[#899397]">Your fresh property database is ready for its first booking.</p>
+              <h3 className="mt-3 text-sm font-extrabold">
+                {dateFilter ? `No reservations on ${new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'No reservations yet'}
+              </h3>
+              <p className="mt-1 text-xs text-[#899397]">
+                {dateFilter ? 'Try a different date or clear the filter.' : 'Your fresh property database is ready for its first booking.'}
+              </p>
+              {dateFilter && (
+                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl bg-[#16a4d4] px-4 py-2 text-[11px] font-extrabold text-white hover:bg-[#138db8]">
+                  Clear date filter
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -584,8 +625,8 @@ export const ReservationsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#edf0ed]">
-                {grouped.map((r, idx) => {
-                  const prev = grouped[idx - 1];
+                {displayRows.map((r, idx) => {
+                  const prev = displayRows[idx - 1];
                   const showPartyHeader = !!r.bookingId && prev?.bookingId !== r.bookingId;
                   const party = partyInfo.get(r.bookingId);
                   const allGuests = r.guests?.length ? [...r.guests].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)) : [];
