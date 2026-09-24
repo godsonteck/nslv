@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reservationsApi, roomsApi, guestsApi, paymentsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard } from 'lucide-react';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
@@ -28,6 +28,8 @@ export const ReservationsPage: React.FC = () => {
   const [guests, setGuests] = useState<any[]>([]);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('ALL');
+  const [sortField, setSortField] = useState<'checkInDate' | 'checkOutDate' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -71,15 +73,23 @@ export const ReservationsPage: React.FC = () => {
   const canProcessPayment = useAuthStore((s) => s.hasPermission('payments.create'));
   const navigate = useNavigate();
 
+  const tableRef = useRef<HTMLDivElement>(null);
+
   const load = async () => {
     try {
       setLoading(true);
+      // 'CONFIRMED_PENDING' is a pseudo-status: fetch all and let client filter
+      const apiStatus = (status === 'ALL' || status === 'CONFIRMED_PENDING') ? undefined : status;
       const [r, rm, g] = await Promise.all([
-        reservationsApi.list({ search: q || undefined, status: status === 'ALL' ? undefined : status }),
+        reservationsApi.list({ search: q || undefined, status: apiStatus }),
         roomsApi.getRooms(),
         guestsApi.list(),
       ]);
-      const list = r.data || [];
+      const raw: any[] = r.data || [];
+      // Client-side filter for the CONFIRMED_PENDING pseudo-status
+      const list = status === 'CONFIRMED_PENDING'
+        ? raw.filter((x) => ['CONFIRMED', 'PENDING'].includes(String(x.status).toUpperCase()))
+        : raw;
       setData(list);
       setRooms(rm.data || []);
       setGuests(g.data || []);
@@ -99,6 +109,13 @@ export const ReservationsPage: React.FC = () => {
     const t = setTimeout(() => void load(), 200);
     return () => clearTimeout(t);
   }, [q, status]);
+
+  const scrollToTable = (newStatus: string) => {
+    setStatus(newStatus);
+    setTimeout(() => {
+      tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
 
   useEffect(() => {
     const dates = multi ? bookingDates : form;
@@ -430,12 +447,53 @@ export const ReservationsPage: React.FC = () => {
 
   const guestAttached = (g: any) => (manageRes?.guests || []).some((x: any) => x.guestId === g.id);
 
-  // Group rows so a party (shared bookingId) stays together
-  const grouped = [...data].sort((a, b) => {
-    const ka = a.bookingId || a.id;
-    const kb = b.bookingId || b.id;
-    return ka < kb ? -1 : ka > kb ? 1 : 0;
-  });
+  const toggleSort = (field: 'checkInDate' | 'checkOutDate') => {
+    if (sortField !== field) { setSortField(field); setSortDir('asc'); }
+    else if (sortDir === 'asc') setSortDir('desc');
+    else { setSortField(null); }
+  };
+
+  const SortIcon = ({ field }: { field: 'checkInDate' | 'checkOutDate' }) => {
+    if (sortField !== field) return <ChevronsUpDown size={11} className="ml-1 opacity-40" />;
+    return sortDir === 'asc' ? <ChevronUp size={11} className="ml-1 text-[#16a4d4]" /> : <ChevronDown size={11} className="ml-1 text-[#16a4d4]" />;
+  };
+
+  // Group rows so a party (shared bookingId) stays together,
+  // then optionally sort groups by the representative date of the first member.
+  const grouped = (() => {
+    // First: cluster by bookingId (party) or individual id
+    const partyMap = new Map<string, any[]>();
+    for (const r of data) {
+      const key = r.bookingId || r.id;
+      if (!partyMap.has(key)) partyMap.set(key, []);
+      partyMap.get(key)!.push(r);
+    }
+    // Sort each party's rows internally by the sort field too
+    const parties = [...partyMap.values()];
+    if (sortField) {
+      parties.forEach((rows) =>
+        rows.sort((a, b) => {
+          const va = new Date(a[sortField]).getTime();
+          const vb = new Date(b[sortField]).getTime();
+          return sortDir === 'asc' ? va - vb : vb - va;
+        }),
+      );
+      // Sort groups by their first member's date
+      parties.sort((ga, gb) => {
+        const va = new Date(ga[0][sortField]).getTime();
+        const vb = new Date(gb[0][sortField]).getTime();
+        return sortDir === 'asc' ? va - vb : vb - va;
+      });
+    } else {
+      // Default: preserve original bookingId/id order
+      parties.sort((ga, gb) => {
+        const ka = ga[0].bookingId || ga[0].id;
+        const kb = gb[0].bookingId || gb[0].id;
+        return ka < kb ? -1 : ka > kb ? 1 : 0;
+      });
+    }
+    return parties.flat();
+  })();
   const partyInfo = new Map<string, { count: number; total: number }>();
   data.forEach((r) => {
     if (!r.bookingId) return;
@@ -465,16 +523,18 @@ export const ReservationsPage: React.FC = () => {
       }
     >
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile label="Reservations in view" value={data.length} icon={CalendarDays} />
-        <StatTile label="Confirmed / pending" value={confirmed} note="Current filtered result" />
-        <StatTile label="Checked in" value={active} note="Active stays" />
+        <StatTile label="Reservations in view" value={data.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
+        <StatTile label="Confirmed / pending" value={confirmed} note="Current filtered result" onClick={() => scrollToTable('CONFIRMED_PENDING')} />
+        <StatTile label="Checked in" value={active} note="Active stays" onClick={() => scrollToTable('CHECKED_IN')} />
       </div>
+      <div ref={tableRef}>
       <Section title="Booking ledger" subtitle="Search by guest, reservation or room">
         <Toolbar search={q} onSearch={setQ} placeholder="Search guest, booking code or room…">
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="ns-input h-10 px-3 text-xs">
             <option>ALL</option>
             <option>CONFIRMED</option>
             <option>PENDING</option>
+            <option value="CONFIRMED_PENDING">CONFIRMED + PENDING</option>
             <option>CHECKED_IN</option>
             <option>CHECKED_OUT</option>
             <option>CANCELLED</option>
@@ -498,7 +558,25 @@ export const ReservationsPage: React.FC = () => {
                   <th className="px-5 py-3">Reservation</th>
                   <th className="px-5 py-3">Guests</th>
                   <th className="px-5 py-3">Room</th>
-                  <th className="px-5 py-3">Stay</th>
+                  <th className="px-5 py-3">
+                    <span className="flex items-center gap-3">
+                      <button
+                        onClick={() => toggleSort('checkInDate')}
+                        className={`flex items-center transition-colors hover:text-[#16a4d4] ${sortField === 'checkInDate' ? 'text-[#16a4d4]' : ''}`}
+                        title="Sort by check-in date"
+                      >
+                        Check-in <SortIcon field="checkInDate" />
+                      </button>
+                      <span className="opacity-30">·</span>
+                      <button
+                        onClick={() => toggleSort('checkOutDate')}
+                        className={`flex items-center transition-colors hover:text-[#16a4d4] ${sortField === 'checkOutDate' ? 'text-[#16a4d4]' : ''}`}
+                        title="Sort by check-out date"
+                      >
+                        Check-out <SortIcon field="checkOutDate" />
+                      </button>
+                    </span>
+                  </th>
                   <th className="px-5 py-3">Amount</th>
                   <th className="px-5 py-3">Partial Payment</th>
                   <th className="px-5 py-3">Status</th>
@@ -621,6 +699,7 @@ export const ReservationsPage: React.FC = () => {
           </div>
         )}
       </Section>
+      </div>
 
       <Modal open={open} onClose={closeModal} title="New reservation" size="lg">
         <form onSubmit={save} className="space-y-5">

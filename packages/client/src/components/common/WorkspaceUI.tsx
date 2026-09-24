@@ -18,14 +18,21 @@ export const ShellPage: React.FC<{
   </div>
 );
 
-export const StatTile: React.FC<{label:string; value:string|number; note?:string; icon?:LucideIcon; accent?:boolean}> = ({label,value,note,icon:Icon,accent}) => (
-  <div className={`ns-card p-5 ${accent?'ring-1 ring-[#f1a83f]/30':''}`}>
+export const StatTile: React.FC<{label:string; value:string|number; note?:string; icon?:LucideIcon; accent?:boolean; onClick?:()=>void}> = ({label,value,note,icon:Icon,accent,onClick}) => (
+  <div
+    className={`ns-card p-5 transition-all duration-150 ${accent?'ring-1 ring-[#f1a83f]/30':''} ${onClick?'cursor-pointer hover:ring-2 hover:ring-[#16a4d4]/40 hover:shadow-md select-none':''}`}
+    onClick={onClick}
+    role={onClick ? 'button' : undefined}
+    tabIndex={onClick ? 0 : undefined}
+    onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+  >
     <div className="flex items-start justify-between gap-3">
       <span className="text-[10px] font-extrabold uppercase tracking-[.14em] text-[#8a9598]">{label}</span>
       {Icon && <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f6ecd9] text-[#a8761e]"><Icon size={16}/></span>}
     </div>
     <div className="ns-number mt-4 text-[29px] font-extrabold text-[#14232b]">{value}</div>
     {note && <div className="mt-1 text-[11px] text-[#899397]">{note}</div>}
+    {onClick && <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-[#16a4d4] opacity-0 transition-opacity group-hover:opacity-100"><ArrowUpRight size={11}/>View in table</div>}
   </div>
 );
 
