@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { roomsApi, reservationsApi } from '../../services/apiService';
+import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
-import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers, CalendarDays, X, User, CheckCircle2 } from 'lucide-react';
+import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers, CalendarDays, X, User, Users, CheckCircle2 } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
@@ -139,34 +140,65 @@ export const RoomsPage: React.FC = () => {
   };
 
   const getRoomDateState = (r: any) => {
-    if (!dateFilter) {
-      return { effectiveStatus: r.status || 'AVAILABLE', activeReservation: null };
-    }
+    // Match reservations for this room by roomId or nested room.id
+    const roomReservations = reservations
+      .filter((res: any) => {
+        const matchRoom = (res.roomId && res.roomId === r.id) || (res.room?.id && res.room.id === r.id);
+        const activeStatus = !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase());
+        return matchRoom && activeStatus;
+      })
+      .sort((a: any, b: any) => new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime());
 
-    const roomReservations = reservations.filter((res: any) =>
-      res.roomId === r.id &&
-      !['CANCELLED', 'NO_SHOW'].includes(String(res.status).toUpperCase())
-    );
+    if (dateFilter) {
+      // Date filter active: match reservations covering the specified date or range
+      const matchingRes = roomReservations.find((res: any) => {
+        const cin = String(res.checkInDate).slice(0, 10);
+        const cout = String(res.checkOutDate).slice(0, 10);
+        if (endDateFilter && endDateFilter > dateFilter) {
+          return cin < endDateFilter && cout > dateFilter;
+        }
+        return cin <= dateFilter && dateFilter <= cout;
+      });
 
-    const matchingRes = roomReservations.find((res: any) => {
-      const cin = String(res.checkInDate).slice(0, 10);
-      const cout = String(res.checkOutDate).slice(0, 10);
-      if (endDateFilter && endDateFilter > dateFilter) {
-        return cin < endDateFilter && cout > dateFilter;
+      if (matchingRes) {
+        const eff = String(matchingRes.status).toUpperCase() === 'CHECKED_IN' ? 'OCCUPIED' : 'RESERVED';
+        return { effectiveStatus: eff, activeReservation: matchingRes };
       }
-      return cin <= dateFilter && dateFilter <= cout;
-    });
 
-    if (matchingRes) {
-      const eff = String(matchingRes.status).toUpperCase() === 'CHECKED_IN' ? 'OCCUPIED' : 'RESERVED';
-      return { effectiveStatus: eff, activeReservation: matchingRes };
+      if (['MAINTENANCE', 'OUT_OF_SERVICE'].includes(r.status)) {
+        return { effectiveStatus: r.status, activeReservation: null };
+      }
+
+      return { effectiveStatus: 'AVAILABLE', activeReservation: null };
     }
 
-    if (['MAINTENANCE', 'OUT_OF_SERVICE'].includes(r.status)) {
+    // Default view (no date filter):
+    // 1. Any in-house checked in guest -> OCCUPIED
+    const inHouseRes = roomReservations.find((res: any) => String(res.status).toUpperCase() === 'CHECKED_IN');
+    if (inHouseRes) {
+      return { effectiveStatus: 'OCCUPIED', activeReservation: inHouseRes };
+    }
+
+    // 2. Any active reservation (party booking or single booking) covering today or upcoming -> RESERVED
+    const today = new Date().toISOString().slice(0, 10);
+    const activeRes =
+      roomReservations.find((res: any) => {
+        const cin = String(res.checkInDate).slice(0, 10);
+        const cout = String(res.checkOutDate).slice(0, 10);
+        return cin <= today && today <= cout;
+      }) ||
+      roomReservations.find((res: any) => ['CONFIRMED', 'PENDING'].includes(String(res.status).toUpperCase()));
+
+    if (activeRes) {
+      return { effectiveStatus: 'RESERVED', activeReservation: activeRes };
+    }
+
+    // 3. Operational conditions
+    if (['MAINTENANCE', 'OUT_OF_SERVICE', 'DIRTY', 'CLEANING'].includes(r.status)) {
       return { effectiveStatus: r.status, activeReservation: null };
     }
 
-    return { effectiveStatus: 'AVAILABLE', activeReservation: null };
+    return { effectiveStatus: r.status || 'AVAILABLE', activeReservation: null };
   };
 
   const roomStates = new Map<string, { effectiveStatus: string; activeReservation: any }>();
@@ -267,7 +299,7 @@ export const RoomsPage: React.FC = () => {
           <Button variant="outline" size="sm" onClick={() => navigate('/reservations')}>
             <CalendarDays size={14} /> View reservations
           </Button>
-          <Button variant="outline" size="sm" onClick={load}>
+          <Button variant="outline" size="sm" onClick={() => { clearGetCache(); void load(); }}>
             <RefreshCw size={14} /> Refresh
           </Button>
           {canStatus && (
@@ -485,7 +517,14 @@ export const RoomsPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        {statusBadge(effectiveStatus)}
+                        <div className="flex items-center gap-1">
+                          {activeReservation?.bookingId && (
+                            <span className="rounded-md bg-[#e8f2f4] px-1.5 py-0.5 text-[9px] font-extrabold text-[#0e7490] border border-[#bee3ec]" title={`Part of party booking ${activeReservation.bookingId}`}>
+                              PARTY
+                            </span>
+                          )}
+                          {statusBadge(effectiveStatus)}
+                        </div>
                         {dateFilter && effectiveStatus !== r.status && (
                           <span className="text-[9px] text-[#8a9598]" title="Physical database condition">
                             Live: {r.status}
@@ -494,28 +533,46 @@ export const RoomsPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Date-specific reservation card */}
-                    {dateFilter && activeReservation && (
+                    {/* Active reservation card (party booking or individual reservation) */}
+                    {activeReservation && (
                       <div className="mt-3 rounded-xl border border-[#bee3ec] bg-[#f0f8fa] p-2.5 text-xs">
                         <div className="flex items-center justify-between text-[11px] font-extrabold text-[#0e7490]">
                           <span className="flex items-center gap-1 truncate max-w-[150px]">
-                            <User size={12} className="flex-shrink-0" />
+                            {activeReservation.bookingId ? (
+                              <Users size={12} className="flex-shrink-0 text-[#0e7490]" />
+                            ) : (
+                              <User size={12} className="flex-shrink-0" />
+                            )}
                             {guestName(activeReservation.guests?.[0]?.guest)}
                           </span>
-                          <span className="font-mono text-[10px] text-[#0e7490] flex-shrink-0">
-                            {activeReservation.confirmationNo || activeReservation.id.slice(0, 8)}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            {activeReservation.bookingId && (
+                              <span className="rounded bg-[#0e7490] px-1 py-0.2 text-[8px] font-black text-white uppercase tracking-wider">
+                                PARTY
+                              </span>
+                            )}
+                            <span className="font-mono text-[10px] text-[#0e7490] flex-shrink-0">
+                              {activeReservation.confirmationNo || activeReservation.id.slice(0, 8)}
+                            </span>
+                          </div>
                         </div>
                         <div className="mt-1 text-[10px] text-[#537780]">
                           Stay: {new Date(activeReservation.checkInDate).toLocaleDateString()} → {new Date(activeReservation.checkOutDate).toLocaleDateString()}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => navigate('/reservations')}
-                          className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-[#16a4d4] hover:underline"
-                        >
-                          View in reservations →
-                        </button>
+                        <div className="mt-1.5 flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => navigate('/reservations')}
+                            className="flex items-center gap-1 text-[10px] font-bold text-[#16a4d4] hover:underline"
+                          >
+                            View in reservations →
+                          </button>
+                          {activeReservation.bookingId && (
+                            <span className="text-[9px] font-mono text-[#658790]" title="Party Booking Reference">
+                              {activeReservation.bookingId}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
 
