@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reservationsApi, roomsApi, guestsApi, paymentsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
@@ -439,9 +439,6 @@ export const ReservationsPage: React.FC = () => {
     }
   };
 
-  const confirmed = data.filter((x) => ['CONFIRMED', 'PENDING'].includes(String(x.status).toUpperCase())).length;
-  const active = data.filter((x) => String(x.status).toUpperCase() === 'CHECKED_IN').length;
-
   const filteredGuests = guests.filter((g) =>
     !guestFilter || `${g.firstName} ${g.lastName} ${g.phone || ''} ${g.email || ''}`.toLowerCase().includes(guestFilter.toLowerCase()),
   );
@@ -504,6 +501,10 @@ export const ReservationsPage: React.FC = () => {
         return cin <= dateFilter && dateFilter <= cout;
       })
     : grouped;
+
+  const confirmed = displayRows.filter((x) => ['CONFIRMED', 'PENDING'].includes(String(x.status).toUpperCase())).length;
+  const active = displayRows.filter((x) => String(x.status).toUpperCase() === 'CHECKED_IN').length;
+
   const partyInfo = new Map<string, { count: number; total: number }>();
   data.forEach((r) => {
     if (!r.bookingId) return;
@@ -534,44 +535,123 @@ export const ReservationsPage: React.FC = () => {
     >
       <div className="grid gap-4 sm:grid-cols-3">
         <StatTile label="Reservations in view" value={displayRows.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
-        <StatTile label="Confirmed / pending" value={confirmed} note="Current filtered result" onClick={() => scrollToTable('CONFIRMED_PENDING')} />
-        <StatTile label="Checked in" value={active} note="Active stays" onClick={() => scrollToTable('CHECKED_IN')} />
+        <StatTile label="Confirmed / pending" value={confirmed} note={dateFilter ? 'In selected date' : 'Current filtered result'} onClick={() => scrollToTable('CONFIRMED_PENDING')} />
+        <StatTile label="Checked in" value={active} note={dateFilter ? 'In selected date' : 'Active stays'} onClick={() => scrollToTable('CHECKED_IN')} />
       </div>
       <div ref={tableRef}>
       <Section title="Booking ledger" subtitle="Search by guest, reservation or room">
         <Toolbar search={q} onSearch={setQ} placeholder="Search guest, booking code or room…">
-          {/* Date filter */}
-          <div className="flex items-center gap-1">
-            <div className="relative flex items-center">
-              <CalendarDays size={13} className="pointer-events-none absolute left-2.5 text-[#8a9598]" />
+          {/* Prominent Date Filter with label & Today shortcut */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center rounded-xl border border-[#dfe4e1] bg-white px-2.5 h-10 shadow-sm focus-within:border-[#16a4d4] focus-within:ring-1 focus-within:ring-[#16a4d4]">
+              <CalendarDays size={14} className="text-[#16a4d4] mr-2 flex-shrink-0" />
+              <label htmlFor="resDateFilter" className="text-[11px] font-bold text-[#657278] mr-2 whitespace-nowrap cursor-pointer">
+                Filter date:
+              </label>
               <input
+                id="resDateFilter"
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="ns-input h-10 pl-8 pr-3 text-xs"
-                title="Filter by stay date"
+                className="border-0 bg-transparent text-xs font-semibold text-[#1f2d33] focus:outline-none focus:ring-0 p-0 cursor-pointer"
+                title="Filter reservations by stay date"
               />
+              {dateFilter && (
+                <button
+                  type="button"
+                  onClick={() => setDateFilter('')}
+                  className="ml-2 rounded-full p-1 text-[#8a9598] hover:bg-[#f0f3f2] hover:text-[#e04f4f]"
+                  title="Clear date filter"
+                >
+                  <X size={13} />
+                </button>
+              )}
             </div>
-            {dateFilter && (
-              <button
-                onClick={() => setDateFilter('')}
-                className="flex h-10 items-center gap-1 rounded-xl border border-[#e0e5e2] bg-[#e8f2f4] px-2.5 text-[11px] font-semibold text-[#16a4d4] hover:bg-[#d6e9ee]"
-                title="Clear date filter"
-              >
-                <X size={12} /> Clear
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                const today = new Date().toISOString().slice(0, 10);
+                setDateFilter(dateFilter === today ? '' : today);
+              }}
+              className={`h-10 px-3 rounded-xl border text-xs font-bold transition ${
+                dateFilter === new Date().toISOString().slice(0, 10)
+                  ? 'border-[#16a4d4] bg-[#16a4d4] text-white shadow-sm'
+                  : 'border-[#dfe4e1] bg-white text-[#4a555a] hover:border-[#16a4d4] hover:text-[#16a4d4]'
+              }`}
+              title="Show reservations active today"
+            >
+              Today
+            </button>
           </div>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="ns-input h-10 px-3 text-xs">
-            <option>ALL</option>
-            <option>CONFIRMED</option>
-            <option>PENDING</option>
-            <option value="CONFIRMED_PENDING">CONFIRMED + PENDING</option>
-            <option>CHECKED_IN</option>
-            <option>CHECKED_OUT</option>
-            <option>CANCELLED</option>
+
+          {/* Sort By Dropdown */}
+          <div className="flex items-center rounded-xl border border-[#dfe4e1] bg-white px-2.5 h-10 shadow-sm focus-within:border-[#16a4d4]">
+            <ArrowUpDown size={14} className="text-[#8a9598] mr-2 flex-shrink-0" />
+            <select
+              value={sortField ? `${sortField}_${sortDir}` : 'default'}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === 'checkIn_asc') { setSortField('checkInDate'); setSortDir('asc'); }
+                else if (val === 'checkIn_desc') { setSortField('checkInDate'); setSortDir('desc'); }
+                else if (val === 'checkOut_asc') { setSortField('checkOutDate'); setSortDir('asc'); }
+                else if (val === 'checkOut_desc') { setSortField('checkOutDate'); setSortDir('desc'); }
+                else { setSortField(null); setSortDir('asc'); }
+              }}
+              className="border-0 bg-transparent text-xs font-semibold text-[#1f2d33] focus:outline-none focus:ring-0 p-0 cursor-pointer"
+              title="Sort reservations by date"
+            >
+              <option value="default">Sort: Default grouping</option>
+              <option value="checkIn_asc">Sort: Check-in (Earliest first)</option>
+              <option value="checkIn_desc">Sort: Check-in (Latest first)</option>
+              <option value="checkOut_asc">Sort: Check-out (Earliest first)</option>
+              <option value="checkOut_desc">Sort: Check-out (Latest first)</option>
+            </select>
+          </div>
+
+          {/* Status Filter */}
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="ns-input h-10 px-3 text-xs font-semibold"
+            title="Filter by status"
+          >
+            <option value="ALL">Status: ALL</option>
+            <option value="CONFIRMED">Status: CONFIRMED</option>
+            <option value="PENDING">Status: PENDING</option>
+            <option value="CONFIRMED_PENDING">Status: CONFIRMED + PENDING</option>
+            <option value="CHECKED_IN">Status: CHECKED IN</option>
+            <option value="CHECKED_OUT">Status: CHECKED OUT</option>
+            <option value="CANCELLED">Status: CANCELLED</option>
           </select>
         </Toolbar>
+
+        {/* Active Date Filter Banner */}
+        {dateFilter && (
+          <div className="flex items-center justify-between border-b border-[#e1e9e7] bg-[#edf6f8] px-5 py-2.5 text-xs text-[#176274]">
+            <div className="flex items-center gap-2">
+              <CalendarDays size={14} className="text-[#16a4d4]" />
+              <span>
+                Showing reservations active on{' '}
+                <strong className="font-bold text-[#0c404d]">
+                  {new Date(dateFilter + 'T00:00:00').toLocaleDateString(undefined, {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </strong>
+                {' '}— <span className="font-semibold">{displayRows.length} reservation{displayRows.length === 1 ? '' : 's'}</span> found
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDateFilter('')}
+              className="flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[11px] font-bold text-[#16a4d4] hover:bg-[#dbeef4] border border-[#b8dde6]"
+            >
+              <X size={12} /> Clear date filter
+            </button>
+          </div>
+        )}
         {loading ? (
           <LoadingState />
         ) : displayRows.length === 0 ? (

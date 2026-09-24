@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { roomsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers } from 'lucide-react';
+import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers, CalendarDays } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
@@ -210,6 +210,9 @@ export const RoomsPage: React.FC = () => {
       subtitle="See the property at a glance, change room state and keep availability operationally accurate."
       actions={
         <>
+          <Button variant="outline" size="sm" onClick={() => navigate('/reservations')}>
+            <CalendarDays size={14} /> View reservations
+          </Button>
           <Button variant="outline" size="sm" onClick={load}>
             <RefreshCw size={14} /> Refresh
           </Button>
