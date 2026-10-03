@@ -4,6 +4,7 @@
 // ============================================
 
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Search, ChevronLeft, ChevronRight, ArrowRightCircle } from 'lucide-react';
 
 // ──────────────────────────────────────────
@@ -558,7 +559,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, size = 'md',
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4"
@@ -573,7 +574,8 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, size = 'md',
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
@@ -587,7 +589,7 @@ interface DrawerProps {
 
 export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, children }) => {
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 flex justify-end">
       <div className="w-full max-w-xl bg-white border-l border-slate-300 h-full flex flex-col shadow-2xl">
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
@@ -601,7 +603,8 @@ export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, 
         </div>
         <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
