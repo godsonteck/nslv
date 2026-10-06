@@ -232,6 +232,7 @@ export const tendersSchema = z.array(tenderSchema).min(1).max(5).optional();
 export const checkOutSchema = z.object({
   reservationId: uuidSchema,
   roomCondition: z.enum(['DIRTY', 'CLEAN', 'DAMAGED']).optional(),
+  chargeLateCheckoutFee: z.boolean().optional(),
   paymentMethod: paymentMethodSchema.optional(),
   tenders: tendersSchema,
   idempotencyKey: uuidSchema.optional(),

@@ -525,7 +525,7 @@ export const staysApi = {
   },
   checkIn: async (body: { reservationId: string; idVerified?: boolean; idDocumentType?: string; idDocumentNumber?: string; notes?: string }): Promise<any> =>
     apiFetch<any>('/stays/check-in', { method: 'POST', body: JSON.stringify(body) }, token()),
-checkOut: async (body: { reservationId: string; roomCondition?: string; paymentMethod?: string; tenders?: { method: string; amount: number; reference?: string }[]; notes?: string }): Promise<any> =>
+checkOut: async (body: { reservationId: string; roomCondition?: string; chargeLateCheckoutFee?: boolean; paymentMethod?: string; tenders?: { method: string; amount: number; reference?: string }[]; notes?: string }): Promise<any> =>
     apiFetch<any>('/stays/check-out', { method: 'POST', body: JSON.stringify(body) }, token()),
   getCheckoutPolicy: async (): Promise<{ success: true; data: { hourlyRate: number; checkoutTime: string } }> => {
     const data = await apiFetch<{ hourlyRate: number; checkoutTime: string }>('/stays/checkout-policy', {}, token());

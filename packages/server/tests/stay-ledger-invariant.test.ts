@@ -92,6 +92,26 @@ describe('stay ledger invariants', () => {
     vi.useRealTimers();
   });
 
+  it('does not add the late checkout fee when waived at checkout', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2030-10-12T13:00:00.000Z'));
+    mocks.settingFindUnique.mockImplementation(async ({ where }: any) => {
+      if (where.key === 'financial.late_checkout_fee') return { value: '50' };
+      if (where.key === 'villa.checkout_time') return { value: '"12:00"' };
+      return null;
+    });
+
+    await StayService.checkOutGuest({
+      reservationId: 'reservation-1',
+      checkedOutBy: 'user-1',
+      paymentMethod: 'CASH',
+      chargeLateCheckoutFee: false,
+    });
+
+    expect(mocks.folioItemCreate).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
   it('calculates hourly late checkout fee correctly (50 GHS/hr)', () => {
     // Exactly on time (12:00 PM) -> 0 fee
     const onTime = StayService.calculateLateCheckoutFee('2030-10-12', new Date('2030-10-12T12:00:00.000Z'), 50);

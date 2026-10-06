@@ -25,6 +25,7 @@ export interface CheckOutDTO {
   reservationId: string;
   checkedOutBy: string;
   roomCondition?: RoomCondition | 'DIRTY' | 'CLEAN' | 'DAMAGED';
+  chargeLateCheckoutFee?: boolean;
   paymentMethod?: PaymentMethod | string;
   // Split settlement: each tender becomes its own Payment row summing to the
   // outstanding folio balance.  Mutually exclusive with paymentMethod.
@@ -445,9 +446,7 @@ export class StayService {
         if (!primaryGuestId) throw new Error('No primary guest linked to reservation');
 
         const folio = reservation.folios.find((f) => f.status === 'OPEN') || reservation.folios[0];
-        // The fee is an admin-controlled business rule: GHS 50 per hour past configured check-out time.
-        // Charge it before calculating the ledger settlement so it reaches the bill,
-        // payment record, checkout audit and printed receipt as one durable operation.
+        // Charge the fee before calculating settlement unless the staff member waives it.
         const lateCheckoutSetting = await tx.systemSetting.findUnique({ where: { key: 'financial.late_checkout_fee' } });
         const checkoutTimeSetting = await tx.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } });
 
@@ -456,7 +455,7 @@ export class StayService {
         const checkoutTime = checkoutTimeSetting ? String(JSON.parse(checkoutTimeSetting.value) || '12:00') : '12:00';
 
         const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, new Date(), hourlyRate, checkoutTime);
-        if (folio && lateInfo.isLate && lateInfo.fee > 0) {
+        if (data.chargeLateCheckoutFee !== false && folio && lateInfo.isLate && lateInfo.fee > 0) {
           const fee = new Prisma.Decimal(lateInfo.fee);
           await tx.folioItem.create({
             data: {

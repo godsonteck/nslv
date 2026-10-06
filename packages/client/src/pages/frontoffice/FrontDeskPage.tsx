@@ -43,6 +43,7 @@ export const FrontDeskPage: React.FC = () => {
     paymentMethod: 'CASH',
   });
   const [splitOpen, setSplitOpen] = useState(false);
+  const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(false);
   const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
   const load = async () => {
@@ -87,6 +88,7 @@ export const FrontDeskPage: React.FC = () => {
         await staysApi.checkOut({
           reservationId: action.row.reservationId || action.row.id,
           roomCondition: form.roomCondition,
+          chargeLateCheckoutFee,
           ...(splitTenders ? { tenders: splitTenders } : { paymentMethod: form.paymentMethod }),
         });
       }
@@ -116,7 +118,7 @@ export const FrontDeskPage: React.FC = () => {
 
   const activeLateInfo = action?.type === 'out' ? getLateInfo(action.row) : null;
 
-  // The server settles the exact outstanding folio balance plus any late fee.
+  // The server settles the exact outstanding folio balance plus an opted-in late fee.
   const checkoutTotal =
     action?.type === 'out'
       ? (() => {
@@ -124,12 +126,13 @@ export const FrontDeskPage: React.FC = () => {
             (action.row.reservation?.folios || []).find((x: any) => x.status === 'OPEN') ??
             (action.row.reservation?.folios || [])[0] ??
             null;
-          return (f ? Number(f.balance) || 0 : 0) + (activeLateInfo?.fee ?? 0);
+          return (f ? Number(f.balance) || 0 : 0) + (chargeLateCheckoutFee ? activeLateInfo?.fee ?? 0 : 0);
         })()
       : 0;
 
   const openCheckout = (stay: any) => {
     setSplitOpen(false);
+    setChargeLateCheckoutFee(false);
     setTenders([makeTenderRow()]);
     setAction({ type: 'out', row: stay });
   };
@@ -292,14 +295,23 @@ export const FrontDeskPage: React.FC = () => {
               {activeLateInfo ? (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-950">
                   <div className="flex items-center justify-between font-bold text-amber-900">
-                    <span>⏰ Late Checkout Policy Applied</span>
+                    <span>Late checkout</span>
                     <span className="rounded bg-amber-200/80 px-2 py-0.5 font-mono text-[11px] font-extrabold text-amber-900">
-                      +GHS {activeLateInfo.fee.toFixed(2)}
+                      GHS {activeLateInfo.fee.toFixed(2)}
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] text-amber-800 leading-relaxed">
-                    Checkout is past 12:00 PM ({activeLateInfo.lateHours} hour{activeLateInfo.lateHours > 1 ? 's' : ''} late). An automated late fee of <strong>GHS 50.00/hour</strong> (total GHS {activeLateInfo.fee.toFixed(2)}) is charged to the folio before settlement.
+                    Checkout is {activeLateInfo.lateHours} hour{activeLateInfo.lateHours > 1 ? 's' : ''} past the configured deadline. Add the fee only when applicable.
                   </p>
+                  <label className="mt-3 flex items-center gap-2 font-semibold text-amber-950">
+                    <input
+                      type="checkbox"
+                      checked={chargeLateCheckoutFee}
+                      onChange={(e) => setChargeLateCheckoutFee(e.target.checked)}
+                      className="h-3.5 w-3.5 accent-[#174B59]"
+                    />
+                    Charge late checkout fee (GHS {activeLateInfo.fee.toFixed(2)})
+                  </label>
                 </div>
               ) : (
                 <div className="rounded-xl bg-[#f7f8f6] p-3 text-xs text-[#667278]">
@@ -319,7 +331,7 @@ export const FrontDeskPage: React.FC = () => {
                   <span>Amount due at settlement</span>
                   <span className="ns-number">GHS {checkoutTotal.toFixed(2)}</span>
                 </div>
-                {activeLateInfo && (
+                {activeLateInfo && chargeLateCheckoutFee && (
                   <p className="mt-1 text-[11px] text-[#A06010]">Includes the late checkout fee of GHS {activeLateInfo.fee.toFixed(2)}.</p>
                 )}
               </div>
