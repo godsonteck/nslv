@@ -244,6 +244,7 @@ export default function PoolPortalPage() {
               total: Number(data.totalAmount || 0),
             },
           ];
+    const receiptTotal = lineItems.reduce((sum, it) => sum + Number(it.total || 0), 0);
     const win = window.open('', '_blank', 'width=380,height=600');
     if (!win) return;
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
@@ -294,7 +295,7 @@ export default function PoolPortalPage() {
       </table>
       <div class="total">
         <span>TOTAL AMOUNT PAID</span>
-        <span>${formatCurrency(data.totalAmount)}</span>
+        <span>${formatCurrency(receiptTotal)}</span>
       </div>
       ${data.notes ? `<div style="font-size:10px;color:#666;margin-top:8px">Notes: ${data.notes}</div>` : ''}
       <div class="foot">
