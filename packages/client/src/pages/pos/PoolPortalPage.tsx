@@ -38,6 +38,10 @@ import { useAuthStore } from '../../stores/authStore';
 
 const POOL_PAYMENT_METHODS = ['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'];
 
+// Towels are sold as an optional add-on, never as a pass option.
+const isTowelService = (s: any): boolean =>
+  !!s && (s.category === 'TOWEL_RENTAL' || /towel/i.test(String(s.name || '')));
+
 // Helper to check if a date is on the same local calendar day
 function isSameDay(dateStr: string | Date, targetDate: Date = new Date()): boolean {
   if (!dateStr) return false;
@@ -67,6 +71,7 @@ export default function PoolPortalPage() {
   const [customUnitPrice, setCustomUnitPrice] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [isComplimentary, setIsComplimentary] = useState(false);
+  const [towelQty, setTowelQty] = useState('0');
   const [notes, setNotes] = useState('');
 
   // Editing Entry Modal State
@@ -120,14 +125,15 @@ export default function PoolPortalPage() {
       setAllServices(allSvc.data || loadedServices);
       setTransactions(txs.data || []);
 
-      if (loadedServices.length > 0) {
-        if (!selectedServiceId || !loadedServices.some((s) => s.id === selectedServiceId)) {
-          setSelectedServiceId(loadedServices[0].id);
-          setCustomUnitPrice(String(loadedServices[0].price || '50'));
+      const passList = loadedServices.filter((s) => !isTowelService(s));
+      if (passList.length > 0) {
+        if (!selectedServiceId || !passList.some((s) => s.id === selectedServiceId)) {
+          setSelectedServiceId(passList[0].id);
+          setCustomUnitPrice(String(passList[0].price || '50'));
         }
-        if (!chargeServiceId) {
-          setChargeServiceId(loadedServices[0].id);
-          setChargeUnitPrice(String(loadedServices[0].price || '50'));
+        if (!chargeServiceId || !passList.some((s) => s.id === chargeServiceId)) {
+          setChargeServiceId(passList[0].id);
+          setChargeUnitPrice(String(passList[0].price || '50'));
         }
       }
     } catch (e) {
@@ -155,10 +161,16 @@ export default function PoolPortalPage() {
     }
   };
 
-  const selectedService = services.find((s) => s.id === selectedServiceId);
+  const passServices = useMemo(() => services.filter((s) => !isTowelService(s)), [services]);
+  const towelService = useMemo(() => services.find((s) => isTowelService(s)), [services]);
+  const selectedService = passServices.find((s) => s.id === selectedServiceId);
   const unitPriceNum = Number(customUnitPrice) || Number(selectedService?.price || 0);
   const countNum = Math.max(1, Number(partySize) || 1);
-  const totalDue = isComplimentary ? 0 : unitPriceNum * countNum;
+  const towelUnitPrice = Number(towelService?.price || 0);
+  const towelCount = Math.max(0, Math.floor(Number(towelQty) || 0));
+  const passTotal = isComplimentary ? 0 : unitPriceNum * countNum;
+  const towelTotal = isComplimentary ? 0 : towelUnitPrice * towelCount;
+  const totalDue = passTotal + towelTotal;
 
   // Accurate Local-Time Stats Calculation
   const todayAttendance = useMemo(() => attendance.filter((entry) => isSameDay(entry.createdAt)), [attendance]);
@@ -166,14 +178,17 @@ export default function PoolPortalPage() {
 
   const totalVisitorsToday = useMemo(() => todayAttendance.reduce((sum, entry) => sum + Number(entry.partySize || 0), 0), [todayAttendance]);
   const salesToday = useMemo(() => todayTransactions.reduce((sum, tx) => sum + Number(tx.totalAmount || 0), 0), [todayTransactions]);
-  const totalPaidSwimmersToday = useMemo(() => todayTransactions.reduce((sum, tx) => sum + Number(tx.quantity || 0), 0), [todayTransactions]);
+  const totalPaidSwimmersToday = useMemo(
+    () => todayTransactions.filter((tx) => !isTowelService(tx.service)).reduce((sum, tx) => sum + Number(tx.quantity || 0), 0),
+    [todayTransactions],
+  );
 
   // Match each attendance record with its transaction without double-matching
   const matchedAttendanceList = useMemo(() => {
     const usedTxIds = new Set<string>();
     return attendance.map((entry) => {
-      // Find matching transaction
-      const matchedTx = transactions.find((tx) => {
+      // A single entry can have more than one transaction (e.g. pass + towels).
+      const matches = transactions.filter((tx) => {
         if (usedTxIds.has(tx.id)) return false;
         // 1) Explicit link: transaction notes reference this entry id (no time limit)
         const refMatch = tx.notes && tx.notes.includes(`#ENT:${entry.id}`);
@@ -184,16 +199,22 @@ export default function PoolPortalPage() {
         return nameMatch && dayMatch;
       });
 
-      if (matchedTx) {
-        usedTxIds.add(matchedTx.id);
-      }
+      matches.forEach((tx) => usedTxIds.add(tx.id));
+
+      const primaryTx = matches.find((tx) => !isTowelService(tx.service)) || matches[0];
+      const amountPaid = matches.reduce((sum, tx) => sum + Number(tx.totalAmount || 0), 0);
 
       return {
         ...entry,
-        matchedTx,
-        isPaid: !!matchedTx,
-        amountPaid: matchedTx ? Number(matchedTx.totalAmount || 0) : 0,
-        paymentMethod: matchedTx ? matchedTx.paymentMethod : entry.notes?.toLowerCase().includes('complimentary') ? 'COMPLIMENTARY' : 'UNPAID',
+        transactions: matches,
+        matchedTx: primaryTx,
+        isPaid: matches.length > 0,
+        amountPaid,
+        paymentMethod: primaryTx
+          ? primaryTx.paymentMethod
+          : entry.notes?.toLowerCase().includes('complimentary')
+            ? 'COMPLIMENTARY'
+            : 'UNPAID',
       };
     });
   }, [attendance, transactions]);
@@ -204,13 +225,25 @@ export default function PoolPortalPage() {
     visitorName: string;
     phone?: string;
     partySize: number;
-    serviceName: string;
-    unitPrice: number;
+    serviceName?: string;
+    unitPrice?: number;
+    items?: { name: string; qty: number; unitPrice: number; total: number }[];
     totalAmount: number;
     paymentMethod: string;
     createdAt?: string;
     notes?: string;
   }) => {
+    const lineItems =
+      data.items && data.items.length > 0
+        ? data.items
+        : [
+            {
+              name: data.serviceName || 'Pool Day Pass',
+              qty: data.partySize,
+              unitPrice: Number(data.unitPrice || 0),
+              total: Number(data.totalAmount || 0),
+            },
+          ];
     const win = window.open('', '_blank', 'width=380,height=600');
     if (!win) return;
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
@@ -248,11 +281,15 @@ export default function PoolPortalPage() {
           <tr><th>Item / Service</th><th class="r">Qty × Rate</th><th class="r">Total</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>${data.serviceName}</td>
-            <td class="r">${data.partySize} × ${formatCurrency(data.unitPrice)}</td>
-            <td class="r font-bold">${formatCurrency(data.totalAmount)}</td>
-          </tr>
+          ${lineItems
+            .map(
+              (it) => `<tr>
+            <td>${it.name}</td>
+            <td class="r">${it.qty} × ${formatCurrency(it.unitPrice)}</td>
+            <td class="r font-bold">${formatCurrency(it.total)}</td>
+          </tr>`,
+            )
+            .join('')}
         </tbody>
       </table>
       <div class="total">
@@ -297,24 +334,51 @@ export default function PoolPortalPage() {
       });
       const entryId = attRes?.data?.id;
 
-      let txData: any = null;
+      const noteBase = `${nameTrimmed} (${count} pax)${notes.trim() ? ` · ${notes.trim()}` : ''}${entryId ? ` · #ENT:${entryId}` : ''}`;
 
-      // 2. If charging, create pool transaction
-      if (!isComplimentary && totalDue > 0) {
+      let txData: any = null;
+      let towelTxData: any = null;
+      const receiptItems: { name: string; qty: number; unitPrice: number; total: number }[] = [];
+
+      // 2. If charging, create the pass transaction (and an optional towel add-on)
+      if (!isComplimentary) {
         let svcId = selectedServiceId;
-        if (!svcId && services.length > 0) {
-          svcId = services[0].id;
+        if (!svcId && passServices.length > 0) {
+          svcId = passServices[0].id;
         }
 
-        if (svcId) {
+        if (svcId && passTotal > 0) {
           const res = await posApi.createPoolTransaction({
             serviceId: svcId,
             quantity: count,
             paymentMethod,
-            notes: `${notes ? `${nameTrimmed} (${count} pax) · ${notes}` : `${nameTrimmed} (${count} pax)`}${entryId ? ` · #ENT:${entryId}` : ''}`,
+            notes: noteBase,
             idempotencyKey: crypto.randomUUID(),
           });
           txData = res?.data;
+          receiptItems.push({
+            name: selectedService?.name || 'Pool Day Pass',
+            qty: count,
+            unitPrice: unitPriceNum,
+            total: passTotal,
+          });
+        }
+
+        if (towelService && towelCount > 0 && towelTotal > 0) {
+          const res = await posApi.createPoolTransaction({
+            serviceId: towelService.id,
+            quantity: towelCount,
+            paymentMethod,
+            notes: `${noteBase} · ${towelCount} towel${towelCount > 1 ? 's' : ''}`,
+            idempotencyKey: crypto.randomUUID(),
+          });
+          towelTxData = res?.data;
+          receiptItems.push({
+            name: towelService.name,
+            qty: towelCount,
+            unitPrice: towelUnitPrice,
+            total: towelTotal,
+          });
         }
       }
 
@@ -323,12 +387,13 @@ export default function PoolPortalPage() {
       // 3. Print receipt if requested
       if (printNow) {
         printPoolReceipt({
-          receiptNo: txData?.transactionNo,
+          receiptNo: txData?.transactionNo || towelTxData?.transactionNo,
           visitorName: nameTrimmed,
           phone: phone.trim() || undefined,
           partySize: count,
-          serviceName: isComplimentary ? 'Complimentary / Resident Access' : selectedService?.name || 'Pool Day Pass',
-          unitPrice: isComplimentary ? 0 : unitPriceNum,
+          items: isComplimentary
+            ? [{ name: 'Complimentary / Resident Access', qty: count, unitPrice: 0, total: 0 }]
+            : receiptItems,
           totalAmount: totalDue,
           paymentMethod: isComplimentary ? 'COMPLIMENTARY' : paymentMethod,
           notes: notes.trim() || undefined,
@@ -339,6 +404,7 @@ export default function PoolPortalPage() {
       setVisitorName('');
       setPhone('');
       setPartySize('1');
+      setTowelQty('0');
       setNotes('');
       setIsComplimentary(false);
 
@@ -353,7 +419,7 @@ export default function PoolPortalPage() {
   // Open Quick Charge Modal for unpaid previous entries
   const openChargeEntry = (entry: any) => {
     setChargingEntry(entry);
-    const svc = services[0];
+    const svc = passServices[0];
     if (svc) {
       setChargeServiceId(svc.id);
       setChargeUnitPrice(String(svc.price || '50'));
@@ -373,7 +439,7 @@ export default function PoolPortalPage() {
     try {
       setChargeBusy(true);
       const res = await posApi.createPoolTransaction({
-        serviceId: chargeServiceId || services[0]?.id,
+        serviceId: chargeServiceId || passServices[0]?.id,
         quantity: count,
         paymentMethod: chargePayMethod,
         notes: `${chargingEntry.visitorName} (${count} pax) · Payment recorded${chargingEntry.id ? ` · #ENT:${chargingEntry.id}` : ''}`,
@@ -672,8 +738,8 @@ export default function PoolPortalPage() {
                       value={selectedServiceId}
                       onChange={(e) => handleServiceChange(e.target.value)}
                     >
-                      {services.length === 0 && <option value="">Standard Day Pass — GHS 50</option>}
-                      {services.map((s) => (
+                      {passServices.length === 0 && <option value="">Standard Day Pass — GHS 50</option>}
+                      {passServices.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.name} — {formatCurrency(Number(s.price || 0))}
                         </option>
@@ -710,6 +776,28 @@ export default function PoolPortalPage() {
                   </FormField>
                 </div>
 
+                {/* Optional Towel Add-on (separate from the pass) */}
+                {towelService && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField label={`Towels — Optional${towelUnitPrice > 0 ? ` (${formatCurrency(towelUnitPrice)} each)` : ''}`}>
+                      <TextInput
+                        type="number"
+                        min="0"
+                        step="1"
+                        disabled={isComplimentary}
+                        value={isComplimentary ? '0' : towelQty}
+                        onChange={(e) => setTowelQty(e.target.value)}
+                        placeholder="0"
+                      />
+                    </FormField>
+                    <div className="flex items-end pb-1">
+                      <p className="text-[11px] text-[#6E737B] leading-snug">
+                        Not included in the pass. Leave at 0 if no towel is issued.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Free / Resident Toggle */}
                 <div className="flex items-center gap-2 pt-1">
                   <input
@@ -740,6 +828,14 @@ export default function PoolPortalPage() {
                       {formatCurrency(isComplimentary ? 0 : unitPriceNum)} × {countNum} swimmer{countNum > 1 ? 's' : ''}
                     </span>
                   </div>
+                  {!isComplimentary && towelCount > 0 && (
+                    <div className="flex items-center justify-between text-[#A0A5AD] mb-1">
+                      <span>Towels{towelService ? ` (${towelService.name})` : ''}:</span>
+                      <span>
+                        {formatCurrency(towelUnitPrice)} × {towelCount} towel{towelCount > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between font-extrabold text-base pt-2 border-t border-[#2B303E]/50">
                     <span className="text-[#F4F4F2]">Total Amount Due:</span>
                     <span className="font-mono text-amber-300">
@@ -895,8 +991,12 @@ export default function PoolPortalPage() {
                                     visitorName: entry.visitorName,
                                     phone: entry.phone,
                                     partySize: entry.partySize,
-                                    serviceName: entry.matchedTx?.service?.name || 'Pool Day Pass',
-                                    unitPrice: entry.matchedTx ? Number(entry.matchedTx.unitPrice || 0) : 0,
+                                    items: (entry.transactions || []).map((t: any) => ({
+                                      name: t.service?.name || 'Pool Pass',
+                                      qty: Number(t.quantity || 1),
+                                      unitPrice: Number(t.unitPrice || 0),
+                                      total: Number(t.totalAmount || 0),
+                                    })),
                                     totalAmount: amountPaid,
                                     paymentMethod: paymentMethodName,
                                     createdAt: entry.createdAt,
@@ -1067,7 +1167,7 @@ export default function PoolPortalPage() {
                   if (svc) setChargeUnitPrice(String(svc.price || '0'));
                 }}
               >
-                {services.map((s) => (
+                {passServices.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name} — {formatCurrency(Number(s.price || 0))}
                   </option>
