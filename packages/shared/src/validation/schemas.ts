@@ -233,6 +233,8 @@ export const checkOutSchema = z.object({
   reservationId: uuidSchema,
   roomCondition: z.enum(['DIRTY', 'CLEAN', 'DAMAGED']).optional(),
   chargeLateCheckoutFee: z.boolean().optional(),
+  // Audit note required by the front desk UI whenever the fee is waived.
+  lateCheckoutFeeReason: z.string().max(300).trim().optional().nullable(),
   paymentMethod: paymentMethodSchema.optional(),
   tenders: tendersSchema,
   idempotencyKey: uuidSchema.optional(),

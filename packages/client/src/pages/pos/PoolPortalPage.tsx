@@ -123,11 +123,11 @@ export default function PoolPortalPage() {
       if (loadedServices.length > 0) {
         if (!selectedServiceId || !loadedServices.some((s) => s.id === selectedServiceId)) {
           setSelectedServiceId(loadedServices[0].id);
-          setCustomUnitPrice(String(loadedServices[0].price || '100'));
+          setCustomUnitPrice(String(loadedServices[0].price || '50'));
         }
         if (!chargeServiceId) {
           setChargeServiceId(loadedServices[0].id);
-          setChargeUnitPrice(String(loadedServices[0].price || '100'));
+          setChargeUnitPrice(String(loadedServices[0].price || '50'));
         }
       }
     } catch (e) {
@@ -356,7 +356,7 @@ export default function PoolPortalPage() {
     const svc = services[0];
     if (svc) {
       setChargeServiceId(svc.id);
-      setChargeUnitPrice(String(svc.price || '100'));
+      setChargeUnitPrice(String(svc.price || '50'));
     }
     setChargePayMethod('CASH');
   };
@@ -672,7 +672,7 @@ export default function PoolPortalPage() {
                       value={selectedServiceId}
                       onChange={(e) => handleServiceChange(e.target.value)}
                     >
-                      {services.length === 0 && <option value="">Standard Day Pass — GHS 100</option>}
+                      {services.length === 0 && <option value="">Standard Day Pass — GHS 50</option>}
                       {services.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.name} — {formatCurrency(Number(s.price || 0))}

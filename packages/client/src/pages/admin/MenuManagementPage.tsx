@@ -114,7 +114,7 @@ export const MenuManagementPage: React.FC = () => {
     const defaults: Record<Domain, string[]> = {
       restaurant: ['STARTERS', 'MAINS', 'DESSERTS', 'BEVERAGES', 'SPECIALS'],
       bar: ['COCKTAILS', 'WINES', 'BEERS', 'SPIRITS', 'SOFT_DRINKS', 'SNACKS'],
-      pool: ['DAY_PASS', 'CABANA_RENTAL', 'TOWEL_RENTAL', 'POOL_SNACKS', 'BEVERAGES'],
+      pool: ['DAY_PASS', 'NIGHT_PASS', 'TOWEL_RENTAL'],
     };
     return defaults[domain];
   };

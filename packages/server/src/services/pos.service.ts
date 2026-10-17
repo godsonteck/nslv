@@ -361,14 +361,16 @@ export class POSService {
         }).catch(() => {});
       }
       const defaultServices = [
-        { name: 'Day Pass — Adult', category: catName, description: 'Full day pool & deck access', price: new Prisma.Decimal(100) },
-        { name: 'Day Pass — Child', category: catName, description: 'Full day pool access for children', price: new Prisma.Decimal(50) },
-        { name: 'Pool Towel Rental', category: catName, description: 'Fresh clean pool towel', price: new Prisma.Decimal(25) },
+        { name: 'Day Pass — Adult', category: catName, description: 'Full day pool & deck access', price: new Prisma.Decimal(50) },
+        { name: 'Night Pass — Adult', category: catName, description: 'Evening pool & deck access', price: new Prisma.Decimal(90) },
+        { name: 'Day Pass — Child', category: catName, description: 'Full day pool access for guests under 12', price: new Prisma.Decimal(30) },
+        { name: 'Night Pass — Child', category: catName, description: 'Evening pool access for guests under 12', price: new Prisma.Decimal(45) },
+        { name: 'Pool Towel Rental', category: catName, description: 'Fresh pool towel — GHS 10 per adult; free for children', price: new Prisma.Decimal(10) },
       ];
       for (const def of defaultServices) {
         await prisma.poolService.upsert({
           where: { name: def.name },
-          update: { isAvailable: true },
+          update: { category: def.category, description: def.description, price: def.price, isAvailable: true },
           create: def,
         }).catch(() => {});
       }

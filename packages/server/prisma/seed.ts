@@ -521,25 +521,26 @@ async function main() {
 
   console.log('🏊 Seeding pool services...');
   const poolServices = [
-    { name: 'Day Pass — Adult', category: 'DAY_PASS', description: 'Full day pool & deck access', price: 120 },
-    { name: 'Day Pass — Child', category: 'DAY_PASS', description: 'Full day pool access for guests under 12', price: 60 },
-    { name: 'Private Cabana Rental', category: 'CABANA_RENTAL', description: 'Shaded cabana with attendant, towels & fruit platter', price: 300 },
-    { name: 'Pool Towel Rental', category: 'TOWEL_RENTAL', description: 'Fresh pool towel', price: 25 },
-    { name: 'Fruit Platter', category: 'POOL_SNACKS', description: 'Seasonal tropical fruit, honey drizzle', price: 55 },
-    { name: 'Poolside Burger', category: 'POOL_SNACKS', description: 'Beef patty, cheddar, fries', price: 90 },
-    { name: 'Fresh Coconut Water', category: 'BEVERAGES', description: 'Chilled whole coconut', price: 35 },
-    { name: 'Virgin Piña Colada', category: 'BEVERAGES', description: 'Pineapple, coconut cream, no alcohol', price: 50 },
+    { name: 'Day Pass — Adult', category: 'DAY_PASS', description: 'Full day pool & deck access', price: 50 },
+    { name: 'Night Pass — Adult', category: 'NIGHT_PASS', description: 'Evening pool & deck access', price: 90 },
+    { name: 'Day Pass — Child', category: 'DAY_PASS', description: 'Full day pool access for guests under 12', price: 30 },
+    { name: 'Night Pass — Child', category: 'NIGHT_PASS', description: 'Evening pool access for guests under 12', price: 45 },
+    { name: 'Pool Towel Rental', category: 'TOWEL_RENTAL', description: 'Fresh pool towel — GHS 10 per adult; free for children', price: 10 },
   ];
-  await prisma.poolService.createMany({ data: poolServices, skipDuplicates: true });
+  for (const svc of poolServices) {
+    await prisma.poolService.upsert({
+      where: { name: svc.name },
+      update: { category: svc.category, description: svc.description, price: svc.price, isAvailable: true },
+      create: svc,
+    });
+  }
 
   // 6. Seed pool item categories (used for validation when creating/updating services)
   console.log('📂 Seeding pool item categories...');
   const poolCategories = [
     { name: 'DAY_PASS', description: 'Standard day pass', color: '#00A86B', order: 1 },
-    { name: 'CABANA_RENTAL', description: 'Cabana rental', color: '#F6AD55', order: 2 },
+    { name: 'NIGHT_PASS', description: 'Evening pool pass', color: '#4C51BF', order: 2 },
     { name: 'TOWEL_RENTAL', description: 'Pool towel rental', color: '#A855F6', order: 3 },
-    { name: 'POOL_SNACKS', description: 'Pool snack bar items', color: '#8B4513', order: 4 },
-    { name: 'BEVERAGES', description: 'Beverage services', color: '#1E90FF', order: 5 },
   ];
   for (const cat of poolCategories) {
     await prisma.itemCategory.upsert({

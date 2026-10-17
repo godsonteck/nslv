@@ -121,7 +121,10 @@ export const GuestBillsPage: React.FC = () => {
       return;
     }
 
+    // Voided items (e.g. a waived late checkout fee) never belong on the
+    // guest-facing bill; they remain visible, struck through, in the app.
     const items = (folio.items || [])
+      .filter((i: any) => !i.voidedAt)
       .map(
         (i: any) =>
           `<tr><td>${i.description}</td><td class="r">${i.quantity ?? 1}</td><td class="r">${formatCurrency(money(i.unitPrice || i.amount))}</td><td class="r">${formatCurrency(money(i.amount))}</td></tr>`,

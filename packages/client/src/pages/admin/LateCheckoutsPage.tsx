@@ -38,6 +38,9 @@ interface LateCheckoutRecord {
   feeAmount: number;
   refundedAmount: number;
   feeDescription: string;
+  waived?: boolean;
+  waivedAmount?: number;
+  waivedReason?: string | null;
   paymentMethod: string;
   checkedOutByName: string;
   checkedInByName: string;
@@ -52,6 +55,7 @@ interface AuditData {
     totalFeesBilled: number;
     totalRefunded: number;
     totalFeesCollected: number;
+    totalFeesWaived?: number;
     avgDelayHours: number;
   };
   records: LateCheckoutRecord[];
@@ -171,6 +175,8 @@ export const LateCheckoutsPage: React.FC = () => {
       'Late Fee Billed (GHS)',
       'Late Fee Refunded (GHS)',
       'Late Fee Net Collected (GHS)',
+      'Fee Waived (GHS)',
+      'Waiver Reason',
       'Fee Description',
       'Settlement Method',
       'Checked Out By (Staff)',
@@ -193,6 +199,8 @@ export const LateCheckoutsPage: React.FC = () => {
       r.feeAmount.toFixed(2),
       r.refundedAmount.toFixed(2),
       Math.max(0, r.feeAmount - r.refundedAmount).toFixed(2),
+      (r.waivedAmount || 0).toFixed(2),
+      r.waivedReason || '',
       r.feeDescription,
       r.paymentMethod,
       r.checkedOutByName,
@@ -218,7 +226,7 @@ export const LateCheckoutsPage: React.FC = () => {
   const formatCurrency = (val: number) =>
     Number(val || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' });
 
-  const summary = data?.summary || { totalLateCheckouts: 0, totalFeesBilled: 0, totalRefunded: 0, totalFeesCollected: 0, avgDelayHours: 0 };
+  const summary = data?.summary || { totalLateCheckouts: 0, totalFeesBilled: 0, totalRefunded: 0, totalFeesCollected: 0, totalFeesWaived: 0, avgDelayHours: 0 };
   const policy = data?.policy || { hourlyRate: 50, checkoutTime: '12:00' };
   const records = data?.records || [];
 
@@ -249,7 +257,7 @@ export const LateCheckoutsPage: React.FC = () => {
         <StatTile
           label="Late Fees Recovered"
           value={formatCurrency(summary.totalFeesCollected)}
-          note={`${formatCurrency(summary.totalFeesBilled)} billed · ${formatCurrency(summary.totalRefunded)} refunded`}
+          note={`${formatCurrency(summary.totalFeesBilled)} billed · ${formatCurrency(summary.totalRefunded)} refunded${(summary.totalFeesWaived || 0) > 0 ? ` · ${formatCurrency(summary.totalFeesWaived || 0)} waived` : ''}`}
           icon={DollarSign}
           accent
         />
@@ -383,7 +391,12 @@ export const LateCheckoutsPage: React.FC = () => {
 
                     <td className="p-3 text-right">
                       <div className="font-extrabold text-amber-300 font-mono text-xs">
-                        {r.refundedAmount > 0 ? (
+                        {r.waived ? (
+                          <>
+                            <span className="line-through opacity-50">{formatCurrency(r.waivedAmount || 0)}</span>{' '}
+                            <span className="text-[#6E737B]">GHS 0.00</span>
+                          </>
+                        ) : r.refundedAmount > 0 ? (
                           <>
                             <span className="line-through opacity-50">{formatCurrency(r.feeAmount)}</span>{' '}
                             <span className="text-[#6E737B]">{formatCurrency(Math.max(0, r.feeAmount - r.refundedAmount))}</span>
@@ -395,6 +408,14 @@ export const LateCheckoutsPage: React.FC = () => {
                       <div className="text-[9px] text-[#6E737B]">
                         {r.hoursLate}h @ GHS {policy.hourlyRate}/h
                       </div>
+                      {r.waived && (
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold bg-slate-800/60 text-slate-300 border border-slate-600/50"
+                          title={r.waivedReason || 'Fee waived at checkout'}
+                        >
+                          Waived at checkout
+                        </span>
+                      )}
                       {r.refundedAmount > 0 && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
                           {formatCurrency(r.refundedAmount)} Refunded
@@ -432,12 +453,13 @@ export const LateCheckoutsPage: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          disabled={!!r.waived}
                           onClick={() => {
                             setDeletingRecord(r);
                             setDeleteReason('');
                           }}
                           className="text-red-400 hover:text-red-600 hover:bg-red-50"
-                          title="Delete / Waive Late Check-out"
+                          title={r.waived ? 'Fee was already waived at checkout' : 'Delete / Waive Late Check-out'}
                         >
                           <Trash2 size={14} />
                         </Button>
@@ -468,7 +490,15 @@ export const LateCheckoutsPage: React.FC = () => {
                   Late Departure Delay of {selectedRecord.hoursLate} Hour{selectedRecord.hoursLate > 1 ? 's' : ''}
                 </div>
                 <div className="text-[11px] text-amber-200/80 mt-0.5">
-                  Guest departed on {new Date(selectedRecord.actualCheckOut).toLocaleString()} (Scheduled cutoff: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()} at {policy.checkoutTime} PM). Total automated late departure fee charged: <strong>{formatCurrency(selectedRecord.feeAmount)}</strong>.
+                  Guest departed on {new Date(selectedRecord.actualCheckOut).toLocaleString()} (Scheduled cutoff: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()} at {policy.checkoutTime} PM).{' '}
+                  {selectedRecord.waived ? (
+                    <>
+                      Late departure fee of <strong>{formatCurrency(selectedRecord.waivedAmount || 0)}</strong> was <strong>waived at checkout</strong>
+                      {selectedRecord.waivedReason ? ` — ${selectedRecord.waivedReason}` : ''}.
+                    </>
+                  ) : (
+                    <>Total automated late departure fee charged: <strong>{formatCurrency(selectedRecord.feeAmount)}</strong>.</>
+                  )}
                 </div>
               </div>
             </div>
@@ -498,7 +528,9 @@ export const LateCheckoutsPage: React.FC = () => {
               <div className="grid gap-2 sm:grid-cols-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
                   <span className="text-[#6E737B]">Late Fee Charge</span>
-                  <span className="font-extrabold text-amber-300">{formatCurrency(selectedRecord.feeAmount)}</span>
+                  <span className={`font-extrabold ${selectedRecord.waived ? 'text-slate-400' : 'text-amber-300'}`}>
+                    {selectedRecord.waived ? `Waived (${formatCurrency(selectedRecord.waivedAmount || 0)})` : formatCurrency(selectedRecord.feeAmount)}
+                  </span>
                 </div>
                 {selectedRecord.refundedAmount > 0 && (
                   <div className="flex justify-between py-1 border-b border-[#2B303E]/50">

@@ -43,7 +43,10 @@ export const FrontDeskPage: React.FC = () => {
     paymentMethod: 'CASH',
   });
   const [splitOpen, setSplitOpen] = useState(false);
-  const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(false);
+  // Late fee is charged by default (matching the server policy); staff can
+  // explicitly waive it with a recorded reason.
+  const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(true);
+  const [lateFeeReason, setLateFeeReason] = useState('');
   const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
   const load = async () => {
@@ -89,6 +92,7 @@ export const FrontDeskPage: React.FC = () => {
           reservationId: action.row.reservationId || action.row.id,
           roomCondition: form.roomCondition,
           chargeLateCheckoutFee,
+          ...(activeLateInfo && !chargeLateCheckoutFee ? { lateCheckoutFeeReason: lateFeeReason.trim() || undefined } : {}),
           ...(splitTenders ? { tenders: splitTenders } : { paymentMethod: form.paymentMethod }),
         });
       }
@@ -97,6 +101,10 @@ export const FrontDeskPage: React.FC = () => {
       void load();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to complete operation');
+      // The server settles its own late-fee calculation; if the amount moved
+      // (hour boundary crossed / policy edited), resync so the next attempt
+      // shows the correct total.
+      if (e instanceof Error && /outstanding balance/i.test(e.message)) void load();
     } finally {
       setBusy(false);
     }
@@ -132,9 +140,18 @@ export const FrontDeskPage: React.FC = () => {
 
   const openCheckout = (stay: any) => {
     setSplitOpen(false);
-    setChargeLateCheckoutFee(false);
+    setChargeLateCheckoutFee(true);
+    setLateFeeReason('');
     setTenders([makeTenderRow()]);
     setAction({ type: 'out', row: stay });
+    // Re-read the policy so the fee shown in the modal matches the server's
+    // calculation as closely as possible (settings may have changed since load).
+    void staysApi
+      .getCheckoutPolicy()
+      .then((policy) => {
+        if (policy?.data) setCheckoutPolicy(policy.data);
+      })
+      .catch(() => undefined);
   };
 
   return (
@@ -295,13 +312,13 @@ export const FrontDeskPage: React.FC = () => {
               {activeLateInfo ? (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-950">
                   <div className="flex items-center justify-between font-bold text-amber-900">
-                    <span>Late checkout</span>
+                    <span>Late checkout policy applied</span>
                     <span className="rounded bg-amber-200/80 px-2 py-0.5 font-mono text-[11px] font-extrabold text-amber-900">
-                      GHS {activeLateInfo.fee.toFixed(2)}
+                      +GHS {activeLateInfo.fee.toFixed(2)}
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] text-amber-800 leading-relaxed">
-                    Checkout is {activeLateInfo.lateHours} hour{activeLateInfo.lateHours > 1 ? 's' : ''} past the configured deadline. Add the fee only when applicable.
+                    Departure is {activeLateInfo.lateHours} hour{activeLateInfo.lateHours > 1 ? 's' : ''} past the {checkoutPolicy.checkoutTime} deadline at GHS {checkoutPolicy.hourlyRate.toFixed(2)}/hour. Untick below only when the fee is being waived.
                   </p>
                   <label className="mt-3 flex items-center gap-2 font-semibold text-amber-950">
                     <input
@@ -312,6 +329,15 @@ export const FrontDeskPage: React.FC = () => {
                     />
                     Charge late checkout fee (GHS {activeLateInfo.fee.toFixed(2)})
                   </label>
+                  {!chargeLateCheckoutFee && (
+                    <FormField label="Reason for waiving the late fee (audit note)">
+                      <TextInput
+                        value={lateFeeReason}
+                        onChange={(e) => setLateFeeReason(e.target.value)}
+                        placeholder="e.g., Room upgrade compensation, hotel delay…"
+                      />
+                    </FormField>
+                  )}
                 </div>
               ) : (
                 <div className="rounded-xl bg-[#f7f8f6] p-3 text-xs text-[#667278]">
@@ -333,6 +359,9 @@ export const FrontDeskPage: React.FC = () => {
                 </div>
                 {activeLateInfo && chargeLateCheckoutFee && (
                   <p className="mt-1 text-[11px] text-[#A06010]">Includes the late checkout fee of GHS {activeLateInfo.fee.toFixed(2)}.</p>
+                )}
+                {activeLateInfo && !chargeLateCheckoutFee && (
+                  <p className="mt-1 text-[11px] text-[#667278]">Late checkout fee of GHS {activeLateInfo.fee.toFixed(2)} waived (recorded in the audit log).</p>
                 )}
               </div>
 

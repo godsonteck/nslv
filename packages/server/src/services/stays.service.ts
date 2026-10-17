@@ -12,6 +12,17 @@ import { FolioService } from './folios.service';
 import { NotificationService } from './notification.service';
 import { PERMISSIONS } from '@nslv/shared';
 
+// Marker stored in FolioItem.voidReason when the late checkout fee was waived
+// at check-out time instead of being charged. The fee is still written to the
+// ledger (already voided) so the waiver survives recalculation jobs and stays
+// visible in the audit trail.
+export const LATE_FEE_WAIVER_VOID_REASON = 'Waived at checkout (fee not charged)';
+
+export interface LateFeeVoidableItem {
+  voidedAt?: Date | string | null;
+  voidReason?: string | null;
+}
+
 export interface CheckInDTO {
   reservationId: string;
   checkedInBy: string;
@@ -26,6 +37,8 @@ export interface CheckOutDTO {
   checkedOutBy: string;
   roomCondition?: RoomCondition | 'DIRTY' | 'CLEAN' | 'DAMAGED';
   chargeLateCheckoutFee?: boolean;
+  // Audit note recorded when the staff member waives the late checkout fee.
+  lateCheckoutFeeReason?: string;
   paymentMethod?: PaymentMethod | string;
   // Split settlement: each tender becomes its own Payment row summing to the
   // outstanding folio balance.  Mutually exclusive with paymentMethod.
@@ -231,6 +244,16 @@ export class StayService {
   }
 
   /**
+   * Detects a late checkout fee item that was waived at check-out time.
+   * Used so recalculation jobs never re-charge (or un-void) a waived fee.
+   */
+  static isCheckoutFeeWaiver(item: LateFeeVoidableItem | null | undefined): boolean {
+    if (!item?.voidedAt) return false;
+    const reason = item.voidReason || '';
+    return reason.startsWith(LATE_FEE_WAIVER_VOID_REASON) || /^waived at checkout/i.test(reason);
+  }
+
+  /**
    * Calculates the late checkout charge based on scheduled checkout deadline, actual checkout time, and hourly rate.
    * Policy: 1 hour late -> 1x hourly rate; 2 hours late -> 2x hourly rate; 3 hours late -> 3x hourly rate, etc.
    */
@@ -338,11 +361,19 @@ export class StayService {
         if (!folio) continue;
 
         const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, co.actualCheckOut, hourlyRate, checkoutTime);
-        const existingFeeItem = folio.items.find(
+        const lateFeeCandidates = folio.items.filter(
           (item: any) =>
             item.referenceType === 'CHECKOUT' ||
             (item.description && item.description.toLowerCase().includes('late checkout')),
         );
+        // Prefer the live (non-waived) fee item; fall back to any candidate so
+        // legacy rows keep their previous behaviour.
+        const existingFeeItem =
+          lateFeeCandidates.find((item: any) => !this.isCheckoutFeeWaiver(item)) ?? lateFeeCandidates[0];
+
+        // A fee waived at check-out is a deliberate staff decision: never
+        // re-charge, un-void, or overwrite it during historical recalculation.
+        if (this.isCheckoutFeeWaiver(existingFeeItem)) continue;
 
         if (lateInfo.isLate && lateInfo.fee > 0) {
           const expectedAmount = new Prisma.Decimal(lateInfo.fee);
@@ -455,22 +486,61 @@ export class StayService {
         const checkoutTime = checkoutTimeSetting ? String(JSON.parse(checkoutTimeSetting.value) || '12:00') : '12:00';
 
         const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, new Date(), hourlyRate, checkoutTime);
-        if (data.chargeLateCheckoutFee !== false && folio && lateInfo.isLate && lateInfo.fee > 0) {
-          const fee = new Prisma.Decimal(lateInfo.fee);
-          await tx.folioItem.create({
-            data: {
-              folioId: folio.id,
-              type: 'ACCOMMODATION',
-              description: lateInfo.description,
-              amount: fee,
-              quantity: lateInfo.lateHours,
-              unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
-              department: 'FRONT_DESK',
-              referenceType: 'CHECKOUT',
-              postedBy: data.checkedOutBy,
-            },
-          });
-          await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
+        let lateFeeWaivedNote: string | null = null;
+        if (folio && lateInfo.isLate && lateInfo.fee > 0) {
+          if (data.chargeLateCheckoutFee !== false) {
+            const fee = new Prisma.Decimal(lateInfo.fee);
+            await tx.folioItem.create({
+              data: {
+                folioId: folio.id,
+                type: 'ACCOMMODATION',
+                description: lateInfo.description,
+                amount: fee,
+                quantity: lateInfo.lateHours,
+                unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
+                department: 'FRONT_DESK',
+                referenceType: 'CHECKOUT',
+                postedBy: data.checkedOutBy,
+              },
+            });
+            await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
+          } else {
+            // Fee waived by staff: persist the decision on the ledger as an
+            // already-voided item so it is immune to the historical fee
+            // recalculation job, visible on the folio, and auditable.
+            const waiveReason = data.lateCheckoutFeeReason?.trim();
+            const voidReason = `${LATE_FEE_WAIVER_VOID_REASON}${waiveReason ? `: ${waiveReason}` : ''}`;
+            await tx.folioItem.create({
+              data: {
+                folioId: folio.id,
+                type: 'ACCOMMODATION',
+                description: `${lateInfo.description} — waived at checkout`,
+                amount: new Prisma.Decimal(lateInfo.fee),
+                quantity: lateInfo.lateHours,
+                unitPrice: new Prisma.Decimal(lateInfo.hourlyRate),
+                department: 'FRONT_DESK',
+                referenceType: 'CHECKOUT',
+                postedBy: data.checkedOutBy,
+                voidedAt: new Date(),
+                voidedBy: data.checkedOutBy,
+                voidReason,
+              },
+            });
+            lateFeeWaivedNote = `Late checkout fee waived at checkout (GHS ${lateInfo.fee.toFixed(2)}, ${lateInfo.lateHours}h): ${waiveReason || 'No reason given'}`;
+            await AuditService.logInTransaction(tx, {
+              userId: data.checkedOutBy,
+              action: 'stay.late_checkout_waived',
+              resource: 'reservation',
+              resourceId: reservation.id,
+              afterData: {
+                folioId: folio.id,
+                fee: lateInfo.fee,
+                lateHours: lateInfo.lateHours,
+                hourlyRate: lateInfo.hourlyRate,
+                reason: waiveReason || null,
+              },
+            });
+          }
         }
         const ledger = folio
           ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
@@ -517,7 +587,7 @@ export class StayService {
             roomCondition: (data.roomCondition as RoomCondition) || RoomCondition.DIRTY,
             finalBalance,
             paymentMethod: (data.paymentMethod as PaymentMethod) || (data.tenders?.[0]?.method as PaymentMethod) || null,
-            notes: data.notes,
+            notes: [data.notes, lateFeeWaivedNote].filter(Boolean).join(' | ') || null,
           },
         });
 
@@ -607,10 +677,11 @@ export class StayService {
               include: {
                 items: {
                   where: {
-                    voidedAt: null,
                     OR: [
-                      { referenceType: 'CHECKOUT' },
-                      { description: { contains: 'late', mode: 'insensitive' } },
+                      { voidedAt: null, referenceType: 'CHECKOUT' },
+                      { voidedAt: null, description: { contains: 'late', mode: 'insensitive' } },
+                      // Waived-at-checkout fees are voided but must stay visible in the audit.
+                      { voidedAt: { not: null }, voidReason: { startsWith: LATE_FEE_WAIVER_VOID_REASON } },
                     ],
                   },
                 },
@@ -658,6 +729,9 @@ export class StayService {
       feeAmount: number;
       refundedAmount: number;
       feeDescription: string;
+      waived: boolean;
+      waivedAmount: number;
+      waivedReason: string | null;
       paymentMethod: string;
       checkedOutByName: string;
       checkedInByName: string;
@@ -667,6 +741,7 @@ export class StayService {
 
     let totalFees = 0;
     let totalRefunded = 0;
+    let totalFeesWaived = 0;
     let totalDelayMinutes = 0;
 
     for (const co of checkOuts) {
@@ -678,16 +753,21 @@ export class StayService {
 
       // Also check if there was a recorded folio late charge item
       const folio = res.folios?.[0];
-      const lateItem = folio?.items?.find(
-        (i: any) => i.description?.toLowerCase().includes('late') || i.referenceType === 'CHECKOUT',
-      );
+      const feeItems: any[] = folio?.items || [];
+      const waivedItem = feeItems.find((i: any) => this.isCheckoutFeeWaiver(i));
+      const lateItem = feeItems.find((i: any) => !this.isCheckoutFeeWaiver(i));
+      const waived = !!waivedItem && !lateItem;
 
-      const isLate = lateCalc.isLate || !!lateItem;
+      const isLate = lateCalc.isLate || !!lateItem || waived;
       if (!isLate) continue;
 
-      const hoursLate = lateItem ? Math.max(1, lateItem.quantity || lateCalc.lateHours) : lateCalc.lateHours;
-      const feeAmount = lateItem ? Number(lateItem.amount || 0) : lateCalc.fee;
-      const feeDescription = lateItem?.description || lateCalc.description || `Late checkout (${hoursLate}h @ GHS ${hourlyRate}/hr)`;
+      const trackedItem = lateItem || waivedItem;
+      const hoursLate = trackedItem ? Math.max(1, trackedItem.quantity || lateCalc.lateHours) : lateCalc.lateHours;
+      const feeAmount = lateItem ? Number(lateItem.amount || 0) : waived ? 0 : lateCalc.fee;
+      const waivedAmount = waived ? Number(waivedItem.amount || 0) : 0;
+      const waivedReason = waived ? waivedItem.voidReason || null : null;
+      const feeDescription =
+        lateItem?.description || (waived ? waivedItem.description : undefined) || lateCalc.description || `Late checkout (${hoursLate}h @ GHS ${hourlyRate}/hr)`;
 
       // Any completed, non-voided refund issued against this folio is a reversal
       // of the late checkout fee that was settled at check-out. Cap it at the fee
@@ -718,12 +798,14 @@ export class StayService {
           guestPhone.toLowerCase().includes(q) ||
           (res.confirmationNo || '').toLowerCase().includes(q) ||
           roomNumber.toLowerCase().includes(q) ||
-          checkedOutByName.toLowerCase().includes(q);
+          checkedOutByName.toLowerCase().includes(q) ||
+          (waivedReason || '').toLowerCase().includes(q);
         if (!matches) continue;
       }
 
       totalFees += feeAmount;
       totalRefunded += refundedAmount;
+      totalFeesWaived += waivedAmount;
       totalDelayMinutes += hoursLate * 60;
 
       lateList.push({
@@ -745,6 +827,9 @@ export class StayService {
         feeAmount,
         refundedAmount,
         feeDescription,
+        waived,
+        waivedAmount,
+        waivedReason,
         paymentMethod: co.paymentMethod || 'CASH',
         checkedOutByName,
         checkedInByName,
@@ -763,6 +848,7 @@ export class StayService {
         totalFeesBilled: totalFees,
         totalRefunded,
         totalFeesCollected: Math.max(0, totalFees - totalRefunded),
+        totalFeesWaived,
         avgDelayHours,
       },
       records: lateList,

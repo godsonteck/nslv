@@ -11,6 +11,7 @@
     "db:migrate:prod": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:split-outlets": "tsx scripts/split-fnb-to-outlets.ts",
+    "db:update-pool-pricing": "tsx scripts/update-pool-pricing.ts",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:reset": "prisma migrate reset --force",
