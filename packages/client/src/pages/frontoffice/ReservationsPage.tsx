@@ -21,6 +21,9 @@ const guestName = (g: any) => (g ? `${g.firstName ?? ''} ${g.lastName ?? ''}`.tr
 
 const recordedDeposits = (r: any) => (r?.payments || []).filter((p: any) => p.status === 'COMPLETED' && !p.voidedAt);
 const recordedDepositTotal = (r: any) => recordedDeposits(r).reduce((s: number, p: any) => s + Number(p.amount || 0), 0);
+const reservationBalance = (r: any) => Math.max(0, Number(r?.totalAmount || 0) - recordedDepositTotal(r));
+// A reservation is fully paid once the recorded payments cover the whole amount due.
+const isFullyPaid = (r: any) => Number(r?.totalAmount || 0) > 0 && reservationBalance(r) === 0;
 
 export const ReservationsPage: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
@@ -342,14 +345,19 @@ export const ReservationsPage: React.FC = () => {
     if (!r) return;
     const amount = Number(depositForm.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
-      showToast('error', 'Enter a valid partial payment amount.');
+      showToast('error', 'Enter a valid payment amount.');
       return;
     }
     const remaining = Number(r.totalAmount || 0) - recordedDepositTotal(r);
-    if (amount > remaining) {
-      showToast('error', `Partial payment cannot exceed the outstanding amount of ${formatCurrency(Math.max(0, remaining))}.`);
+    if (remaining <= 0) {
+      showToast('error', 'This reservation is already paid in full.');
       return;
     }
+    if (amount > remaining) {
+      showToast('error', `Payment cannot exceed the outstanding amount of ${formatCurrency(Math.max(0, remaining))}.`);
+      return;
+    }
+    const settlesInFull = amount >= remaining;
     const splitTenders = depositSplitOpen ? parseTenders(depositTenders) : undefined;
     if (depositSplitOpen && !tendersCoverTotal(depositTenders, amount)) {
       showToast('error', 'Tender amounts must equal the partial payment amount.');
@@ -367,9 +375,11 @@ export const ReservationsPage: React.FC = () => {
         reference: depositSplitOpen ? undefined : depositForm.reference.trim() || undefined,
         paymentType: 'DEPOSIT',
         idempotencyKey: crypto.randomUUID(),
-        description: `Partial payment recorded for ${r.confirmationNo || 'reservation'}`,
+        description: settlesInFull
+          ? `Payment received (paid in full) for ${r.confirmationNo || 'reservation'}`
+          : `Partial payment recorded for ${r.confirmationNo || 'reservation'}`,
       });
-      showToast('success', 'Partial payment recorded.');
+      showToast('success', settlesInFull ? 'Payment recorded — reservation paid in full.' : 'Partial payment recorded.');
       setDepositOpen(false);
       load();
     } catch (e) {
@@ -699,7 +709,7 @@ export const ReservationsPage: React.FC = () => {
                     </span>
                   </th>
                   <th className="px-5 py-3">Amount</th>
-                  <th className="px-5 py-3">Partial Payment</th>
+                  <th className="px-5 py-3">Payment</th>
                   <th className="px-5 py-3">Status</th>
                   <th />
                 </tr>
@@ -766,14 +776,22 @@ export const ReservationsPage: React.FC = () => {
                         <td className="px-5 py-4 text-xs">
                           {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
                             <>
-                              <div className="font-extrabold text-[#16a4d4]">{formatCurrency(recordedDepositTotal(r))} paid</div>
-                              {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
-                                <div className="mt-0.5 text-[10px] text-[#899397]">{formatCurrency(r.depositAmount)} expected</div>
-                              )}
-                              {recordedDepositTotal(r) < Number(r.totalAmount || 0) && (
-                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
-                                  Balance due {formatCurrency(Math.max(0, Number(r.totalAmount || 0) - recordedDepositTotal(r)))}
-                                </div>
+                              <div className={`font-extrabold ${isFullyPaid(r) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                                {formatCurrency(recordedDepositTotal(r))} paid
+                              </div>
+                              {isFullyPaid(r) ? (
+                                <span className="mt-1 inline-block rounded-full bg-[#e3f3e6] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#2e7d32]">
+                                  Paid in full
+                                </span>
+                              ) : (
+                                <>
+                                  {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
+                                    <div className="mt-0.5 text-[10px] text-[#899397]">{formatCurrency(r.depositAmount)} expected</div>
+                                  )}
+                                  <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
+                                    Balance due {formatCurrency(reservationBalance(r))}
+                                  </div>
+                                </>
                               )}
                             </>
                           ) : (
@@ -1458,10 +1476,12 @@ export const ReservationsPage: React.FC = () => {
                   {(Number(detailsRes.depositAmount || 0) > 0 || recordedDepositTotal(detailsRes) > 0) && (
                     <div className="space-y-1.5 bg-[#f7f9f8] p-2 rounded-lg">
                       <div className="flex justify-between">
-                        <span className="text-[#16a4d4] font-bold">Partial Payment</span>
-                        <span className="font-extrabold text-[#16a4d4]">
+                        <span className={`font-bold ${isFullyPaid(detailsRes) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                          {isFullyPaid(detailsRes) ? 'Payment · Paid in full' : 'Partial Payment'}
+                        </span>
+                        <span className={`font-extrabold ${isFullyPaid(detailsRes) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
                           {formatCurrency(recordedDepositTotal(detailsRes))} paid
-                          {Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && ` / ${formatCurrency(detailsRes.depositAmount)} expected`}
+                          {!isFullyPaid(detailsRes) && Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && ` / ${formatCurrency(detailsRes.depositAmount)} expected`}
                         </span>
                       </div>
                       {recordedDeposits(detailsRes).length > 0 ? (
@@ -1479,7 +1499,7 @@ export const ReservationsPage: React.FC = () => {
                                 title="Print payment receipt"
                                 onClick={() =>
                                   printPaymentReceipt(p, {
-                                    type: 'DEPOSIT',
+                                    type: isFullyPaid(detailsRes) ? 'PAYMENT' : 'DEPOSIT',
                                     guestName: guestName(detailsRes.guests?.[0]?.guest),
                                     bookingRef: detailsRes.bookingId || detailsRes.confirmationNo,
                                   })
@@ -1494,10 +1514,10 @@ export const ReservationsPage: React.FC = () => {
                       ) : (
                         <div className="text-[11px] text-[#b0743a]">Not yet recorded — collect at check-in</div>
                       )}
-                      {recordedDepositTotal(detailsRes) < Number(detailsRes.totalAmount || 0) && (
+                      {!isFullyPaid(detailsRes) && (
                         <div className="flex justify-between border-t border-[#e4e9e5] pt-1.5">
                           <span className="text-[#5f6b6f]">Balance left to pay</span>
-                          <span className="font-extrabold text-[#b0743a]">{formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
+                          <span className="font-extrabold text-[#b0743a]">{formatCurrency(reservationBalance(detailsRes))}</span>
                         </div>
                       )}
                     </div>
@@ -1529,14 +1549,14 @@ export const ReservationsPage: React.FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#edf0ed]">
                 <div className="flex items-center gap-2">
-                  {canProcessPayment && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(detailsRes.status).toUpperCase()) && recordedDepositTotal(detailsRes) < Number(detailsRes.totalAmount || 0) && (
+                  {canProcessPayment && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(detailsRes.status).toUpperCase()) && !isFullyPaid(detailsRes) && (
                     <Button
                       variant="outline"
                       size="sm"
                       className="text-[#16a4d4]"
                       onClick={openDeposit}
                     >
-                      <CreditCard size={13} /> Record partial payment
+                      <CreditCard size={13} /> Record payment
                     </Button>
                   )}
                   {canCancel && ['PENDING', 'CONFIRMED'].includes(String(detailsRes.status).toUpperCase()) && (
@@ -1587,7 +1607,7 @@ export const ReservationsPage: React.FC = () => {
       <Modal
         open={depositOpen}
         onClose={() => setDepositOpen(false)}
-        title={detailsRes ? `Record partial payment · ${detailsRes.confirmationNo || 'reservation'}` : 'Record partial payment'}
+        title={detailsRes ? `Record payment · ${detailsRes.confirmationNo || 'reservation'}` : 'Record payment'}
         size="md"
       >
         <div className="space-y-5">
@@ -1598,7 +1618,7 @@ export const ReservationsPage: React.FC = () => {
                   <>
                     {Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && (
                       <>
-                        Partial payment expected: <span className="font-extrabold text-[#16a4d4]">{formatCurrency(detailsRes.depositAmount)}</span>
+                        Payment expected: <span className="font-extrabold text-[#16a4d4]">{formatCurrency(detailsRes.depositAmount)}</span>
                         <span className="mx-1 text-[#899397]">·</span>
                       </>
                     )}
@@ -1611,7 +1631,7 @@ export const ReservationsPage: React.FC = () => {
                     <span className="text-[#b0743a] font-bold">Balance due {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
                   </>
                 ) : (
-                  <span>No partial payment was logged on this reservation — record the amount the guest paid.</span>
+                  <span>No payment was logged on this reservation — record the amount the guest paid.</span>
                 )}
                 <div className="mt-1 text-[10px] text-[#899397]">
                   Amount cannot exceed {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}
