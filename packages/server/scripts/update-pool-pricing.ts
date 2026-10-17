@@ -28,6 +28,8 @@ const retiredNames = [
   'Poolside Burger',
   'Fresh Coconut Water',
   'Virgin Piña Colada',
+  'KIDS DAY',
+  'NIGHT PASS',
 ];
 
 const poolCategories = [
