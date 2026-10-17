@@ -58,10 +58,32 @@ export class PaymentService {
       : [];
     const userMap = new Map(users.map((u) => [u.id, `${u.firstName} ${u.lastName}`.trim() || u.username || u.email]));
 
-    return payments.map((p) => ({
-      ...p,
-      processorName: userMap.get(p.processedBy) || p.processedBy || 'System / Staff',
-    }));
+    // A reservation deposit that completes the reservation total is a *full*
+    // payment for presentation purposes. This is DERIVED at read time only —
+    // the stored type stays DEPOSIT so check-in can still materialise it onto
+    // the folio as immutable payment history.
+    const reservationIds = Array.from(new Set(payments.map((p) => p.reservationId).filter(Boolean))) as string[];
+    const depositTotals = new Map<string, number>();
+    if (reservationIds.length > 0) {
+      const depositRows = await prisma.payment.findMany({
+        where: { reservationId: { in: reservationIds }, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null },
+        select: { reservationId: true, amount: true },
+      });
+      for (const row of depositRows) {
+        if (!row.reservationId) continue;
+        depositTotals.set(row.reservationId, (depositTotals.get(row.reservationId) || 0) + Number(row.amount));
+      }
+    }
+
+    return payments.map((p) => {
+      const reservationTotal = Number(p.reservation?.totalAmount || 0);
+      const reservationPaid = p.reservationId ? depositTotals.get(p.reservationId) || 0 : 0;
+      return {
+        ...p,
+        processorName: userMap.get(p.processedBy) || p.processedBy || 'System / Staff',
+        fullySettled: p.type === 'DEPOSIT' && reservationTotal > 0 && reservationPaid >= reservationTotal,
+      };
+    });
   }
 
   /**

@@ -27,6 +27,7 @@ interface PaymentRecord {
   guest?: { firstName: string; lastName?: string | null } | null;
   originalPaymentId?: string | null;
   processorName?: string;
+  fullySettled?: boolean;
 }
 
 interface BillStay {
@@ -336,7 +337,7 @@ export const PaymentsPage: React.FC = () => {
                       </td>
                       <td className="px-5 py-4 text-[10px] font-bold text-[#667278]">{p.method || '—'}</td>
                       <td className="px-5 py-4 text-[10px] font-extrabold text-[#667278]">
-                        {p.type === 'REFUND' ? 'REFUND' : p.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT'}
+                        {p.type === 'REFUND' ? 'REFUND' : p.type === 'DEPOSIT' && !p.fullySettled ? 'DEPOSIT' : 'PAYMENT'}
                       </td>
                       <td className="px-5 py-4 text-[10px]">
                         <div className="font-semibold text-[#26363e] flex items-center gap-1">

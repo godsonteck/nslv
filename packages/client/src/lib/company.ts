@@ -23,6 +23,8 @@ interface PaymentReceiptContext {
   roomNumber?: string;
   /** Overrides payment.type when the record does not carry it (e.g. reservation deposit select) */
   type?: 'PAYMENT' | 'DEPOSIT' | 'REFUND';
+  /** True when this deposit completes the reservation — print as a full payment receipt. */
+  fullySettled?: boolean;
 }
 
 // Prints an optional per-transaction receipt for a single payment/refund record
@@ -34,7 +36,10 @@ export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContex
 
   const type = context?.type || payment.type;
   const isRefund = type === 'REFUND';
-  const isDeposit = type === 'DEPOSIT';
+  // A deposit that fully settles its reservation prints as a normal payment,
+  // never as a partial payment.
+  const settled = context?.fullySettled ?? payment.fullySettled ?? false;
+  const isDeposit = type === 'DEPOSIT' && !settled;
   const title = isRefund ? 'REFUND RECEIPT' : isDeposit ? 'PARTIAL PAYMENT RECEIPT' : 'PAYMENT RECEIPT';
   const paidLabel = isRefund ? 'Amount refunded' : 'Amount received';
 
