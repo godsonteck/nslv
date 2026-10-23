@@ -853,27 +853,28 @@ export const ReservationsPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="FRONT OFFICE · RESERVATIONS"
-      title="Reservations"
-      subtitle="Plan arrivals, protect room availability and keep every booking connected to the guest record."
+      eyebrow="NS LUXURY VILLA · RESERVATIONS & BOOKINGS"
+      title="Reservations & Front Desk"
+      subtitle="Manage group bookings, individual room commitments, guest registration, and deposit settlements."
       actions={
-        <>
-          <Button variant="outline" size="sm" onClick={load}>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button variant="outline" size="sm" onClick={load} className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/payments')}>
-            Payments & refunds
+          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5">
+            <CreditCard size={14} className="text-[#174b59]" /> Payments &amp; Receipts
           </Button>
-          <Button size="sm" onClick={() => setOpen(true)}>
-            <Plus size={14} /> New reservation
+          <Button size="sm" onClick={() => setOpen(true)} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
+            <Plus size={14} /> New Reservation
           </Button>
-        </>
+        </div>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Bookings in view" value={displayItems.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
-        <StatTile label="Confirmed / pending rooms" value={confirmed} note={dateFilter ? 'In selected date' : 'Current filtered result'} onClick={() => scrollToTable('CONFIRMED_PENDING')} />
-        <StatTile label="Checked in rooms" value={active} note={dateFilter ? 'In selected date' : 'Active stays'} onClick={() => scrollToTable('CHECKED_IN')} />
+        <StatTile label="Confirmed / pending" value={confirmed} note={dateFilter ? 'On selected date' : 'Active commitments'} icon={CalendarDays} onClick={() => scrollToTable('CONFIRMED_PENDING')} accent />
+        <StatTile label="Checked in guests" value={active} note={dateFilter ? 'On selected date' : 'Active stays'} icon={BedDouble} onClick={() => scrollToTable('CHECKED_IN')} />
+        <StatTile label="Total property rooms" value={rooms.length} note={`${rooms.filter((r) => ['AVAILABLE', 'READY'].includes(r.status)).length} ready to sell`} icon={Users} onClick={() => navigate('/rooms')} />
       </div>
       <div ref={tableRef}>
       <Section title="Booking ledger" subtitle="Search by guest, reservation or room">

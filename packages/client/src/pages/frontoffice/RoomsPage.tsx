@@ -3,9 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { roomsApi, reservationsApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
-import { BedDouble, Plus, RefreshCw, Pencil, Trash2, Layers, CalendarDays, X, User, Users, CheckCircle2 } from 'lucide-react';
+import {
+  BedDouble,
+  Plus,
+  RefreshCw,
+  Pencil,
+  Trash2,
+  Layers,
+  CalendarDays,
+  X,
+  User,
+  Users,
+  CheckCircle2,
+  Sparkles,
+  Search,
+  Filter,
+  SlidersHorizontal,
+  DoorOpen,
+  ArrowRight,
+  ShieldCheck,
+} from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
 
 const statuses = ['ALL', 'AVAILABLE', 'RESERVED', 'OCCUPIED', 'DIRTY', 'CLEANING', 'MAINTENANCE', 'OUT_OF_SERVICE'];
@@ -58,6 +76,7 @@ export const RoomsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     const t = setTimeout(() => void load(), 200);
     return () => clearTimeout(t);
@@ -140,7 +159,6 @@ export const RoomsPage: React.FC = () => {
   };
 
   const getRoomDateState = (r: any) => {
-    // Match reservations for this room by roomId or nested room.id
     const roomReservations = reservations
       .filter((res: any) => {
         const matchRoom = (res.roomId && res.roomId === r.id) || (res.room?.id && res.room.id === r.id);
@@ -152,7 +170,6 @@ export const RoomsPage: React.FC = () => {
     const today = new Date().toISOString().slice(0, 10);
 
     if (dateFilter) {
-      // Date filter active: match reservations covering the specified date or range
       const matchingRes = roomReservations.find((res: any) => {
         if (['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase())) return false;
         const cin = String(res.checkInDate).slice(0, 10);
@@ -160,7 +177,6 @@ export const RoomsPage: React.FC = () => {
         if (endDateFilter && endDateFilter > dateFilter) {
           return cin < endDateFilter && cout > dateFilter;
         }
-        // A reservation covers [checkIn, checkOut). On the checkout date, the room becomes available.
         return cin <= dateFilter && dateFilter < cout;
       });
 
@@ -177,13 +193,11 @@ export const RoomsPage: React.FC = () => {
     }
 
     // Default view (today):
-    // 1. Any in-house checked-in guest -> OCCUPIED
     const inHouseRes = roomReservations.find((res: any) => String(res.status).toUpperCase() === 'CHECKED_IN');
     if (inHouseRes) {
       return { effectiveStatus: 'OCCUPIED', activeReservation: inHouseRes, upcomingReservation: null };
     }
 
-    // 2. An active reservation covering TODAY (arrival due today or currently staying) -> RESERVED
     const activeResToday = roomReservations.find((res: any) => {
       if (['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase())) return false;
       const cin = String(res.checkInDate).slice(0, 10);
@@ -195,19 +209,16 @@ export const RoomsPage: React.FC = () => {
       return { effectiveStatus: 'RESERVED', activeReservation: activeResToday, upcomingReservation: null };
     }
 
-    // Upcoming future reservation (for information only — room is AVAILABLE today until that date arrives)
     const upcomingRes = roomReservations.find((res: any) => {
       if (['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase())) return false;
       const cin = String(res.checkInDate).slice(0, 10);
       return cin > today;
     });
 
-    // 3. Operational conditions
     if (['MAINTENANCE', 'OUT_OF_SERVICE', 'DIRTY', 'CLEANING'].includes(r.status)) {
       return { effectiveStatus: r.status, activeReservation: null, upcomingReservation: upcomingRes };
     }
 
-    // 4. Room is AVAILABLE today
     return { effectiveStatus: 'AVAILABLE', activeReservation: null, upcomingReservation: upcomingRes };
   };
 
@@ -220,7 +231,7 @@ export const RoomsPage: React.FC = () => {
     statuses.slice(1).map((s) => [
       s,
       rooms.filter((r) => (roomStates.get(r.id)?.effectiveStatus || r.status) === s).length,
-    ])
+    ]),
   );
 
   const displayRooms = rooms.filter((r) => {
@@ -247,12 +258,6 @@ export const RoomsPage: React.FC = () => {
     });
     setTypeOpen(true);
   };
-
-  const toggleAmenity = (id: string) =>
-    setTypeForm((f) => ({
-      ...f,
-      amenityIds: f.amenityIds.includes(id) ? f.amenityIds.filter((x) => x !== id) : [...f.amenityIds, id],
-    }));
 
   const saveType = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,7 +289,7 @@ export const RoomsPage: React.FC = () => {
     const used = t._count?.rooms || 0;
     const msg =
       used > 0
-        ? `Room type "${t.name}" is used by ${used} room(s). It will be deactivated (hidden) instead of deleted so existing rooms stay valid. Continue?`
+        ? `Room type "${t.name}" is used by ${used} room(s). It will be deactivated instead of deleted. Continue?`
         : `Delete room type "${t.name}"? This cannot be undone.`;
     if (!window.confirm(msg)) return;
     try {
@@ -300,64 +305,133 @@ export const RoomsPage: React.FC = () => {
   };
 
   return (
-    <ShellPage
-      eyebrow="FRONT OFFICE · ROOMS"
-      title="Room inventory"
-      subtitle="See the property at a glance, change room state and keep availability operationally accurate."
-      actions={
-        <>
-          <Button variant="outline" size="sm" onClick={() => navigate('/reservations')}>
-            <CalendarDays size={14} /> View reservations
+    <div className="space-y-6 pb-12 animate-in fade-in duration-200">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
+            <Sparkles size={13} className="text-[#c59a58]" />
+            Front Office &bull; Room Inventory
+          </div>
+          <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
+            Room Board &amp; Inventory
+          </h1>
+          <p className="mt-1 text-xs text-[#64748b]">
+            Real-time physical room statuses, reservation date commitments, and housekeeping conditions.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/reservations')}
+            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+          >
+            <CalendarDays size={14} className="text-[#174b59]" /> Reservations
           </Button>
-          <Button variant="outline" size="sm" onClick={() => { clearGetCache(); void load(); }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => { clearGetCache(); void load(); }}
+            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+          >
             <RefreshCw size={14} /> Refresh
           </Button>
           {canStatus && (
-            <Button variant="outline" size="sm" loading={saving} onClick={syncBookingStatuses}>
-              <RefreshCw size={14} /> Sync booking states
+            <Button
+              variant="outline"
+              size="sm"
+              loading={saving}
+              onClick={syncBookingStatuses}
+              className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+            >
+              <RefreshCw size={14} className="text-[#c59a58]" /> Sync Statuses
             </Button>
           )}
           {canManage && (
-            <Button size="sm" onClick={() => navigate('/admin/rooms')}>
-              <Layers size={14} /> Manage Room Configuration
+            <Button
+              size="sm"
+              onClick={() => navigate('/admin/rooms')}
+              className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5"
+            >
+              <Layers size={14} /> Room Config
             </Button>
           )}
-        </>
-      }
-    >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-        <StatTile label="Total" value={rooms.length} icon={BedDouble} />
-        {statuses.slice(1).map((s) => (
-          <StatTile
-            key={s}
-            label={s.replaceAll('_', ' ')}
-            value={counts[s] || 0}
-            note={dateFilter ? 'On selected date' : undefined}
-          />
-        ))}
+        </div>
       </div>
-      <Section title="Room board" subtitle={dateFilter ? `Availability on ${new Date(dateFilter + 'T00:00:00').toLocaleDateString()}` : 'Live room state from the property database'}>
-        <Toolbar search={q} onSearch={setQ} placeholder="Search room number…">
-          {/* Prominent Date Availability Filter */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <div className="flex items-center rounded-xl border border-[#dfe4e1] bg-white px-2.5 h-10 shadow-sm focus-within:border-[#16a4d4] focus-within:ring-1 focus-within:ring-[#16a4d4]">
-              <CalendarDays size={14} className="text-[#16a4d4] mr-2 flex-shrink-0" />
-              <label htmlFor="roomDateFilter" className="text-[11px] font-bold text-[#657278] mr-2 whitespace-nowrap cursor-pointer">
-                Filter date:
+
+      {/* ── Status Counts Ribbon ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        <button
+          onClick={() => setStatus('ALL')}
+          className={`rounded-xl p-3 text-left border transition-all ${
+            status === 'ALL'
+              ? 'bg-[#0f172a] text-white border-[#0f172a] shadow-xs'
+              : 'bg-white border-[#cbd5e1]/70 hover:border-slate-400 text-slate-700'
+          }`}
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider opacity-75">All Rooms</div>
+          <div className="text-xl font-black mt-1">{rooms.length}</div>
+        </button>
+
+        {statuses.slice(1).map((s) => {
+          const isSelected = status === s;
+          const count = counts[s] || 0;
+          return (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              className={`rounded-xl p-3 text-left border transition-all ${
+                isSelected
+                  ? 'bg-[#174b59] text-white border-[#174b59] shadow-xs'
+                  : 'bg-white border-[#cbd5e1]/70 hover:border-slate-400 text-slate-700'
+              }`}
+            >
+              <div className="text-[10px] font-bold uppercase tracking-wider opacity-75 truncate">
+                {s.replaceAll('_', ' ')}
+              </div>
+              <div className="text-xl font-black mt-1">{count}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Main Room Board Section ── */}
+      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
+        {/* Controls Toolbar */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[#e2e8f0] p-4 bg-slate-50/50 gap-3">
+          {/* Search */}
+          <div className="relative w-full lg:w-72">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search room number..."
+              className="w-full rounded-xl border border-[#cbd5e1] pl-9 pr-3 py-1.5 text-xs text-[#0f172a] focus:border-[#174b59] focus:outline-none"
+            />
+          </div>
+
+          {/* Date Filter & Fast Action Buttons */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center rounded-xl border border-[#cbd5e1] bg-white px-3 py-1.5 shadow-xs">
+              <CalendarDays size={14} className="text-[#174b59] mr-2 shrink-0" />
+              <label htmlFor="roomDateFilter" className="text-[11px] font-bold text-slate-500 mr-2 whitespace-nowrap cursor-pointer">
+                Filter Date:
               </label>
               <input
                 id="roomDateFilter"
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="border-0 bg-transparent text-xs font-semibold text-[#1f2d33] focus:outline-none focus:ring-0 p-0 cursor-pointer"
-                title="Filter room availability by date"
+                className="border-0 bg-transparent text-xs font-bold text-[#0f172a] focus:outline-none p-0 cursor-pointer"
               />
               {dateFilter && (
                 <button
                   type="button"
                   onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-                  className="ml-2 rounded-full p-1 text-[#8a9598] hover:bg-[#f0f3f2] hover:text-[#e04f4f]"
+                  className="ml-2 text-slate-400 hover:text-red-600"
                   title="Clear date filter"
                 >
                   <X size={13} />
@@ -366,22 +440,20 @@ export const RoomsPage: React.FC = () => {
             </div>
 
             {dateFilter && (
-              <div className="flex items-center rounded-xl border border-[#dfe4e1] bg-white px-2.5 h-10 shadow-sm focus-within:border-[#16a4d4]">
-                <span className="text-[11px] font-bold text-[#657278] mr-1.5 whitespace-nowrap">to:</span>
+              <div className="flex items-center rounded-xl border border-[#cbd5e1] bg-white px-3 py-1.5 shadow-xs">
+                <span className="text-[11px] font-bold text-slate-500 mr-2 whitespace-nowrap">To:</span>
                 <input
                   type="date"
                   min={dateFilter}
                   value={endDateFilter}
                   onChange={(e) => setEndDateFilter(e.target.value)}
-                  className="border-0 bg-transparent text-xs font-semibold text-[#1f2d33] focus:outline-none focus:ring-0 p-0 cursor-pointer"
-                  title="Optional departure date for stay range"
+                  className="border-0 bg-transparent text-xs font-bold text-[#0f172a] focus:outline-none p-0 cursor-pointer"
                 />
                 {endDateFilter && (
                   <button
                     type="button"
                     onClick={() => setEndDateFilter('')}
-                    className="ml-1 text-[#8a9598] hover:text-[#e04f4f]"
-                    title="Clear departure date"
+                    className="ml-2 text-slate-400 hover:text-red-600"
                   >
                     <X size={12} />
                   </button>
@@ -400,12 +472,11 @@ export const RoomsPage: React.FC = () => {
                   setEndDateFilter('');
                 }
               }}
-              className={`h-10 px-3 rounded-xl border text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
                 dateFilter === new Date().toISOString().slice(0, 10) && !endDateFilter
-                  ? 'border-[#16a4d4] bg-[#16a4d4] text-white shadow-sm'
-                  : 'border-[#dfe4e1] bg-white text-[#4a555a] hover:border-[#16a4d4] hover:text-[#16a4d4]'
+                  ? 'border-[#174b59] bg-[#174b59] text-white'
+                  : 'border-[#cbd5e1] bg-white text-slate-700 hover:border-slate-400'
               }`}
-              title="Check room availability today"
             >
               Today
             </button>
@@ -423,93 +494,77 @@ export const RoomsPage: React.FC = () => {
                   setEndDateFilter('');
                 }
               }}
-              className={`h-10 px-3 rounded-xl border text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
                 dateFilter === new Date(Date.now() + 86400000).toISOString().slice(0, 10) && !endDateFilter
-                  ? 'border-[#16a4d4] bg-[#16a4d4] text-white shadow-sm'
-                  : 'border-[#dfe4e1] bg-white text-[#4a555a] hover:border-[#16a4d4] hover:text-[#16a4d4]'
+                  ? 'border-[#174b59] bg-[#174b59] text-white'
+                  : 'border-[#cbd5e1] bg-white text-slate-700 hover:border-slate-400'
               }`}
-              title="Check room availability tomorrow"
             >
               Tomorrow
             </button>
           </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            {statuses.map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatus(s)}
-                className={`rounded-xl px-3 py-2 text-[10px] font-extrabold uppercase tracking-wide ${
-                  status === s ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'
-                }`}
-              >
-                {s.replaceAll('_', ' ')}
-              </button>
-            ))}
-          </div>
-        </Toolbar>
+        </div>
 
         {/* Active Date Availability Banner */}
         {dateFilter && (
-          <div className="flex items-center justify-between border-b border-[#e1e9e7] bg-[#edf6f8] px-5 py-2.5 text-xs text-[#176274]">
+          <div className="flex items-center justify-between border-b border-sky-200 bg-sky-50 px-6 py-2.5 text-xs text-sky-950">
             <div className="flex items-center gap-2">
-              <CalendarDays size={14} className="text-[#16a4d4]" />
+              <CalendarDays size={14} className="text-sky-700" />
               <span>
                 Showing room availability for{' '}
-                <strong className="font-bold text-[#0c404d]">
+                <strong>
                   {new Date(dateFilter + 'T00:00:00').toLocaleDateString(undefined, {
                     weekday: 'short',
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                   })}
-                  {endDateFilter ? ` → ${new Date(endDateFilter + 'T00:00:00').toLocaleDateString(undefined, {
+                  {endDateFilter ? ` &rarr; ${new Date(endDateFilter + 'T00:00:00').toLocaleDateString(undefined, {
                     weekday: 'short',
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                   })}` : ''}
                 </strong>
-                {' '}— <span className="font-semibold">{counts.AVAILABLE || 0} Available</span>,{' '}
-                <span className="font-semibold">{counts.RESERVED || 0} Reserved</span>
-                {(counts.OCCUPIED || 0) > 0 && <span className="font-semibold">, {counts.OCCUPIED} Occupied</span>}
+                {' '}&bull; <span className="font-bold text-emerald-800">{counts.AVAILABLE || 0} Available</span>,{' '}
+                <span className="font-bold text-amber-800">{counts.RESERVED || 0} Reserved</span>
+                {(counts.OCCUPIED || 0) > 0 && <span className="font-bold text-sky-800">, {counts.OCCUPIED} Occupied</span>}
               </span>
             </div>
             <button
               type="button"
               onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-              className="flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[11px] font-bold text-[#16a4d4] hover:bg-[#dbeef4] border border-[#b8dde6]"
+              className="flex items-center gap-1 rounded-md bg-white px-2 py-0.5 text-[11px] font-bold text-sky-700 border border-sky-300 hover:bg-sky-100"
             >
-              <X size={12} /> Clear date filter
+              <X size={12} /> Clear Filter
             </button>
           </div>
         )}
 
+        {/* Room Cards Grid */}
         {loading ? (
           <LoadingState />
         ) : displayRooms.length === 0 ? (
-          <div className="p-5">
-            <div className="rounded-2xl border border-dashed border-[#dfe4e0] p-12 text-center">
-              <CalendarDays className="mx-auto text-[#a0aaad]" size={28} />
-              <h3 className="mt-3 text-sm font-extrabold text-[#20343e]">
-                {dateFilter ? `No ${status === 'ALL' ? '' : status.toLowerCase().replaceAll('_', ' ') + ' '}rooms on selected date` : 'No rooms found'}
-              </h3>
-              <p className="mt-1 text-xs text-[#899397]">
-                {dateFilter ? 'Try clearing the date filter or selecting a different status filter.' : 'No rooms match your search query.'}
-              </p>
-              {(dateFilter || status !== 'ALL' || q) && (
-                <button
-                  type="button"
-                  onClick={() => { setDateFilter(''); setEndDateFilter(''); setStatus('ALL'); setQ(''); }}
-                  className="mt-4 rounded-xl bg-[#16a4d4] px-4 py-2 text-[11px] font-extrabold text-white hover:bg-[#138db8]"
-                >
-                  Reset filters
-                </button>
-              )}
-            </div>
+          <div className="p-12 text-center">
+            <BedDouble className="mx-auto text-slate-400" size={36} />
+            <h3 className="mt-3 text-sm font-extrabold text-[#0f172a]">
+              {dateFilter ? `No ${status === 'ALL' ? '' : status.toLowerCase().replaceAll('_', ' ') + ' '}rooms on selected date` : 'No rooms found'}
+            </h3>
+            <p className="mt-1 text-xs text-[#64748b]">
+              {dateFilter ? 'Try clearing the date filter or selecting a different status pill.' : 'No rooms match your search query.'}
+            </p>
+            {(dateFilter || status !== 'ALL' || q) && (
+              <button
+                type="button"
+                onClick={() => { setDateFilter(''); setEndDateFilter(''); setStatus('ALL'); setQ(''); }}
+                className="mt-4 rounded-xl bg-[#174b59] px-4 py-2 text-xs font-bold text-white hover:bg-[#133e4a]"
+              >
+                Reset All Filters
+              </button>
+            )}
           </div>
         ) : (
-          <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {displayRooms.map((r) => {
               const { effectiveStatus, activeReservation, upcomingReservation } = (roomStates.get(r.id) as any) || {
                 effectiveStatus: r.status || 'AVAILABLE',
@@ -517,79 +572,76 @@ export const RoomsPage: React.FC = () => {
                 upcomingReservation: null,
               };
               return (
-                <div key={r.id} className="group rounded-[20px] border border-[#e7ebe8] bg-[#fbfcfa] p-4 transition hover:-translate-y-0.5 hover:border-[#cfd8d3] hover:bg-white flex flex-col justify-between">
+                <div
+                  key={r.id}
+                  className="group rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                >
                   <div>
+                    {/* Header: Room Number & Status */}
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-xl font-extrabold tracking-tight text-[#20343e]">Room {r.number}</div>
-                        <div className="mt-1 text-[10px] text-[#8a9598]">
-                          {r.roomType?.name || 'Room type'}
-                          {r.roomType?.basePrice != null ? ` · GH₵ ${r.roomType.basePrice}/night` : ''}
+                        <div className="text-2xl font-black text-[#0f172a]">Room {r.number}</div>
+                        <div className="mt-0.5 text-xs font-medium text-[#64748b]">
+                          {r.roomType?.name || 'Standard Room'}
+                          {r.roomType?.basePrice != null ? ` &bull; GH₵ ${r.roomType.basePrice}/night` : ''}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1">
                           {activeReservation?.bookingId && (
-                            <span className="rounded-md bg-[#e8f2f4] px-1.5 py-0.5 text-[9px] font-extrabold text-[#0e7490] border border-[#bee3ec]" title={`Part of party booking ${activeReservation.bookingId}`}>
-                              PARTY
+                            <span className="rounded-md bg-sky-50 px-1.5 py-0.5 text-[9px] font-black text-sky-800 border border-sky-200">
+                              GROUP
                             </span>
                           )}
                           {statusBadge(effectiveStatus)}
                         </div>
                         {dateFilter && effectiveStatus !== r.status && (
-                          <span className="text-[9px] text-[#8a9598]" title="Physical database condition">
-                            Live: {r.status}
+                          <span className="text-[9px] text-[#64748b] font-medium" title="Physical status">
+                            DB: {r.status}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Available now but has upcoming booking later */}
+                    {/* Available Now Next Guest pill */}
                     {effectiveStatus === 'AVAILABLE' && upcomingReservation && !dateFilter && (
-                      <div className="mt-2.5 flex items-center justify-between rounded-xl border border-dashed border-[#b8dfce] bg-[#f0fdf4] px-2.5 py-1.5 text-[10px] text-[#15803d]">
-                        <span>Available now · Next guest:</span>
-                        <span className="font-extrabold font-mono text-[#166534]">
+                      <div className="mt-3 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-1.5 text-[11px] text-emerald-800">
+                        <span>Available now &bull; Next arrival:</span>
+                        <span className="font-black font-mono">
                           {new Date(upcomingReservation.checkInDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </span>
                       </div>
                     )}
 
-                    {/* Active reservation card (party booking or individual reservation) */}
+                    {/* Active reservation banner */}
                     {activeReservation && (
-                      <div className="mt-3 rounded-xl border border-[#bee3ec] bg-[#f0f8fa] p-2.5 text-xs">
-                        <div className="flex items-center justify-between text-[11px] font-extrabold text-[#0e7490]">
+                      <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50/60 p-3 text-xs space-y-1">
+                        <div className="flex items-center justify-between font-bold text-sky-900">
                           <span className="flex items-center gap-1 truncate max-w-[150px]">
                             {activeReservation.bookingId ? (
-                              <Users size={12} className="flex-shrink-0 text-[#0e7490]" />
+                              <Users size={13} className="text-sky-700 shrink-0" />
                             ) : (
-                              <User size={12} className="flex-shrink-0" />
+                              <User size={13} className="text-sky-700 shrink-0" />
                             )}
                             {guestName(activeReservation.guests?.[0]?.guest)}
                           </span>
-                          <div className="flex items-center gap-1">
-                            {activeReservation.bookingId && (
-                              <span className="rounded bg-[#0e7490] px-1 py-0.2 text-[8px] font-black text-white uppercase tracking-wider">
-                                PARTY
-                              </span>
-                            )}
-                            <span className="font-mono text-[10px] text-[#0e7490] flex-shrink-0">
-                              {activeReservation.confirmationNo || activeReservation.id.slice(0, 8)}
-                            </span>
-                          </div>
+                          <span className="font-mono text-[10px] text-sky-700">
+                            {activeReservation.confirmationNo || activeReservation.id.slice(0, 8).toUpperCase()}
+                          </span>
                         </div>
-                        <div className="mt-1 text-[10px] text-[#537780]">
-                          Stay: {new Date(activeReservation.checkInDate).toLocaleDateString()} → {new Date(activeReservation.checkOutDate).toLocaleDateString()}
+                        <div className="text-[11px] text-sky-800">
+                          Stay: {new Date(activeReservation.checkInDate).toLocaleDateString()} &rarr; {new Date(activeReservation.checkOutDate).toLocaleDateString()}
                         </div>
-                        <div className="mt-1.5 flex items-center justify-between">
+                        <div className="pt-1 flex items-center justify-between text-[11px]">
                           <button
                             type="button"
                             onClick={() => navigate('/reservations')}
-                            className="flex items-center gap-1 text-[10px] font-bold text-[#16a4d4] hover:underline"
+                            className="font-bold text-[#174b59] hover:underline"
                           >
-                            View in reservations →
+                            View Details &rarr;
                           </button>
                           {activeReservation.bookingId && (
-                            <span className="text-[9px] font-mono text-[#658790]" title="Party Booking Reference">
+                            <span className="text-[9px] font-mono text-sky-600">
                               {activeReservation.bookingId}
                             </span>
                           )}
@@ -597,38 +649,46 @@ export const RoomsPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Available badge on selected date */}
+                    {/* Available on selected date */}
                     {dateFilter && !activeReservation && effectiveStatus === 'AVAILABLE' && (
-                      <div className="mt-3 rounded-xl border border-[#d6ebd9] bg-[#f4fbf5] px-2.5 py-1.5 text-[11px] font-medium text-[#2d7738] flex items-center gap-1.5">
-                        <CheckCircle2 size={13} className="text-[#2d7738] flex-shrink-0" />
-                        <span>Available on this date</span>
+                      <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
+                        <CheckCircle2 size={13} className="text-emerald-700" />
+                        <span>Ready for reservation on this date</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-5 flex flex-col gap-3 border-t border-[#e9ecea] pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-[#8a9598]">{r.floor != null ? `Floor ${r.floor}` : 'Floor not set'}</span>
-                      <div className="flex gap-2 opacity-0 transition group-hover:opacity-100">
-                        {canManage && (
-                          <>
-                            <button onClick={() => openEdit(r)} className="text-[10px] font-extrabold text-[#16a4d4]" title="Edit room">
-                              <Pencil size={13} />
-                            </button>
-                            <button onClick={() => remove(r)} className="text-[10px] font-extrabold text-[#b23a3a]" title="Delete room">
-                              <Trash2 size={13} />
-                            </button>
-                          </>
-                        )}
-                      </div>
+                  {/* Card Footer: Floor & Quick Condition */}
+                  <div className="mt-5 pt-3 border-t border-slate-100 flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between text-xs text-[#64748b]">
+                      <span>{r.floor != null ? `Floor ${r.floor}` : 'Ground Floor'}</span>
+                      {canManage && (
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => openEdit(r)}
+                            className="text-slate-400 hover:text-[#174b59] p-1"
+                            title="Edit room details"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          <button
+                            onClick={() => remove(r)}
+                            className="text-slate-400 hover:text-rose-600 p-1"
+                            title="Delete room"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )}
                     </div>
+
                     {canStatus && (
-                      <label className="flex items-center gap-2">
-                        <span className="text-[9px] font-extrabold uppercase tracking-wide text-[#8a9598]">Condition</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase text-slate-400">Status</span>
                         <SelectInput
                           value={r.status || 'AVAILABLE'}
                           onChange={(e) => void setRoomStatus(r, e.target.value)}
-                          className="h-8 flex-1 text-[10px]"
+                          className="h-8 flex-1 text-xs"
                         >
                           {statuses.slice(1).map((s) => (
                             <option key={s} value={s} disabled={s === 'RESERVED' || s === 'OCCUPIED'}>
@@ -636,7 +696,7 @@ export const RoomsPage: React.FC = () => {
                             </option>
                           ))}
                         </SelectInput>
-                      </label>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -644,187 +704,163 @@ export const RoomsPage: React.FC = () => {
             })}
           </div>
         )}
-      </Section>
-      <Section
-        title="Room types"
-        subtitle="Define the property's room categories, pricing and included amenities."
-        action={
-          canManage && (
-            <Button size="sm" onClick={openAddType}>
-              <Plus size={14} /> Add type
+      </div>
+
+      {/* ── Room Types Management ── */}
+      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
+          <div>
+            <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
+              <Layers size={16} className="text-[#174b59]" />
+              Room Types &amp; Pricing Categories
+            </h2>
+            <p className="text-[11px] text-[#64748b] mt-0.5">
+              Configured room tiers, base nightly rates, guest capacities, and included amenities.
+            </p>
+          </div>
+          {canManage && (
+            <Button size="sm" onClick={openAddType} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white text-xs gap-1">
+              <Plus size={14} /> Add Category
             </Button>
-          )
-        }
-      >
+          )}
+        </div>
+
         {loading ? (
           <LoadingState />
         ) : (
-          <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {types.map((t) => {
               const roomsCount = t._count?.rooms ?? rooms.filter((r) => r.roomTypeId === t.id).length;
               return (
-                <div key={t.id} className="group rounded-[20px] border border-[#e7ebe8] bg-[#fbfcfa] p-4 transition hover:-translate-y-0.5 hover:border-[#cfd8d3] hover:bg-white">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2.5">
-                      <div className="mt-0.5 rounded-xl bg-[#e5f0f2] p-2 text-[#16a4d4]">
-                        <Layers size={15} />
-                      </div>
+                <div
+                  key={t.id}
+                  className="rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-extrabold tracking-tight text-[#20343e]">{t.name}</div>
-                        <div className="mt-0.5 text-[10px] text-[#8a9598]">
-                          {formatCurrency(t.basePrice)}/night · {t.maxAdults} adults, {t.maxChildren} children
+                        <h3 className="text-base font-extrabold text-[#0f172a]">{t.name}</h3>
+                        <div className="text-xs font-bold text-[#c59a58] mt-0.5">
+                          {formatCurrency(t.basePrice)} <span className="text-[10px] text-slate-400 font-normal">/ night</span>
                         </div>
                       </div>
+                      {!t.isActive && (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black text-amber-800 uppercase">
+                          Inactive
+                        </span>
+                      )}
                     </div>
-                    {!t.isActive && (
-                      <span className="rounded-full bg-[#f3e3c3] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#8a6d1f]">
-                        Inactive
-                      </span>
+                    {t.description && (
+                      <p className="mt-2 text-xs text-[#64748b] line-clamp-2 leading-relaxed">{t.description}</p>
                     )}
-                  </div>
-                  {t.description && <p className="mt-3 text-[11px] leading-relaxed text-[#718086]">{t.description}</p>}
-                  <div className="mt-4 flex flex-col gap-3 border-t border-[#e9ecea] pt-3">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                      <span>Max {t.maxAdults} Adults</span>
+                      <span>&bull;</span>
+                      <span>{t.maxChildren} Children</span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-1">
                       {t.amenities?.length ? (
                         t.amenities.map((a: any) => (
-                          <span key={a.amenityId} className="rounded-lg bg-[#e5f0f2] px-2 py-0.5 text-[9px] font-bold text-[#16a4d4]">
+                          <span
+                            key={a.amenityId}
+                            className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600"
+                          >
                             {a.amenity?.name || 'Amenity'}
                           </span>
                         ))
                       ) : (
-                        <span className="text-[10px] text-[#8a9598]">No amenities</span>
+                        <span className="text-[10px] text-slate-400">No amenities set</span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-[#8a9598]">
-                        {roomsCount} room{roomsCount === 1 ? '' : 's'}
-                      </span>
-                      {canManage && (
-                        <div className="flex gap-2">
-                          <button onClick={() => openEditType(t)} className="text-[10px] font-extrabold text-[#16a4d4]" title="Edit type">
-                            <Pencil size={13} />
-                          </button>
-                          <button onClick={() => removeType(t)} className="text-[10px] font-extrabold text-[#b23a3a]" title="Delete type">
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-[#64748b]">
+                    <span>{roomsCount} room{roomsCount === 1 ? '' : 's'} assigned</span>
+                    {canManage && (
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => openEditType(t)} className="text-slate-400 hover:text-[#174b59] p-1">
+                          <Pencil size={13} />
+                        </button>
+                        <button onClick={() => removeType(t)} className="text-slate-400 hover:text-rose-600 p-1">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
             })}
-            {types.length === 0 && (
-              <p className="text-sm text-[#8a9598]">No room types yet. Add one to start assigning rooms.</p>
-            )}
           </div>
         )}
-      </Section>
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? `Edit Room ${editing.number}` : 'Add room'}>
-        <form onSubmit={save} className="space-y-4">
-          <FormField label="Room number" required>
-            <TextInput required value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })} />
+      </div>
+
+      {/* ── Add / Edit Room Modal ── */}
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? `Edit Room ${editing.number}` : 'Add Room to Inventory'}>
+        <form onSubmit={save} className="space-y-4 p-6">
+          <FormField label="Room Number" required>
+            <TextInput required value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })} placeholder="e.g. 101" />
           </FormField>
-          <FormField label="Room type" required>
+          <FormField label="Room Type Category" required>
             <SelectInput required value={form.roomTypeId} onChange={(e) => setForm({ ...form, roomTypeId: e.target.value })}>
-              <option value="">Select type</option>
+              <option value="">Select type...</option>
               {types.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.name}
+                  {t.name} ({formatCurrency(t.basePrice)}/night)
                 </option>
               ))}
             </SelectInput>
           </FormField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Floor">
-              <TextInput value={form.floor} onChange={(e) => setForm({ ...form, floor: e.target.value })} />
+            <FormField label="Floor Number">
+              <TextInput value={form.floor} onChange={(e) => setForm({ ...form, floor: e.target.value })} placeholder="e.g. 1" />
             </FormField>
-            <FormField label="Notes">
-              <TextInput value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+            <FormField label="Room Notes">
+              <TextInput value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Pool view balcony" />
             </FormField>
           </div>
-          <div className="flex justify-end gap-2 pt-3">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" loading={saving}>
-              {editing ? 'Save changes' : 'Create room'}
+            <Button type="submit" loading={saving} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white">
+              {editing ? 'Save Changes' : 'Create Room'}
             </Button>
           </div>
         </form>
       </Modal>
-      <Modal open={typeOpen} onClose={() => setTypeOpen(false)} title={editingType ? `Edit ${editingType.name}` : 'Add room type'}>
-        <form onSubmit={saveType} className="space-y-4">
-          <FormField label="Type name" required>
-            <TextInput required value={typeForm.name} onChange={(e) => setTypeForm({ ...typeForm, name: e.target.value })} />
+
+      {/* ── Add / Edit Room Type Modal ── */}
+      <Modal open={typeOpen} onClose={() => setTypeOpen(false)} title={editingType ? `Edit Category · ${editingType.name}` : 'Create Room Category'}>
+        <form onSubmit={saveType} className="space-y-4 p-6">
+          <FormField label="Category Name" required>
+            <TextInput required value={typeForm.name} onChange={(e) => setTypeForm({ ...typeForm, name: e.target.value })} placeholder="e.g. Executive Deluxe Suite" />
           </FormField>
-          <FormField label="Description">
-            <TextInput value={typeForm.description} onChange={(e) => setTypeForm({ ...typeForm, description: e.target.value })} />
+          <FormField label="Base Nightly Rate (GHS)" required>
+            <TextInput required type="number" min="0" step="0.01" value={typeForm.basePrice} onChange={(e) => setTypeForm({ ...typeForm, basePrice: e.target.value })} placeholder="e.g. 450.00" />
           </FormField>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Base price (GH₵)" required>
-              <TextInput
-                required
-                type="number"
-                min="1"
-                step="0.01"
-                value={typeForm.basePrice}
-                onChange={(e) => setTypeForm({ ...typeForm, basePrice: e.target.value })}
-              />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Max Adults">
+              <TextInput type="number" min="1" value={typeForm.maxAdults} onChange={(e) => setTypeForm({ ...typeForm, maxAdults: e.target.value })} />
             </FormField>
-            <FormField label="Max adults" required>
-              <TextInput
-                required
-                type="number"
-                min="0"
-                value={typeForm.maxAdults}
-                onChange={(e) => setTypeForm({ ...typeForm, maxAdults: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Max children" required>
-              <TextInput
-                required
-                type="number"
-                min="0"
-                value={typeForm.maxChildren}
-                onChange={(e) => setTypeForm({ ...typeForm, maxChildren: e.target.value })}
-              />
+            <FormField label="Max Children">
+              <TextInput type="number" min="0" value={typeForm.maxChildren} onChange={(e) => setTypeForm({ ...typeForm, maxChildren: e.target.value })} />
             </FormField>
           </div>
-          <FormField label="Amenities">
-            {amenities.length === 0 ? (
-              <p className="text-xs text-[#8a9598]">No amenities configured yet.</p>
-            ) : (
-              <div className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-xl border border-[#e7ebe8] bg-white p-2.5">
-                {amenities.map((a) => {
-                  const active = typeForm.amenityIds.includes(a.id);
-                  return (
-                    <button
-                      key={a.id}
-                      type="button"
-                      onClick={() => toggleAmenity(a.id)}
-                      className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${
-                        active ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-[#fbfcfa] text-[#718086]'
-                      }`}
-                    >
-                      {a.name}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+          <FormField label="Category Description">
+            <TextInput value={typeForm.description} onChange={(e) => setTypeForm({ ...typeForm, description: e.target.value })} placeholder="Features, bed size, view..." />
           </FormField>
-          <div className="flex justify-end gap-2 pt-3">
-            <Button variant="outline" size="sm" type="button" onClick={() => setTypeOpen(false)}>
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+            <Button type="button" variant="ghost" onClick={() => setTypeOpen(false)}>
               Cancel
             </Button>
-            <Button size="sm" type="submit" disabled={typeSaving}>
-              {typeSaving ? 'Saving…' : editingType ? 'Save changes' : 'Create type'}
+            <Button type="submit" loading={typeSaving} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white">
+              {editingType ? 'Save Category' : 'Create Category'}
             </Button>
           </div>
         </form>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

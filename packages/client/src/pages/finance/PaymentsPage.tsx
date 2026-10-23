@@ -406,16 +406,16 @@ export const PaymentsPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="FINANCE · PAYMENTS & SETTLEMENTS"
-      title="Payments Ledger"
-      subtitle="Direct collections, group deposits, part-payment settlement checks, and manager refund approvals."
+      eyebrow="NS LUXURY VILLA · AUDIT & FINANCIAL SETTLEMENTS"
+      title="Payments Ledger & Cashiering"
+      subtitle="Direct collections, group deposits, part-payment settlement verification, and manager refund approvals."
       actions={
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => void load()}>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
-          <Button size="sm" onClick={openModal} className="bg-[#16a4d4] text-white hover:bg-[#138db8]">
-            <Plus size={14} /> Record payment
+          <Button size="sm" onClick={openModal} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
+            <Plus size={14} /> Record Payment
           </Button>
         </div>
       }
