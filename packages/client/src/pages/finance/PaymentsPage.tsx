@@ -56,6 +56,7 @@ interface PaymentForm {
   stayId: string;
   amount: string;
   method: DirectPaymentMethod;
+  tendered?: string;
   reference: string;
   description: string;
 }
@@ -79,7 +80,7 @@ export const PaymentsPage: React.FC = () => {
   const [refundReference, setRefundReference] = useState('');
   const [refundMethod, setRefundMethod] = useState<DirectPaymentMethod>('CASH');
   const [q, setQ] = useState('');
-  const [form, setForm] = useState<PaymentForm>({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+  const [form, setForm] = useState<PaymentForm>({ stayId: '', amount: '', method: 'CASH', tendered: '', reference: '', description: '' });
   const [splitOpen, setSplitOpen] = useState(false);
   const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
   
@@ -111,11 +112,11 @@ export const PaymentsPage: React.FC = () => {
   const handleStayChange = (stayId: string) => {
     const stay = stays.find((s) => s.id === stayId) || null;
     const f = stay?.reservation.folios.find((x) => x.status === 'OPEN') ?? stay?.reservation.folios[0] ?? null;
-    setForm({ ...form, stayId, amount: f ? money(f.balance).toFixed(2) : '' });
+    setForm({ ...form, stayId, amount: f ? money(f.balance).toFixed(2) : '', tendered: '' });
   };
 
   const openModal = () => {
-    setForm({ stayId: '', amount: '', method: 'CASH', reference: '', description: '' });
+    setForm({ stayId: '', amount: '', method: 'CASH', tendered: '', reference: '', description: '' });
     setSplitOpen(false);
     setTenders([makeTenderRow()]);
     setIdempotencyKey(crypto.randomUUID());
@@ -133,6 +134,19 @@ export const PaymentsPage: React.FC = () => {
       showToast('error', 'A positive amount is required.');
       return;
     }
+    const currentBalance = money(folio.balance);
+    if (amount > currentBalance) {
+      showToast('error', `Payment cannot exceed the outstanding bill balance of ${formatCurrency(currentBalance)}.`);
+      return;
+    }
+    const cashTendered = form.method === 'CASH' && form.tendered ? Number(form.tendered) : amount;
+    if (form.method === 'CASH' && cashTendered < amount) {
+      showToast('error', 'Cash tendered cannot be less than the payment amount.');
+      return;
+    }
+    const changeDue = form.method === 'CASH' && cashTendered > amount ? cashTendered - amount : 0;
+    const settlesInFull = amount >= currentBalance;
+    const remainingAfter = Math.max(0, currentBalance - amount);
     const splitTenders = splitOpen ? parseTenders(tenders) : undefined;
     if (splitOpen && !tendersCoverTotal(tenders, amount)) {
       showToast('error', 'Tender amounts must equal the payment amount.');
@@ -140,16 +154,35 @@ export const PaymentsPage: React.FC = () => {
     }
     try {
       setBusy(true);
-      await paymentsApi.processPayment({
+      const desc = form.description?.trim()
+        ? form.description.trim()
+        : settlesInFull
+        ? `Payment received in full.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''} Balance remaining: GHS 0.00`
+        : `Partial payment recorded. Remaining balance: GHS ${remainingAfter.toFixed(2)}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''}`;
+
+      const res = await paymentsApi.processPayment({
         folioId: folio.id,
         amount,
         method: splitTenders?.[0]?.method ?? form.method,
         ...(splitTenders ? { tenders: splitTenders } : {}),
         idempotencyKey: idempotencyKey || crypto.randomUUID(),
         reference: form.reference || undefined,
-        description: form.description || undefined,
+        description: desc,
       });
-      showToast('success', 'Payment recorded and applied to the guest bill.');
+
+      const createdPayment = res?.data || res;
+      printPaymentReceipt(createdPayment || { amount, method: form.method, reference: form.reference, createdAt: new Date().toISOString() }, {
+        guestName: formatGuestName(selectedStay.guest, 'Guest'),
+        bookingRef: selectedStay.reservation.id.slice(0, 8).toUpperCase(),
+        roomNumber: String(selectedStay.room?.number ?? ''),
+        amountDue: currentBalance,
+        tenderedAmount: form.method === 'CASH' && cashTendered > amount ? cashTendered : undefined,
+        changeGiven: changeDue > 0 ? changeDue : undefined,
+        remainingBalance: remainingAfter,
+        fullySettled: settlesInFull,
+      });
+
+      showToast('success', settlesInFull ? 'Payment recorded — bill paid in full.' : 'Partial payment recorded.');
       setOpen(false);
       void load();
     } catch (e) {
@@ -483,6 +516,68 @@ export const PaymentsPage: React.FC = () => {
               </SelectInput>
             </FormField>
           </div>
+
+          {form.method === 'CASH' && !splitOpen && (
+            <FormField label="Cash tendered / handed over by guest (GHS) (optional)">
+              <TextInput
+                type="number"
+                min={Number(form.amount) || 0}
+                step="0.01"
+                placeholder={form.amount || '0.00'}
+                value={form.tendered}
+                onChange={(e) => setForm({ ...form, tendered: e.target.value })}
+              />
+            </FormField>
+          )}
+
+          {/* Settlement Check Box */}
+          {selectedStay && folio && Number(form.amount) > 0 && (
+            <div className="rounded-xl border border-[#dfe4df] bg-[#f9faf9] p-3 text-xs space-y-2">
+              <div className="flex justify-between items-center text-[#556368]">
+                <span>Money supposed to be paid:</span>
+                <span className="font-extrabold text-[#20343e]">{formatCurrency(balance)}</span>
+              </div>
+              <div className="flex justify-between items-center text-[#556368]">
+                <span>Money paid:</span>
+                <span className="font-bold text-[#20343e]">{formatCurrency(Number(form.amount))}</span>
+              </div>
+              {form.method === 'CASH' && Number(form.tendered) > Number(form.amount) && (
+                <div className="flex justify-between items-center text-[#556368]">
+                  <span>Cash tendered:</span>
+                  <span className="font-bold text-[#20343e]">{formatCurrency(Number(form.tendered))}</span>
+                </div>
+              )}
+              <div className="border-t border-[#e2e7e4] pt-2 flex justify-between items-center">
+                <span className="font-semibold text-[#445055]">Payment Classification:</span>
+                {Number(form.amount) >= balance ? (
+                  <span className="rounded-md bg-[#ecfdf5] px-2 py-0.5 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                    &#10003; Full Payment (Paid in full)
+                  </span>
+                ) : (
+                  <span className="rounded-md bg-[#fffbeb] px-2 py-0.5 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                    Part Payment / Deposit
+                  </span>
+                )}
+              </div>
+              {form.method === 'CASH' && Number(form.tendered) > Number(form.amount) && (
+                <div className="flex justify-between items-center rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[#047857] border border-[#a7f3d0]">
+                  <span className="font-bold">&#8594; Change due to guest:</span>
+                  <span className="font-extrabold text-sm">{formatCurrency(Number(form.tendered) - Number(form.amount))}</span>
+                </div>
+              )}
+              {Number(form.amount) < balance && (
+                <div className="flex justify-between items-center rounded-lg bg-[#fffbeb] px-2.5 py-1.5 text-[#b45309] border border-[#fde68a]">
+                  <span className="font-bold">&#8594; Remaining balance to be paid:</span>
+                  <span className="font-extrabold text-sm">{formatCurrency(balance - Number(form.amount))}</span>
+                </div>
+              )}
+              {Number(form.amount) >= balance && (
+                <div className="text-[11px] text-[#047857] font-semibold text-center pt-0.5">
+                  &#10003; This payment completely clears the outstanding bill.
+                </div>
+              )}
+            </div>
+          )}
 
           <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
             <input

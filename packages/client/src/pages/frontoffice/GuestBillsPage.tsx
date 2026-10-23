@@ -324,13 +324,19 @@ export const GuestBillsPage: React.FC = () => {
                         <button
                           type="button"
                           title="Print payment receipt"
-                          onClick={() =>
+                          onClick={() => {
+                            const folioBalance = money(selectedBill.folio.balance);
+                            const totalCharges = (selectedBill.folio.items || []).reduce((s: number, i: any) => s + money(i.amount), 0);
                             printPaymentReceipt(p, {
+                              type: p.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
+                              fullySettled: folioBalance <= 0.005,
                               guestName: formatGuestName(selectedBill.stay.guest, 'Guest'),
                               bookingRef: selectedBill.stay.reservation.id.slice(0, 8).toUpperCase(),
                               roomNumber: String(selectedBill.stay.room?.number ?? ''),
-                            })
-                          }
+                              amountDue: totalCharges > 0 ? totalCharges : folioBalance,
+                              remainingBalance: folioBalance,
+                            });
+                          }}
                           className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
                         >
                           <Printer size={13} />

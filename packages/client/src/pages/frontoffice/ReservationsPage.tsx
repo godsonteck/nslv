@@ -69,7 +69,7 @@ export const ReservationsPage: React.FC = () => {
 
   // Record a partial payment against an existing reservation or group
   const [depositOpen, setDepositOpen] = useState(false);
-  const [depositForm, setDepositForm] = useState({ amount: '', method: 'CASH', reference: '' });
+  const [depositForm, setDepositForm] = useState({ amount: '', method: 'CASH', reference: '', tendered: '' });
   const [depositSplitOpen, setDepositSplitOpen] = useState(false);
   const [depositTenders, setDepositTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
@@ -343,7 +343,7 @@ export const ReservationsPage: React.FC = () => {
     setDepositTargetGroup(group);
     setDetailsRes(null);
     const expected = group.balance;
-    setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '' });
+    setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '', tendered: '' });
     setDepositSplitOpen(false);
     setDepositTenders([makeTenderRow()]);
     setDepositOpen(true);
@@ -353,8 +353,10 @@ export const ReservationsPage: React.FC = () => {
     const r = detailsRes;
     if (!r) return;
     setDepositTargetGroup(null);
-    const expected = Number(r.depositAmount || 0) - recordedDepositTotal(r);
-    setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '' });
+    const balanceDue = reservationBalance(r);
+    const exp = Number(r.depositAmount || 0) - recordedDepositTotal(r);
+    const defaultAmount = exp > 0 ? exp : balanceDue;
+    setDepositForm({ amount: defaultAmount > 0 ? String(defaultAmount) : '', method: 'CASH', reference: '', tendered: '' });
     setDepositSplitOpen(false);
     setDepositTenders([makeTenderRow()]);
     setDepositOpen(true);
@@ -376,7 +378,14 @@ export const ReservationsPage: React.FC = () => {
         showToast('error', `Payment cannot exceed the outstanding group balance of ${formatCurrency(g.balance)}.`);
         return;
       }
+      const cashTendered = depositForm.method === 'CASH' && depositForm.tendered ? Number(depositForm.tendered) : amount;
+      if (depositForm.method === 'CASH' && cashTendered < amount) {
+        showToast('error', 'Cash tendered cannot be less than the payment amount.');
+        return;
+      }
+      const changeDue = depositForm.method === 'CASH' && cashTendered > amount ? cashTendered - amount : 0;
       const settlesInFull = amount >= g.balance;
+      const remainingAfter = Math.max(0, g.balance - amount);
       const splitTenders = depositSplitOpen ? parseTenders(depositTenders) : undefined;
       if (depositSplitOpen && !tendersCoverTotal(depositTenders, amount)) {
         showToast('error', 'Tender amounts must equal the partial payment amount.');
@@ -391,7 +400,10 @@ export const ReservationsPage: React.FC = () => {
           : depositForm.reference.trim()
             ? `${depositForm.reference.trim()} (Group: ${g.bookingId})`
             : `Group: ${g.bookingId}`;
-        await paymentsApi.processPayment({
+        const desc = settlesInFull
+          ? `Group payment received (paid in full) for group booking ${g.bookingId} (${g.reservations.length} rooms).${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''} Balance remaining: GHS 0.00`
+          : `Group partial payment recorded for group booking ${g.bookingId} (${g.reservations.length} rooms). Remaining balance: GHS ${remainingAfter.toFixed(2)}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''}`;
+        const res = await paymentsApi.processPayment({
           reservationId: leadRes.id,
           guestId: leadGuestId,
           amount,
@@ -402,10 +414,23 @@ export const ReservationsPage: React.FC = () => {
           sourceId: g.bookingId,
           paymentType: 'DEPOSIT',
           idempotencyKey: crypto.randomUUID(),
-          description: settlesInFull
-            ? `Group payment received (paid in full) for group booking ${g.bookingId} (${g.reservations.length} rooms)`
-            : `Group partial payment recorded for group booking ${g.bookingId} (${g.reservations.length} rooms)`,
+          description: desc,
         });
+
+        const createdPayment = res?.data || res;
+        printPaymentReceipt(createdPayment || { amount, method: depositForm.method, reference: refText, createdAt: new Date().toISOString() }, {
+          type: settlesInFull ? 'PAYMENT' : 'DEPOSIT',
+          fullySettled: settlesInFull,
+          guestName: formatGuestName(g.leadGuest),
+          bookingRef: g.bookingId,
+          isGroup: true,
+          roomCount: g.reservations.length,
+          amountDue: g.balance,
+          tenderedAmount: depositForm.method === 'CASH' && cashTendered > amount ? cashTendered : undefined,
+          changeGiven: changeDue > 0 ? changeDue : undefined,
+          remainingBalance: remainingAfter,
+        });
+
         showToast('success', settlesInFull ? 'Group payment recorded — group booking paid in full.' : 'Group partial payment recorded.');
         setDepositOpen(false);
         setDepositTargetGroup(null);
@@ -425,16 +450,23 @@ export const ReservationsPage: React.FC = () => {
       showToast('error', 'Enter a valid payment amount.');
       return;
     }
-    const remaining = Number(r.totalAmount || 0) - recordedDepositTotal(r);
-    if (remaining <= 0) {
+    const balanceDue = reservationBalance(r);
+    if (balanceDue <= 0) {
       showToast('error', 'This reservation is already paid in full.');
       return;
     }
-    if (amount > remaining) {
-      showToast('error', `Payment cannot exceed the outstanding amount of ${formatCurrency(Math.max(0, remaining))}.`);
+    if (amount > balanceDue) {
+      showToast('error', `Payment cannot exceed the outstanding amount of ${formatCurrency(Math.max(0, balanceDue))}.`);
       return;
     }
-    const settlesInFull = amount >= remaining;
+    const cashTendered = depositForm.method === 'CASH' && depositForm.tendered ? Number(depositForm.tendered) : amount;
+    if (depositForm.method === 'CASH' && cashTendered < amount) {
+      showToast('error', 'Cash tendered cannot be less than the payment amount.');
+      return;
+    }
+    const changeDue = depositForm.method === 'CASH' && cashTendered > amount ? cashTendered - amount : 0;
+    const settlesInFull = amount >= balanceDue;
+    const remainingAfter = Math.max(0, balanceDue - amount);
     const splitTenders = depositSplitOpen ? parseTenders(depositTenders) : undefined;
     if (depositSplitOpen && !tendersCoverTotal(depositTenders, amount)) {
       showToast('error', 'Tender amounts must equal the partial payment amount.');
@@ -443,7 +475,10 @@ export const ReservationsPage: React.FC = () => {
     const primaryGuest = [...(r.guests || [])].sort((a: any, b: any) => Number(b.isPrimary) - Number(a.isPrimary))[0];
     try {
       setSaving(true);
-      await paymentsApi.processPayment({
+      const desc = settlesInFull
+        ? `Payment received (paid in full) for ${r.confirmationNo || 'reservation'}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''} Balance remaining: GHS 0.00`
+        : `Partial payment recorded for ${r.confirmationNo || 'reservation'}. Remaining balance: GHS ${remainingAfter.toFixed(2)}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''}`;
+      const res = await paymentsApi.processPayment({
         reservationId: r.id,
         guestId: primaryGuest?.guestId,
         amount,
@@ -452,10 +487,22 @@ export const ReservationsPage: React.FC = () => {
         reference: depositSplitOpen ? undefined : depositForm.reference.trim() || undefined,
         paymentType: 'DEPOSIT',
         idempotencyKey: crypto.randomUUID(),
-        description: settlesInFull
-          ? `Payment received (paid in full) for ${r.confirmationNo || 'reservation'}`
-          : `Partial payment recorded for ${r.confirmationNo || 'reservation'}`,
+        description: desc,
       });
+
+      const createdPayment = res?.data || res;
+      printPaymentReceipt(createdPayment || { amount, method: depositForm.method, reference: depositForm.reference, createdAt: new Date().toISOString() }, {
+        type: settlesInFull ? 'PAYMENT' : 'DEPOSIT',
+        fullySettled: settlesInFull,
+        guestName: guestName(r.guests?.[0]?.guest),
+        bookingRef: r.bookingId || r.confirmationNo,
+        roomNumber: r.room?.number,
+        amountDue: balanceDue,
+        tenderedAmount: depositForm.method === 'CASH' && cashTendered > amount ? cashTendered : undefined,
+        changeGiven: changeDue > 0 ? changeDue : undefined,
+        remainingBalance: remainingAfter,
+      });
+
       showToast('success', settlesInFull ? 'Payment recorded — reservation paid in full.' : 'Partial payment recorded.');
       setDepositOpen(false);
       load();
@@ -1789,8 +1836,12 @@ export const ReservationsPage: React.FC = () => {
                                 onClick={() =>
                                   printPaymentReceipt(p, {
                                     type: isFullyPaid(detailsRes) ? 'PAYMENT' : 'DEPOSIT',
+                                    fullySettled: isFullyPaid(detailsRes),
                                     guestName: guestName(detailsRes.guests?.[0]?.guest),
                                     bookingRef: detailsRes.bookingId || detailsRes.confirmationNo,
+                                    roomNumber: detailsRes.room?.number,
+                                    amountDue: Number(detailsRes.totalAmount) || 0,
+                                    remainingBalance: reservationBalance(detailsRes),
                                   })
                                 }
                                 className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
@@ -2097,10 +2148,13 @@ export const ReservationsPage: React.FC = () => {
                             onClick={() =>
                               printPaymentReceipt(p, {
                                 type: selectedGroup.isFullyPaid ? 'PAYMENT' : 'DEPOSIT',
+                                fullySettled: selectedGroup.isFullyPaid,
                                 guestName: formatGuestName(selectedGroup.leadGuest),
                                 bookingRef: selectedGroup.bookingId,
                                 isGroup: true,
                                 roomCount: selectedGroup.rooms?.length,
+                                amountDue: selectedGroup.totalAmount,
+                                remainingBalance: selectedGroup.balance,
                               })
                             }
                             className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
@@ -2188,24 +2242,88 @@ export const ReservationsPage: React.FC = () => {
                   Outstanding group balance: <strong className="text-[#20343e]">{formatCurrency(depositTargetGroup.balance)}</strong> (Group total: {formatCurrency(depositTargetGroup.totalAmount)})
                 </div>
               </div>
-              <FormField label="Amount (GHS)">
-                <TextInput
-                  type="number"
-                  min={1}
-                  step="0.01"
-                  placeholder="e.g. 500"
-                  value={depositForm.amount}
-                  onChange={(e) => setDepositForm((f) => ({ ...f, amount: e.target.value }))}
-                />
-              </FormField>
-              <FormField label="Payment method">
-                <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))} disabled={depositSplitOpen}>
-                  <option value="CASH">Cash</option>
-                  <option value="CARD">Card</option>
-                  <option value="MOBILE_MONEY">Mobile Money</option>
-                  <option value="BANK_TRANSFER">Bank Transfer</option>
-                </SelectInput>
-              </FormField>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <FormField label="Amount to pay (GHS)" required>
+                  <TextInput
+                    type="number"
+                    min={1}
+                    step="0.01"
+                    placeholder="e.g. 500"
+                    value={depositForm.amount}
+                    onChange={(e) => setDepositForm((f) => ({ ...f, amount: e.target.value }))}
+                  />
+                </FormField>
+                <FormField label="Payment method" required>
+                  <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))} disabled={depositSplitOpen}>
+                    <option value="CASH">Cash</option>
+                    <option value="CARD">Card</option>
+                    <option value="MOBILE_MONEY">Mobile Money</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                  </SelectInput>
+                </FormField>
+              </div>
+
+              {depositForm.method === 'CASH' && !depositSplitOpen && (
+                <FormField label="Cash tendered / handed over by guest (GHS) (optional)">
+                  <TextInput
+                    type="number"
+                    min={Number(depositForm.amount) || 0}
+                    step="0.01"
+                    placeholder={depositForm.amount || 'e.g. 500'}
+                    value={depositForm.tendered}
+                    onChange={(e) => setDepositForm((f) => ({ ...f, tendered: e.target.value }))}
+                  />
+                </FormField>
+              )}
+
+              {/* Settlement Check Box */}
+              {Number(depositForm.amount) > 0 && (
+                <div className="rounded-xl border border-[#dfe4e1] bg-[#f9faf9] p-3 text-xs space-y-2">
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span>Money supposed to be paid:</span>
+                    <span className="font-extrabold text-[#20343e]">{formatCurrency(depositTargetGroup.balance)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span>Money paid:</span>
+                    <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.amount))}</span>
+                  </div>
+                  {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
+                    <div className="flex justify-between items-center text-[#556368]">
+                      <span>Cash tendered:</span>
+                      <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.tendered))}</span>
+                    </div>
+                  )}
+                  <div className="border-t border-[#e2e7e4] pt-2 flex justify-between items-center">
+                    <span className="font-semibold text-[#445055]">Payment Classification:</span>
+                    {Number(depositForm.amount) >= depositTargetGroup.balance ? (
+                      <span className="rounded-md bg-[#ecfdf5] px-2 py-0.5 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                        &#10003; Full Payment (Paid in full)
+                      </span>
+                    ) : (
+                      <span className="rounded-md bg-[#fffbeb] px-2 py-0.5 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                        Part Payment / Deposit
+                      </span>
+                    )}
+                  </div>
+                  {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
+                    <div className="flex justify-between items-center rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[#047857] border border-[#a7f3d0]">
+                      <span className="font-bold">&#8594; Change due to guest:</span>
+                      <span className="font-extrabold text-sm">{formatCurrency(Number(depositForm.tendered) - Number(depositForm.amount))}</span>
+                    </div>
+                  )}
+                  {Number(depositForm.amount) < depositTargetGroup.balance && (
+                    <div className="flex justify-between items-center rounded-lg bg-[#fffbeb] px-2.5 py-1.5 text-[#b45309] border border-[#fde68a]">
+                      <span className="font-bold">&#8594; Remaining balance to be paid:</span>
+                      <span className="font-extrabold text-sm">{formatCurrency(depositTargetGroup.balance - Number(depositForm.amount))}</span>
+                    </div>
+                  )}
+                  {Number(depositForm.amount) >= depositTargetGroup.balance && (
+                    <div className="text-[11px] text-[#047857] font-semibold text-center pt-0.5">
+                      &#10003; This payment completely clears the outstanding group balance.
+                    </div>
+                  )}
+                </div>
+              )}
 
               <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
                 <input
@@ -2265,24 +2383,89 @@ export const ReservationsPage: React.FC = () => {
                   Amount cannot exceed {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}
                 </div>
               </div>
-              <FormField label="Amount (GHS)">
-                <TextInput
-                  type="number"
-                  min={1}
-                  step="0.01"
-                  placeholder="e.g. 500"
-                  value={depositForm.amount}
-                  onChange={(e) => setDepositForm((f) => ({ ...f, amount: e.target.value }))}
-                />
-              </FormField>
-              <FormField label="Payment method">
-                <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))} disabled={depositSplitOpen}>
-                  <option value="CASH">Cash</option>
-                  <option value="CARD">Card</option>
-                  <option value="MOBILE_MONEY">Mobile Money</option>
-                  <option value="BANK_TRANSFER">Bank Transfer</option>
-                </SelectInput>
-              </FormField>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <FormField label="Amount to pay (GHS)" required>
+                  <TextInput
+                    type="number"
+                    min={1}
+                    step="0.01"
+                    placeholder="e.g. 500"
+                    value={depositForm.amount}
+                    onChange={(e) => setDepositForm((f) => ({ ...f, amount: e.target.value }))}
+                  />
+                </FormField>
+                <FormField label="Payment method" required>
+                  <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))} disabled={depositSplitOpen}>
+                    <option value="CASH">Cash</option>
+                    <option value="CARD">Card</option>
+                    <option value="MOBILE_MONEY">Mobile Money</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                  </SelectInput>
+                </FormField>
+              </div>
+
+              {depositForm.method === 'CASH' && !depositSplitOpen && (
+                <FormField label="Cash tendered / handed over by guest (GHS) (optional)">
+                  <TextInput
+                    type="number"
+                    min={Number(depositForm.amount) || 0}
+                    step="0.01"
+                    placeholder={depositForm.amount || 'e.g. 500'}
+                    value={depositForm.tendered}
+                    onChange={(e) => setDepositForm((f) => ({ ...f, tendered: e.target.value }))}
+                  />
+                </FormField>
+              )}
+
+              {/* Settlement Check Box */}
+              {Number(depositForm.amount) > 0 && (
+                <div className="rounded-xl border border-[#dfe4e1] bg-[#f9faf9] p-3 text-xs space-y-2">
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span>Money supposed to be paid:</span>
+                    <span className="font-extrabold text-[#20343e]">{formatCurrency(reservationBalance(detailsRes))}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span>Money paid:</span>
+                    <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.amount))}</span>
+                  </div>
+                  {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
+                    <div className="flex justify-between items-center text-[#556368]">
+                      <span>Cash tendered:</span>
+                      <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.tendered))}</span>
+                    </div>
+                  )}
+                  <div className="border-t border-[#e2e7e4] pt-2 flex justify-between items-center">
+                    <span className="font-semibold text-[#445055]">Payment Classification:</span>
+                    {Number(depositForm.amount) >= reservationBalance(detailsRes) ? (
+                      <span className="rounded-md bg-[#ecfdf5] px-2 py-0.5 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                        &#10003; Full Payment (Paid in full)
+                      </span>
+                    ) : (
+                      <span className="rounded-md bg-[#fffbeb] px-2 py-0.5 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                        Part Payment / Deposit
+                      </span>
+                    )}
+                  </div>
+                  {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
+                    <div className="flex justify-between items-center rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[#047857] border border-[#a7f3d0]">
+                      <span className="font-bold">&#8594; Change due to guest:</span>
+                      <span className="font-extrabold text-sm">{formatCurrency(Number(depositForm.tendered) - Number(depositForm.amount))}</span>
+                    </div>
+                  )}
+                  {Number(depositForm.amount) < reservationBalance(detailsRes) && (
+                    <div className="flex justify-between items-center rounded-lg bg-[#fffbeb] px-2.5 py-1.5 text-[#b45309] border border-[#fde68a]">
+                      <span className="font-bold">&#8594; Remaining balance to be paid:</span>
+                      <span className="font-extrabold text-sm">{formatCurrency(reservationBalance(detailsRes) - Number(depositForm.amount))}</span>
+                    </div>
+                  )}
+                  {Number(depositForm.amount) >= reservationBalance(detailsRes) && (
+                    <div className="text-[11px] text-[#047857] font-semibold text-center pt-0.5">
+                      &#10003; This payment completely clears the outstanding reservation balance.
+                    </div>
+                  )}
+                </div>
+              )}
 
               <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
                 <input
