@@ -46,6 +46,7 @@ export interface CreateMultiReservationDTO {
   specialRequests?: string;
   notes?: string;
   createdBy?: string;
+  bookingId?: string;
   /** Optional single partial payment collected for the entire group */
   depositAmount?: number;
   depositMethod?: PaymentMethod | string;
@@ -394,11 +395,15 @@ export class ReservationService {
     });
 
     // A confirmed reservation owns the room until it is cancelled or the
-    // guest checks in. Check-in changes this marker to OCCUPIED.
-    await tx.room.update({
-      where: { id: data.roomId },
-      data: { status: RoomStatus.RESERVED },
-    });
+    // guest checks in. If check-in is today or past, mark the room as RESERVED.
+    // Future reservations leave the room AVAILABLE today.
+    const isDueToday = checkIn.toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10);
+    if (isDueToday) {
+      await tx.room.update({
+        where: { id: data.roomId },
+        data: { status: RoomStatus.RESERVED },
+      });
+    }
 
     // Record any partial payment collected at booking time as a real deposit
     // on the payments ledger. It is linked to the reservation so check-in can
@@ -447,7 +452,7 @@ export class ReservationService {
     }
 
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const bookingId = `BK-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
+    const bookingId = data.bookingId?.trim() || `BK-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
     try {
       const { reservations, totalGroupAmount } = await prisma.$transaction(

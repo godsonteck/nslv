@@ -346,7 +346,7 @@ export const createReservationSchema = z.object({
   depositAmount: nonNegativeNumber.optional(),
   depositMethod: paymentMethodSchema.optional(),
   depositReference: z.string().max(100).trim().optional(),
-  bookingId: uuidSchema.optional(),
+  bookingId: z.string().trim().max(100).optional().nullable(),
   additionalGuestIds: z.array(uuidSchema).optional(),
 });
 /** Changes allowed before a guest has checked in. Rates are always recalculated by the server. */
@@ -358,6 +358,7 @@ export const updateReservationSchema = z.object({
 });
 export const createMultiReservationSchema = z.object({
   ...reservationCommon,
+  bookingId: z.string().trim().max(100).optional().nullable(),
   depositAmount: nonNegativeNumber.optional(),
   depositMethod: paymentMethodSchema.optional(),
   depositReference: z.string().max(100).trim().optional(),

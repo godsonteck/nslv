@@ -49,13 +49,18 @@ export const ReservationsPage: React.FC = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [roomLines, setRoomLines] = useState<RoomLine[]>([]);
   const [bookingDates, setBookingDates] = useState({ checkInDate: '', checkOutDate: '' });
-  const [groupDeposit, setGroupDeposit] = useState({ amount: '', method: 'CASH', reference: '' });
+  const [groupDeposit, setGroupDeposit] = useState({ amount: '', method: 'CASH', reference: '', tendered: '' });
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [depositTargetGroup, setDepositTargetGroup] = useState<any | null>(null);
   const [availableRoomIds, setAvailableRoomIds] = useState<Set<string> | null>(null);
   const [editAvailableRoomIds, setEditAvailableRoomIds] = useState<Set<string> | null>(null);
   const [editAvailabilityLoading, setEditAvailabilityLoading] = useState(false);
+
+  // Add room to an existing group party
+  const [addRoomGroup, setAddRoomGroup] = useState<any | null>(null);
+  const [addRoomForm, setAddRoomForm] = useState({ roomId: '', guestId: '', adults: '1', children: '0' });
+  const [addRoomAvailableRoomIds, setAddRoomAvailableRoomIds] = useState<Set<string> | null>(null);
 
   // Manage guests on an existing reservation
   const [manageOpen, setManageOpen] = useState(false);
@@ -180,8 +185,26 @@ export const ReservationsPage: React.FC = () => {
     if (people.length === 0 && roomLines.length === 0) {
       const p = { ...emptyPerson };
       setPeople([p]);
-      setRoomLines([emptyRoomLine(p.key)]);
+      // Default to 2 rooms so group booking is unmistakably for multiple rooms
+      setRoomLines([emptyRoomLine(p.key), emptyRoomLine(p.key)]);
+    } else if (roomLines.length <= 1) {
+      const pKey = people[0]?.key || uid();
+      if (people.length === 0) setPeople([{ ...emptyPerson, key: pKey }]);
+      setRoomLines([emptyRoomLine(pKey), emptyRoomLine(pKey)]);
     }
+  };
+
+  const setMultiRoomCount = (count: number) => {
+    const pKey = people[0]?.key || uid();
+    if (people.length === 0) setPeople([{ ...emptyPerson, key: pKey }]);
+    setRoomLines((curr) => {
+      if (curr.length === count) return curr;
+      if (curr.length < count) {
+        const added = Array.from({ length: count - curr.length }, () => emptyRoomLine(pKey));
+        return [...curr, ...added];
+      }
+      return curr.slice(0, count);
+    });
   };
 
   const closeModal = () => {
@@ -190,7 +213,7 @@ export const ReservationsPage: React.FC = () => {
     setPeople([]);
     setRoomLines([]);
     setBookingDates({ checkInDate: '', checkOutDate: '' });
-    setGroupDeposit({ amount: '', method: 'CASH', reference: '' });
+    setGroupDeposit({ amount: '', method: 'CASH', reference: '', tendered: '' });
     resetSingle();
   };
 
@@ -230,6 +253,40 @@ export const ReservationsPage: React.FC = () => {
     return map;
   };
 
+  const openAddRoomToGroup = (group: any) => {
+    setAddRoomGroup(group);
+    setAddRoomForm({ roomId: '', guestId: group.leadGuest?.id || '', adults: '1', children: '0' });
+    reservationsApi.checkAvailability(String(group.checkInDate).slice(0, 10), String(group.checkOutDate).slice(0, 10))
+      .then((res) => {
+        setAddRoomAvailableRoomIds(new Set((res.data || []).map((rm: any) => rm.id)));
+      })
+      .catch(() => setAddRoomAvailableRoomIds(null));
+  };
+
+  const submitAddRoomToGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addRoomGroup) return;
+    try {
+      setSaving(true);
+      await reservationsApi.create({
+        roomId: addRoomForm.roomId,
+        guestId: addRoomForm.guestId,
+        checkInDate: String(addRoomGroup.checkInDate).slice(0, 10),
+        checkOutDate: String(addRoomGroup.checkOutDate).slice(0, 10),
+        adults: Number(addRoomForm.adults) || 1,
+        children: Number(addRoomForm.children) || 0,
+        bookingId: addRoomGroup.bookingId,
+      });
+      showToast('success', `Room added to group booking ${addRoomGroup.bookingId}`);
+      setAddRoomGroup(null);
+      load();
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Unable to add room to group');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -237,10 +294,11 @@ export const ReservationsPage: React.FC = () => {
       if (multi) {
         if (roomLines.length === 0) throw new Error('Add at least one room to the booking.');
         const keyToGuest = await createNewGuests(people);
+        const leadGuestId = keyToGuest.get(people[0]?.key);
         const roomsPayload = roomLines.map((line) => {
           if (!line.roomId) throw new Error('Every room needs a room selected.');
-          const primaryGuestId = keyToGuest.get(line.primaryKey);
-          if (!primaryGuestId) throw new Error('Every room needs a primary guest.');
+          const primaryGuestId = keyToGuest.get(line.primaryKey) || leadGuestId;
+          if (!primaryGuestId) throw new Error('Every room needs a primary guest (or select the lead guest).');
           return {
             roomId: line.roomId,
             guestId: primaryGuestId,
@@ -783,11 +841,15 @@ export const ReservationsPage: React.FC = () => {
   const active = data.filter((x) => String(x.status).toUpperCase() === 'CHECKED_IN').length;
 
   const groupNights = Math.max(1, Math.ceil((new Date(bookingDates.checkOutDate).getTime() - new Date(bookingDates.checkInDate).getTime()) / (1000 * 3600 * 24)) || 1);
-  const groupEstimatedTotal = roomLines.reduce((sum, line) => {
+  const groupEstimatedTotal = Math.max(0, roomLines.reduce((sum, line) => {
     const room = rooms.find((r) => r.id === line.roomId);
     const price = Number(room?.roomType?.basePrice || 0);
     return sum + (price * groupNights);
-  }, 0) - (Number(form.discountAmount) || 0);
+  }, 0) - (Number(form.discountAmount) || 0));
+
+  const singleNights = Math.max(1, Math.ceil((new Date(form.checkOutDate).getTime() - new Date(form.checkInDate).getTime()) / (1000 * 3600 * 24)) || 1);
+  const singleSelectedRoom = rooms.find((r) => r.id === form.roomId);
+  const singleEstimatedTotal = Math.max(0, (Number(singleSelectedRoom?.roomType?.basePrice || 0) * singleNights) - (Number(form.discountAmount) || 0));
 
   return (
     <ShellPage
@@ -1332,11 +1394,31 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               <div className="rounded-2xl border border-[#e7ebe8] p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Rooms in this booking</div>
-                  <Button size="sm" type="button" variant="outline" onClick={() => setRoomLines((l) => [...l, emptyRoomLine(people[0]?.key || '')])}>
-                    <Plus size={13} /> Add room
-                  </Button>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Rooms in this party ({roomLines.length})</div>
+                    <div className="text-[10px] text-[#718086]">Select how many rooms this group is reserving</div>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold text-[#8a9598]">Quick size:</span>
+                    {[2, 3, 4, 5].map((cnt) => (
+                      <button
+                        key={cnt}
+                        type="button"
+                        onClick={() => setMultiRoomCount(cnt)}
+                        className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${
+                          roomLines.length === cnt
+                            ? 'bg-[#16a4d4] text-white shadow-xs'
+                            : 'border border-[#dfe4e0] bg-white text-[#718086] hover:border-[#16a4d4] hover:text-[#16a4d4]'
+                        }`}
+                      >
+                        {cnt} Rooms
+                      </button>
+                    ))}
+                    <Button size="sm" type="button" variant="outline" onClick={() => setRoomLines((l) => [...l, emptyRoomLine(people[0]?.key || '')])}>
+                      <Plus size={13} /> Add room
+                    </Button>
+                  </div>
                 </div>
                 <div className="mt-3 space-y-3">
                   {roomLines.map((line, i) => {
@@ -1344,9 +1426,9 @@ export const ReservationsPage: React.FC = () => {
                     return (
                       <div key={line.key} className="rounded-xl border border-[#eef1ee] bg-[#fbfcfa] p-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-[11px] font-extrabold text-[#20343e]">Room {i + 1}</div>
+                          <div className="text-[11px] font-extrabold text-[#20343e]">Room {i + 1} of {roomLines.length}</div>
                           {roomLines.length > 1 && (
-                            <button type="button" onClick={() => setRoomLines((arr) => arr.filter((x) => x.key !== line.key))} className="text-[#b23a3a]">
+                            <button type="button" onClick={() => setRoomLines((arr) => arr.filter((x) => x.key !== line.key))} className="text-[#b23a3a] hover:bg-red-50 p-1 rounded" title="Remove this room">
                               <Minus size={14} />
                             </button>
                           )}
@@ -1364,9 +1446,9 @@ export const ReservationsPage: React.FC = () => {
                                 ))}
                             </SelectInput>
                           </FormField>
-                          <FormField label="Primary guest (this room)" required>
-                            <SelectInput required value={line.primaryKey} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, primaryKey: e.target.value } : x)))}>
-                              <option value="">Select person</option>
+                          <FormField label="Primary guest (this room)">
+                            <SelectInput value={line.primaryKey} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, primaryKey: e.target.value } : x)))}>
+                              <option value="">Default to Lead Guest (Person 1)</option>
                               {people.map((p, pi) => (
                                 <option key={p.key} value={p.key}>
                                   Person {pi + 1} — {p.mode === 'existing' ? guests.find((g) => g.id === p.guestId) ? `${guests.find((g) => g.id === p.guestId).firstName} ${guests.find((g) => g.id === p.guestId).lastName}` : 'guest not chosen' : p.firstName && p.lastName ? `${p.firstName} ${p.lastName}` : 'new guest'}
@@ -1424,20 +1506,34 @@ export const ReservationsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Single Group Partial Payment Card */}
-              <div className="rounded-2xl border border-[#e7ebe8] bg-white p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+              {/* Group Partial Payment & Real-time Due Card */}
+              <div className="rounded-2xl border border-[#dfe4e1] bg-white p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#edf0ed] pb-2.5">
                   <div>
-                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Group Partial Payment (optional)</div>
-                    <p className="mt-0.5 text-[10px] text-[#8a9598]">Record a single deposit for the entire group booking. The remaining group balance is settled at check-in or check-out.</p>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e] flex items-center gap-1.5">
+                      <CreditCard size={14} className="text-[#16a4d4]" /> Group Financial Breakdown &amp; Payment (optional)
+                    </div>
+                    <p className="mt-0.5 text-[10px] text-[#8a9598]">Calculates total group charges, payments made, and remaining balance due.</p>
                   </div>
-                  <div className="rounded-xl bg-[#e8f2f4] px-3 py-1.5 text-right">
-                    <div className="text-[9px] font-bold uppercase text-[#16a4d4]">Estimated Group Total</div>
-                    <div className="text-sm font-extrabold text-[#0e7490]">{formatCurrency(Math.max(0, groupEstimatedTotal))}</div>
+                  <div className="flex items-center gap-2">
+                    {groupEstimatedTotal > 0 && Number(groupDeposit.amount) >= groupEstimatedTotal ? (
+                      <span className="rounded-md bg-[#ecfdf5] px-2.5 py-1 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                        ✓ Full Payment (Group)
+                      </span>
+                    ) : Number(groupDeposit.amount) > 0 ? (
+                      <span className="rounded-md bg-[#fffbeb] px-2.5 py-1 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                        Part Payment / Deposit (Group)
+                      </span>
+                    ) : (
+                      <span className="rounded-md bg-[#f3f4f6] px-2.5 py-1 text-[11px] font-extrabold text-[#6b7280] border border-[#e5e7eb]">
+                        Unpaid · Settle at check-in
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="mt-3 grid gap-4 sm:grid-cols-3">
-                  <FormField label="Amount (GHS)">
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField label="Deposit / Payment amount (GHS)">
                     <TextInput
                       type="number"
                       min="0"
@@ -1448,7 +1544,7 @@ export const ReservationsPage: React.FC = () => {
                       placeholder="0.00"
                     />
                   </FormField>
-                  <FormField label="Method" required={Number(groupDeposit.amount) > 0}>
+                  <FormField label="Payment method" required={Number(groupDeposit.amount) > 0}>
                     <SelectInput
                       required={Number(groupDeposit.amount) > 0}
                       value={groupDeposit.method}
@@ -1460,13 +1556,56 @@ export const ReservationsPage: React.FC = () => {
                       <option value="BANK_TRANSFER">Bank Transfer</option>
                     </SelectInput>
                   </FormField>
-                  <FormField label="Reference (optional)">
-                    <TextInput
-                      value={groupDeposit.reference}
-                      onChange={(e) => setGroupDeposit({ ...groupDeposit, reference: e.target.value })}
-                      placeholder="e.g. Group MoMo ref"
-                    />
-                  </FormField>
+                  {groupDeposit.method === 'CASH' && Number(groupDeposit.amount) > 0 ? (
+                    <FormField label="Cash tendered / handed over (GHS)">
+                      <TextInput
+                        type="number"
+                        min={Number(groupDeposit.amount) || 0}
+                        step="0.01"
+                        value={groupDeposit.tendered}
+                        onChange={(e) => setGroupDeposit({ ...groupDeposit, tendered: e.target.value })}
+                        placeholder={groupDeposit.amount || '0.00'}
+                      />
+                    </FormField>
+                  ) : (
+                    <FormField label="Reference (optional)">
+                      <TextInput
+                        value={groupDeposit.reference}
+                        onChange={(e) => setGroupDeposit({ ...groupDeposit, reference: e.target.value })}
+                        placeholder="e.g. Group MoMo ref"
+                      />
+                    </FormField>
+                  )}
+                </div>
+
+                {/* Live Real-time Due & Settlement Box */}
+                <div className="rounded-xl border border-[#dfe4e1] bg-[#f9faf9] p-3 text-xs space-y-2">
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span className="font-semibold">Total money supposed to be paid (Group Total):</span>
+                    <span className="font-extrabold text-[#20343e] text-sm">{formatCurrency(groupEstimatedTotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span>Money paid now (Deposit):</span>
+                    <span className="font-bold text-[#2e7d32]">{formatCurrency(Number(groupDeposit.amount) || 0)}</span>
+                  </div>
+                  {groupDeposit.method === 'CASH' && Number(groupDeposit.tendered) > Number(groupDeposit.amount) && (
+                    <div className="flex justify-between items-center text-[#556368]">
+                      <span>Cash tendered:</span>
+                      <span className="font-bold text-[#20343e]">{formatCurrency(Number(groupDeposit.tendered))}</span>
+                    </div>
+                  )}
+                  {groupDeposit.method === 'CASH' && Number(groupDeposit.tendered) > Number(groupDeposit.amount) && (
+                    <div className="flex justify-between items-center rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[#047857] border border-[#a7f3d0]">
+                      <span className="font-bold">&#8594; Change due to guest:</span>
+                      <span className="font-extrabold text-sm">{formatCurrency(Number(groupDeposit.tendered) - Number(groupDeposit.amount))}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center rounded-lg bg-[#f0f8fa] px-2.5 py-1.5 text-[#0e5a6a] border border-[#cbe3e9] mt-1">
+                    <span className="font-bold">&#8594; Remaining money due (Group Balance left):</span>
+                    <span className="font-extrabold text-sm text-[#b0743a]">
+                      {formatCurrency(Math.max(0, groupEstimatedTotal - (Number(groupDeposit.amount) || 0)))}
+                    </span>
+                  </div>
                 </div>
               </div>
             </>
@@ -1570,14 +1709,35 @@ export const ReservationsPage: React.FC = () => {
                 </FormField>
               </div>
 
-              <div className="rounded-2xl border border-[#e7ebe8] p-4">
-                <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Partial payment (optional)</div>
-                <p className="mt-0.5 text-[10px] text-[#8a9598]">Record a deposit now. The full balance is settled at check-in or check-out.</p>
-                <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-[#dfe4e1] bg-white p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#edf0ed] pb-2.5">
+                  <div>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e] flex items-center gap-1.5">
+                      <CreditCard size={14} className="text-[#16a4d4]" /> Financial Breakdown &amp; Payment (optional)
+                    </div>
+                    <p className="mt-0.5 text-[10px] text-[#8a9598]">Calculates room charges, payments, and remaining money due.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {singleEstimatedTotal > 0 && Number(form.depositAmount) >= singleEstimatedTotal ? (
+                      <span className="rounded-md bg-[#ecfdf5] px-2.5 py-1 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                        ✓ Full Payment
+                      </span>
+                    ) : Number(form.depositAmount) > 0 ? (
+                      <span className="rounded-md bg-[#fffbeb] px-2.5 py-1 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                        Part Payment / Deposit
+                      </span>
+                    ) : (
+                      <span className="rounded-md bg-[#f3f4f6] px-2.5 py-1 text-[11px] font-extrabold text-[#6b7280] border border-[#e5e7eb]">
+                        Unpaid · Settle at check-in
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
                   <FormField label="Amount (GHS)">
-                    <TextInput type="number" min="0" step="0.01" value={form.depositAmount} onChange={(e) => setForm({ ...form, depositAmount: e.target.value })} placeholder="0.00" />
+                    <TextInput type="number" min="0" max={singleEstimatedTotal || undefined} step="0.01" value={form.depositAmount} onChange={(e) => setForm({ ...form, depositAmount: e.target.value })} placeholder="0.00" />
                   </FormField>
-                  <FormField label="Method" required={Number(form.depositAmount) > 0}>
+                  <FormField label="Payment method" required={Number(form.depositAmount) > 0}>
                     <SelectInput required={Number(form.depositAmount) > 0} value={form.depositMethod} onChange={(e) => setForm({ ...form, depositMethod: e.target.value })}>
                       <option value="CASH">Cash</option>
                       <option value="CARD">Card</option>
@@ -1588,6 +1748,23 @@ export const ReservationsPage: React.FC = () => {
                   <FormField label="Reference (optional)">
                     <TextInput value={form.depositReference} onChange={(e) => setForm({ ...form, depositReference: e.target.value })} placeholder="e.g. MoMo ref / card last 4" />
                   </FormField>
+                </div>
+                {/* Live Real-time Due & Settlement Box */}
+                <div className="rounded-xl border border-[#dfe4e1] bg-[#f9faf9] p-3 text-xs space-y-2">
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span className="font-semibold">Total money supposed to be paid:</span>
+                    <span className="font-extrabold text-[#20343e] text-sm">{formatCurrency(singleEstimatedTotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#556368]">
+                    <span>Money paid now (Deposit):</span>
+                    <span className="font-bold text-[#2e7d32]">{formatCurrency(Number(form.depositAmount) || 0)}</span>
+                  </div>
+                  <div className="flex justify-between items-center rounded-lg bg-[#f0f8fa] px-2.5 py-1.5 text-[#0e5a6a] border border-[#cbe3e9] mt-1">
+                    <span className="font-bold">&#8594; Remaining money due (Balance left):</span>
+                    <span className="font-extrabold text-sm text-[#b0743a]">
+                      {formatCurrency(Math.max(0, singleEstimatedTotal - (Number(form.depositAmount) || 0)))}
+                    </span>
+                  </div>
                 </div>
               </div>
             </>
@@ -1661,6 +1838,46 @@ export const ReservationsPage: React.FC = () => {
 
           return (
             <div className="p-6 space-y-6">
+              {/* Group Party Overview Banner (if part of group) */}
+              {detailsRes.bookingId && (() => {
+                const groupItem = tableItems.find((it) => it.isGroup && it.bookingId === detailsRes.bookingId) as GroupItem | undefined;
+                const groupRooms = groupItem ? groupItem.rooms : [];
+                const groupTotal = groupItem ? groupItem.totalAmount : detailsRes.totalAmount;
+                const groupPaid = groupItem ? groupItem.recordedTotal : recordedDepositTotal(detailsRes);
+                const groupBalance = groupItem ? groupItem.balance : reservationBalance(detailsRes);
+                return (
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#b8dde6] bg-[#edf6f8] p-4 text-xs text-[#0e5a6a]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="rounded-xl bg-[#d5edf2] p-2 text-[#16a4d4]">
+                        <Users size={18} />
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-[#09414d] flex items-center gap-2">
+                          <span>Group Booking {detailsRes.bookingId}</span>
+                          <span className="rounded-full bg-[#16a4d4] px-2 py-0.5 text-[10px] font-bold text-white">
+                            {groupRooms.length} Room{groupRooms.length !== 1 ? 's' : ''} in Party
+                          </span>
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-[#4d7882]">
+                          Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[#09414d]">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-[#2e7d32]">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[#b0743a]">{formatCurrency(groupBalance)}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const bid = detailsRes.bookingId;
+                        setDetailsRes(null);
+                        setSelectedGroupId(bid);
+                      }}
+                      className="flex items-center gap-1.5 rounded-xl bg-[#16a4d4] px-3 py-1.5 text-xs font-extrabold text-white shadow-sm hover:bg-[#138db8] transition"
+                    >
+                      View Entire Group <ChevronRight size={13} />
+                    </button>
+                  </div>
+                );
+              })()}
+
               {/* Header Overview Card */}
               <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#e8ebe8] bg-[#f7f9f8] p-5">
                 <div>
@@ -1783,9 +2000,25 @@ export const ReservationsPage: React.FC = () => {
 
               {/* Financial Summary Card */}
               <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
-                  <CreditCard size={14} /> Financial Summary
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                    <CreditCard size={14} /> Financial Breakdown &amp; Money Due
+                  </div>
+                  {isFullyPaid(detailsRes) ? (
+                    <span className="rounded-full bg-[#e3f3e6] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#2e7d32]">
+                      ✓ Paid in full
+                    </span>
+                  ) : recordedDepositTotal(detailsRes) > 0 ? (
+                    <span className="rounded-full bg-[#fdf3e7] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#b0743a]">
+                      Part Payment / Deposit
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-[#f3f4f6] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#6b7280]">
+                      Unpaid · Balance Due
+                    </span>
+                  )}
                 </div>
+
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
                     <span className="text-[#899397]">Nightly Base Rate</span>
@@ -1805,63 +2038,81 @@ export const ReservationsPage: React.FC = () => {
                       <span className="font-bold text-[#26363e]">{formatCurrency(detailsRes.taxAmount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between py-2 border-t-2 border-[#edf0ed] text-sm">
-                    <span className="font-extrabold text-[#20343e]">Total Reservation Amount</span>
-                    <span className="font-extrabold text-[#20343e]">{formatCurrency(detailsRes.totalAmount)}</span>
-                  </div>
-                  {(Number(detailsRes.depositAmount || 0) > 0 || recordedDepositTotal(detailsRes) > 0) && (
-                    <div className="space-y-1.5 bg-[#f7f9f8] p-2 rounded-lg">
-                      <div className="flex justify-between">
-                        <span className={`font-bold ${isFullyPaid(detailsRes) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
-                          {isFullyPaid(detailsRes) ? 'Payment · Paid in full' : 'Partial Payment'}
-                        </span>
-                        <span className={`font-extrabold ${isFullyPaid(detailsRes) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
-                          {formatCurrency(recordedDepositTotal(detailsRes))} paid
-                          {!isFullyPaid(detailsRes) && Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && ` / ${formatCurrency(detailsRes.depositAmount)} expected`}
-                        </span>
-                      </div>
-                      {recordedDeposits(detailsRes).length > 0 ? (
-                        recordedDeposits(detailsRes).map((p: any) => (
-                          <div key={p.id} className="flex items-center justify-between gap-2 text-[11px]">
-                            <span className="text-[#5f6b6f]">
-                              Recorded · {p.method}
-                              {p.reference ? ` · ${p.reference}` : ''}
-                              {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <span className="text-[#2e7d32] font-bold">{formatCurrency(p.amount)}</span>
-                              <button
-                                type="button"
-                                title="Print payment receipt"
-                                onClick={() =>
-                                  printPaymentReceipt(p, {
-                                    type: isFullyPaid(detailsRes) ? 'PAYMENT' : 'DEPOSIT',
-                                    fullySettled: isFullyPaid(detailsRes),
-                                    guestName: guestName(detailsRes.guests?.[0]?.guest),
-                                    bookingRef: detailsRes.bookingId || detailsRes.confirmationNo,
-                                    roomNumber: detailsRes.room?.number,
-                                    amountDue: Number(detailsRes.totalAmount) || 0,
-                                    remainingBalance: reservationBalance(detailsRes),
-                                  })
-                                }
-                                className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
-                              >
-                                <Printer size={12} />
-                              </button>
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-[11px] text-[#b0743a]">Not yet recorded — collect at check-in</div>
-                      )}
-                      {!isFullyPaid(detailsRes) && (
-                        <div className="flex justify-between border-t border-[#e4e9e5] pt-1.5">
-                          <span className="text-[#5f6b6f]">Balance left to pay</span>
-                          <span className="font-extrabold text-[#b0743a]">{formatCurrency(reservationBalance(detailsRes))}</span>
-                        </div>
-                      )}
+
+                  {/* Always-visible 3 KPI Tiles */}
+                  <div className="grid grid-cols-3 gap-2.5 pt-2">
+                    <div className="rounded-xl bg-[#f7f9f8] p-3 border border-[#edf0ed] text-center">
+                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#7d898d]">Total Money Due</div>
+                      <div className="text-base font-extrabold text-[#20343e] mt-0.5">{formatCurrency(detailsRes.totalAmount)}</div>
                     </div>
-                  )}
+                    <div className="rounded-xl bg-[#eef7ee] p-3 border border-[#d6ebd7] text-center">
+                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#2e7d32]">Money Paid</div>
+                      <div className="text-base font-extrabold text-[#2e7d32] mt-0.5">{formatCurrency(recordedDepositTotal(detailsRes))}</div>
+                    </div>
+                    <div className={`rounded-xl p-3 border text-center ${reservationBalance(detailsRes) > 0 ? 'bg-[#fdf6ee] border-[#fae2c8]' : 'bg-[#eef7ee] border-[#d6ebd7]'}`}>
+                      <div className={`text-[10px] font-extrabold uppercase tracking-wider ${reservationBalance(detailsRes) > 0 ? 'text-[#b0743a]' : 'text-[#2e7d32]'}`}>
+                        Remaining Money Due
+                      </div>
+                      <div className={`text-base font-extrabold mt-0.5 ${reservationBalance(detailsRes) > 0 ? 'text-[#b0743a]' : 'text-[#2e7d32]'}`}>
+                        {formatCurrency(reservationBalance(detailsRes))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Ledger / History */}
+                  <div className="space-y-1.5 bg-[#f7f9f8] p-3 rounded-xl border border-[#edf0ed] mt-2">
+                    <div className="flex justify-between items-center">
+                      <span className={`font-bold ${isFullyPaid(detailsRes) ? 'text-[#2e7d32]' : recordedDepositTotal(detailsRes) > 0 ? 'text-[#16a4d4]' : 'text-[#7d898d]'}`}>
+                        {isFullyPaid(detailsRes) ? 'Payment Status: Paid in full' : recordedDepositTotal(detailsRes) > 0 ? 'Payment Status: Part Payment / Deposit' : 'Payment Status: Unpaid · Due at check-in'}
+                      </span>
+                      <span className={`font-extrabold ${isFullyPaid(detailsRes) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                        {formatCurrency(recordedDepositTotal(detailsRes))} paid
+                        {!isFullyPaid(detailsRes) && Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && ` / ${formatCurrency(detailsRes.depositAmount)} expected`}
+                      </span>
+                    </div>
+                    {recordedDeposits(detailsRes).length > 0 ? (
+                      recordedDeposits(detailsRes).map((p: any) => (
+                        <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1.5 border-t border-[#edf0ed]">
+                          <span className="text-[#5f6b6f]">
+                            Recorded · {p.method}
+                            {p.reference ? ` · ${p.reference}` : ''}
+                            {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-[#2e7d32] font-bold">{formatCurrency(p.amount)}</span>
+                            <button
+                              type="button"
+                              title="Print payment receipt"
+                              onClick={() =>
+                                printPaymentReceipt(p, {
+                                  type: isFullyPaid(detailsRes) ? 'PAYMENT' : 'DEPOSIT',
+                                  fullySettled: isFullyPaid(detailsRes),
+                                  guestName: guestName(detailsRes.guests?.[0]?.guest),
+                                  bookingRef: detailsRes.bookingId || detailsRes.confirmationNo,
+                                  roomNumber: detailsRes.room?.number,
+                                  amountDue: Number(detailsRes.totalAmount) || 0,
+                                  remainingBalance: reservationBalance(detailsRes),
+                                })
+                              }
+                              className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
+                            >
+                              <Printer size={12} />
+                            </button>
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-[11px] text-[#b0743a] pt-1 border-t border-[#edf0ed]">
+                        No payment recorded yet — collect partial payment or full amount at check-in.
+                      </div>
+                    )}
+                    {!isFullyPaid(detailsRes) && (
+                      <div className="flex justify-between border-t border-[#e4e9e5] pt-2 mt-1">
+                        <span className="text-[#5f6b6f] font-semibold">Remaining balance left to pay:</span>
+                        <span className="font-extrabold text-[#b0743a]">{formatCurrency(reservationBalance(detailsRes))}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
