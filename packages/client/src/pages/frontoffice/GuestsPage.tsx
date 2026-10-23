@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { guestsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { Plus, RefreshCw, UserRound, Search, Mail, Phone, MapPin, Calendar, CreditCard, BedDouble, Shield, Sparkles, Pencil, Eye } from 'lucide-react';
+import { Plus, RefreshCw, UserRound, Search, Mail, Phone, MapPin, Calendar, CreditCard, BedDouble, Shield, Sparkles, Pencil, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
@@ -15,6 +15,8 @@ export const GuestsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showMoreCreate, setShowMoreCreate] = useState(false);
+  const [showMoreEdit, setShowMoreEdit] = useState(false);
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -507,7 +509,7 @@ export const GuestsPage: React.FC = () => {
       </Modal>
 
       {/* Create Guest Modal */}
-      <Modal open={open} onClose={() => setOpen(false)} title="Create guest profile" size="lg">
+      <Modal open={open} onClose={() => setOpen(false)} title="Create guest profile" size="md">
         <form onSubmit={saveNewGuest} className="space-y-4 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="First name" required>
@@ -528,7 +530,14 @@ export const GuestsPage: React.FC = () => {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Email">
+            <FormField label="Phone number">
+              <TextInput
+                placeholder="+233..."
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+            </FormField>
+            <FormField label="Email address (optional)">
               <TextInput
                 type="email"
                 placeholder="guest@example.com"
@@ -536,86 +545,9 @@ export const GuestsPage: React.FC = () => {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
             </FormField>
-            <FormField label="Phone">
-              <TextInput
-                placeholder="+233..."
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </FormField>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Address">
-              <TextInput
-                placeholder="Street address"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-            </FormField>
-            <FormField label="City">
-              <TextInput
-                placeholder="City / Region"
-                value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Country">
-              <TextInput
-                placeholder="Country"
-                value={form.country}
-                onChange={(e) => setForm({ ...form, country: e.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Document Type">
-              <SelectInput
-                value={form.idDocumentType}
-                onChange={(e) => setForm({ ...form, idDocumentType: e.target.value })}
-              >
-                <option value="">Select document type…</option>
-                <option value="PASSPORT">Passport</option>
-                <option value="NATIONAL_ID">National ID / Ghana Card</option>
-                <option value="DRIVERS_LICENSE">Driver's License</option>
-                <option value="OTHER">Other</option>
-              </SelectInput>
-            </FormField>
-            <FormField label="Document Number">
-              <TextInput
-                placeholder="Document #"
-                value={form.idDocumentNumber}
-                onChange={(e) => setForm({ ...form, idDocumentNumber: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Nationality">
-              <TextInput
-                placeholder="Nationality"
-                value={form.nationality}
-                onChange={(e) => setForm({ ...form, nationality: e.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Preferences">
-              <TextInput
-                placeholder="e.g. High floor, quiet room"
-                value={form.preferences}
-                onChange={(e) => setForm({ ...form, preferences: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Staff notes">
-              <TextInput
-                placeholder="Internal notes"
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1">
             <input
               type="checkbox"
               id="vip-check"
@@ -626,6 +558,92 @@ export const GuestsPage: React.FC = () => {
             <label htmlFor="vip-check" className="text-xs font-bold text-[#26363e]">
               Mark as VIP Guest
             </label>
+          </div>
+
+          {/* Optional Extended Details Collapsible */}
+          <div className="border-t border-[#edf0ed] pt-3">
+            <button
+              type="button"
+              onClick={() => setShowMoreCreate(!showMoreCreate)}
+              className="flex w-full items-center justify-between rounded-xl bg-[#f7f9f8] px-3.5 py-2.5 text-xs font-bold text-[#4c5a60] hover:bg-[#eff3f1] transition-colors"
+            >
+              <span>{showMoreCreate ? '− Hide additional details' : '+ Additional details (ID Document, Address, Notes — Optional)'}</span>
+              {showMoreCreate ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+            </button>
+
+            {showMoreCreate && (
+              <div className="mt-3 space-y-3.5 rounded-xl border border-[#e8ebe8] bg-white p-3.5">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField label="Document Type">
+                    <SelectInput
+                      value={form.idDocumentType}
+                      onChange={(e) => setForm({ ...form, idDocumentType: e.target.value })}
+                    >
+                      <option value="">Select document type…</option>
+                      <option value="PASSPORT">Passport</option>
+                      <option value="NATIONAL_ID">National ID / Ghana Card</option>
+                      <option value="DRIVERS_LICENSE">Driver's License</option>
+                      <option value="OTHER">Other</option>
+                    </SelectInput>
+                  </FormField>
+                  <FormField label="Document Number">
+                    <TextInput
+                      placeholder="Document #"
+                      value={form.idDocumentNumber}
+                      onChange={(e) => setForm({ ...form, idDocumentNumber: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Nationality">
+                    <TextInput
+                      placeholder="Nationality"
+                      value={form.nationality}
+                      onChange={(e) => setForm({ ...form, nationality: e.target.value })}
+                    />
+                  </FormField>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField label="Address">
+                    <TextInput
+                      placeholder="Street address"
+                      value={form.address}
+                      onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="City">
+                    <TextInput
+                      placeholder="City / Region"
+                      value={form.city}
+                      onChange={(e) => setForm({ ...form, city: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Country">
+                    <TextInput
+                      placeholder="Country"
+                      value={form.country}
+                      onChange={(e) => setForm({ ...form, country: e.target.value })}
+                    />
+                  </FormField>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField label="Preferences">
+                    <TextInput
+                      placeholder="e.g. High floor, quiet room"
+                      value={form.preferences}
+                      onChange={(e) => setForm({ ...form, preferences: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Staff notes">
+                    <TextInput
+                      placeholder="Internal notes"
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    />
+                  </FormField>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t border-[#edf0ed]">
@@ -640,7 +658,7 @@ export const GuestsPage: React.FC = () => {
       </Modal>
 
       {/* Edit Guest Modal */}
-      <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit guest profile" size="lg">
+      <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit guest profile" size="md">
         <form onSubmit={saveEditGuest} className="space-y-4 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="First name" required>
@@ -659,85 +677,22 @@ export const GuestsPage: React.FC = () => {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Email">
+            <FormField label="Phone number">
+              <TextInput
+                value={editForm.phone}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+              />
+            </FormField>
+            <FormField label="Email address (optional)">
               <TextInput
                 type="email"
                 value={editForm.email}
                 onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
               />
             </FormField>
-            <FormField label="Phone">
-              <TextInput
-                value={editForm.phone}
-                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-              />
-            </FormField>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Address">
-              <TextInput
-                value={editForm.address}
-                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-              />
-            </FormField>
-            <FormField label="City">
-              <TextInput
-                value={editForm.city}
-                onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Country">
-              <TextInput
-                value={editForm.country}
-                onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Document Type">
-              <SelectInput
-                value={editForm.idDocumentType}
-                onChange={(e) => setEditForm({ ...editForm, idDocumentType: e.target.value })}
-              >
-                <option value="">Select document type…</option>
-                <option value="PASSPORT">Passport</option>
-                <option value="NATIONAL_ID">National ID / Ghana Card</option>
-                <option value="DRIVERS_LICENSE">Driver's License</option>
-                <option value="OTHER">Other</option>
-              </SelectInput>
-            </FormField>
-            <FormField label="Document Number">
-              <TextInput
-                value={editForm.idDocumentNumber}
-                onChange={(e) => setEditForm({ ...editForm, idDocumentNumber: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Nationality">
-              <TextInput
-                value={editForm.nationality}
-                onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Preferences">
-              <TextInput
-                value={editForm.preferences}
-                onChange={(e) => setEditForm({ ...editForm, preferences: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Staff notes">
-              <TextInput
-                value={editForm.notes}
-                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1">
             <input
               type="checkbox"
               id="vip-edit-check"
@@ -748,6 +703,85 @@ export const GuestsPage: React.FC = () => {
             <label htmlFor="vip-edit-check" className="text-xs font-bold text-[#26363e]">
               Mark as VIP Guest
             </label>
+          </div>
+
+          {/* Optional Extended Details Collapsible */}
+          <div className="border-t border-[#edf0ed] pt-3">
+            <button
+              type="button"
+              onClick={() => setShowMoreEdit(!showMoreEdit)}
+              className="flex w-full items-center justify-between rounded-xl bg-[#f7f9f8] px-3.5 py-2.5 text-xs font-bold text-[#4c5a60] hover:bg-[#eff3f1] transition-colors"
+            >
+              <span>{showMoreEdit ? '− Hide additional details' : '+ Additional details (ID Document, Address, Notes — Optional)'}</span>
+              {showMoreEdit ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+            </button>
+
+            {showMoreEdit && (
+              <div className="mt-3 space-y-3.5 rounded-xl border border-[#e8ebe8] bg-white p-3.5">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField label="Document Type">
+                    <SelectInput
+                      value={editForm.idDocumentType}
+                      onChange={(e) => setEditForm({ ...editForm, idDocumentType: e.target.value })}
+                    >
+                      <option value="">Select document type…</option>
+                      <option value="PASSPORT">Passport</option>
+                      <option value="NATIONAL_ID">National ID / Ghana Card</option>
+                      <option value="DRIVERS_LICENSE">Driver's License</option>
+                      <option value="OTHER">Other</option>
+                    </SelectInput>
+                  </FormField>
+                  <FormField label="Document Number">
+                    <TextInput
+                      value={editForm.idDocumentNumber}
+                      onChange={(e) => setEditForm({ ...editForm, idDocumentNumber: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Nationality">
+                    <TextInput
+                      value={editForm.nationality}
+                      onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })}
+                    />
+                  </FormField>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField label="Address">
+                    <TextInput
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="City">
+                    <TextInput
+                      value={editForm.city}
+                      onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Country">
+                    <TextInput
+                      value={editForm.country}
+                      onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                    />
+                  </FormField>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField label="Preferences">
+                    <TextInput
+                      value={editForm.preferences}
+                      onChange={(e) => setEditForm({ ...editForm, preferences: e.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Staff notes">
+                    <TextInput
+                      value={editForm.notes}
+                      onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                    />
+                  </FormField>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t border-[#edf0ed]">

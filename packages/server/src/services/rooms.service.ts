@@ -198,26 +198,43 @@ export class RoomService {
     });
   }
 
-  /** Repair legacy AVAILABLE room markers without overwriting staff overrides. */
+  /** Repair room markers without overwriting staff overrides. Only reservations active today mark rooms RESERVED. */
   static async syncBookingStatuses() {
     return prisma.$transaction(async (tx) => {
       const activeStays = await tx.checkIn.findMany({
-        where: { reservation: { status: 'CHECKED_IN' }, room: { status: 'AVAILABLE' } },
+        where: { reservation: { status: 'CHECKED_IN' } },
         select: { roomId: true },
       });
       const occupiedIds = [...new Set(activeStays.map((stay: { roomId: string }) => stay.roomId))];
       const occupied = occupiedIds.length
-        ? await tx.room.updateMany({ where: { id: { in: occupiedIds }, status: 'AVAILABLE' }, data: { status: 'OCCUPIED' } })
+        ? await tx.room.updateMany({ where: { id: { in: occupiedIds }, status: { in: ['AVAILABLE', 'RESERVED'] } }, data: { status: 'OCCUPIED' } })
         : { count: 0 };
 
+      const now = new Date();
       const activeReservations = await tx.reservation.findMany({
-        where: { status: { in: ['PENDING', 'CONFIRMED'] }, room: { status: 'AVAILABLE' } },
+        where: {
+          status: { in: ['PENDING', 'CONFIRMED'] },
+          checkInDate: { lte: now },
+          checkOutDate: { gt: now },
+        },
         select: { roomId: true },
       });
-      const reservedIds = [...new Set(activeReservations.map((reservation: { roomId: string }) => reservation.roomId))];
+      const reservedIds = [...new Set(activeReservations.map((reservation: { roomId: string }) => reservation.roomId))].filter(
+        (id) => !occupiedIds.includes(id),
+      );
+
       const reserved = reservedIds.length
         ? await tx.room.updateMany({ where: { id: { in: reservedIds }, status: 'AVAILABLE' }, data: { status: 'RESERVED' } })
         : { count: 0 };
+
+      // Release rooms marked RESERVED that do not have a reservation covering today back to AVAILABLE
+      await tx.room.updateMany({
+        where: {
+          status: 'RESERVED',
+          id: { notIn: reservedIds },
+        },
+        data: { status: 'AVAILABLE' },
+      });
 
       return { occupied: occupied.count, reserved: reserved.count };
     });

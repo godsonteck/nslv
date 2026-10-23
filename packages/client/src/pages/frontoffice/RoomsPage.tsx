@@ -149,56 +149,66 @@ export const RoomsPage: React.FC = () => {
       })
       .sort((a: any, b: any) => new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime());
 
+    const today = new Date().toISOString().slice(0, 10);
+
     if (dateFilter) {
       // Date filter active: match reservations covering the specified date or range
       const matchingRes = roomReservations.find((res: any) => {
+        if (['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase())) return false;
         const cin = String(res.checkInDate).slice(0, 10);
         const cout = String(res.checkOutDate).slice(0, 10);
         if (endDateFilter && endDateFilter > dateFilter) {
           return cin < endDateFilter && cout > dateFilter;
         }
-        return cin <= dateFilter && dateFilter <= cout;
+        // A reservation covers [checkIn, checkOut). On the checkout date, the room becomes available.
+        return cin <= dateFilter && dateFilter < cout;
       });
 
       if (matchingRes) {
         const eff = String(matchingRes.status).toUpperCase() === 'CHECKED_IN' ? 'OCCUPIED' : 'RESERVED';
-        return { effectiveStatus: eff, activeReservation: matchingRes };
+        return { effectiveStatus: eff, activeReservation: matchingRes, upcomingReservation: null };
       }
 
       if (['MAINTENANCE', 'OUT_OF_SERVICE'].includes(r.status)) {
-        return { effectiveStatus: r.status, activeReservation: null };
+        return { effectiveStatus: r.status, activeReservation: null, upcomingReservation: null };
       }
 
-      return { effectiveStatus: 'AVAILABLE', activeReservation: null };
+      return { effectiveStatus: 'AVAILABLE', activeReservation: null, upcomingReservation: null };
     }
 
-    // Default view (no date filter):
-    // 1. Any in-house checked in guest -> OCCUPIED
+    // Default view (today):
+    // 1. Any in-house checked-in guest -> OCCUPIED
     const inHouseRes = roomReservations.find((res: any) => String(res.status).toUpperCase() === 'CHECKED_IN');
     if (inHouseRes) {
-      return { effectiveStatus: 'OCCUPIED', activeReservation: inHouseRes };
+      return { effectiveStatus: 'OCCUPIED', activeReservation: inHouseRes, upcomingReservation: null };
     }
 
-    // 2. Any active reservation (party booking or single booking) covering today or upcoming -> RESERVED
-    const today = new Date().toISOString().slice(0, 10);
-    const activeRes =
-      roomReservations.find((res: any) => {
-        const cin = String(res.checkInDate).slice(0, 10);
-        const cout = String(res.checkOutDate).slice(0, 10);
-        return cin <= today && today <= cout;
-      }) ||
-      roomReservations.find((res: any) => ['CONFIRMED', 'PENDING'].includes(String(res.status).toUpperCase()));
+    // 2. An active reservation covering TODAY (arrival due today or currently staying) -> RESERVED
+    const activeResToday = roomReservations.find((res: any) => {
+      if (['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase())) return false;
+      const cin = String(res.checkInDate).slice(0, 10);
+      const cout = String(res.checkOutDate).slice(0, 10);
+      return cin <= today && today < cout;
+    });
 
-    if (activeRes) {
-      return { effectiveStatus: 'RESERVED', activeReservation: activeRes };
+    if (activeResToday) {
+      return { effectiveStatus: 'RESERVED', activeReservation: activeResToday, upcomingReservation: null };
     }
+
+    // Upcoming future reservation (for information only — room is AVAILABLE today until that date arrives)
+    const upcomingRes = roomReservations.find((res: any) => {
+      if (['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase())) return false;
+      const cin = String(res.checkInDate).slice(0, 10);
+      return cin > today;
+    });
 
     // 3. Operational conditions
     if (['MAINTENANCE', 'OUT_OF_SERVICE', 'DIRTY', 'CLEANING'].includes(r.status)) {
-      return { effectiveStatus: r.status, activeReservation: null };
+      return { effectiveStatus: r.status, activeReservation: null, upcomingReservation: upcomingRes };
     }
 
-    return { effectiveStatus: r.status || 'AVAILABLE', activeReservation: null };
+    // 4. Room is AVAILABLE today
+    return { effectiveStatus: 'AVAILABLE', activeReservation: null, upcomingReservation: upcomingRes };
   };
 
   const roomStates = new Map<string, { effectiveStatus: string; activeReservation: any }>();
@@ -501,9 +511,10 @@ export const RoomsPage: React.FC = () => {
         ) : (
           <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {displayRooms.map((r) => {
-              const { effectiveStatus, activeReservation } = roomStates.get(r.id) || {
+              const { effectiveStatus, activeReservation, upcomingReservation } = (roomStates.get(r.id) as any) || {
                 effectiveStatus: r.status || 'AVAILABLE',
                 activeReservation: null,
+                upcomingReservation: null,
               };
               return (
                 <div key={r.id} className="group rounded-[20px] border border-[#e7ebe8] bg-[#fbfcfa] p-4 transition hover:-translate-y-0.5 hover:border-[#cfd8d3] hover:bg-white flex flex-col justify-between">
@@ -532,6 +543,16 @@ export const RoomsPage: React.FC = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Available now but has upcoming booking later */}
+                    {effectiveStatus === 'AVAILABLE' && upcomingReservation && !dateFilter && (
+                      <div className="mt-2.5 flex items-center justify-between rounded-xl border border-dashed border-[#b8dfce] bg-[#f0fdf4] px-2.5 py-1.5 text-[10px] text-[#15803d]">
+                        <span>Available now · Next guest:</span>
+                        <span className="font-extrabold font-mono text-[#166534]">
+                          {new Date(upcomingReservation.checkInDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Active reservation card (party booking or individual reservation) */}
                     {activeReservation && (

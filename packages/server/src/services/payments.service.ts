@@ -47,7 +47,7 @@ export class PaymentService {
     if (filters?.guestId) where.guestId = filters.guestId;
     const payments = await prisma.payment.findMany({
       where,
-      include: { guest: true, reservation: true, folio: true },
+      include: { guest: true, reservation: { include: { room: true } }, folio: true },
       orderBy: { processedAt: 'desc' },
     });
 
