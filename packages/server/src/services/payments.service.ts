@@ -100,7 +100,7 @@ export class PaymentService {
     }
     if (!data.folioId && !data.reservationId) throw new Error('A folio or reservation is required for a payment.');
 
-    const paymentType = data.paymentType || 'PAYMENT';
+    let paymentType = data.paymentType || 'PAYMENT';
     const existing = tx.payment?.findUnique ? await tx.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } }) : null;
     if (existing) {
       if (existing.type !== paymentType) throw new AppError('This idempotency key belongs to a different transaction.', 409, 'IDEMPOTENCY_KEY_REUSED');
@@ -127,6 +127,17 @@ export class PaymentService {
     if (paymentType === 'PAYMENT' && !targetFolio) throw new Error('Open folio not found.');
 
     const amount = new Prisma.Decimal(data.amount);
+
+    // Auto-classify: if the caller did not explicitly request DEPOSIT and the
+    // amount is less than the outstanding folio balance, treat it as a partial
+    // payment (DEPOSIT). Only a payment that exactly clears the balance keeps
+    // the PAYMENT type.
+    if (paymentType === 'PAYMENT' && targetFolio) {
+      const balance = new Prisma.Decimal(targetFolio.balance);
+      if (amount.lt(balance)) {
+        paymentType = 'DEPOSIT';
+      }
+    }
     if (paymentType === 'PAYMENT') {
       const balance = new Prisma.Decimal(targetFolio!.balance);
       if (amount.gt(balance)) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
@@ -186,7 +197,7 @@ export class PaymentService {
         amount: new Prisma.Decimal(t.amount), currency: data.currency || 'GHS', method: t.method as PaymentMethod, reference: t.reference,
         idempotencyKey: i === 0 ? data.idempotencyKey : `${data.idempotencyKey}#${i}`,
         status: PaymentStatus.COMPLETED, type: paymentType as PaymentType,
-        description: data.description || (paymentType === 'DEPOSIT' ? 'Reservation deposit collected' : 'Guest payment settlement'),
+        description: data.description || (paymentType === 'DEPOSIT' ? 'Part payment / deposit received' : 'Guest payment settlement'),
         processedBy: data.processedBy,
       } });
       createdPayments.push(p);
@@ -251,7 +262,10 @@ export class PaymentService {
     const paymentType = data.paymentType || 'PAYMENT';
     const existing = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
     if (existing) {
-      if (existing.type !== paymentType) throw new AppError('This idempotency key belongs to a different transaction.', 409, 'IDEMPOTENCY_KEY_REUSED');
+      // Accept if types match OR if the stored type is DEPOSIT and caller sent PAYMENT
+      // (the auto-downgrade path — amount was less than balance inside the tx).
+      const compatibleTypes = existing.type === paymentType || (paymentType === 'PAYMENT' && existing.type === 'DEPOSIT');
+      if (!compatibleTypes) throw new AppError('This idempotency key belongs to a different transaction.', 409, 'IDEMPOTENCY_KEY_REUSED');
       return existing;
     }
     try {
@@ -262,11 +276,12 @@ export class PaymentService {
         const methodLabel = data.tenders?.length
           ? data.tenders.map((t) => String(t.method || '—').replace('_', ' ')).join(' + ')
           : String(payment.method || '—').replace('_', ' ');
+        const isPartPayment = payment.type === 'DEPOSIT';
         NotificationService.notifyStaff(
           [PERMISSIONS.PAYMENTS_VIEW],
           {
             type: 'PAYMENT',
-            title: 'Payment received',
+            title: isPartPayment ? 'Part payment / deposit received' : 'Payment received',
             message: `GHS ${totalAmount.toFixed(2)} via ${methodLabel}${payment.reference ? ` · ${payment.reference}` : ''}`,
             priority: 'MEDIUM',
             data: { paymentId: payment.id, reservationId: payment.reservationId, amount: totalAmount.toString(), method: methodLabel },
@@ -278,7 +293,7 @@ export class PaymentService {
     } catch (error) {
       if ((error as { code?: string }).code === 'P2002') {
         const duplicate = await prisma.payment.findUnique({ where: { idempotencyKey: data.idempotencyKey } });
-        if (duplicate?.type === paymentType) return duplicate;
+        if (duplicate && (duplicate.type === paymentType || (paymentType === 'PAYMENT' && duplicate.type === 'DEPOSIT'))) return duplicate;
       }
       if ((error as { code?: string }).code === 'P2034') {
         throw new AppError('The folio changed while this payment was being processed. Please retry.', 409, 'PAYMENT_CONFLICT');

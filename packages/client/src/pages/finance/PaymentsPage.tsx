@@ -336,8 +336,14 @@ export const PaymentsPage: React.FC = () => {
                         {p.guest ? formatGuestName(p.guest) : p.description || 'General payment'}
                       </td>
                       <td className="px-5 py-4 text-[10px] font-bold text-[#667278]">{p.method || '—'}</td>
-                      <td className="px-5 py-4 text-[10px] font-extrabold text-[#667278]">
-                        {p.type === 'REFUND' ? 'REFUND' : p.type === 'DEPOSIT' && !p.fullySettled ? 'DEPOSIT' : 'PAYMENT'}
+                      <td className="px-5 py-4">
+                        {p.type === 'REFUND' ? (
+                          <span className="inline-block rounded-full bg-red-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-red-700">Refund</span>
+                        ) : p.type === 'DEPOSIT' && !p.fullySettled ? (
+                          <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-amber-700">Part payment</span>
+                        ) : (
+                          <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-green-700">Payment</span>
+                        )}
                       </td>
                       <td className="px-5 py-4 text-[10px]">
                         <div className="font-semibold text-[#26363e] flex items-center gap-1">

@@ -315,7 +315,10 @@ export const GuestBillsPage: React.FC = () => {
                 <div className="mt-2 space-y-2">
                   {selectedBill.folio.payments.map((p: any) => (
                     <div key={p.id} className="flex items-center justify-between gap-2 rounded-xl bg-[#f0f7f2] px-4 py-2.5">
-                      <span className="text-[11px] font-bold text-[#26363e]">{p.method} payment</span>
+                      <span className="text-[11px] font-bold text-[#26363e]">
+                        {p.method.replace('_', ' ')}&nbsp;
+                        {p.type === 'DEPOSIT' ? <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-700 uppercase tracking-wide">Part payment</span> : <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[9px] font-extrabold text-green-700 uppercase tracking-wide">Full payment</span>}
+                      </span>
                       <span className="flex items-center gap-2">
                         <span className="text-[11px] font-extrabold text-[#2d8a68]">− {formatCurrency(money(p.amount))}</span>
                         <button
