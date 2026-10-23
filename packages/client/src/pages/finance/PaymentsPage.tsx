@@ -53,6 +53,16 @@ interface PaymentRecord {
   originalPaymentId?: string | null;
   processorName?: string;
   fullySettled?: boolean;
+  /** Server-computed: what the guest owes (single-res total or combined group total) */
+  amountDue?: number;
+  /** Server-computed remaining balance across the reservation or group booking */
+  remainingBalance?: number;
+  /** Non-null when this payment is attached to a group booking */
+  groupBookingId?: string | null;
+  /** Combined total of all rooms in the group */
+  groupTotal?: number | null;
+  /** Room numbers in the group, e.g. ['1','3','5'] */
+  groupRooms?: string[] | null;
   reservation?: {
     id?: string;
     bookingId?: string;
@@ -61,7 +71,6 @@ interface PaymentRecord {
   } | null;
   reservationId?: string;
   roomNumber?: string | number;
-  amountDue?: number;
 }
 
 interface BillStay {
@@ -578,8 +587,12 @@ export const PaymentsPage: React.FC = () => {
                   const canPrint = ['PAYMENT', 'DEPOSIT', 'REFUND'].includes(p.type) && ['COMPLETED', 'PARTIALLY_REFUNDED'].includes(p.status);
                   const isCompletedPayment = ['PAYMENT', 'DEPOSIT'].includes(p.type) && ['COMPLETED', 'PARTIALLY_REFUNDED'].includes(p.status);
 
+                  const isGroupPayment = !!p.groupBookingId && !!p.groupRooms?.length;
                   const guestDisplayName = p.guest ? formatGuestName(p.guest) : p.description || 'General payment';
-                  const roomNumber = p.reservation?.room?.number || p.roomNumber;
+                  // For group payments show all rooms; for single show the one room
+                  const roomNumber = isGroupPayment
+                    ? null  // handled separately below
+                    : p.reservation?.room?.number || p.roomNumber;
 
                   return (
                     <tr
@@ -595,15 +608,24 @@ export const PaymentsPage: React.FC = () => {
 
                       {/* Guest / Payer */}
                       <td className="px-5 py-4 font-bold text-[#1e293b]">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span>{guestDisplayName}</span>
-                          {roomNumber && (
+                          {isGroupPayment ? (
+                            <span className="rounded-md bg-[#e8f2f4] px-1.5 py-0.5 text-[10px] font-extrabold text-[#16a4d4] flex items-center gap-1 border border-[#b8dde6]">
+                              <BedDouble size={11} /> Group · Rooms {p.groupRooms!.join(', ')}
+                            </span>
+                          ) : roomNumber ? (
                             <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-extrabold text-[#475569] flex items-center gap-1 border border-slate-200">
                               <BedDouble size={11} /> Room {roomNumber}
                             </span>
-                          )}
+                          ) : null}
                         </div>
-                        {p.reservation?.confirmationNo && (
+                        {isGroupPayment && p.groupBookingId && (
+                          <div className="font-mono text-[10px] text-[#a8761e] mt-0.5">
+                            Group: {p.groupBookingId}
+                          </div>
+                        )}
+                        {!isGroupPayment && p.reservation?.confirmationNo && (
                           <div className="font-mono text-[10px] text-[#94a3b8] mt-0.5">
                             Booking: {p.reservation.confirmationNo}
                           </div>
@@ -700,11 +722,18 @@ export const PaymentsPage: React.FC = () => {
                                 onClick={() =>
                                   printPaymentReceipt(p, {
                                     guestName: p.guest ? formatGuestName(p.guest) : undefined,
-                                    bookingRef: p.reservation?.confirmationNo || (p as any).reservationId?.slice(0, 8)?.toUpperCase(),
-                                    roomNumber: roomNumber ? String(roomNumber) : undefined,
-                                    amountDue: (p as any).amountDue || Number(p.amount),
+                                    // group: use bookingId; single: use confirmationNo
+                                    bookingRef: isGroupPayment
+                                      ? p.groupBookingId ?? undefined
+                                      : (p.reservation?.confirmationNo || p.reservationId?.slice(0, 8)?.toUpperCase()),
+                                    roomNumber: isGroupPayment ? undefined : (roomNumber ? String(roomNumber) : undefined),
+                                    // amountDue from server = full reservation or combined group total
+                                    amountDue: p.amountDue ?? (isGroupPayment ? (p.groupTotal ?? Number(p.amount)) : Number(p.amount)),
                                     type: p.type as any,
                                     fullySettled: isFull,
+                                    isGroup: isGroupPayment,
+                                    roomCount: isGroupPayment ? (p.groupRooms?.length) : undefined,
+                                    remainingBalance: isFull ? 0 : (p.remainingBalance !== undefined ? p.remainingBalance : Math.max(0, (p.amountDue ?? Number(p.amount)) - Number(p.amount))),
                                   })
                                 }
                                 className="rounded-lg p-1.5 text-[#64748b] hover:bg-[#eff9fc] hover:text-[#16a4d4] transition-colors border border-transparent hover:border-[#b8dde6]"

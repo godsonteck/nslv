@@ -65,10 +65,42 @@ export class PaymentService {
     // the stored type stays DEPOSIT so check-in can still materialise it onto
     // the folio as immutable payment history.
     const reservationIds = Array.from(new Set(payments.map((p) => p.reservationId).filter(Boolean))) as string[];
+
+    // Fetch reservation metadata (totalAmount, bookingId, room) for all referenced reservations
+    const reservationMeta = reservationIds.length > 0
+      ? await prisma.reservation.findMany({
+          where: { id: { in: reservationIds } },
+          select: { id: true, totalAmount: true, bookingId: true, room: { select: { number: true } } },
+        })
+      : [];
+    const reservationById = new Map(reservationMeta.map((r) => [r.id, r]));
+
+    // For group bookings: gather all sibling reservations to compute group totals
+    const groupBookingIds = Array.from(new Set(reservationMeta.map((r) => r.bookingId).filter(Boolean))) as string[];
+    const groupReservations = groupBookingIds.length > 0
+      ? await prisma.reservation.findMany({
+          where: { bookingId: { in: groupBookingIds } },
+          select: { id: true, totalAmount: true, bookingId: true, room: { select: { number: true } } },
+        })
+      : [];
+
+    // bookingId → { combinedTotal, resIds, rooms[] }
+    const groupByBookingId = new Map<string, { combinedTotal: number; resIds: string[]; rooms: string[] }>();
+    for (const r of groupReservations) {
+      if (!r.bookingId) continue;
+      if (!groupByBookingId.has(r.bookingId)) groupByBookingId.set(r.bookingId, { combinedTotal: 0, resIds: [], rooms: [] });
+      const g = groupByBookingId.get(r.bookingId)!;
+      g.combinedTotal += Number(r.totalAmount || 0);
+      g.resIds.push(r.id);
+      if (r.room?.number) g.rooms.push(String(r.room.number));
+    }
+
+    // Aggregate deposits per reservation across all affected reservations
+    const uniqueResIds = Array.from(new Set([...reservationIds, ...groupReservations.map((r) => r.id)]));
     const depositTotals = new Map<string, number>();
-    if (reservationIds.length > 0) {
+    if (uniqueResIds.length > 0) {
       const depositRows = await prisma.payment.findMany({
-        where: { reservationId: { in: reservationIds }, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null },
+        where: { reservationId: { in: uniqueResIds }, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null },
         select: { reservationId: true, amount: true },
       });
       for (const row of depositRows) {
@@ -77,13 +109,58 @@ export class PaymentService {
       }
     }
 
+    // Precompute group-level deposit totals (sum across every room in the group)
+    const groupDepositTotals = new Map<string, number>();
+    for (const [bookingId, g] of groupByBookingId.entries()) {
+      groupDepositTotals.set(bookingId, g.resIds.reduce((sum, id) => sum + (depositTotals.get(id) || 0), 0));
+    }
+
     return payments.map((p) => {
-      const reservationTotal = Number(p.reservation?.totalAmount || 0);
-      const reservationPaid = p.reservationId ? depositTotals.get(p.reservationId) || 0 : 0;
+      const res = p.reservationId ? reservationById.get(p.reservationId) : null;
+      const bookingId = (res?.bookingId ?? (p.reservation as any)?.bookingId) ?? null;
+      const isGroupPayment = !!bookingId && groupByBookingId.has(bookingId);
+
+      let amountDue: number;
+      let fullySettled: boolean;
+      let remainingBalance: number;
+      let groupTotal: number | null = null;
+      let groupRooms: string[] | null = null;
+
+      if (isGroupPayment && bookingId) {
+        const g = groupByBookingId.get(bookingId)!;
+        groupTotal = g.combinedTotal;
+        groupRooms = g.rooms.sort((a, b) => Number(a) - Number(b));
+        const groupPaid = groupDepositTotals.get(bookingId) || 0;
+        // A group deposit fully settles only when combined paid >= combined total
+        fullySettled = groupTotal > 0 && groupPaid >= groupTotal;
+        remainingBalance = Math.max(0, groupTotal - groupPaid);
+        amountDue = groupTotal;
+      } else if (p.reservationId || p.reservation) {
+        const reservationTotal = Number(res?.totalAmount || p.reservation?.totalAmount || 0);
+        const reservationPaid = p.reservationId ? (depositTotals.get(p.reservationId) || 0) : 0;
+        fullySettled = reservationTotal > 0 && reservationPaid >= reservationTotal;
+        remainingBalance = Math.max(0, reservationTotal - reservationPaid);
+        amountDue = reservationTotal > 0 ? reservationTotal : Number(p.amount);
+      } else if (p.folio) {
+        const folioBal = Number(p.folio.balance ?? 0);
+        fullySettled = folioBal <= 0.005 || p.folio.status === 'CLOSED';
+        remainingBalance = fullySettled ? 0 : Math.max(0, folioBal);
+        amountDue = Math.max(Number(p.amount), folioBal + Number(p.amount));
+      } else {
+        fullySettled = true;
+        remainingBalance = 0;
+        amountDue = Number(p.amount);
+      }
+
       return {
         ...p,
         processorName: userMap.get(p.processedBy) || p.processedBy || 'System / Staff',
-        fullySettled: p.type === 'DEPOSIT' && reservationTotal > 0 && reservationPaid >= reservationTotal,
+        fullySettled,
+        amountDue,
+        remainingBalance,
+        groupTotal,
+        groupBookingId: bookingId,
+        groupRooms,
       };
     });
   }
