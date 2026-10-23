@@ -46,6 +46,10 @@ export interface CreateMultiReservationDTO {
   specialRequests?: string;
   notes?: string;
   createdBy?: string;
+  /** Optional single partial payment collected for the entire group */
+  depositAmount?: number;
+  depositMethod?: PaymentMethod | string;
+  depositReference?: string;
   /** One entry per room in the party */
   rooms: Array<{
     roomId: string;
@@ -436,53 +440,95 @@ export class ReservationService {
       throw new Error('Each room can only be booked once in a single request.');
     }
 
+    const groupDeposit = Math.max(0, Number(data.depositAmount || 0));
+    const groupMethod = (data.depositMethod as PaymentMethod) || null;
+    if (groupDeposit > 0 && (!groupMethod || !['CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'].includes(groupMethod as string))) {
+      throw new AppError('A payment method is required to record a partial payment.', 422, 'DEPOSIT_METHOD_REQUIRED');
+    }
+
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const bookingId = `BK-${dateStr}-${randomBytes(3).toString('hex').toUpperCase()}`;
 
     try {
-    const reservations = await prisma.$transaction(
-      async (tx) => {
-        const created: any[] = [];
-        for (const room of data.rooms) {
-          const reservation = await this.createReservationInTx(
-            tx,
-            {
-              ...room,
-              checkInDate: checkIn,
-              checkOutDate: checkOut,
-              source: data.source,
-              specialRequests: data.specialRequests,
-              notes: data.notes,
-              createdBy: data.createdBy,
-              bookingId,
-            },
-            checkIn,
-            checkOut,
-          );
-          created.push(reservation);
-        }
-        return created;
-      },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-    );
+      const { reservations, totalGroupAmount } = await prisma.$transaction(
+        async (tx) => {
+          const created: any[] = [];
+          for (const room of data.rooms) {
+            const reservation = await this.createReservationInTx(
+              tx,
+              {
+                ...room,
+                depositAmount: 0,
+                depositMethod: undefined,
+                depositReference: undefined,
+                checkInDate: checkIn,
+                checkOutDate: checkOut,
+                source: data.source,
+                specialRequests: data.specialRequests,
+                notes: data.notes,
+                createdBy: data.createdBy,
+                bookingId,
+              },
+              checkIn,
+              checkOut,
+            );
+            created.push(reservation);
+          }
 
-    const first = reservations[0];
-    const primaryGuest = Array.isArray(first?.guests) ? first.guests.find((g: any) => g.isPrimary)?.guest : null;
-    const guestName = primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'A guest';
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
-    await NotificationService.notifyStaff(
-      [PERMISSIONS.RESERVATIONS_VIEW],
-      {
-        type: 'RESERVATION',
-        title: 'New party booking',
-        message: `${guestName} · ${reservations.length} room${reservations.length === 1 ? '' : 's'} · ${nights} night${nights === 1 ? '' : 's'} (${bookingId})`,
-        priority: 'MEDIUM',
-        data: { bookingId, reservationIds: reservations.map((r) => r.id), checkInDate: checkIn.toISOString(), checkOutDate: checkOut.toISOString() },
-      },
-      data.createdBy,
-    );
+          const combinedAmount = created.reduce((sum, r) => sum + Number(r.totalAmount || 0), 0);
+          if (groupDeposit > combinedAmount) {
+            throw new AppError('Group deposit cannot exceed the combined group total amount.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
+          }
 
-    return { bookingId, reservations };
+          if (groupDeposit > 0 && groupMethod) {
+            const first = created[0];
+            const primaryGuestId = data.rooms[0].guestId;
+            const refText = data.depositReference?.trim()
+              ? `${data.depositReference.trim()} (Group: ${bookingId})`
+              : `Group: ${bookingId}`;
+
+            await PaymentService.processPaymentInTx(tx, {
+              reservationId: first.id,
+              guestId: primaryGuestId,
+              amount: groupDeposit,
+              method: groupMethod,
+              reference: refText,
+              source: 'GROUP_BOOKING',
+              sourceId: bookingId,
+              idempotencyKey: `group-deposit-${bookingId}`,
+              description: `Group partial payment for group booking ${bookingId} (${created.length} rooms)`,
+              paymentType: 'DEPOSIT',
+              processedBy: data.createdBy || 'SYSTEM',
+            });
+
+            await tx.reservation.update({
+              where: { id: first.id },
+              data: { depositAmount: groupDeposit },
+            });
+          }
+
+          return { reservations: created, totalGroupAmount: combinedAmount };
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+
+      const first = reservations[0];
+      const primaryGuest = Array.isArray(first?.guests) ? first.guests.find((g: any) => g.isPrimary)?.guest : null;
+      const guestName = primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'A guest';
+      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
+      await NotificationService.notifyStaff(
+        [PERMISSIONS.RESERVATIONS_VIEW],
+        {
+          type: 'RESERVATION',
+          title: 'New group booking',
+          message: `${guestName} · ${reservations.length} room${reservations.length === 1 ? '' : 's'} · ${nights} night${nights === 1 ? '' : 's'} (${bookingId})`,
+          priority: 'MEDIUM',
+          data: { bookingId, reservationIds: reservations.map((r) => r.id), checkInDate: checkIn.toISOString(), checkOutDate: checkOut.toISOString(), depositAmount: groupDeposit },
+        },
+        data.createdBy,
+      );
+
+      return { bookingId, reservations, totalGroupAmount, depositAmount: groupDeposit };
     } catch (error) {
       if ((error as { code?: string }).code === 'P2034') {
         throw new AppError('One or more rooms changed concurrently. Refresh availability and retry.', 409, 'RESERVATION_CONFLICT');
@@ -499,6 +545,11 @@ export class ReservationService {
         room: { include: { roomType: true } },
         guests: { include: { guest: true } },
         folios: true,
+        payments: {
+          where: { type: 'DEPOSIT' },
+          select: { id: true, amount: true, method: true, reference: true, status: true, voidedAt: true, processedAt: true, description: true },
+          orderBy: { processedAt: 'asc' },
+        },
       },
       orderBy: { checkInDate: 'asc' },
     });

@@ -25,6 +25,10 @@ interface PaymentReceiptContext {
   type?: 'PAYMENT' | 'DEPOSIT' | 'REFUND';
   /** True when this deposit completes the reservation — print as a full payment receipt. */
   fullySettled?: boolean;
+  /** True when this is a group booking deposit receipt. */
+  isGroup?: boolean;
+  /** Number of rooms in the group (shown on group receipts). */
+  roomCount?: number;
 }
 
 // Prints an optional per-transaction receipt for a single payment/refund record
@@ -40,6 +44,7 @@ export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContex
   // never as a partial payment.
   const settled = context?.fullySettled ?? payment.fullySettled ?? false;
   const isDeposit = type === 'DEPOSIT' && !settled;
+  const isGroup = context?.isGroup ?? false;
   const title = isRefund ? 'REFUND RECEIPT' : isDeposit ? 'PARTIAL PAYMENT RECEIPT' : 'PAYMENT RECEIPT';
   const paidLabel = isRefund ? 'Amount refunded' : 'Amount received';
 
@@ -64,14 +69,16 @@ export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContex
     .row{display:flex;justify-content:space-between;font-size:11px;margin:3px 0}
     .total{border-top:1px solid #111;padding-top:8px;font-size:13px;font-weight:bold;display:flex;justify-content:space-between;margin-top:14px}
     .foot{text-align:center;font-size:10px;color:#555;margin-top:18px;border-top:1px dashed #999;padding-top:8px}
+    .group-badge{text-align:center;background:#e8f4f8;border:1px solid #b2daea;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:bold;color:#0e7490;margin-bottom:10px;letter-spacing:0.05em}
     @media print{.noprint{display:none}}
   </style></head><body>
     <img src="${logoUrl}" alt="NS Luxury Villa" class="logo"/>
     ${receiptCompanyBlock()}<div class="sub">${title} · OFFICIAL</div>
+    ${isGroup ? `<div class="group-badge">&#9651; GROUP BOOKING${context?.roomCount ? ` &middot; ${context.roomCount} ROOMS` : ''}</div>` : ''}
     <div class="row"><span>Reference</span><span>${esc(payment.reference || payment.id.slice(0, 10))}</span></div>
-    ${context?.bookingRef ? `<div class="row"><span>Booking</span><span>${esc(context.bookingRef)}</span></div>` : ''}
+    ${context?.bookingRef ? `<div class="row"><span>${isGroup ? 'Group Booking' : 'Booking'}</span><span>${esc(context.bookingRef)}</span></div>` : ''}
     ${context?.roomNumber ? `<div class="row"><span>Room</span><span>${esc(context.roomNumber)}</span></div>` : ''}
-    <div class="row"><span>Guest</span><span>${esc(guestName)}</span></div>
+    <div class="row"><span>${isGroup ? 'Lead Guest' : 'Guest'}</span><span>${esc(guestName)}</span></div>
     <div class="row"><span>Date</span><span>${processedAt ? esc(new Date(processedAt).toLocaleString()) : '—'}</span></div>
     <div class="row"><span>Method</span><span>${esc(payment.method)}</span></div>
     <div class="row"><span>Type</span><span>${isRefund ? 'Refund' : isDeposit ? 'Deposit / partial payment' : 'Payment'}</span></div>

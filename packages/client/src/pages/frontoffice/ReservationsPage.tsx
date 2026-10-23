@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reservationsApi, roomsApi, guestsApi, paymentsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown } from 'lucide-react';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronRight, ChevronsUpDown, ArrowUpDown } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
@@ -12,10 +12,10 @@ import { printPaymentReceipt } from '../../lib/company';
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 type Person = { key: string; mode: 'existing' | 'new'; guestId: string; firstName: string; lastName: string; phone: string; email: string; address: string; city: string; country: string; nationality: string; idDocumentType: string; idDocumentNumber: string; dateOfBirth: string; preferences: string; notes: string; isVip: boolean };
-type RoomLine = { key: string; roomId: string; adults: string; children: string; primaryKey: string; additionalKeys: string[]; depositAmount: string; depositMethod: string; depositReference: string };
+type RoomLine = { key: string; roomId: string; adults: string; children: string; primaryKey: string; additionalKeys: string[] };
 
 const emptyPerson: Person = { key: uid(), mode: 'existing', guestId: '', firstName: '', lastName: '', phone: '', email: '', address: '', city: '', country: '', nationality: '', idDocumentType: '', idDocumentNumber: '', dateOfBirth: '', preferences: '', notes: '', isVip: false };
-const emptyRoomLine = (primaryKey: string): RoomLine => ({ key: uid(), roomId: '', adults: '1', children: '0', primaryKey, additionalKeys: [], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
+const emptyRoomLine = (primaryKey: string): RoomLine => ({ key: uid(), roomId: '', adults: '1', children: '0', primaryKey, additionalKeys: [] });
 
 const guestName = (g: any) => (g ? `${g.firstName ?? ''} ${g.lastName ?? ''}`.trim() || '—' : '—');
 
@@ -44,11 +44,15 @@ export const ReservationsPage: React.FC = () => {
   const [newGuest, setNewGuest] = useState({ firstName: '', lastName: '', phone: '', email: '', address: '', city: '', country: '', nationality: '', idDocumentType: '', idDocumentNumber: '', dateOfBirth: '', preferences: '', notes: '', isVip: false });
   const [form, setForm] = useState({ guestId: '', roomId: '', checkInDate: '', checkOutDate: '', adults: '1', children: '0', discountAmount: '', discountReason: '', additionalGuestIds: [] as string[], depositAmount: '', depositMethod: 'CASH', depositReference: '' });
 
-  // Multi-room (one party) booking
+  // Multi-room (group) booking
   const [multi, setMulti] = useState(false);
   const [people, setPeople] = useState<Person[]>([]);
   const [roomLines, setRoomLines] = useState<RoomLine[]>([]);
   const [bookingDates, setBookingDates] = useState({ checkInDate: '', checkOutDate: '' });
+  const [groupDeposit, setGroupDeposit] = useState({ amount: '', method: 'CASH', reference: '' });
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [depositTargetGroup, setDepositTargetGroup] = useState<any | null>(null);
   const [availableRoomIds, setAvailableRoomIds] = useState<Set<string> | null>(null);
   const [editAvailableRoomIds, setEditAvailableRoomIds] = useState<Set<string> | null>(null);
   const [editAvailabilityLoading, setEditAvailabilityLoading] = useState(false);
@@ -63,7 +67,7 @@ export const ReservationsPage: React.FC = () => {
   // Reservation Details Popup
   const [detailsRes, setDetailsRes] = useState<any | null>(null);
 
-  // Record a partial payment against an existing reservation
+  // Record a partial payment against an existing reservation or group
   const [depositOpen, setDepositOpen] = useState(false);
   const [depositForm, setDepositForm] = useState({ amount: '', method: 'CASH', reference: '' });
   const [depositSplitOpen, setDepositSplitOpen] = useState(false);
@@ -186,6 +190,7 @@ export const ReservationsPage: React.FC = () => {
     setPeople([]);
     setRoomLines([]);
     setBookingDates({ checkInDate: '', checkOutDate: '' });
+    setGroupDeposit({ amount: '', method: 'CASH', reference: '' });
     resetSingle();
   };
 
@@ -242,18 +247,22 @@ export const ReservationsPage: React.FC = () => {
             adults: Number(line.adults) || 1,
             children: Number(line.children) || 0,
             additionalGuestIds: line.additionalKeys.map((k) => keyToGuest.get(k)!).filter(Boolean),
-            depositAmount: Number(line.depositAmount) > 0 ? Number(line.depositAmount) : undefined,
-            depositMethod: Number(line.depositAmount) > 0 ? line.depositMethod : undefined,
-            depositReference: Number(line.depositAmount) > 0 && line.depositReference.trim() ? line.depositReference.trim() : undefined,
           };
         });
+        const gDepositAmount = Number(groupDeposit.amount);
+        if (gDepositAmount > 0 && gDepositAmount > Math.max(0, groupEstimatedTotal)) {
+          throw new Error(`Group partial payment cannot exceed the estimated group total of ${formatCurrency(groupEstimatedTotal)}.`);
+        }
         const res = await reservationsApi.createMulti({
           checkInDate: bookingDates.checkInDate,
           checkOutDate: bookingDates.checkOutDate,
+          depositAmount: gDepositAmount > 0 ? gDepositAmount : undefined,
+          depositMethod: gDepositAmount > 0 ? groupDeposit.method : undefined,
+          depositReference: gDepositAmount > 0 && groupDeposit.reference.trim() ? groupDeposit.reference.trim() : undefined,
           rooms: roomsPayload,
         });
         const count = res.data?.reservations?.length ?? roomsPayload.length;
-        showToast('success', `Booking created — ${count} room${count === 1 ? '' : 's'} under ${res.data?.bookingId ?? 'one party'}`);
+        showToast('success', `Group booking created — ${count} room${count === 1 ? '' : 's'} under group ${res.data?.bookingId ?? ''}`);
       } else {
         let guestId = form.guestId;
         if (guestMode === 'new') {
@@ -330,9 +339,20 @@ export const ReservationsPage: React.FC = () => {
     setDetailsRes(r);
   };
 
+  const openGroupDeposit = (group: any) => {
+    setDepositTargetGroup(group);
+    setDetailsRes(null);
+    const expected = group.balance;
+    setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '' });
+    setDepositSplitOpen(false);
+    setDepositTenders([makeTenderRow()]);
+    setDepositOpen(true);
+  };
+
   const openDeposit = () => {
     const r = detailsRes;
     if (!r) return;
+    setDepositTargetGroup(null);
     const expected = Number(r.depositAmount || 0) - recordedDepositTotal(r);
     setDepositForm({ amount: expected > 0 ? String(expected) : '', method: 'CASH', reference: '' });
     setDepositSplitOpen(false);
@@ -341,6 +361,63 @@ export const ReservationsPage: React.FC = () => {
   };
 
   const recordDeposit = async () => {
+    if (depositTargetGroup) {
+      const g = depositTargetGroup;
+      const amount = Number(depositForm.amount);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showToast('error', 'Enter a valid payment amount.');
+        return;
+      }
+      if (g.balance <= 0) {
+        showToast('error', 'This group booking is already paid in full.');
+        return;
+      }
+      if (amount > g.balance) {
+        showToast('error', `Payment cannot exceed the outstanding group balance of ${formatCurrency(g.balance)}.`);
+        return;
+      }
+      const settlesInFull = amount >= g.balance;
+      const splitTenders = depositSplitOpen ? parseTenders(depositTenders) : undefined;
+      if (depositSplitOpen && !tendersCoverTotal(depositTenders, amount)) {
+        showToast('error', 'Tender amounts must equal the partial payment amount.');
+        return;
+      }
+      const leadRes = g.reservations[0];
+      const leadGuestId = g.leadGuest?.id || leadRes?.guests?.[0]?.guestId;
+      try {
+        setSaving(true);
+        const refText = depositSplitOpen
+          ? undefined
+          : depositForm.reference.trim()
+            ? `${depositForm.reference.trim()} (Group: ${g.bookingId})`
+            : `Group: ${g.bookingId}`;
+        await paymentsApi.processPayment({
+          reservationId: leadRes.id,
+          guestId: leadGuestId,
+          amount,
+          method: (splitTenders?.[0]?.method ?? depositForm.method) as any,
+          ...(splitTenders ? { tenders: splitTenders } : {}),
+          reference: refText,
+          source: 'GROUP_BOOKING',
+          sourceId: g.bookingId,
+          paymentType: 'DEPOSIT',
+          idempotencyKey: crypto.randomUUID(),
+          description: settlesInFull
+            ? `Group payment received (paid in full) for group booking ${g.bookingId} (${g.reservations.length} rooms)`
+            : `Group partial payment recorded for group booking ${g.bookingId} (${g.reservations.length} rooms)`,
+        });
+        showToast('success', settlesInFull ? 'Group payment recorded — group booking paid in full.' : 'Group partial payment recorded.');
+        setDepositOpen(false);
+        setDepositTargetGroup(null);
+        load();
+      } catch (e) {
+        showToast('error', e instanceof Error ? e.message : 'Unable to record group partial payment');
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     const r = detailsRes;
     if (!r) return;
     const amount = Number(depositForm.amount);
@@ -386,6 +463,23 @@ export const ReservationsPage: React.FC = () => {
       showToast('error', e instanceof Error ? e.message : 'Unable to record partial payment');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const cancelGroup = async (bookingId: string) => {
+    const groupRes = data.filter((r) => r.bookingId === bookingId);
+    if (!window.confirm(`Cancel entire group booking ${bookingId} (${groupRes.length} room${groupRes.length !== 1 ? 's' : ''})?`)) return;
+    try {
+      for (const r of groupRes) {
+        if (!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(r.status).toUpperCase())) {
+          await reservationsApi.cancel(r.id, `Group booking ${bookingId} cancelled`);
+        }
+      }
+      showToast('success', `Group booking ${bookingId} cancelled`);
+      if (selectedGroupId === bookingId) setSelectedGroupId(null);
+      load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to cancel group booking');
     }
   };
 
@@ -466,63 +560,187 @@ export const ReservationsPage: React.FC = () => {
     return sortDir === 'asc' ? <ChevronUp size={11} className="ml-1 text-[#16a4d4]" /> : <ChevronDown size={11} className="ml-1 text-[#16a4d4]" />;
   };
 
-  // Group rows so a party (shared bookingId) stays together,
-  // then optionally sort groups by the representative date of the first member.
-  const grouped = (() => {
-    // First: cluster by bookingId (party) or individual id
+  interface GroupItem {
+    isGroup: true;
+    id: string;
+    bookingId: string;
+    reservations: any[];
+    leadGuest: any;
+    allGuests: any[];
+    rooms: any[];
+    checkInDate: string;
+    checkOutDate: string;
+    totalAmount: number;
+    discountAmount: number;
+    depositAmount: number;
+    payments: any[];
+    recordedTotal: number;
+    balance: number;
+    isFullyPaid: boolean;
+    status: string;
+    bookedBy: any;
+    createdAt: string;
+  }
+
+  interface SingleItem {
+    isGroup: false;
+    id: string;
+    reservation: any;
+    leadGuest: any;
+    allGuests: any[];
+    room: any;
+    checkInDate: string;
+    checkOutDate: string;
+    totalAmount: number;
+    discountAmount: number;
+    depositAmount: number;
+    payments: any[];
+    recordedTotal: number;
+    balance: number;
+    isFullyPaid: boolean;
+    status: string;
+    bookedBy: any;
+    createdAt: string;
+  }
+
+  type TableItem = GroupItem | SingleItem;
+
+  const tableItems: TableItem[] = (() => {
     const partyMap = new Map<string, any[]>();
+    const singles: any[] = [];
+
     for (const r of data) {
-      const key = r.bookingId || r.id;
-      if (!partyMap.has(key)) partyMap.set(key, []);
-      partyMap.get(key)!.push(r);
+      if (r.bookingId) {
+        if (!partyMap.has(r.bookingId)) partyMap.set(r.bookingId, []);
+        partyMap.get(r.bookingId)!.push(r);
+      } else {
+        singles.push(r);
+      }
     }
-    // Sort each party's rows internally by the sort field too
-    const parties = [...partyMap.values()];
+
+    const items: TableItem[] = [];
+
+    for (const [bookingId, resList] of partyMap.entries()) {
+      resList.sort((a, b) => (a.room?.number || '').localeCompare(b.room?.number || ''));
+      const first = resList[0];
+      const leadGuest = first?.guests?.find((g: any) => g.isPrimary)?.guest || first?.guests?.[0]?.guest;
+      const allGuests = [...new Map(resList.flatMap((r) => (r.guests || []).map((g: any) => [g.guest?.id, g.guest])).filter(([id]) => Boolean(id))).values()];
+      const rooms = resList.map((r) => r.room).filter(Boolean);
+      const totalAmount = resList.reduce((sum, r) => sum + Number(r.totalAmount || 0), 0);
+      const discountAmount = resList.reduce((sum, r) => sum + Number(r.discountAmount || 0), 0);
+      
+      const allPayments: any[] = [];
+      const seenPaymentIds = new Set<string>();
+      for (const r of resList) {
+        for (const p of recordedDeposits(r)) {
+          if (!seenPaymentIds.has(p.id)) {
+            seenPaymentIds.add(p.id);
+            allPayments.push(p);
+          }
+        }
+      }
+      const recordedTotal = allPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const balance = Math.max(0, totalAmount - recordedTotal);
+      const fullyPaid = totalAmount > 0 && balance === 0;
+
+      const statuses = new Set(resList.map((r) => String(r.status || 'PENDING').toUpperCase()));
+      let groupStatus = 'CONFIRMED';
+      if (statuses.size === 1) {
+        groupStatus = [...statuses][0];
+      } else if (statuses.has('CHECKED_IN')) {
+        groupStatus = 'MIXED (CHECKED IN)';
+      } else {
+        groupStatus = 'MIXED';
+      }
+
+      items.push({
+        isGroup: true,
+        id: bookingId,
+        bookingId,
+        reservations: resList,
+        leadGuest,
+        allGuests,
+        rooms,
+        checkInDate: first.checkInDate,
+        checkOutDate: first.checkOutDate,
+        totalAmount,
+        discountAmount,
+        depositAmount: resList.reduce((sum, r) => sum + Number(r.depositAmount || 0), 0),
+        payments: allPayments,
+        recordedTotal,
+        balance,
+        isFullyPaid: fullyPaid,
+        status: groupStatus,
+        bookedBy: first.bookedBy,
+        createdAt: first.createdAt,
+      });
+    }
+
+    for (const r of singles) {
+      const leadGuest = r.guests?.find((g: any) => g.isPrimary)?.guest || r.guests?.[0]?.guest;
+      const allGuests = (r.guests || []).map((g: any) => g.guest).filter(Boolean);
+      const deposits = recordedDeposits(r);
+      const recordedTotal = deposits.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+      const totalAmount = Number(r.totalAmount || 0);
+      const balance = Math.max(0, totalAmount - recordedTotal);
+      const fullyPaid = totalAmount > 0 && balance === 0;
+
+      items.push({
+        isGroup: false,
+        id: r.id,
+        reservation: r,
+        leadGuest,
+        allGuests,
+        room: r.room,
+        checkInDate: r.checkInDate,
+        checkOutDate: r.checkOutDate,
+        totalAmount,
+        discountAmount: Number(r.discountAmount || 0),
+        depositAmount: Number(r.depositAmount || 0),
+        payments: deposits,
+        recordedTotal,
+        balance,
+        isFullyPaid: fullyPaid,
+        status: String(r.status || 'PENDING').toUpperCase(),
+        bookedBy: r.bookedBy,
+        createdAt: r.createdAt,
+      });
+    }
+
     if (sortField) {
-      parties.forEach((rows) =>
-        rows.sort((a, b) => {
-          const va = new Date(a[sortField]).getTime();
-          const vb = new Date(b[sortField]).getTime();
-          return sortDir === 'asc' ? va - vb : vb - va;
-        }),
-      );
-      // Sort groups by their first member's date
-      parties.sort((ga, gb) => {
-        const va = new Date(ga[0][sortField]).getTime();
-        const vb = new Date(gb[0][sortField]).getTime();
+      items.sort((a, b) => {
+        const va = new Date(a[sortField]).getTime();
+        const vb = new Date(b[sortField]).getTime();
         return sortDir === 'asc' ? va - vb : vb - va;
       });
     } else {
-      // Default: preserve original bookingId/id order
-      parties.sort((ga, gb) => {
-        const ka = ga[0].bookingId || ga[0].id;
-        const kb = gb[0].bookingId || gb[0].id;
-        return ka < kb ? -1 : ka > kb ? 1 : 0;
-      });
+      items.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     }
-    return parties.flat();
+
+    return items;
   })();
 
-  // Apply optional date filter: keep only reservations whose stay covers the chosen date
-  const displayRows = dateFilter
-    ? grouped.filter((r) => {
-        const cin = String(r.checkInDate).slice(0, 10);
-        const cout = String(r.checkOutDate).slice(0, 10);
+  const selectedGroup = selectedGroupId
+    ? (tableItems.find((it) => it.isGroup && it.bookingId === selectedGroupId) as GroupItem | undefined) || null
+    : null;
+
+  const displayItems = dateFilter
+    ? tableItems.filter((item) => {
+        const cin = String(item.checkInDate).slice(0, 10);
+        const cout = String(item.checkOutDate).slice(0, 10);
         return cin <= dateFilter && dateFilter <= cout;
       })
-    : grouped;
+    : tableItems;
 
-  const confirmed = displayRows.filter((x) => ['CONFIRMED', 'PENDING'].includes(String(x.status).toUpperCase())).length;
-  const active = displayRows.filter((x) => String(x.status).toUpperCase() === 'CHECKED_IN').length;
+  const confirmed = data.filter((x) => ['CONFIRMED', 'PENDING'].includes(String(x.status).toUpperCase())).length;
+  const active = data.filter((x) => String(x.status).toUpperCase() === 'CHECKED_IN').length;
 
-  const partyInfo = new Map<string, { count: number; total: number }>();
-  data.forEach((r) => {
-    if (!r.bookingId) return;
-    const cur = partyInfo.get(r.bookingId) || { count: 0, total: 0 };
-    cur.count += 1;
-    cur.total += Number(r.totalAmount || 0);
-    partyInfo.set(r.bookingId, cur);
-  });
+  const groupNights = Math.max(1, Math.ceil((new Date(bookingDates.checkOutDate).getTime() - new Date(bookingDates.checkInDate).getTime()) / (1000 * 3600 * 24)) || 1);
+  const groupEstimatedTotal = roomLines.reduce((sum, line) => {
+    const room = rooms.find((r) => r.id === line.roomId);
+    const price = Number(room?.roomType?.basePrice || 0);
+    return sum + (price * groupNights);
+  }, 0) - (Number(form.discountAmount) || 0);
 
   return (
     <ShellPage
@@ -544,9 +762,9 @@ export const ReservationsPage: React.FC = () => {
       }
     >
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile label="Reservations in view" value={displayRows.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
-        <StatTile label="Confirmed / pending" value={confirmed} note={dateFilter ? 'In selected date' : 'Current filtered result'} onClick={() => scrollToTable('CONFIRMED_PENDING')} />
-        <StatTile label="Checked in" value={active} note={dateFilter ? 'In selected date' : 'Active stays'} onClick={() => scrollToTable('CHECKED_IN')} />
+        <StatTile label="Bookings in view" value={displayItems.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
+        <StatTile label="Confirmed / pending rooms" value={confirmed} note={dateFilter ? 'In selected date' : 'Current filtered result'} onClick={() => scrollToTable('CONFIRMED_PENDING')} />
+        <StatTile label="Checked in rooms" value={active} note={dateFilter ? 'In selected date' : 'Active stays'} onClick={() => scrollToTable('CHECKED_IN')} />
       </div>
       <div ref={tableRef}>
       <Section title="Booking ledger" subtitle="Search by guest, reservation or room">
@@ -650,7 +868,7 @@ export const ReservationsPage: React.FC = () => {
                     day: 'numeric',
                   })}
                 </strong>
-                {' '}— <span className="font-semibold">{displayRows.length} reservation{displayRows.length === 1 ? '' : 's'}</span> found
+                {' '}— <span className="font-semibold">{displayItems.length} booking{displayItems.length === 1 ? '' : 's'}</span> found
               </span>
             </div>
             <button
@@ -664,12 +882,12 @@ export const ReservationsPage: React.FC = () => {
         )}
         {loading ? (
           <LoadingState />
-        ) : displayRows.length === 0 ? (
+        ) : displayItems.length === 0 ? (
           <div className="p-5">
             <div className="rounded-2xl border border-dashed border-[#dfe4e0] p-12 text-center">
               <CalendarDays className="mx-auto text-[#a0aaad]" />
               <h3 className="mt-3 text-sm font-extrabold">
-                {dateFilter ? `No reservations on ${new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'No reservations yet'}
+                {dateFilter ? `No bookings on ${new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'No bookings yet'}
               </h3>
               <p className="mt-1 text-xs text-[#899397]">
                 {dateFilter ? 'Try a different date or clear the filter.' : 'Your fresh property database is ready for its first booking.'}
@@ -686,9 +904,9 @@ export const ReservationsPage: React.FC = () => {
             <table className="w-full text-left">
               <thead className="bg-[#f7f8f6] text-[10px] uppercase tracking-[.12em] text-[#7d898d]">
                 <tr>
-                  <th className="px-5 py-3">Reservation</th>
+                  <th className="px-5 py-3">Reservation / Group</th>
                   <th className="px-5 py-3">Guests</th>
-                  <th className="px-5 py-3">Room</th>
+                  <th className="px-5 py-3">Room(s)</th>
                   <th className="px-5 py-3">
                     <span className="flex items-center gap-3">
                       <button
@@ -715,122 +933,259 @@ export const ReservationsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#edf0ed]">
-                {displayRows.map((r, idx) => {
-                  const prev = displayRows[idx - 1];
-                  const showPartyHeader = !!r.bookingId && prev?.bookingId !== r.bookingId;
-                  const party = partyInfo.get(r.bookingId);
-                  const allGuests = r.guests?.length ? [...r.guests].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)) : [];
-                  const extra = allGuests.length - 1;
-                  return (
-                    <React.Fragment key={r.id}>
-                      {showPartyHeader && (
-                        <tr className="bg-[#e8f2f4]">
-                          <td colSpan={8} className="px-5 py-2">
-                            <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wide text-[#16a4d4]">
-                              <Link2 size={13} />
-                              Party booking {r.bookingId}
-                              <span className="rounded-full bg-[#d6e9ee] px-2 py-0.5 text-[9px]">{party?.count} room{party?.count === 1 ? '' : 's'}</span>
-                              <span className="ml-auto normal-case text-[#5d6a6f]">
-                                Combined {Number(party?.total || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
+                {displayItems.map((item) => {
+                  if (item.isGroup) {
+                    const isExpanded = expandedGroups.has(item.bookingId);
+                    return (
+                      <React.Fragment key={item.id}>
+                        <tr
+                          onClick={() => setSelectedGroupId(item.bookingId)}
+                          className="cursor-pointer hover:bg-[#f3f8f9] transition-colors bg-[#fbfdfc]"
+                        >
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedGroups((prev) => {
+                                    const next = new Set(prev);
+                                    if (next.has(item.bookingId)) next.delete(item.bookingId);
+                                    else next.add(item.bookingId);
+                                    return next;
+                                  });
+                                }}
+                                className="mr-0.5 rounded p-1 text-[#16a4d4] hover:bg-[#e0f0f4] transition"
+                                title={isExpanded ? 'Collapse rooms' : 'Expand rooms'}
+                              >
+                                {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                              </button>
+                              <span className="font-mono text-[11px] font-bold text-[#a8761e]">{item.bookingId}</span>
+                              <span className="inline-flex items-center gap-1 rounded-md bg-[#e8f2f4] px-1.5 py-0.5 text-[9px] font-extrabold text-[#16a4d4]">
+                                <Users size={10} /> GROUP · {item.reservations.length} ROOMS
                               </span>
+                            </div>
+                            <div className="mt-1 text-[10px] text-[#9aa3a6]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}</div>
+                            {isAdmin && <div className="mt-1 text-[10px] text-[#667278]">Booked by: {item.bookedBy?.name || '—'}</div>}
+                          </td>
+                          <td className="px-5 py-4 text-xs text-[#26363e]">
+                            <div className="font-extrabold">{formatGuestName(item.leadGuest)} <span className="text-[10px] font-bold text-[#16a4d4]">(Lead)</span></div>
+                            {item.allGuests.length > 1 && (
+                              <div className="text-[10px] text-[#78858a] mt-0.5">
+                                +{item.allGuests.length - 1} other guest{item.allGuests.length - 1 !== 1 ? 's' : ''} in party
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-5 py-4 text-xs text-[#667278]">
+                            <div className="font-bold text-[#26363e]">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
+                            <div className="text-[10px] text-[#9aa3a6]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
+                          </td>
+                          <td className="px-5 py-4 text-[11px] text-[#667278]">
+                            <div>{new Date(item.checkInDate).toLocaleDateString()} → {new Date(item.checkOutDate).toLocaleDateString()}</div>
+                            <div className="text-[10px] text-[#9aa3a6]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
+                          </td>
+                          <td className="px-5 py-4 text-xs font-extrabold text-[#20343e]">
+                            <div>{formatCurrency(item.totalAmount)}</div>
+                            <div className="text-[9px] font-bold uppercase text-[#16a4d4]">Group total</div>
+                            {item.discountAmount > 0 && <div className="mt-0.5 text-[10px] text-[#a05d20]">Discount −{formatCurrency(item.discountAmount)}</div>}
+                          </td>
+                          <td className="px-5 py-4 text-xs">
+                            {item.recordedTotal > 0 ? (
+                              <>
+                                <div className={`font-extrabold ${item.isFullyPaid ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                                  {formatCurrency(item.recordedTotal)} paid
+                                </div>
+                                {item.isFullyPaid ? (
+                                  <span className="mt-1 inline-block rounded-full bg-[#e3f3e6] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#2e7d32]">
+                                    Paid in full (Group)
+                                  </span>
+                                ) : (
+                                  <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
+                                    Balance due {formatCurrency(item.balance)}
+                                  </div>
+                                )}
+                                <div className="text-[9px] text-[#899397] font-semibold mt-0.5">Group Payment ({item.payments.length})</div>
+                              </>
+                            ) : (
+                              <div>
+                                <span className="text-[#c0c6c4] font-semibold">Unpaid</span>
+                                <div className="text-[10px] font-bold text-[#b0743a]">Due {formatCurrency(item.totalAmount)}</div>
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-5 py-4">{statusBadge(item.status)}</td>
+                          <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-1">
+                              <button onClick={() => setSelectedGroupId(item.bookingId)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="View group booking details">
+                                <Eye size={16} />
+                              </button>
+                              {canProcessPayment && !item.isFullyPaid && (
+                                <button onClick={() => openGroupDeposit(item)} className="rounded-lg p-2 text-[#16a4d4] hover:bg-[#e8f2f4]" title="Record group payment">
+                                  <CreditCard size={16} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setExpandedGroups((prev) => {
+                                    const next = new Set(prev);
+                                    if (next.has(item.bookingId)) next.delete(item.bookingId);
+                                    else next.add(item.bookingId);
+                                    return next;
+                                  });
+                                }}
+                                className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]"
+                                title={isExpanded ? 'Hide rooms' : 'Show rooms in this group'}
+                              >
+                                <BedDouble size={16} />
+                              </button>
+                              {canCancel && (
+                                <button onClick={() => cancelGroup(item.bookingId)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel entire group booking">
+                                  <MoreHorizontal size={16} />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
-                      )}
-                      <tr
-                        onClick={() => openDetails(r)}
-                        className="cursor-pointer hover:bg-[#f5f8f6] transition-colors"
-                      >
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[11px] font-bold text-[#a8761e]">{r.confirmationNo || r.id.slice(0, 8)}</span>
-                            {r.bookingId && <span className="rounded-md bg-[#e8f2f4] px-1.5 py-0.5 text-[9px] font-extrabold text-[#16a4d4]" title="Part of a multi-room booking">PARTY</span>}
-                          </div>
-                          <div className="mt-1 text-[10px] text-[#9aa3a6]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</div>
-                          {isAdmin && <div className="mt-1 text-[10px] text-[#667278]">Booked by: {r.bookedBy?.name || '—'}</div>}
-                        </td>
-                        <td className="px-5 py-4 text-xs text-[#26363e]">
-                          {allGuests.length ? (
-                            <>
-                              <span className="font-extrabold">{guestName(allGuests[0].guest)}</span>
-                              {extra > 0 && <span className="ml-1.5 text-[10px] text-[#8a9598]">+{extra} more</span>}
-                              {allGuests.slice(1).map((g) => (
-                                <div key={g.id} className="text-[11px] text-[#667278]">{guestName(g.guest)}</div>
-                              ))}
-                            </>
-                          ) : (
-                            '—'
-                          )}
-                        </td>
-                        <td className="px-5 py-4 text-xs text-[#667278]">
-                          {r.room ? `Room ${r.room.number}` : 'Unassigned'}
-                          <div className="text-[10px] text-[#9aa3a6]">{r.room?.roomType?.name || '—'}</div>
-                        </td>
-                        <td className="px-5 py-4 text-[11px] text-[#667278]">
-                          {new Date(r.checkInDate).toLocaleDateString()} → {new Date(r.checkOutDate).toLocaleDateString()}
-                        </td>
-                        <td className="px-5 py-4 text-xs font-extrabold text-[#20343e]">
-                          {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
-                          {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
-                        </td>
-                        <td className="px-5 py-4 text-xs">
-                          {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
-                            <>
-                              <div className={`font-extrabold ${isFullyPaid(r) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
-                                {formatCurrency(recordedDepositTotal(r))} paid
+
+                        {/* Nested rooms under this group */}
+                        {isExpanded && item.reservations.map((subRes: any) => (
+                          <tr
+                            key={subRes.id}
+                            onClick={() => openDetails(subRes)}
+                            className="bg-[#f5f9f9] border-l-4 border-l-[#16a4d4] text-xs hover:bg-[#edf5f6] transition-colors cursor-pointer"
+                          >
+                            <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[#556970]">
+                              <span className="text-[#16a4d4] font-bold mr-1.5">↳</span>
+                              {subRes.confirmationNo}
+                            </td>
+                            <td className="px-5 py-2.5 text-[#304046]">
+                              <span className="font-semibold">{guestName(subRes.guests?.[0]?.guest)}</span>
+                            </td>
+                            <td className="px-5 py-2.5 font-bold text-[#26363e]">
+                              Room {subRes.room?.number || '—'} <span className="text-[10px] font-normal text-[#899397]">({subRes.room?.roomType?.name || 'Room'})</span>
+                            </td>
+                            <td className="px-5 py-2.5 text-[11px] text-[#667278]">
+                              {new Date(subRes.checkInDate).toLocaleDateString()} → {new Date(subRes.checkOutDate).toLocaleDateString()}
+                            </td>
+                            <td className="px-5 py-2.5 font-bold text-[#20343e]">
+                              {formatCurrency(subRes.totalAmount)}
+                            </td>
+                            <td className="px-5 py-2.5 text-[10px] text-[#708086]">
+                              Covered by group payment
+                            </td>
+                            <td className="px-5 py-2.5">{statusBadge(subRes.status || 'PENDING')}</td>
+                            <td className="px-5 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-1">
+                                <button onClick={() => openDetails(subRes)} className="p-1 text-[#899397] hover:text-[#16a4d4]" title="View room details"><Eye size={14} /></button>
+                                {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(subRes.status).toUpperCase()) && (
+                                  <button onClick={() => openEdit(subRes)} className="p-1 text-[#899397] hover:text-[#16a4d4]" title="Edit room stay"><Pencil size={14} /></button>
+                                )}
+                                <button onClick={() => openManageGuests(subRes)} className="p-1 text-[#899397] hover:text-[#16a4d4]" title="Manage guests on room"><Users size={14} /></button>
                               </div>
-                              {isFullyPaid(r) ? (
-                                <span className="mt-1 inline-block rounded-full bg-[#e3f3e6] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#2e7d32]">
-                                  Paid in full
-                                </span>
-                              ) : (
-                                <>
-                                  {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
-                                    <div className="mt-0.5 text-[10px] text-[#899397]">{formatCurrency(r.depositAmount)} expected</div>
-                                  )}
-                                  <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
-                                    Balance due {formatCurrency(reservationBalance(r))}
-                                  </div>
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <span className="text-[#c0c6c4]">—</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    );
+                  }
+
+                  const r = item.reservation;
+                  const allGuests = item.allGuests;
+                  const extra = allGuests.length - 1;
+                  return (
+                    <tr
+                      key={r.id}
+                      onClick={() => openDetails(r)}
+                      className="cursor-pointer hover:bg-[#f5f8f6] transition-colors"
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-[11px] font-bold text-[#a8761e]">{r.confirmationNo || r.id.slice(0, 8)}</span>
+                        </div>
+                        <div className="mt-1 text-[10px] text-[#9aa3a6]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</div>
+                        {isAdmin && <div className="mt-1 text-[10px] text-[#667278]">Booked by: {r.bookedBy?.name || '—'}</div>}
+                      </td>
+                      <td className="px-5 py-4 text-xs text-[#26363e]">
+                        {allGuests.length ? (
+                          <>
+                            <span className="font-extrabold">{guestName(allGuests[0])}</span>
+                            {extra > 0 && <span className="ml-1.5 text-[10px] text-[#8a9598]">+{extra} more</span>}
+                            {allGuests.slice(1).map((g: any, gi: number) => (
+                              <div key={gi} className="text-[11px] text-[#667278]">{guestName(g)}</div>
+                            ))}
+                          </>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-xs text-[#667278]">
+                        {r.room ? `Room ${r.room.number}` : 'Unassigned'}
+                        <div className="text-[10px] text-[#9aa3a6]">{r.room?.roomType?.name || '—'}</div>
+                      </td>
+                      <td className="px-5 py-4 text-[11px] text-[#667278]">
+                        {new Date(r.checkInDate).toLocaleDateString()} → {new Date(r.checkOutDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-5 py-4 text-xs font-extrabold text-[#20343e]">
+                        {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
+                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
+                      </td>
+                      <td className="px-5 py-4 text-xs">
+                        {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
+                          <>
+                            <div className={`font-extrabold ${isFullyPaid(r) ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                              {formatCurrency(recordedDepositTotal(r))} paid
+                            </div>
+                            {isFullyPaid(r) ? (
+                              <span className="mt-1 inline-block rounded-full bg-[#e3f3e6] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#2e7d32]">
+                                Paid in full
+                              </span>
+                            ) : (
+                              <>
+                                {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
+                                  <div className="mt-0.5 text-[10px] text-[#899397]">{formatCurrency(r.depositAmount)} expected</div>
+                                )}
+                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
+                                  Balance due {formatCurrency(reservationBalance(r))}
+                                </div>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-[#c0c6c4]">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#667278]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#667278]">Out: {r.checkedOutBy.name}</div>}</td>
+                      <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="View booking details">
+                            <Eye size={16} />
+                          </button>
+                          {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (
+                            <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="Edit reservation details">
+                              <Pencil size={16} />
+                            </button>
                           )}
-                        </td>
-                        <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#667278]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#667278]">Out: {r.checkedOutBy.name}</div>}</td>
-                        <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-1">
-                            <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="View booking details">
-                              <Eye size={16} />
+                          <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="Manage guests on this reservation">
+                            <Users size={16} />
+                          </button>
+                          {canCancel && ['PENDING', 'CONFIRMED'].includes(String(r.status).toUpperCase()) && (
+                            <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-amber-50 hover:text-amber-700" title="Mark reservation as NO-SHOW">
+                              <UserX size={16} />
                             </button>
-                            {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (
-                              <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="Edit reservation details">
-                                <Pencil size={16} />
-                              </button>
-                            )}
-                            <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]" title="Manage guests on this reservation">
-                              <Users size={16} />
+                          )}
+                          {!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(r.status).toUpperCase()) && (
+                            <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel reservation">
+                              <MoreHorizontal size={16} />
                             </button>
-                            {canCancel && ['PENDING', 'CONFIRMED'].includes(String(r.status).toUpperCase()) && (
-                              <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-amber-50 hover:text-amber-700" title="Mark reservation as NO-SHOW">
-                                <UserX size={16} />
-                              </button>
-                            )}
-                            {!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(r.status).toUpperCase()) && (
-                              <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel reservation">
-                                <MoreHorizontal size={16} />
-                              </button>
-                            )}
-                            {canDeleteCancelled && String(r.status).toUpperCase() === 'CANCELLED' && (
-                              <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Permanently delete cancelled reservation">
-                                <Trash2 size={16} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    </React.Fragment>
+                          )}
+                          {canDeleteCancelled && String(r.status).toUpperCase() === 'CANCELLED' && (
+                            <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Permanently delete cancelled reservation">
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>
@@ -846,8 +1201,8 @@ export const ReservationsPage: React.FC = () => {
             <button type="button" onClick={() => setMulti(false)} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold ${!multi ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'}`}>
               Single room
             </button>
-            <button type="button" onClick={startMulti} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold ${multi ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'}`}>
-              Multiple rooms (one party)
+            <button type="button" onClick={startMulti} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center gap-1.5 ${multi ? 'bg-[#16a4d4] text-white' : 'border border-[#dfe4e0] bg-white text-[#718086]'}`}>
+              <Users size={12} /> Group booking (multiple rooms)
             </button>
           </div>
 
@@ -912,64 +1267,16 @@ export const ReservationsPage: React.FC = () => {
                           </FormField>
                         </div>
                       ) : (
-                        <div className="mt-2 space-y-3">
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            <FormField label={`First name · Person ${i + 1}`}>
-                              <TextInput value={p.firstName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, firstName: e.target.value } : x)))} placeholder="First name" />
-                            </FormField>
-                            <FormField label="Last name">
-                              <TextInput value={p.lastName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, lastName: e.target.value } : x)))} placeholder="Last name" />
-                            </FormField>
-                            <FormField label="Phone">
-                              <TextInput value={p.phone} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, phone: e.target.value } : x)))} placeholder="+233 …" />
-                            </FormField>
-                            <FormField label="Email">
-                              <TextInput type="email" value={p.email} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, email: e.target.value } : x)))} placeholder="guest@example.com" />
-                            </FormField>
-                          </div>
-                          <div className="grid gap-3 sm:grid-cols-3">
-                            <FormField label="Address">
-                              <TextInput value={p.address} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, address: e.target.value } : x)))} placeholder="Street address" />
-                            </FormField>
-                            <FormField label="City">
-                              <TextInput value={p.city} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, city: e.target.value } : x)))} placeholder="City / Region" />
-                            </FormField>
-                            <FormField label="Country">
-                              <TextInput value={p.country} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, country: e.target.value } : x)))} placeholder="Country" />
-                            </FormField>
-                          </div>
-                          <div className="grid gap-3 sm:grid-cols-3">
-                            <FormField label="Document type">
-                              <SelectInput value={p.idDocumentType} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, idDocumentType: e.target.value } : x)))}>
-                                <option value="">Select type…</option>
-                                <option value="PASSPORT">Passport</option>
-                                <option value="NATIONAL_ID">National ID / Ghana Card</option>
-                                <option value="DRIVERS_LICENSE">Driver's License</option>
-                                <option value="OTHER">Other</option>
-                              </SelectInput>
-                            </FormField>
-                            <FormField label="Document number">
-                              <TextInput value={p.idDocumentNumber} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, idDocumentNumber: e.target.value } : x)))} placeholder="Doc #" />
-                            </FormField>
-                            <FormField label="Nationality">
-                              <TextInput value={p.nationality} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, nationality: e.target.value } : x)))} placeholder="Nationality" />
-                            </FormField>
-                          </div>
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            <FormField label="Date of birth">
-                              <TextInput type="date" value={p.dateOfBirth} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, dateOfBirth: e.target.value } : x)))} />
-                            </FormField>
-                            <FormField label="Preferences">
-                              <TextInput value={p.preferences} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, preferences: e.target.value } : x)))} placeholder="e.g. High floor, quiet room" />
-                            </FormField>
-                          </div>
-                          <FormField label="Staff notes">
-                            <TextInput value={p.notes} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, notes: e.target.value } : x)))} placeholder="Internal notes" />
+                        <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                          <FormField label={`First name · Person ${i + 1}`}>
+                            <TextInput value={p.firstName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, firstName: e.target.value } : x)))} placeholder="First name" />
                           </FormField>
-                          <div className="flex items-center gap-2">
-                            <input type="checkbox" id={`vip-${p.key}`} checked={p.isVip} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, isVip: e.target.checked } : x)))} className="h-4 w-4 rounded border-[#ced5ce] text-[#16a4d4] focus:ring-[#16a4d4]" />
-                            <label htmlFor={`vip-${p.key}`} className="text-xs font-bold text-[#26363e]">Mark as VIP Guest</label>
-                          </div>
+                          <FormField label="Last name">
+                            <TextInput value={p.lastName} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, lastName: e.target.value } : x)))} placeholder="Last name" />
+                          </FormField>
+                          <FormField label="Phone">
+                            <TextInput value={p.phone} onChange={(e) => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, phone: e.target.value } : x)))} placeholder="+233 …" />
+                          </FormField>
                         </div>
                       )}
                     </div>
@@ -1027,22 +1334,6 @@ export const ReservationsPage: React.FC = () => {
                             <TextInput type="number" min="0" value={line.children} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, children: e.target.value } : x)))} />
                           </FormField>
                         </div>
-                        <div className="mt-3 grid gap-3 sm:grid-cols-3 rounded-xl bg-[#fbfcfa] p-3 border border-[#eef1ee]">
-                          <FormField label="Partial payment (GHS)">
-                            <TextInput type="number" min="0" step="0.01" value={line.depositAmount} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, depositAmount: e.target.value } : x)))} placeholder="0.00" />
-                          </FormField>
-                          <FormField label="Method" required={Number(line.depositAmount) > 0}>
-                            <SelectInput required={Number(line.depositAmount) > 0} value={line.depositMethod} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, depositMethod: e.target.value } : x)))}>
-                              <option value="CASH">Cash</option>
-                              <option value="CARD">Card</option>
-                              <option value="MOBILE_MONEY">Mobile Money</option>
-                              <option value="BANK_TRANSFER">Bank Transfer</option>
-                            </SelectInput>
-                          </FormField>
-                          <FormField label="Reference (optional)">
-                            <TextInput value={line.depositReference} onChange={(e) => setRoomLines((arr) => arr.map((x) => (x.key === line.key ? { ...x, depositReference: e.target.value } : x)))} placeholder="e.g. MoMo ref" />
-                          </FormField>
-                        </div>
                         <FormField label="Additional guests sharing this room">
                           {people.length === 0 ? (
                             <p className="text-xs text-[#8a9598]">Add guests above first.</p>
@@ -1085,6 +1376,52 @@ export const ReservationsPage: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              {/* Single Group Partial Payment Card */}
+              <div className="rounded-2xl border border-[#e7ebe8] bg-white p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Group Partial Payment (optional)</div>
+                    <p className="mt-0.5 text-[10px] text-[#8a9598]">Record a single deposit for the entire group booking. The remaining group balance is settled at check-in or check-out.</p>
+                  </div>
+                  <div className="rounded-xl bg-[#e8f2f4] px-3 py-1.5 text-right">
+                    <div className="text-[9px] font-bold uppercase text-[#16a4d4]">Estimated Group Total</div>
+                    <div className="text-sm font-extrabold text-[#0e7490]">{formatCurrency(Math.max(0, groupEstimatedTotal))}</div>
+                  </div>
+                </div>
+                <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                  <FormField label="Amount (GHS)">
+                    <TextInput
+                      type="number"
+                      min="0"
+                      max={Math.max(0, groupEstimatedTotal) || undefined}
+                      step="0.01"
+                      value={groupDeposit.amount}
+                      onChange={(e) => setGroupDeposit({ ...groupDeposit, amount: e.target.value })}
+                      placeholder="0.00"
+                    />
+                  </FormField>
+                  <FormField label="Method" required={Number(groupDeposit.amount) > 0}>
+                    <SelectInput
+                      required={Number(groupDeposit.amount) > 0}
+                      value={groupDeposit.method}
+                      onChange={(e) => setGroupDeposit({ ...groupDeposit, method: e.target.value })}
+                    >
+                      <option value="CASH">Cash</option>
+                      <option value="CARD">Card</option>
+                      <option value="MOBILE_MONEY">Mobile Money</option>
+                      <option value="BANK_TRANSFER">Bank Transfer</option>
+                    </SelectInput>
+                  </FormField>
+                  <FormField label="Reference (optional)">
+                    <TextInput
+                      value={groupDeposit.reference}
+                      onChange={(e) => setGroupDeposit({ ...groupDeposit, reference: e.target.value })}
+                      placeholder="e.g. Group MoMo ref"
+                    />
+                  </FormField>
+                </div>
+              </div>
             </>
           ) : (
             <>
@@ -1115,64 +1452,16 @@ export const ReservationsPage: React.FC = () => {
                     </FormField>
                   </div>
                 ) : (
-                  <div className="mt-3 space-y-3">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField label="First name" required>
-                        <TextInput required value={newGuest.firstName} onChange={(e) => setNewGuest({ ...newGuest, firstName: e.target.value })} placeholder="New guest first name" />
-                      </FormField>
-                      <FormField label="Last name">
-                        <TextInput value={newGuest.lastName} onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })} placeholder="New guest last name" />
-                      </FormField>
-                      <FormField label="Phone">
-                        <TextInput value={newGuest.phone} onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })} placeholder="+233 …" />
-                      </FormField>
-                      <FormField label="Email">
-                        <TextInput type="email" value={newGuest.email} onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })} placeholder="guest@example.com" />
-                      </FormField>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <FormField label="Address">
-                        <TextInput value={newGuest.address} onChange={(e) => setNewGuest({ ...newGuest, address: e.target.value })} placeholder="Street address" />
-                      </FormField>
-                      <FormField label="City">
-                        <TextInput value={newGuest.city} onChange={(e) => setNewGuest({ ...newGuest, city: e.target.value })} placeholder="City / Region" />
-                      </FormField>
-                      <FormField label="Country">
-                        <TextInput value={newGuest.country} onChange={(e) => setNewGuest({ ...newGuest, country: e.target.value })} placeholder="Country" />
-                      </FormField>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <FormField label="Document type">
-                        <SelectInput value={newGuest.idDocumentType} onChange={(e) => setNewGuest({ ...newGuest, idDocumentType: e.target.value })}>
-                          <option value="">Select type…</option>
-                          <option value="PASSPORT">Passport</option>
-                          <option value="NATIONAL_ID">National ID / Ghana Card</option>
-                          <option value="DRIVERS_LICENSE">Driver's License</option>
-                          <option value="OTHER">Other</option>
-                        </SelectInput>
-                      </FormField>
-                      <FormField label="Document number">
-                        <TextInput value={newGuest.idDocumentNumber} onChange={(e) => setNewGuest({ ...newGuest, idDocumentNumber: e.target.value })} placeholder="Doc #" />
-                      </FormField>
-                      <FormField label="Nationality">
-                        <TextInput value={newGuest.nationality} onChange={(e) => setNewGuest({ ...newGuest, nationality: e.target.value })} placeholder="Nationality" />
-                      </FormField>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField label="Date of birth">
-                        <TextInput type="date" value={newGuest.dateOfBirth} onChange={(e) => setNewGuest({ ...newGuest, dateOfBirth: e.target.value })} />
-                      </FormField>
-                      <FormField label="Preferences">
-                        <TextInput value={newGuest.preferences} onChange={(e) => setNewGuest({ ...newGuest, preferences: e.target.value })} placeholder="e.g. High floor, quiet room" />
-                      </FormField>
-                    </div>
-                    <FormField label="Staff notes">
-                      <TextInput value={newGuest.notes} onChange={(e) => setNewGuest({ ...newGuest, notes: e.target.value })} placeholder="Internal notes about this guest" />
+                  <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                    <FormField label="First name" required>
+                      <TextInput required value={newGuest.firstName} onChange={(e) => setNewGuest({ ...newGuest, firstName: e.target.value })} placeholder="First name" />
                     </FormField>
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" id="new-guest-vip" checked={newGuest.isVip} onChange={(e) => setNewGuest({ ...newGuest, isVip: e.target.checked })} className="h-4 w-4 rounded border-[#ced5ce] text-[#16a4d4] focus:ring-[#16a4d4]" />
-                      <label htmlFor="new-guest-vip" className="text-xs font-bold text-[#26363e]">Mark as VIP Guest</label>
-                    </div>
+                    <FormField label="Last name">
+                      <TextInput value={newGuest.lastName} onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })} placeholder="Last name" />
+                    </FormField>
+                    <FormField label="Phone">
+                      <TextInput value={newGuest.phone} onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })} placeholder="+233 …" />
+                    </FormField>
                   </div>
                 )}
                 <div className="mt-4">
@@ -1604,14 +1893,353 @@ export const ReservationsPage: React.FC = () => {
         })()}
       </Modal>
 
+      {/* Group Booking Details Modal */}
+      <Modal
+        open={!!selectedGroup}
+        onClose={() => setSelectedGroupId(null)}
+        title={selectedGroup ? `Group booking details · ${selectedGroup.bookingId}` : 'Group booking details'}
+        size="lg"
+      >
+        {selectedGroup && (
+          <div className="p-6 space-y-6">
+            {/* Header Overview Card */}
+            <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#e8ebe8] bg-[#f7f9f8] p-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-base font-extrabold text-[#a8761e]">
+                    {selectedGroup.bookingId}
+                  </span>
+                  <span className="rounded-md bg-[#e8f2f4] px-2 py-0.5 text-[10px] font-extrabold text-[#16a4d4]">
+                    GROUP BOOKING · {selectedGroup.reservations.length} ROOMS
+                  </span>
+                </div>
+                <div className="mt-1 text-xs text-[#7d898d] space-x-2">
+                  <span>Booked on {selectedGroup.createdAt ? new Date(selectedGroup.createdAt).toLocaleString() : '—'}</span>
+                  <span>· {Math.max(1, Math.ceil((new Date(selectedGroup.checkOutDate).getTime() - new Date(selectedGroup.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</span>
+                </div>
+                {selectedGroup.bookedBy && (
+                  <div className="mt-1 text-xs flex items-center gap-1 text-[#26363e] font-semibold">
+                    <span>👤 Booked by</span>
+                    <span className="text-[#16a4d4]">{selectedGroup.bookedBy?.name || 'Staff'}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {statusBadge(selectedGroup.status)}
+              </div>
+            </div>
+
+            {/* Grid 1: Stay & Lead Guest Details */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Stay Dates */}
+              <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                  <CalendarDays size={14} /> Group Stay Dates
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                    <span className="text-[#899397]">Check-in</span>
+                    <span className="font-extrabold text-[#26363e]">{new Date(selectedGroup.checkInDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                    <span className="text-[#899397]">Check-out</span>
+                    <span className="font-extrabold text-[#26363e]">{new Date(selectedGroup.checkOutDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                    <span className="text-[#899397]">Total Rooms</span>
+                    <span className="font-extrabold text-[#16a4d4]">{selectedGroup.rooms.length} Rooms</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#899397]">Total Guests</span>
+                    <span className="font-extrabold text-[#26363e]">{selectedGroup.allGuests.length} Guests in party</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lead Guest */}
+              <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                  <Users size={14} /> Lead Guest Contact
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                    <span className="text-[#899397]">Name</span>
+                    <span className="font-extrabold text-[#26363e] flex items-center gap-1">
+                      {formatGuestName(selectedGroup.leadGuest)}
+                      {selectedGroup.leadGuest?.isVip && <span className="rounded bg-amber-100 px-1 py-0.5 text-[9px] font-extrabold text-amber-800">VIP</span>}
+                    </span>
+                  </div>
+                  {selectedGroup.leadGuest?.phone && (
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Phone</span>
+                      <span className="font-bold text-[#26363e]">{selectedGroup.leadGuest.phone}</span>
+                    </div>
+                  )}
+                  {selectedGroup.leadGuest?.email && (
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                      <span className="text-[#899397]">Email</span>
+                      <span className="font-bold text-[#26363e]">{selectedGroup.leadGuest.email}</span>
+                    </div>
+                  )}
+                  {selectedGroup.allGuests.length > 1 && (
+                    <div className="py-1">
+                      <span className="text-[#899397] block mb-1">Other Guests ({selectedGroup.allGuests.length - 1}):</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedGroup.allGuests.filter((g: any) => g.id !== selectedGroup.leadGuest?.id).map((ag: any) => (
+                          <span key={ag.id} className="rounded-md bg-[#f0f4f2] px-2 py-0.5 text-[11px] font-medium text-[#26363e]">
+                            {formatGuestName(ag)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Rooms in Group */}
+            <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+              <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                <BedDouble size={14} /> Booked Rooms ({selectedGroup.reservations.length})
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#f7f8f6] text-[10px] uppercase tracking-wider text-[#7d898d]">
+                    <tr>
+                      <th className="px-3 py-2">Room</th>
+                      <th className="px-3 py-2">Confirmation</th>
+                      <th className="px-3 py-2">Assigned Guest</th>
+                      <th className="px-3 py-2">Amount</th>
+                      <th className="px-3 py-2">Status</th>
+                      <th className="px-3 py-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#edf0ed]">
+                    {selectedGroup.reservations.map((sub: any) => (
+                      <tr key={sub.id} className="hover:bg-[#f8fbf9]">
+                        <td className="px-3 py-2 font-bold text-[#26363e]">
+                          Room {sub.room?.number || '—'} <span className="text-[10px] font-normal text-[#899397]">({sub.room?.roomType?.name || 'Room'})</span>
+                        </td>
+                        <td className="px-3 py-2 font-mono text-[#556970]">{sub.confirmationNo}</td>
+                        <td className="px-3 py-2 text-[#304046]">{guestName(sub.guests?.[0]?.guest)}</td>
+                        <td className="px-3 py-2 font-bold text-[#20343e]">{formatCurrency(sub.totalAmount)}</td>
+                        <td className="px-3 py-2">{statusBadge(sub.status || 'PENDING')}</td>
+                        <td className="px-3 py-2 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedGroupId(null);
+                              openDetails(sub);
+                            }}
+                            className="rounded p-1 text-[#899397] hover:bg-[#e8f2f4] hover:text-[#16a4d4]"
+                            title="View room details"
+                          >
+                            <Eye size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Financial Summary & Group Payment Card */}
+            <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
+                  <CreditCard size={14} /> Group Payment &amp; Financial Summary
+                </div>
+                {selectedGroup.isFullyPaid ? (
+                  <span className="rounded-full bg-[#e3f3e6] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#2e7d32]">
+                    Paid in full (Group)
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-[#fdf3e7] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#b0743a]">
+                    Balance due {formatCurrency(selectedGroup.balance)}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
+                  <span className="text-[#899397]">Combined Group Total</span>
+                  <span className="font-extrabold text-[#20343e] text-sm">{formatCurrency(selectedGroup.totalAmount)}</span>
+                </div>
+                {selectedGroup.discountAmount > 0 && (
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0] text-[#a05d20]">
+                    <span>Group Discounts</span>
+                    <span className="font-bold">−{formatCurrency(selectedGroup.discountAmount)}</span>
+                  </div>
+                )}
+                <div className="space-y-1.5 bg-[#f7f9f8] p-3 rounded-xl border border-[#eef1ee]">
+                  <div className="flex justify-between items-center">
+                    <span className={`font-bold ${selectedGroup.isFullyPaid ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                      Single Group Payment
+                    </span>
+                    <span className={`font-extrabold ${selectedGroup.isFullyPaid ? 'text-[#2e7d32]' : 'text-[#16a4d4]'}`}>
+                      {formatCurrency(selectedGroup.recordedTotal)} paid
+                    </span>
+                  </div>
+                  {selectedGroup.payments.length > 0 ? (
+                    selectedGroup.payments.map((p: any) => (
+                      <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-[#edf0ed]">
+                        <span className="text-[#5f6b6f]">
+                          Group Deposit · {p.method}
+                          {p.reference ? ` · ${p.reference}` : ''}
+                          {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-[#2e7d32] font-bold">{formatCurrency(p.amount)}</span>
+                          <button
+                            type="button"
+                            title="Print payment receipt"
+                            onClick={() =>
+                              printPaymentReceipt(p, {
+                                type: selectedGroup.isFullyPaid ? 'PAYMENT' : 'DEPOSIT',
+                                guestName: formatGuestName(selectedGroup.leadGuest),
+                                bookingRef: selectedGroup.bookingId,
+                                isGroup: true,
+                                roomCount: selectedGroup.rooms?.length,
+                              })
+                            }
+                            className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
+                          >
+                            <Printer size={12} />
+                          </button>
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-[11px] text-[#b0743a]">No group payment recorded yet — collect partial payment below.</div>
+                  )}
+                  {!selectedGroup.isFullyPaid && (
+                    <div className="flex justify-between border-t border-[#e4e9e5] pt-2 mt-1">
+                      <span className="text-[#5f6b6f] font-semibold">Remaining Group Balance</span>
+                      <span className="font-extrabold text-[#b0743a] text-sm">{formatCurrency(selectedGroup.balance)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#edf0ed]">
+              <div className="flex items-center gap-2">
+                {canProcessPayment && !selectedGroup.isFullyPaid && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="bg-[#16a4d4] text-white"
+                    onClick={() => {
+                      const g = selectedGroup;
+                      setSelectedGroupId(null);
+                      openGroupDeposit(g);
+                    }}
+                  >
+                    <CreditCard size={13} /> Record group payment
+                  </Button>
+                )}
+                {canCancel && !['CANCELLED', 'CHECKED_OUT'].includes(String(selectedGroup.status).toUpperCase()) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:bg-red-50"
+                    onClick={() => cancelGroup(selectedGroup.bookingId)}
+                  >
+                    Cancel group booking
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedGroupId(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       <Modal
         open={depositOpen}
-        onClose={() => setDepositOpen(false)}
-        title={detailsRes ? `Record payment · ${detailsRes.confirmationNo || 'reservation'}` : 'Record payment'}
+        onClose={() => { setDepositOpen(false); setDepositTargetGroup(null); }}
+        title={depositTargetGroup ? `Record group payment · ${depositTargetGroup.bookingId}` : detailsRes ? `Record payment · ${detailsRes.confirmationNo || 'reservation'}` : 'Record payment'}
         size="md"
       >
         <div className="space-y-5">
-          {detailsRes && (
+          {depositTargetGroup ? (
+            <>
+              <div className="rounded-xl bg-[#f0f8fa] p-3 text-xs text-[#20343e] border border-[#d3eaee]">
+                <div className="flex items-center gap-2 mb-1.5 font-bold text-[#16a4d4]">
+                  <Users size={14} /> Group Payment · {depositTargetGroup.reservations.length} Rooms ({depositTargetGroup.rooms.map((r: any) => `R${r.number}`).join(', ')})
+                </div>
+                {depositTargetGroup.recordedTotal > 0 ? (
+                  <>
+                    <span className="text-[#2e7d32] font-bold">{formatCurrency(depositTargetGroup.recordedTotal)} recorded</span>
+                    <span className="mx-1 text-[#899397]">·</span>
+                    <span className="text-[#b0743a] font-bold">Group balance due {formatCurrency(depositTargetGroup.balance)}</span>
+                  </>
+                ) : (
+                  <span>No payment logged yet for this group — record the group deposit.</span>
+                )}
+                <div className="mt-1 text-[10px] text-[#899397]">
+                  Outstanding group balance: <strong className="text-[#20343e]">{formatCurrency(depositTargetGroup.balance)}</strong> (Group total: {formatCurrency(depositTargetGroup.totalAmount)})
+                </div>
+              </div>
+              <FormField label="Amount (GHS)">
+                <TextInput
+                  type="number"
+                  min={1}
+                  step="0.01"
+                  placeholder="e.g. 500"
+                  value={depositForm.amount}
+                  onChange={(e) => setDepositForm((f) => ({ ...f, amount: e.target.value }))}
+                />
+              </FormField>
+              <FormField label="Payment method">
+                <SelectInput value={depositForm.method} onChange={(e) => setDepositForm((f) => ({ ...f, method: e.target.value }))} disabled={depositSplitOpen}>
+                  <option value="CASH">Cash</option>
+                  <option value="CARD">Card</option>
+                  <option value="MOBILE_MONEY">Mobile Money</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                </SelectInput>
+              </FormField>
+
+              <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
+                <input
+                  type="checkbox"
+                  checked={depositSplitOpen}
+                  onChange={(e) => {
+                    setDepositSplitOpen(e.target.checked);
+                    setDepositTenders([makeTenderRow()]);
+                  }}
+                  className="h-3.5 w-3.5 accent-[#174B59]"
+                />
+                Split payment across methods (e.g. cash + mobile money)
+              </label>
+
+              {depositSplitOpen && (
+                <div className="rounded-xl border border-slate-200 p-3">
+                  <TenderSplit total={Number(depositForm.amount) || 0} rows={depositTenders} onChange={setDepositTenders} />
+                </div>
+              )}
+
+              <FormField label="Reference (optional)">
+                <TextInput
+                  placeholder="Receipt / transaction number"
+                  value={depositForm.reference}
+                  disabled={depositSplitOpen}
+                  onChange={(e) => setDepositForm((f) => ({ ...f, reference: e.target.value }))}
+                />
+              </FormField>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" size="sm" onClick={() => { setDepositOpen(false); setDepositTargetGroup(null); }}>Cancel</Button>
+                <Button variant="primary" size="sm" loading={saving} disabled={depositSplitOpen && !tendersCoverTotal(depositTenders, Number(depositForm.amount) || 0)} onClick={recordDeposit}>Record group payment</Button>
+              </div>
+            </>
+          ) : detailsRes ? (
             <>
               <div className="rounded-xl bg-[#f7f9f8] p-3 text-xs text-[#26363e]">
                 {Number(detailsRes.depositAmount || 0) > 0 || recordedDepositTotal(detailsRes) > 0 ? (
@@ -1684,11 +2312,11 @@ export const ReservationsPage: React.FC = () => {
                 />
               </FormField>
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="ghost" size="sm" onClick={() => setDepositOpen(false)}>Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={() => { setDepositOpen(false); setDepositTargetGroup(null); }}>Cancel</Button>
                 <Button variant="primary" size="sm" loading={saving} disabled={depositSplitOpen && !tendersCoverTotal(depositTenders, Number(depositForm.amount) || 0)} onClick={recordDeposit}>Record payment</Button>
               </div>
             </>
-          )}
+          ) : null}
         </div>
       </Modal>
 

@@ -258,6 +258,8 @@ export const processPaymentSchema = z.object({
   // second settlement entry.
   idempotencyKey: uuidSchema,
   description: z.string().max(500).trim().optional(),
+  source: z.string().max(50).trim().optional(),
+  sourceId: z.string().max(100).trim().optional(),
   // A reservation deposit can be collected before a folio exists.  It is still
   // a payment-ledger entry, but is kept distinct from settlement collections.
   paymentType: z.enum(['PAYMENT', 'DEPOSIT']).default('PAYMENT'),
@@ -356,6 +358,9 @@ export const updateReservationSchema = z.object({
 });
 export const createMultiReservationSchema = z.object({
   ...reservationCommon,
+  depositAmount: nonNegativeNumber.optional(),
+  depositMethod: paymentMethodSchema.optional(),
+  depositReference: z.string().max(100).trim().optional(),
   rooms: z
     .array(
       z.object({

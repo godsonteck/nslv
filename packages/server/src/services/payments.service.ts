@@ -21,6 +21,8 @@ export interface ProcessPaymentDTO {
   // Split settlements: each tender becomes its own Payment row (idempotency
   // keys `key`, `key#1`, `key#2`, …) and the tender amounts must sum to amount.
   tenders?: { method: string; amount: number; reference?: string }[];
+  source?: string;
+  sourceId?: string;
   idempotencyKey: string;
   description?: string;
   paymentType?: 'PAYMENT' | 'DEPOSIT';
@@ -115,7 +117,7 @@ export class PaymentService {
     const reservation = reservationId
       ? (tx.reservation?.findUnique ? await tx.reservation.findUnique({
           where: { id: reservationId }, include: { guests: { where: { isPrimary: true }, select: { guestId: true } } },
-        }) : { id: reservationId, totalAmount: data.amount, guests: [{ guestId: data.guestId || targetFolio?.guestId }] })
+        }) : { id: reservationId, totalAmount: data.amount, bookingId: null as string | null, guests: [{ guestId: data.guestId || targetFolio?.guestId }] })
       : null;
     if (!reservation) throw new Error('Reservation not found.');
     if (data.folioId && targetFolio?.reservationId && targetFolio.reservationId !== reservation.id) throw new Error('The folio does not belong to the supplied reservation.');
@@ -129,11 +131,28 @@ export class PaymentService {
       const balance = new Prisma.Decimal(targetFolio!.balance);
       if (amount.gt(balance)) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
     } else {
-      const priorDeposits = await tx.payment.aggregate({
-        where: { reservationId: reservation.id, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null }, _sum: { amount: true },
-      });
-      if (new Prisma.Decimal(priorDeposits._sum.amount || 0).plus(amount).gt(reservation.totalAmount)) {
-        throw new Error('Deposits cannot exceed the reservation total.');
+      const groupBookingId = (reservation as any).bookingId;
+      if (groupBookingId) {
+        const groupRes = await tx.reservation.findMany({
+          where: { bookingId: groupBookingId },
+          select: { id: true, totalAmount: true },
+        });
+        const combinedTotal = groupRes.reduce((sum, r) => sum.plus(new Prisma.Decimal(r.totalAmount || 0)), new Prisma.Decimal(0));
+        const groupResIds = groupRes.map((r) => r.id);
+        const priorDeposits = await tx.payment.aggregate({
+          where: { reservationId: { in: groupResIds }, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null },
+          _sum: { amount: true },
+        });
+        if (new Prisma.Decimal(priorDeposits._sum.amount || 0).plus(amount).gt(combinedTotal)) {
+          throw new AppError('Group deposit cannot exceed the combined group total amount.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
+        }
+      } else {
+        const priorDeposits = await tx.payment.aggregate({
+          where: { reservationId: reservation.id, type: 'DEPOSIT', status: 'COMPLETED', voidedAt: null }, _sum: { amount: true },
+        });
+        if (new Prisma.Decimal(priorDeposits._sum.amount || 0).plus(amount).gt(reservation.totalAmount)) {
+          throw new AppError('Deposits cannot exceed the reservation total.', 409, 'DEPOSIT_EXCEEDS_TOTAL');
+        }
       }
     }
 
@@ -162,6 +181,8 @@ export class PaymentService {
       const p = await tx.payment.create({ data: {
         folioId: targetFolio?.id, reservationId: reservation.id,
         guestId: expectedGuestId,
+        source: data.source,
+        sourceId: data.sourceId,
         amount: new Prisma.Decimal(t.amount), currency: data.currency || 'GHS', method: t.method as PaymentMethod, reference: t.reference,
         idempotencyKey: i === 0 ? data.idempotencyKey : `${data.idempotencyKey}#${i}`,
         status: PaymentStatus.COMPLETED, type: paymentType as PaymentType,
