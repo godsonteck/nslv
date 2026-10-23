@@ -478,42 +478,42 @@ export const PaymentsPage: React.FC = () => {
         subtitle="Complete chronological record of receipts, collections, and reversals."
       >
         {/* Filter Bar */}
-        <div className="border-b border-[#e8ebe8] bg-[#fbfdfc] p-4 space-y-3">
+        <div className="border-b border-[#edf2f2] bg-[#fbfdfd] p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Type Tabs */}
-            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[#dfe4e0] bg-white p-1">
+            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[#dfe5e5] bg-[#f7faf9] p-1">
               <button
                 type="button"
                 onClick={() => setTypeFilter('ALL')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'ALL' ? 'bg-[#16a4d4] text-white shadow-sm' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'ALL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[#64748b] hover:text-[#0c1921]'}`}
               >
                 All ({data.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('FULL')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'FULL' ? 'bg-[#16a4d4] text-white shadow-sm' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'FULL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[#64748b] hover:text-[#0c1921]'}`}
               >
                 Full Payments ({fullPayments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('PART')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'PART' ? 'bg-[#16a4d4] text-white shadow-sm' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'PART' ? 'bg-[#c59a58] text-[#0c1921] shadow-sm font-black' : 'text-[#64748b] hover:text-[#0c1921]'}`}
               >
                 Part Payments ({partPayments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('REFUND')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'REFUND' ? 'bg-[#16a4d4] text-white shadow-sm' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'REFUND' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[#64748b] hover:text-[#0c1921]'}`}
               >
                 Refunds ({completedRefunds.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('PENDING')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${typeFilter === 'PENDING' ? 'bg-amber-600 text-white shadow-sm' : pendingRefunds.length > 0 ? 'text-amber-700 font-extrabold bg-amber-50' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${typeFilter === 'PENDING' ? 'bg-amber-600 text-white shadow-sm' : pendingRefunds.length > 0 ? 'text-amber-700 font-extrabold bg-amber-50' : 'text-[#64748b] hover:text-[#0c1921]'}`}
               >
                 Pending ({pendingRefunds.length})
               </button>
@@ -521,14 +521,14 @@ export const PaymentsPage: React.FC = () => {
 
             {/* Method Select Filter */}
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[#899397] font-semibold text-[11px] uppercase tracking-wider">Method:</span>
+              <span className="text-[#71828a] font-bold text-[10px] uppercase tracking-wider">Method:</span>
               <div className="flex flex-wrap gap-1">
                 {(['ALL', 'CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'] as FilterMethod[]).map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => setMethodFilter(m)}
-                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition border ${methodFilter === m ? 'border-[#16a4d4] bg-[#eff9fc] text-[#0e7490]' : 'border-transparent text-[#64748b] hover:bg-slate-100'}`}
+                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition border ${methodFilter === m ? 'border-[#c59a58] bg-[#fbf8f2] text-[#8c672b]' : 'border-transparent text-[#64748b] hover:bg-slate-100'}`}
                   >
                     {m === 'ALL' ? 'All' : methodLabel(m)}
                   </button>
@@ -539,13 +539,13 @@ export const PaymentsPage: React.FC = () => {
 
           {/* Search bar */}
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94a3b8]" size={15} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#71828a]" size={15} />
             <input
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by guest, room, receipt reference, or handled-by staff…"
-              className="w-full rounded-xl border border-[#dfe4e0] bg-white py-2 pl-9 pr-4 text-xs font-medium text-[#0f172a] placeholder-[#94a3b8] focus:border-[#16a4d4] focus:outline-none focus:ring-1 focus:ring-[#16a4d4]"
+              className="w-full rounded-xl border border-[#dfe5e5] bg-white py-2 pl-9 pr-4 text-xs font-medium text-[#0c1921] placeholder-[#71828a] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
             />
           </div>
         </div>
@@ -611,8 +611,8 @@ export const PaymentsPage: React.FC = () => {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span>{guestDisplayName}</span>
                           {isGroupPayment ? (
-                            <span className="rounded-md bg-[#e8f2f4] px-1.5 py-0.5 text-[10px] font-extrabold text-[#16a4d4] flex items-center gap-1 border border-[#b8dde6]">
-                              <BedDouble size={11} /> Group · Rooms {p.groupRooms!.join(', ')}
+                            <span className="rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-extrabold text-[#173c4d] flex items-center gap-1 border border-[#173c4d]/15">
+                              <BedDouble size={11} className="text-[#c59a58]" /> Group · Rooms {p.groupRooms!.join(', ')}
                             </span>
                           ) : roomNumber ? (
                             <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-extrabold text-[#475569] flex items-center gap-1 border border-slate-200">
@@ -736,7 +736,7 @@ export const PaymentsPage: React.FC = () => {
                                     remainingBalance: isFull ? 0 : (p.remainingBalance !== undefined ? p.remainingBalance : Math.max(0, (p.amountDue ?? Number(p.amount)) - Number(p.amount))),
                                   })
                                 }
-                                className="rounded-lg p-1.5 text-[#64748b] hover:bg-[#eff9fc] hover:text-[#16a4d4] transition-colors border border-transparent hover:border-[#b8dde6]"
+                                className="rounded-lg p-1.5 text-[#64748b] hover:bg-[#c59a58]/10 hover:text-[#b88738] transition-colors border border-transparent hover:border-[#c59a58]/30"
                               >
                                 <Printer size={15} />
                               </button>
@@ -943,13 +943,13 @@ export const PaymentsPage: React.FC = () => {
                 setSplitOpen(e.target.checked);
                 setTenders([makeTenderRow()]);
               }}
-              className="h-3.5 w-3.5 accent-[#16a4d4]"
+              className="h-3.5 w-3.5 accent-[#c59a58]"
             />
             Split payment across methods (e.g. cash + mobile money)
           </label>
 
           {splitOpen && (
-            <div className="rounded-xl border border-slate-200 p-3 bg-slate-50">
+            <div className="rounded-xl border border-[#dfe5e5] p-3 bg-[#fbfdfd]">
               <TenderSplit total={Number(form.amount) || 0} rows={tenders} onChange={setTenders} />
             </div>
           )}
@@ -971,7 +971,7 @@ export const PaymentsPage: React.FC = () => {
             </FormField>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf0ed]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -979,9 +979,9 @@ export const PaymentsPage: React.FC = () => {
               type="submit"
               loading={busy}
               disabled={splitOpen && !tendersCoverTotal(tenders, Number(form.amount) || 0)}
-              className="bg-[#16a4d4] text-white hover:bg-[#138db8]"
+              className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#0c1921] font-bold"
             >
-              <ReceiptText size={14} /> Record & Print Receipt
+              <ReceiptText size={14} className="text-[#c59a58]" /> Record & Print Receipt
             </Button>
           </div>
         </form>

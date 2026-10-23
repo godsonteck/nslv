@@ -12,13 +12,51 @@ export class ReportService {
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
 
-    // Room stats
-    const totalRooms = await prisma.room.count({ where: { isActive: true } });
-    const occupiedRooms = await prisma.room.count({ where: { status: 'OCCUPIED' } });
-    const reservedRooms = await prisma.room.count({ where: { status: 'RESERVED' } });
-    const availableRooms = await prisma.room.count({ where: { status: 'AVAILABLE' } });
-    const dirtyRooms = await prisma.room.count({ where: { status: 'DIRTY' } });
-    const maintenanceRooms = await prisma.room.count({ where: { status: { in: ['MAINTENANCE', 'OUT_OF_SERVICE'] } } });
+    // Dynamic date-aware Room stats: a room with a future reservation is AVAILABLE today
+    // until the arrival date arrives.
+    const allRooms = await prisma.room.findMany({ where: { isActive: true } });
+    const totalRooms = allRooms.length;
+
+    const tomorrow = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+    const activeReservationsToday = await prisma.reservation.findMany({
+      where: {
+        status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+        checkInDate: { lt: tomorrow },
+        checkOutDate: { gt: startOfDay },
+      },
+      select: { id: true, roomId: true, status: true },
+    });
+
+    const resByRoomId = new Map<string, any[]>();
+    for (const res of activeReservationsToday) {
+      if (!res.roomId) continue;
+      if (!resByRoomId.has(res.roomId)) resByRoomId.set(res.roomId, []);
+      resByRoomId.get(res.roomId)!.push(res);
+    }
+
+    let occupiedRooms = 0;
+    let reservedRooms = 0;
+    let dirtyRooms = 0;
+    let maintenanceRooms = 0;
+    let availableRooms = 0;
+
+    for (const room of allRooms) {
+      const roomRes = resByRoomId.get(room.id) || [];
+      const hasCheckedIn = roomRes.some((r) => r.status === 'CHECKED_IN');
+      const hasReserved = roomRes.some((r) => ['CONFIRMED', 'PENDING'].includes(r.status));
+
+      if (hasCheckedIn) {
+        occupiedRooms++;
+      } else if (hasReserved) {
+        reservedRooms++;
+      } else if (['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)) {
+        maintenanceRooms++;
+      } else if (['DIRTY', 'CLEANING'].includes(room.status)) {
+        dirtyRooms++;
+      } else {
+        availableRooms++;
+      }
+    }
 
     const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
 
@@ -117,13 +155,53 @@ export class ReportService {
   static async getComprehensiveReport(startDate?: Date, endDate?: Date) {
     const whereDate = startDate && endDate ? { gte: startDate, lte: endDate } : undefined;
 
-    // 1. Room Capacity & Current Occupancy
-    const totalRooms = await prisma.room.count({ where: { isActive: true } });
-    const occupiedRooms = await prisma.room.count({ where: { status: 'OCCUPIED' } });
-    const reservedRooms = await prisma.room.count({ where: { status: 'RESERVED' } });
-    const availableRooms = await prisma.room.count({ where: { status: 'AVAILABLE' } });
-    const dirtyRooms = await prisma.room.count({ where: { status: 'DIRTY' } });
-    const maintenanceRooms = await prisma.room.count({ where: { status: { in: ['MAINTENANCE', 'OUT_OF_SERVICE'] } } });
+    // 1. Room Capacity & Current Occupancy (date-aware)
+    const allRooms = await prisma.room.findMany({ where: { isActive: true } });
+    const totalRooms = allRooms.length;
+
+    const repTargetDate = startDate || new Date();
+    const repStartOfDay = new Date(repTargetDate.getFullYear(), repTargetDate.getMonth(), repTargetDate.getDate());
+    const repTomorrow = new Date(repStartOfDay.getTime() + 24 * 60 * 60 * 1000);
+
+    const activeReservationsAtDate = await prisma.reservation.findMany({
+      where: {
+        status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+        checkInDate: { lt: repTomorrow },
+        checkOutDate: { gt: repStartOfDay },
+      },
+      select: { id: true, roomId: true, status: true },
+    });
+
+    const repResByRoomId = new Map<string, any[]>();
+    for (const res of activeReservationsAtDate) {
+      if (!res.roomId) continue;
+      if (!repResByRoomId.has(res.roomId)) repResByRoomId.set(res.roomId, []);
+      repResByRoomId.get(res.roomId)!.push(res);
+    }
+
+    let occupiedRooms = 0;
+    let reservedRooms = 0;
+    let dirtyRooms = 0;
+    let maintenanceRooms = 0;
+    let availableRooms = 0;
+
+    for (const room of allRooms) {
+      const roomRes = repResByRoomId.get(room.id) || [];
+      const hasCheckedIn = roomRes.some((r) => r.status === 'CHECKED_IN');
+      const hasReserved = roomRes.some((r) => ['CONFIRMED', 'PENDING'].includes(r.status));
+
+      if (hasCheckedIn) {
+        occupiedRooms++;
+      } else if (hasReserved) {
+        reservedRooms++;
+      } else if (['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)) {
+        maintenanceRooms++;
+      } else if (['DIRTY', 'CLEANING'].includes(room.status)) {
+        dirtyRooms++;
+      } else {
+        availableRooms++;
+      }
+    }
     const currentOccupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
 
     // 2. Headcount & People Breakdown

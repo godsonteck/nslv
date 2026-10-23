@@ -26,8 +26,8 @@ export const Header: React.FC = () => {
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
   const canSearchGuests = user?.permissions?.includes('guests.view') ?? false;
 
-  const villaName = theme?.villaName || 'NSVilla';
-  const villaTagline = theme?.villaTagline || 'Property Operations';
+  const villaName = theme?.villaName || 'NS Luxury Villa';
+  const villaTagline = theme?.villaTagline || 'Lokoe, Ho, Ghana';
   const villaLogo = theme?.logoUrl || villaAssets.logo;
 
   React.useEffect(() => {
@@ -121,8 +121,8 @@ export const Header: React.FC = () => {
           {canSettings && <button className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 sm:flex" onClick={() => navigate('/admin/settings')} aria-label="Settings"><Settings2 size={17} /></button>}
           <div className="relative">
             <button onClick={() => setOpenDropdown(v => !v)} className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 hover:bg-slate-50">
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#16a4d4] text-[11px] font-extrabold text-white ring-2 ring-[#e8f2f4]">{user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}</span>
-              <span className="hidden text-left lg:block"><span className="block max-w-[120px] truncate text-[11px] font-extrabold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</span><span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-400">{user?.roles?.[0]?.name ?? 'User'}</span></span>
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-tr from-[#173c4d] to-[#255569] text-[11px] font-extrabold text-[#fdfbf7] ring-2 ring-[#c59a58]/30">{user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}</span>
+              <span className="hidden text-left lg:block"><span className="block max-w-[120px] truncate text-[11px] font-extrabold text-slate-800">{user ? `${user.firstName} ${user.lastName}` : 'Staff'}</span><span className="block text-[9px] font-semibold uppercase tracking-wide text-[#b88738]">{user?.roles?.[0]?.name ?? 'User'}</span></span>
               <ChevronDown size={13} className="hidden text-slate-400 lg:block" />
             </button>
             {openDropdown && <div className="absolute right-0 top-12 w-52 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_18px_50px_rgba(20,35,43,.14)]">

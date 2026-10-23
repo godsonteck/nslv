@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { reservationsApi, staysApi, roomsApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
-import { formatUserGreeting } from '@nslv/shared';
+import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import {
   LogIn,
   LogOut,
@@ -22,6 +22,10 @@ import {
   CheckCircle2,
   Calendar,
   ShieldCheck,
+  DoorOpen,
+  UserCheck,
+  CreditCard,
+  Building,
 } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
@@ -45,6 +49,7 @@ export const FrontDeskPage: React.FC = () => {
 
   const [stays, setStays] = useState<any[]>([]);
   const [arrivals, setArrivals] = useState<any[]>([]);
+  const [rawReservations, setRawReservations] = useState<any[]>([]);
   const [rooms, setRooms] = useState<any[]>([]);
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(true);
@@ -63,6 +68,13 @@ export const FrontDeskPage: React.FC = () => {
   const [lateFeeReason, setLateFeeReason] = useState('');
   const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
+  const nowFormatted = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   const load = async () => {
     try {
       setLoading(true);
@@ -72,7 +84,9 @@ export const FrontDeskPage: React.FC = () => {
         roomsApi.getRooms(),
         staysApi.getCheckoutPolicy().catch(() => null),
       ]);
-      setArrivals((r.data || []).filter((reservation) => isArrivalDue(reservation)));
+      const resList = r.data || [];
+      setRawReservations(resList);
+      setArrivals(resList.filter((reservation: any) => isArrivalDue(reservation)));
       setStays(s.data || []);
       setRooms(rm.data || []);
       if (policy?.data) setCheckoutPolicy(policy.data);
@@ -92,6 +106,47 @@ export const FrontDeskPage: React.FC = () => {
     clearGetCache();
     void load();
   };
+
+  // Authoritative date-aware room availability for TODAY
+  // Rooms with future reservations remain AVAILABLE today until the arrival date!
+  const getRoomAvailabilityToday = (room: any, allRes: any[]) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const roomReservations = allRes.filter((res: any) => {
+      const matchRoom = (res.roomId && res.roomId === room.id) || (res.room?.id && res.room.id === room.id);
+      const activeStatus = !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(String(res.status).toUpperCase());
+      return matchRoom && activeStatus;
+    });
+
+    // 1. In-house checked-in guest -> OCCUPIED
+    const inHouse = roomReservations.find((res: any) => String(res.status).toUpperCase() === 'CHECKED_IN');
+    if (inHouse) return { status: 'OCCUPIED', reservation: inHouse };
+
+    // 2. Active reservation covering TODAY -> RESERVED
+    const activeResToday = roomReservations.find((res: any) => {
+      const cin = String(res.checkInDate).slice(0, 10);
+      const cout = String(res.checkOutDate).slice(0, 10);
+      return cin <= today && today < cout;
+    });
+    if (activeResToday) return { status: 'RESERVED', reservation: activeResToday };
+
+    // 3. Operational conditions
+    if (['MAINTENANCE', 'OUT_OF_SERVICE', 'DIRTY', 'CLEANING'].includes(room.status)) {
+      return { status: room.status, reservation: null };
+    }
+
+    // 4. AVAILABLE today
+    return { status: 'AVAILABLE', reservation: null };
+  };
+
+  const roomAvailabilityMap = new Map<string, { status: string; reservation: any }>();
+  rooms.forEach((r) => {
+    roomAvailabilityMap.set(r.id, getRoomAvailabilityToday(r, rawReservations));
+  });
+
+  const availableRoomsToday = rooms.filter((r) => roomAvailabilityMap.get(r.id)?.status === 'AVAILABLE');
+  const reservedRoomsToday = rooms.filter((r) => roomAvailabilityMap.get(r.id)?.status === 'RESERVED');
+  const occupiedRoomsToday = rooms.filter((r) => roomAvailabilityMap.get(r.id)?.status === 'OCCUPIED');
+  const dirtyRoomsToday = rooms.filter((r) => ['DIRTY', 'CLEANING'].includes(r.status));
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -163,314 +218,306 @@ export const FrontDeskPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      {/* ── Page Header ── */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
-            <Sparkles size={13} className="text-[#c59a58]" />
-            Reception &bull; Front Desk Terminal
+    <div className="space-y-7 pb-16 animate-in fade-in duration-300">
+      {/* ── Editorial Front Desk Header ── */}
+      <div className="relative overflow-hidden rounded-3xl border border-[#c59a58]/35 bg-gradient-to-r from-[#0c151c] via-[#111e28] to-[#0a1218] p-7 sm:p-9 text-white shadow-[0_16px_40px_rgba(10,18,24,0.35)]">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c59a58]/50 bg-[#c59a58]/15 px-3 py-1 text-[10px] font-black tracking-widest text-[#f0d49f] uppercase">
+                <Sparkles size={11} className="text-[#c59a58]" /> Reception &bull; Front Desk Terminal
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-[10px] font-bold text-sky-300">
+                <Clock size={11} /> Standard Checkout: {checkoutPolicy.checkoutTime}
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white font-serif">
+              {greeting}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300/85 max-w-xl font-medium leading-relaxed">
+              Real-time arrival processing, room key dispatch, and payment-safe departures &bull; {nowFormatted}
+            </p>
           </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
-            {greeting}
-          </h1>
-          <p className="mt-1 text-xs text-[#64748b]">
-            Real-time arrival processing, active guest management, and payment-safe departures.
-          </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/reception/report')}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
-          >
-            <BarChart3 size={14} className="text-[#174b59]" /> Reception Report
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/cash-at-hand')}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
-          >
-            <WalletCards size={14} className="text-emerald-700" /> Cash at Hand
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refresh}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold"
-          >
-            <RefreshCw size={14} /> Refresh
-          </Button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              onClick={() => navigate('/reception/report')}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs"
+            >
+              <BarChart3 size={14} className="text-[#38bdf8]" />
+              <span>Reception Report</span>
+            </button>
+            <button
+              onClick={() => navigate('/cash-at-hand')}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs"
+            >
+              <WalletCards size={14} className="text-emerald-400" />
+              <span>Cash at Hand</span>
+            </button>
+            <button
+              onClick={refresh}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all"
+            >
+              <RefreshCw size={13} />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── Front Desk KPI Grid ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Arrivals Due */}
-        <div className="rounded-2xl border border-sky-200/80 bg-gradient-to-br from-white to-sky-50/40 p-5 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-800">Arrivals Due</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
-              <LogIn size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-3xl font-black text-[#0f172a]">{arrivals.length}</div>
-          <div className="mt-1 text-xs text-sky-700 font-medium">Ready for check-in terminal</div>
-        </div>
-
-        {/* In House */}
-        <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white to-emerald-50/40 p-5 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">In House</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-              <UserRound size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-3xl font-black text-[#0f172a]">{stays.length}</div>
-          <div className="mt-1 text-xs text-emerald-700 font-medium">Active registered guests</div>
-        </div>
-
-        {/* Ready Rooms */}
-        <div className="rounded-2xl border border-[#c59a58]/40 bg-gradient-to-br from-white to-[#fbf8f2] p-5 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9b6e2e]">Ready Rooms</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100/80 text-[#9b6e2e]">
-              <BedDouble size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-3xl font-black text-[#0f172a]">
-            {rooms.filter((room) => ['AVAILABLE', 'READY'].includes(room.status)).length}
-          </div>
-          <div className="mt-1 text-xs text-[#9b6e2e] font-medium">Clean & inspected rooms</div>
-        </div>
-
-        {/* Departures */}
-        <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Departures Today</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
-              <LogOut size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-3xl font-black text-[#0f172a]">
-            {stays.filter((stay) => String(departureDate(stay) || '').slice(0, 10) === new Date().toISOString().slice(0, 10)).length}
-          </div>
-          <div className="mt-1 text-xs text-slate-500 font-medium">Scheduled checkouts</div>
-        </div>
-      </div>
-
-      {/* ── Quick Action Operational Banners ── */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <button
-          onClick={() => navigate('/reception/report')}
-          className="group flex w-full items-center gap-4 rounded-2xl border border-[#cbd5e1]/70 bg-white p-4 text-left shadow-xs hover:border-[#174b59]/50 hover:shadow-md transition-all"
-        >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-[#174b59] group-hover:scale-105 transition-transform">
-            <BarChart3 size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-bold text-[#0f172a]">Daily Reception Report</div>
-            <div className="mt-0.5 text-[11px] text-[#64748b]">MoMo, Cash, shift totals & booked stays</div>
-          </div>
-          <ArrowRight size={15} className="text-[#174b59] transition group-hover:translate-x-1" />
-        </button>
-
-        <button
-          onClick={() => navigate('/cash-at-hand')}
-          className="group flex w-full items-center gap-4 rounded-2xl border border-[#cbd5e1]/70 bg-white p-4 text-left shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all"
-        >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 group-hover:scale-105 transition-transform">
-            <WalletCards size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-bold text-[#0f172a]">Cash at Hand Drawer</div>
-            <div className="mt-0.5 text-[11px] text-[#64748b]">Track drawer balances, payouts & floats</div>
-          </div>
-          <ArrowRight size={15} className="text-emerald-700 transition group-hover:translate-x-1" />
-        </button>
-
-        {permissions.includes('pool.view') && (
-          <button
-            onClick={() => navigate('/pool/services')}
-            className="group flex w-full items-center gap-4 rounded-2xl border border-[#cbd5e1]/70 bg-white p-4 text-left shadow-xs hover:border-[#2e7f8c]/50 hover:shadow-md transition-all"
-          >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-[#2e7f8c] group-hover:scale-105 transition-transform">
-              <Waves size={20} />
+      {/* ── Dynamic Room Availability Bar (Tallies 100% with Overview and Rooms Page) ── */}
+      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <DoorOpen size={16} className="text-[#174b59]" />
+            <span className="text-xs font-black uppercase tracking-wider text-[#174b59]">
+              Front Desk Live Room Rack &bull; Today's Inventory Status
             </span>
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold text-[#0f172a]">Pool & Amenities Desk</div>
-              <div className="mt-0.5 text-[11px] text-[#64748b]">Record pool entries & outdoor services</div>
+          </div>
+          <span className="text-xs text-slate-500 font-medium">
+            Total property rooms: <strong className="text-slate-900">{rooms.length}</strong>
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          {/* Ready to Sell / Available Today */}
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Ready to Sell (Available)</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <ArrowRight size={15} className="text-[#2e7f8c] transition group-hover:translate-x-1" />
-          </button>
-        )}
-      </div>
-
-      {/* ── Arrival Desk Section ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50 gap-3">
-          <div>
-            <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
-              <LogIn size={16} className="text-sky-600" />
-              Arrival Desk
-            </h2>
-            <p className="text-[11px] text-[#64748b] mt-0.5">
-              Check-in commences at 2:00 PM. Includes expected arrivals and confirmed bookings due today.
-            </p>
+            <div className="mt-2 text-3xl font-black text-emerald-950">{availableRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-emerald-700 font-medium">Clean & available today</div>
           </div>
 
-          <div className="relative w-full sm:w-72">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search arrivals or guests..."
-              className="w-full rounded-xl border border-[#cbd5e1] pl-9 pr-3 py-1.5 text-xs text-[#0f172a] focus:border-[#174b59] focus:outline-none"
-            />
+          {/* Reserved for Today */}
+          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Reserved Today</span>
+              <Calendar size={13} className="text-amber-700" />
+            </div>
+            <div className="mt-2 text-3xl font-black text-amber-950">{reservedRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-amber-700 font-medium">Arrivals due / active bookings</div>
+          </div>
+
+          {/* In-House Occupied */}
+          <div className="rounded-xl border border-sky-200 bg-sky-50/50 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">In-House Stays</span>
+              <UserCheck size={13} className="text-sky-700" />
+            </div>
+            <div className="mt-2 text-3xl font-black text-sky-950">{occupiedRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-sky-700 font-medium">Currently occupied rooms</div>
+          </div>
+
+          {/* Housekeeping Turnover */}
+          <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800">Housekeeping Turnover</span>
+              <Building size={13} className="text-rose-700" />
+            </div>
+            <div className="mt-2 text-3xl font-black text-rose-950">{dirtyRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-rose-700 font-medium">Dirty / cleaning in progress</div>
           </div>
         </div>
 
-        {loading ? (
-          <LoadingState />
-        ) : arrivals.length === 0 ? (
-          <div className="p-10 text-center text-xs text-[#94a3b8]">
-            No arrivals currently waiting for check-in.
-          </div>
-        ) : (
-          <div className="divide-y divide-[#f1f5f9]">
-            {arrivals.map((reservation) => {
-              const guestName =
-                [reservation.guests?.[0]?.guest?.firstName, reservation.guests?.[0]?.guest?.lastName]
-                  .filter(Boolean)
-                  .join(' ') || 'Guest';
-              return (
+        {/* Live Available Rooms Key Rack (Interactive walk-in selection) */}
+        {availableRoomsToday.length > 0 && (
+          <div className="pt-2 border-t border-slate-100">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span>Ready Rooms Available for Walk-Ins ({availableRoomsToday.length})</span>
+              <span className="text-[#174b59] font-normal lowercase">click room to view</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {availableRoomsToday.map((room) => (
                 <div
-                  key={reservation.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-slate-50/80 transition-colors"
+                  key={room.id}
+                  onClick={() => navigate('/reservations')}
+                  className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50/40 px-3 py-1.5 hover:bg-emerald-100/70 hover:border-emerald-400 transition-all shadow-2xs"
+                  title="Click to book room in reservations"
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 text-xs font-black shadow-xs">
-                      <UserRound size={18} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-xs font-bold text-[#0f172a] flex items-center gap-2">
-                        <span>{guestName}</span>
-                        <span className="rounded-md border border-sky-300 bg-sky-50 px-2 py-0.5 text-[10px] font-black text-sky-800">
-                          Room {reservation.room?.number || 'Unassigned'}
-                        </span>
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-[#64748b] flex items-center gap-2 flex-wrap">
-                        <span>Checkout: {new Date(reservation.checkOutDate).toLocaleDateString()} 12:00 PM</span>
-                        <span>&bull;</span>
-                        <span>Ref: {reservation.confirmationNo || reservation.id.slice(0, 8).toUpperCase()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setForm({ ...form, idVerified: true });
-                      setAction({ type: 'in', row: reservation });
-                    }}
-                    className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white text-xs font-semibold gap-1.5 shadow-xs shrink-0 self-end sm:self-auto"
-                  >
-                    <LogIn size={14} /> Process Check In
-                  </Button>
+                  <DoorOpen size={13} className="text-emerald-700" />
+                  <span className="text-xs font-black text-emerald-950">Room {room.number}</span>
+                  <span className="text-[10px] text-emerald-800 font-medium">
+                    {room.roomType?.name ? `(${room.roomType.name})` : ''}
+                  </span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      {/* ── Active Stays / In-House Guests ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
+      {/* ── Main Operations: Arrivals Queue & In-House Departures ── */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Arrivals Due Desk */}
+        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
           <div>
-            <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
-              <UserRound size={16} className="text-emerald-700" />
-              In-House Guests &amp; Departure Actions
-            </h2>
-            <p className="text-[11px] text-[#64748b] mt-0.5">
-              Standard checkout time is 12:00 PM &bull; Late departures trigger policy fee of GHS {checkoutPolicy.hourlyRate}/hr.
-            </p>
-          </div>
-        </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60 gap-3">
+              <div>
+                <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
+                  <LogIn size={16} className="text-sky-700" />
+                  Expected Arrivals Queue ({arrivals.length})
+                </h2>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Guest check-in starts at 2:00 PM &bull; Identity verification required
+                </p>
+              </div>
 
-        {loading ? (
-          <LoadingState />
-        ) : stays.length === 0 ? (
-          <div className="p-10 text-center text-xs text-[#94a3b8]">No active guest stays recorded.</div>
-        ) : (
-          <div className="divide-y divide-[#f1f5f9]">
-            {stays.map((stay) => {
-              const late = getLateInfo(stay);
-              const guestName =
-                [stay.guest?.firstName, stay.guest?.lastName].filter(Boolean).join(' ') || 'Guest';
-              return (
-                <div
-                  key={stay.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-slate-50/80 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-xs font-bold text-[#0f172a]">{guestName}</span>
-                      <span className="rounded-md border border-[#c59a58]/40 bg-[#fbf8f2] px-2 py-0.5 text-[10px] font-black text-[#9b6e2e]">
-                        Room {stay.room?.number || '—'}
-                      </span>
-                      {late && (
-                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-800 animate-pulse">
-                          <AlertTriangle size={11} /> LATE +GHS {late.fee} ({late.lateHours}h)
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1 text-[11px] text-[#64748b] flex items-center gap-2 flex-wrap">
-                      <span>
-                        Departure: {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : '—'} 12:00 PM
-                      </span>
-                      <span>&bull;</span>
-                      <span>Checked in by {stay.checkedInByUser?.name || 'Reception Staff'}</span>
-                    </div>
-                  </div>
+              <div className="relative w-full sm:w-56">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Filter arrivals..."
+                  className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1 text-xs text-[#0f172a] focus:border-[#174b59] focus:outline-none"
+                />
+              </div>
+            </div>
 
-                  <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
-                    {statusBadge(stay.status || 'CHECKED_IN')}
-                    <Button
-                      size="sm"
-                      variant={late ? 'primary' : 'outline'}
-                      onClick={() => openCheckout(stay)}
-                      className={`text-xs font-semibold gap-1.5 ${
-                        late
-                          ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                          : 'border-[#cbd5e1] hover:bg-slate-100 text-[#0f172a]'
-                      }`}
+            {loading ? (
+              <LoadingState />
+            ) : arrivals.length === 0 ? (
+              <div className="p-12 text-center text-xs text-slate-400">
+                No arrivals currently waiting in the check-in queue.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto">
+                {arrivals.map((reservation) => {
+                  const guestFullName =
+                    [reservation.guests?.[0]?.guest?.firstName, reservation.guests?.[0]?.guest?.lastName]
+                      .filter(Boolean)
+                      .join(' ') || 'Guest';
+                  return (
+                    <div
+                      key={reservation.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50/80 transition-colors"
                     >
-                      <LogOut size={14} /> Settle &amp; Check Out
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-800 text-xs font-black shadow-xs">
+                          <UserRound size={17} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-xs font-bold text-[#0f172a] flex items-center gap-2">
+                            <span>{guestFullName}</span>
+                            <span className="rounded-md border border-sky-300 bg-sky-50 px-2 py-0.5 text-[10px] font-black text-sky-800">
+                              Room {reservation.room?.number || 'Unassigned'}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500 flex items-center gap-2 flex-wrap">
+                            <span>Checkout: {new Date(reservation.checkOutDate).toLocaleDateString()} 12:00 PM</span>
+                            <span>&bull;</span>
+                            <span>Ref: {reservation.confirmationNo || reservation.id.slice(0, 8).toUpperCase()}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setForm({ ...form, idVerified: true });
+                          setAction({ type: 'in', row: reservation });
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs shrink-0 self-end sm:self-auto transition-all"
+                      >
+                        <LogIn size={13} />
+                        <span>Check In</span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* In-House Guests & Departure Settlement Desk */}
+        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+              <div>
+                <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
+                  <LogOut size={16} className="text-amber-700" />
+                  In-House Guests &bull; Checkout Desk ({stays.length})
+                </h2>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Standard checkout deadline: 12:00 PM &bull; Late departures: +GHS {checkoutPolicy.hourlyRate}/hr
+                </p>
+              </div>
+            </div>
+
+            {loading ? (
+              <LoadingState />
+            ) : stays.length === 0 ? (
+              <div className="p-12 text-center text-xs text-slate-400">
+                No active in-house stays currently registered.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto">
+                {stays.map((stay) => {
+                  const late = getLateInfo(stay);
+                  const guestFullName =
+                    [stay.guest?.firstName, stay.guest?.lastName].filter(Boolean).join(' ') || 'Guest';
+                  return (
+                    <div
+                      key={stay.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50/80 transition-colors"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-[#0f172a]">{guestFullName}</span>
+                          <span className="rounded-md border border-[#c59a58]/40 bg-[#fbf8f2] px-2 py-0.5 text-[10px] font-black text-[#9b6e2e]">
+                            Room {stay.room?.number || '—'}
+                          </span>
+                          {late && (
+                            <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-800 animate-pulse">
+                              <AlertTriangle size={11} /> LATE +GHS {late.fee} ({late.lateHours}h)
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500 flex items-center gap-2 flex-wrap">
+                          <span>
+                            Departs {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : '—'} 12:00 PM
+                          </span>
+                          <span>&bull;</span>
+                          <span>Checked in by {stay.checkedInByUser?.name || 'Reception Staff'}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                        {statusBadge(stay.status || 'CHECKED_IN')}
+                        <button
+                          onClick={() => openCheckout(stay)}
+                          className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs ${
+                            late
+                              ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                              : 'border border-slate-300 hover:bg-slate-100 text-slate-800'
+                          }`}
+                        >
+                          <LogOut size={13} />
+                          <span>Check Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ── Check-In / Check-Out Modal ── */}
+      {/* ── Check-In & Check-Out Modal ── */}
       <Modal
         open={!!action}
         onClose={() => setAction(null)}
-        title={action?.type === 'in' ? 'Guest Arrival & Check-In' : 'Folio Settlement & Check-Out'}
+        title={action?.type === 'in' ? 'Guest Arrival & Check-In Verification' : 'Folio Settlement & Departure'}
       >
         <form onSubmit={submit} className="space-y-4">
           {action?.type === 'in' ? (
             <>
               <div className="rounded-xl border border-sky-200 bg-sky-50 p-3.5 text-xs text-sky-900 leading-relaxed">
-                <span className="font-bold">Identity Verification:</span> Verify the guest photo identity document and room key handover before checking in.
+                <span className="font-bold">Identity Document Verification:</span> Check passport or national ID against booking particulars prior to key handover.
               </div>
               <FormField label="ID Document Type">
                 <SelectInput
@@ -523,8 +570,8 @@ export const FrontDeskPage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-[#64748b]">
-                  The chosen payment method settles the remaining open balance on the guest's stay folio.
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
+                  The selected payment method will settle the remaining balance on the guest's folio before releasing the room.
                 </div>
               )}
 
@@ -535,7 +582,7 @@ export const FrontDeskPage: React.FC = () => {
                 >
                   <option value="CLEAN">Clean &amp; Inspected</option>
                   <option value="DIRTY">Needs Turnover Cleaning</option>
-                  <option value="DAMAGED">Requires Maintenance / Damage Assessment</option>
+                  <option value="DAMAGED">Requires Damage Inspection</option>
                 </SelectInput>
               </FormField>
 
@@ -546,7 +593,7 @@ export const FrontDeskPage: React.FC = () => {
                 </div>
                 {activeLateInfo && chargeLateCheckoutFee && (
                   <p className="mt-1 text-[11px] text-amber-300">
-                    Includes late checkout surcharge of GHS {activeLateInfo.fee.toFixed(2)}.
+                    Includes late checkout fee of GHS {activeLateInfo.fee.toFixed(2)}.
                   </p>
                 )}
               </div>

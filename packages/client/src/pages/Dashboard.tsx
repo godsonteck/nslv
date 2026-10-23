@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reportsApi, roomsApi, staysApi, posApi } from '../services/apiService';
+import { reportsApi, roomsApi, staysApi, posApi, reservationsApi } from '../services/apiService';
 import { clearGetCache } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { formatCurrency, formatUserGreeting } from '@nslv/shared';
@@ -25,6 +25,10 @@ import {
   DoorOpen,
   Receipt,
   Layers,
+  MapPin,
+  CheckCircle2,
+  AlertCircle,
+  Activity,
 } from 'lucide-react';
 import { villaAssets } from '../assets';
 import { receiptCompanyBlock } from '../lib/company';
@@ -106,10 +110,10 @@ const PropertyDashboard: React.FC = () => {
   const canPayments = has('payments.view');
 
   const greeting = formatUserGreeting(user);
-  const nowStr = new Date().toLocaleDateString('en-GB', {
-    weekday: 'short',
+  const nowFormatted = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
     day: 'numeric',
-    month: 'short',
+    month: 'long',
     year: 'numeric',
   });
 
@@ -136,249 +140,259 @@ const PropertyDashboard: React.FC = () => {
     void load(true);
   }, []);
 
-  if (loading) return <LoadingState message="Loading luxury villa live command workspace…" />;
+  if (loading) return <LoadingState message="Connecting to NS Luxury Villa live property command..." />;
 
   const totalDeptRevenue =
     Number(m.restaurantRevenueToday || 0) + Number(m.barRevenueToday || 0) + Number(m.poolRevenueToday || 0);
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      {/* ── Top Header Bar ── */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
-            <Sparkles size={13} className="text-[#c59a58]" />
-            NS Luxury Villa &bull; Executive Command
-          </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
-            {greeting}
-          </h1>
-          <p className="mt-1 flex items-center gap-2 text-xs font-medium text-[#64748b]">
-            <Clock size={13} className="text-[#94a3b8]" />
-            <span>{nowStr}</span>
-            <span>&bull;</span>
-            <span className="inline-flex items-center gap-1 text-emerald-700">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Live System Sync
-            </span>
-          </p>
+    <div className="space-y-7 pb-16 animate-in fade-in duration-300">
+      {/* ── Editorial Villa Header ── */}
+      <div className="relative overflow-hidden rounded-3xl border border-[#c59a58]/35 bg-gradient-to-r from-[#0c151c] via-[#111e28] to-[#0a1218] p-7 sm:p-9 text-white shadow-[0_16px_40px_rgba(10,18,24,0.35)]">
+        <div className="absolute right-0 top-0 h-full w-1/2 opacity-15 pointer-events-none mix-blend-screen">
+          <img src={villaAssets.villaExterior} className="h-full w-full object-cover" alt="" />
         </div>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c59a58]/50 bg-[#c59a58]/15 px-3 py-1 text-[10px] font-black tracking-widest text-[#f0d49f] uppercase">
+                <Sparkles size={11} className="text-[#c59a58]" /> NS Luxury Villa &bull; Executive Command
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live System Sync
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white font-serif">
+              {greeting}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300/85 max-w-xl font-medium leading-relaxed">
+              &ldquo;Arrive as a guest, stay as family&rdquo; &bull; Lokoe, Ho, Volta Region &bull; {nowFormatted}
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void load()}
-            loading={refreshing}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold"
-          >
-            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
-          </Button>
-          {canReserve && (
-            <Button
-              size="sm"
-              onClick={() => navigate('/reservations')}
-              className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5"
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => void load()}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs disabled:opacity-50"
             >
-              <CalendarCheck size={14} /> New Reservation
-            </Button>
-          )}
-          {canFrontDesk && (
-            <Button
-              size="sm"
-              onClick={() => navigate('/frontdesk')}
-              className="bg-gradient-to-r from-[#c59a58] to-[#9b6e2e] hover:from-[#b08749] hover:to-[#845b23] text-white shadow-md text-xs font-semibold gap-1.5"
-            >
-              <LogIn size={14} /> Front Desk
-            </Button>
-          )}
+              <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
+              <span>Refresh</span>
+            </button>
+            {canFrontDesk && (
+              <button
+                onClick={() => navigate('/frontdesk')}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#c59a58] to-[#9b6e2e] px-4 py-2 text-xs font-extrabold text-white shadow-md hover:brightness-110 transition-all"
+              >
+                <LogIn size={14} />
+                <span>Front Desk Terminal</span>
+              </button>
+            )}
+            {canReserve && (
+              <button
+                onClick={() => navigate('/reservations')}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#174b59] to-[#0f3440] px-4 py-2 text-xs font-extrabold text-white shadow-md hover:brightness-110 transition-all border border-[#174b59]/50"
+              >
+                <CalendarCheck size={14} />
+                <span>New Booking</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 shadow-xs">
-          {error}
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-800 shadow-xs flex items-center gap-2">
+          <AlertCircle size={15} />
+          <span>{error}</span>
         </div>
       )}
 
-      {/* ── Executive Hero Card ── */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c1a24] via-[#102433] to-[#08121a] text-white shadow-[0_20px_50px_rgba(12,26,36,0.35)] border border-white/10">
-        <img
-          src={villaAssets.villaExterior}
-          className="absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-overlay"
-          alt=""
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0c1a24] via-[#0c1a24]/90 to-transparent" />
-
-        <div className="relative grid min-h-[240px] lg:grid-cols-[1.25fr_1fr]">
-          {/* Left Column: Slogan & Quick Actions */}
-          <div className="p-6 sm:p-8 flex flex-col justify-between">
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-md bg-[#c59a58]/20 px-2.5 py-1 text-[10px] font-extrabold tracking-widest text-[#f5d99b] uppercase border border-[#c59a58]/40">
-                <ShieldCheck size={12} /> Hospitality Operations
-              </div>
-              <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-white max-w-lg">
-                &ldquo;Arrive as a guest, stay as family&rdquo;
-              </h2>
-              <p className="mt-2 text-xs sm:text-sm text-slate-300/80 max-w-md leading-relaxed">
-                Complete guest lifecycle oversight &mdash; live reservations, check-ins, guest folios, and multi-outlet billing.
-              </p>
+      {/* ── Authoritative Room Availability Ledger ── */}
+      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#174b59]">
+              <BedDouble size={16} />
+              <span>Authoritative Room Availability &bull; Today's Snapshot</span>
             </div>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Rooms reserved for future dates remain strictly <strong>Available today</strong> until their arrival date arrives.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/rooms')}
+            className="text-xs font-bold text-[#c59a58] hover:text-[#9b6e2e] flex items-center gap-1 transition-colors self-start sm:self-auto"
+          >
+            <span>Open Room Board</span>
+            <ChevronRight size={14} />
+          </button>
+        </div>
 
-            <div className="mt-6 flex flex-wrap gap-2.5">
-              {canFrontDesk && (
-                <button
-                  onClick={() => navigate('/frontdesk')}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#f1a83f] to-[#d48c26] px-4 py-2 text-xs font-extrabold text-[#201608] shadow-lg hover:brightness-105 transition-all"
-                >
-                  <LogIn size={14} /> Open Front Desk
-                </button>
-              )}
-              {canReports && (
-                <button
-                  onClick={() => navigate('/reports')}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs"
-                >
-                  <TrendingUp size={14} /> Operations Analytics
-                </button>
-              )}
-              {canPayments && (
-                <button
-                  onClick={() => navigate('/payments')}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs"
-                >
-                  <Receipt size={14} /> Audit Payments
-                </button>
-              )}
+        {/* 4-Sector Dynamic Availability Matrix */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          {/* Available Rooms */}
+          <div
+            onClick={() => navigate('/rooms')}
+            className="group cursor-pointer rounded-2xl border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/50 p-4 shadow-2xs hover:border-emerald-400 hover:shadow-xs transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Available Today</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
+            <div className="mt-2 text-3xl font-black text-emerald-950">{m.availableRooms}</div>
+            <div className="mt-1 text-[11px] text-emerald-700 font-medium">Ready for immediate check-in</div>
           </div>
 
-          {/* Right Column: Hero Metrics Matrix */}
-          <div className="grid grid-cols-2 border-t lg:border-t-0 lg:border-l border-white/10 bg-white/[0.03] backdrop-blur-xs">
-            {/* Occupancy */}
-            <div className="p-5 sm:p-6 border-b border-r border-white/10 flex flex-col justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#93c5fd]">Occupancy Rate</span>
-              <div className="my-2">
-                <span className="text-3xl font-black text-white">{m.occupancyRate}%</span>
-                <div className="mt-2 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#38bdf8] to-[#10b981] rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(100, Math.max(0, m.occupancyRate))}%` }}
-                  />
-                </div>
-              </div>
-              <span className="text-[11px] text-slate-300 font-medium">
-                {m.occupiedRooms} of {m.totalRooms} rooms occupied
-              </span>
+          {/* Reserved Rooms */}
+          <div
+            onClick={() => navigate('/reservations')}
+            className="group cursor-pointer rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50/50 p-4 shadow-2xs hover:border-amber-400 hover:shadow-xs transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800">Reserved for Today</span>
+              <CalendarCheck size={14} className="text-amber-700" />
             </div>
+            <div className="mt-2 text-3xl font-black text-amber-950">{m.reservedRooms}</div>
+            <div className="mt-1 text-[11px] text-amber-700 font-medium">Arrivals due / active bookings</div>
+          </div>
 
-            {/* Available */}
-            <div className="p-5 sm:p-6 border-b border-white/10 flex flex-col justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#86efac]">Available Rooms</span>
-              <div className="my-2">
-                <span className="text-3xl font-black text-[#4ade80]">{m.availableRooms}</span>
-              </div>
-              <span className="text-[11px] text-slate-300 font-medium">Ready for immediate check-in</span>
+          {/* Occupied Rooms */}
+          <div
+            onClick={() => navigate('/frontdesk')}
+            className="group cursor-pointer rounded-2xl border border-sky-200 bg-gradient-to-br from-white to-sky-50/50 p-4 shadow-2xs hover:border-sky-400 hover:shadow-xs transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-800">In-House Occupied</span>
+              <Users size={14} className="text-sky-700" />
             </div>
+            <div className="mt-2 text-3xl font-black text-sky-950">{m.occupiedRooms}</div>
+            <div className="mt-1 text-[11px] text-sky-700 font-medium">Checked-in guest stays</div>
+          </div>
 
-            {/* Check-ins */}
-            <div className="p-5 sm:p-6 border-r border-white/10 flex flex-col justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#fde047]">Arrivals Today</span>
-              <div className="my-2">
-                <span className="text-3xl font-black text-[#facc15]">{m.checkInsToday}</span>
-              </div>
-              <span className="text-[11px] text-slate-300 font-medium">Due at Reception desk</span>
+          {/* Housekeeping / Dirty */}
+          <div
+            onClick={() => navigate('/rooms')}
+            className="group cursor-pointer rounded-2xl border border-rose-200 bg-gradient-to-br from-white to-rose-50/50 p-4 shadow-2xs hover:border-rose-400 hover:shadow-xs transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-800">Housekeeping Dirty</span>
+              <DoorOpen size={14} className="text-rose-700" />
             </div>
-
-            {/* Check-outs */}
-            <div className="p-5 sm:p-6 flex flex-col justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#cbd5e1]">Departures Today</span>
-              <div className="my-2">
-                <span className="text-3xl font-black text-slate-200">{m.checkOutsToday}</span>
-              </div>
-              <span className="text-[11px] text-slate-300 font-medium">Scheduled room exits</span>
-            </div>
+            <div className="mt-2 text-3xl font-black text-rose-950">{m.dirtyRooms}</div>
+            <div className="mt-1 text-[11px] text-rose-700 font-medium">Awaiting turnover inspection</div>
           </div>
         </div>
-      </section>
 
-      {/* ── Key Performance Indicators ── */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Visual Room Distribution Ribbon */}
+        <div className="space-y-1.5 pt-2">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
+            <span>Overall Room Distribution ({m.totalRooms} Total Rooms)</span>
+            <span className="text-[#174b59] font-black">{m.occupancyRate}% Occupancy</span>
+          </div>
+          <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden flex">
+            <div
+              className="bg-emerald-500 transition-all duration-500"
+              style={{ width: `${m.totalRooms ? (m.availableRooms / m.totalRooms) * 100 : 0}%` }}
+              title={`Available: ${m.availableRooms}`}
+            />
+            <div
+              className="bg-amber-500 transition-all duration-500"
+              style={{ width: `${m.totalRooms ? (m.reservedRooms / m.totalRooms) * 100 : 0}%` }}
+              title={`Reserved: ${m.reservedRooms}`}
+            />
+            <div
+              className="bg-sky-500 transition-all duration-500"
+              style={{ width: `${m.totalRooms ? (m.occupiedRooms / m.totalRooms) * 100 : 0}%` }}
+              title={`Occupied: ${m.occupiedRooms}`}
+            />
+            <div
+              className="bg-rose-500 transition-all duration-500"
+              style={{ width: `${m.totalRooms ? (m.dirtyRooms / m.totalRooms) * 100 : 0}%` }}
+              title={`Dirty: ${m.dirtyRooms}`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Financial & Operations Command Suite ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Collections */}
         <div
           onClick={() => navigate('/payments')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#10b981]/50 hover:shadow-md transition-all duration-200"
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Total Collections Today</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-105 transition-transform">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Collected Today</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 group-hover:scale-105 transition-transform">
               <CreditCard size={18} />
             </div>
           </div>
           <div className="mt-3 text-2xl font-black text-[#0f172a]">{formatCurrency(m.revenueToday)}</div>
-          <div className="mt-1 flex items-center justify-between text-xs text-emerald-700 font-semibold">
-            <span>Settled transactions</span>
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-emerald-700">
+            <span>Posted ledger receipts</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
             </span>
           </div>
         </div>
 
-        {/* Outstanding Folio Balance */}
+        {/* Open Folios */}
         <div
           onClick={() => navigate('/guest-bills')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#f59e0b]/50 hover:shadow-md transition-all duration-200"
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Open Folio Balance</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 group-hover:scale-105 transition-transform">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Open Folio Balance</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700 group-hover:scale-105 transition-transform">
               <Users size={18} />
             </div>
           </div>
           <div className="mt-3 text-2xl font-black text-[#0f172a]">
             {formatCurrency(m.outstandingBalanceTotal)}
           </div>
-          <div className="mt-1 flex items-center justify-between text-xs text-amber-700 font-semibold">
-            <span>Outstanding across in-house folios</span>
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-amber-700">
+            <span>Across in-house guest folios</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
             </span>
           </div>
         </div>
 
-        {/* Dirty Rooms */}
+        {/* Arrivals Today */}
         <div
-          onClick={() => navigate('/rooms')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#ef4444]/50 hover:shadow-md transition-all duration-200"
+          onClick={() => navigate('/frontdesk')}
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-sky-500/50 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Housekeeping Required</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 group-hover:scale-105 transition-transform">
-              <BedDouble size={18} />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's Arrivals</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-700 group-hover:scale-105 transition-transform">
+              <LogIn size={18} />
             </div>
           </div>
-          <div className="mt-3 text-2xl font-black text-[#0f172a]">{m.dirtyRooms} <span className="text-sm font-semibold text-[#64748b]">Rooms</span></div>
-          <div className="mt-1 flex items-center justify-between text-xs text-rose-700 font-semibold">
-            <span>Dirty or awaiting inspection</span>
+          <div className="mt-3 text-2xl font-black text-[#0f172a]">{m.checkInsToday}</div>
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-sky-700">
+            <span>Processed check-ins today</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
             </span>
           </div>
         </div>
 
-        {/* Reserved Rooms */}
+        {/* Departures Today */}
         <div
-          onClick={() => navigate('/reservations')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#0284c7]/50 hover:shadow-md transition-all duration-200"
+          onClick={() => navigate('/frontdesk')}
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-slate-400 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Reserved Commitments</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 group-hover:scale-105 transition-transform">
-              <CalendarCheck size={18} />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's Departures</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 group-hover:scale-105 transition-transform">
+              <LogOut size={18} />
             </div>
           </div>
-          <div className="mt-3 text-2xl font-black text-[#0f172a]">{m.reservedRooms} <span className="text-sm font-semibold text-[#64748b]">Rooms</span></div>
-          <div className="mt-1 flex items-center justify-between text-xs text-sky-700 font-semibold">
-            <span>Advance & upcoming reservations</span>
+          <div className="mt-3 text-2xl font-black text-[#0f172a]">{m.checkOutsToday}</div>
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-slate-600">
+            <span>Completed checkouts today</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
             </span>
@@ -386,34 +400,34 @@ const PropertyDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Main Operations Section ── */}
+      {/* ── Active In-House Stays & Department Pulse ── */}
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-        {/* Left: Active Stays (Guests in House) */}
-        <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
+        {/* In-House Guests Concierge Ledger */}
+        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
             <div>
               <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
                 <Users size={16} className="text-[#174b59]" />
-                Guests Currently in House
+                In-House Guests &bull; Live Active Stays
               </h2>
-              <p className="text-[11px] text-[#64748b] mt-0.5">Active checked-in stays and room assignments</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Checked-in guests currently occupying villa rooms</p>
             </div>
             {canFrontDesk && (
               <button
                 onClick={() => navigate('/frontdesk')}
                 className="text-xs font-bold text-[#c59a58] hover:text-[#9b6e2e] flex items-center gap-1 transition-colors"
               >
-                Front Desk Desk &rarr;
+                Front Desk Terminal &rarr;
               </button>
             )}
           </div>
 
           {stays.length === 0 ? (
-            <div className="p-10 text-center text-xs text-[#94a3b8]">
-              No guests are currently checked in to rooms.
+            <div className="p-12 text-center text-xs text-slate-400">
+              No guests currently occupying villa rooms.
             </div>
           ) : (
-            <div className="divide-y divide-[#f1f5f9]">
+            <div className="divide-y divide-slate-100">
               {stays.slice(0, 6).map((s) => {
                 const guestFullName =
                   [s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest';
@@ -431,14 +445,14 @@ const PropertyDashboard: React.FC = () => {
                       <div className="min-w-0">
                         <div className="truncate text-xs font-bold text-[#0f172a] flex items-center gap-2">
                           <span>{guestFullName}</span>
-                          <span className="rounded-md border border-[#c59a58]/40 bg-[#fbf8f2] px-1.5 py-0.5 text-[10px] font-black text-[#9b6e2e]">
+                          <span className="rounded-md border border-[#c59a58]/40 bg-[#fbf8f2] px-2 py-0.5 text-[10px] font-black text-[#9b6e2e]">
                             Room {s.room?.number || '—'}
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#64748b] flex items-center gap-2">
-                          <span>
-                            Departs {s.checkOutDate ? new Date(s.checkOutDate).toLocaleDateString() : '—'}
-                          </span>
+                        <div className="mt-0.5 text-[11px] text-slate-500 flex items-center gap-2">
+                          <span>Departure: {s.checkOutDate ? new Date(s.checkOutDate).toLocaleDateString() : '—'}</span>
+                          <span>&bull;</span>
+                          <span>Checked in: {s.actualCheckIn ? new Date(s.actualCheckIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
                         </div>
                       </div>
                     </div>
@@ -447,7 +461,7 @@ const PropertyDashboard: React.FC = () => {
                       {statusBadge(s.status || 'CHECKED_IN')}
                       <button
                         onClick={() => navigate('/guest-bills')}
-                        className="rounded-lg border border-[#cbd5e1] p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                        className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
                         title="View Folio / Bill"
                       >
                         <Receipt size={14} />
@@ -460,27 +474,27 @@ const PropertyDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Right: Department Sales Pulse */}
-        <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
+        {/* Department Revenue Pulse */}
+        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
               <div>
                 <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
                   <TrendingUp size={16} className="text-[#c59a58]" />
                   Department Pulse
                 </h2>
-                <p className="text-[11px] text-[#64748b] mt-0.5">Live outlet sales recorded today</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Live revenue across property outlets</p>
               </div>
               <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                 {formatCurrency(totalDeptRevenue)}
               </span>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-3.5">
               {/* Restaurant */}
               <div
                 onClick={() => navigate('/restaurant/pos')}
-                className="group cursor-pointer rounded-xl border border-[#e2e8f0] p-4 hover:border-[#174b59]/40 hover:bg-slate-50/50 transition-all"
+                className="group cursor-pointer rounded-xl border border-slate-200/80 p-4 hover:border-[#174b59]/40 hover:bg-slate-50/60 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -488,8 +502,8 @@ const PropertyDashboard: React.FC = () => {
                       <UtensilsCrossed size={16} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Restaurant</div>
-                      <div className="text-[10px] text-[#64748b]">Food & dining services</div>
+                      <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Restaurant Station</div>
+                      <div className="text-[10px] text-slate-500">Fine dining, breakfasts & orders</div>
                     </div>
                   </div>
                   <strong className="text-sm font-extrabold text-[#0f172a]">
@@ -501,7 +515,7 @@ const PropertyDashboard: React.FC = () => {
               {/* Bar */}
               <div
                 onClick={() => navigate('/bar/pos')}
-                className="group cursor-pointer rounded-xl border border-[#e2e8f0] p-4 hover:border-[#174b59]/40 hover:bg-slate-50/50 transition-all"
+                className="group cursor-pointer rounded-xl border border-slate-200/80 p-4 hover:border-[#174b59]/40 hover:bg-slate-50/60 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -509,8 +523,8 @@ const PropertyDashboard: React.FC = () => {
                       <Wine size={16} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Bar & Lounge</div>
-                      <div className="text-[10px] text-[#64748b]">Cocktails, wines & beverages</div>
+                      <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Bar &amp; Lounge</div>
+                      <div className="text-[10px] text-slate-500">Cocktails, wines & beverages</div>
                     </div>
                   </div>
                   <strong className="text-sm font-extrabold text-[#0f172a]">
@@ -522,7 +536,7 @@ const PropertyDashboard: React.FC = () => {
               {/* Pool */}
               <div
                 onClick={() => navigate('/pool/services')}
-                className="group cursor-pointer rounded-xl border border-[#e2e8f0] p-4 hover:border-[#174b59]/40 hover:bg-slate-50/50 transition-all"
+                className="group cursor-pointer rounded-xl border border-slate-200/80 p-4 hover:border-[#174b59]/40 hover:bg-slate-50/60 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -531,7 +545,7 @@ const PropertyDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Swimming Pool</div>
-                      <div className="text-[10px] text-[#64748b]">Passes, towels & leisure</div>
+                      <div className="text-[10px] text-slate-500">Pool passes, towels & leisure</div>
                     </div>
                   </div>
                   <strong className="text-sm font-extrabold text-[#0f172a]">
@@ -542,62 +556,16 @@ const PropertyDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="border-t border-[#e2e8f0] bg-slate-50/70 p-4 flex items-center justify-between text-xs">
-            <span className="text-[#64748b] font-medium">Daily outlets performance</span>
+          <div className="border-t border-slate-100 bg-slate-50/70 p-4 flex items-center justify-between text-xs">
+            <span className="text-slate-500 font-medium">Daily outlets performance</span>
             <button
               onClick={() => navigate('/reports')}
               className="text-[#174b59] font-bold hover:underline flex items-center gap-1"
             >
-              Outlet breakdowns &rarr;
+              Outlets Analytics &rarr;
             </button>
           </div>
         </div>
-      </div>
-
-      {/* ── Housekeeping Alert Section ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
-          <div>
-            <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
-              <BedDouble size={16} className="text-rose-600" />
-              Housekeeping Attention Required
-            </h2>
-            <p className="text-[11px] text-[#64748b] mt-0.5">Rooms requiring turnover or inspection</p>
-          </div>
-          {canRooms && (
-            <button
-              onClick={() => navigate('/rooms')}
-              className="text-xs font-bold text-[#174b59] hover:underline flex items-center gap-1"
-            >
-              Rooms Management &rarr;
-            </button>
-          )}
-        </div>
-
-        {dirty.length === 0 ? (
-          <div className="p-8 text-center text-xs text-[#94a3b8]">
-            All rooms are clean and ready. Housekeeping is up to date.
-          </div>
-        ) : (
-          <div className="grid gap-3.5 p-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {dirty.slice(0, 8).map((r) => (
-              <button
-                key={r.id}
-                onClick={() => navigate('/rooms')}
-                disabled={!canRooms}
-                className="rounded-xl border border-rose-200/80 bg-rose-50/30 p-4 text-left hover:border-rose-300 hover:bg-rose-50/60 transition-all duration-150 disabled:cursor-default"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="text-base font-black text-[#0f172a]">Room {r.number}</div>
-                  {statusBadge(r.status)}
-                </div>
-                <div className="mt-1 text-[11px] text-[#64748b]">
-                  {r.roomType?.name || 'Standard Room'} &bull; Floor {r.floor ?? 1}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -651,11 +619,10 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
     (o) => String(o.createdAt || '').slice(0, 10) === new Date().toISOString().slice(0, 10),
   );
 
-  if (loading) return <LoadingState message={`Loading the ${deptLabel} workstation…`} />;
+  if (loading) return <LoadingState message={`Connecting to ${deptLabel} workstation...`} />;
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      {/* Top Header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
@@ -665,8 +632,8 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
             {greeting}
           </h1>
-          <p className="mt-1 text-xs text-[#64748b]">
-            Your department's live sales, active orders, and printed receipts.
+          <p className="mt-1 text-xs text-slate-500">
+            Real-time orders, receipts, and revenue reconciliation for this outlet.
           </p>
         </div>
 
@@ -676,7 +643,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold"
+            className="border-slate-300 hover:bg-white bg-white/70 shadow-xs text-xs font-semibold"
           >
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </Button>
@@ -691,13 +658,13 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 shadow-xs">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700 shadow-xs">
           {error}
         </div>
       )}
 
       {/* Hero Sales Card */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c1a24] via-[#102433] to-[#08121a] text-white shadow-[0_20px_50px_rgba(12,26,36,0.35)] border border-white/10 p-6 sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c1a24] via-[#102433] to-[#08121a] text-white shadow-lg border border-white/10 p-6 sm:p-8">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 items-center">
           <div>
             <div className="text-[11px] font-extrabold uppercase tracking-widest text-[#f5d99b]">
@@ -736,11 +703,11 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       </section>
 
       {/* Recent Transactions Table */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
+      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
           <div>
             <h2 className="text-sm font-extrabold text-[#0f172a]">Recent {deptLabel} Transactions</h2>
-            <p className="text-[11px] text-[#64748b] mt-0.5">Orders and receipts posted today</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Orders and receipts posted today</p>
           </div>
           <button
             onClick={() => navigate(toPOS)}
@@ -751,11 +718,11 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
         </div>
 
         {orders.length === 0 ? (
-          <div className="p-10 text-center text-xs text-[#94a3b8]">No orders posted yet today.</div>
+          <div className="p-10 text-center text-xs text-slate-400">No orders posted yet today.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="border-b border-[#e2e8f0] bg-slate-50 text-[10px] uppercase font-bold tracking-wider text-[#64748b]">
+              <thead className="border-b border-slate-200 bg-slate-50 text-[10px] uppercase font-bold tracking-wider text-slate-500">
                 <tr>
                   <th className="px-6 py-3.5">Order No.</th>
                   <th className="px-6 py-3.5">Payment</th>
@@ -764,13 +731,13 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
                   <th className="px-6 py-3.5 text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f1f5f9]">
+              <tbody className="divide-y divide-slate-100">
                 {orders.slice(0, 10).map((o) => (
                   <tr key={o.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-3.5 font-mono text-xs font-bold text-[#0f172a]">
                       {o.orderNo || o.transactionNo}
                     </td>
-                    <td className="px-6 py-3.5 text-xs text-[#64748b]">{o.paymentMethod}</td>
+                    <td className="px-6 py-3.5 text-xs text-slate-500">{o.paymentMethod}</td>
                     <td className="px-6 py-3.5">{statusBadge(o.paymentStatus || o.status || 'COMPLETED')}</td>
                     <td className="px-6 py-3.5 text-right font-extrabold text-xs text-[#0f172a]">
                       {formatCurrency(Number(o.totalAmount || 0))}

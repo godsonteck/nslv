@@ -70,13 +70,13 @@ export const Sidebar: React.FC = () => {
     <aside className="flex h-full w-[246px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e8e5] bg-[#fbfcfa]">
       <div className="flex min-h-full flex-col px-3.5 py-5">
         {/* Brand */}
-        <div className="mb-7 flex items-center gap-3 px-1">
-          <img src={villaLogo} alt={villaName} className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-black/10 shadow-[0_6px_16px_rgba(22,164,212,.22)]" />
+        <div className="mb-6 flex items-center gap-3 px-1">
+          <img src={villaLogo} alt="NS Luxury Villa" className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-[#c59a58]/40 shadow-sm" />
           <div className="min-w-0">
-            <div className="truncate font-['Manrope'] text-[14px] font-extrabold leading-tight text-[#26363e]">{villaName}</div>
-            <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[.16em] text-[#9aa3a6]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#2d8a68] shadow-[0_0_0_3px_rgba(45,138,104,.12)]" />
-              {roleName} operations
+            <div className="truncate font-['Manrope'] text-[14px] font-black leading-tight text-[#0f172a]">NS Luxury Villa</div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#c59a58]">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,.2)]" />
+              Lokoe, Ho &bull; {roleName}
             </div>
           </div>
         </div>
@@ -84,21 +84,25 @@ export const Sidebar: React.FC = () => {
         {/* Navigation */}
         {sections.map(section => (
           <div key={section.title} className="mb-6">
-            <div className="px-3 pb-2 text-[9px] font-extrabold uppercase tracking-[.19em] text-[#9aa3a6]">{section.title}</div>
+            <div className="px-3 pb-2 text-[9px] font-extrabold uppercase tracking-[.19em] text-[#8a9598]">{section.title}</div>
             <div className="space-y-0.5">
               {section.items.map(({ label, to, icon: Icon }) => (
                 <NavLink
                   key={to}
                   to={to}
                   className={({ isActive }) =>
-                    `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold transition ${isActive ? 'bg-[#16a4d4] text-white shadow-[0_6px_18px_rgba(22,164,212,.16)]' : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'}`
+                    `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold transition-all ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#173c4d] to-[#0f2834] text-white shadow-sm border border-[#c59a58]/35'
+                        : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-2xs'
+                    }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <span className={`absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full transition ${isActive ? 'bg-[#f1a83f]' : 'bg-transparent'}`} />
-                      <Icon size={15} className={`shrink-0 transition ${isActive ? 'text-[#f1a83f]' : 'opacity-80 group-hover:opacity-100'}`} />
-                      <span>{label}</span>
+                      <span className={`absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full transition-all ${isActive ? 'bg-[#c59a58]' : 'bg-transparent'}`} />
+                      <Icon size={15} className={`shrink-0 transition-all ${isActive ? 'text-[#f0d49f]' : 'text-slate-400 group-hover:text-slate-700'}`} />
+                      <span className={isActive ? 'font-extrabold text-white' : ''}>{label}</span>
                     </>
                   )}
                 </NavLink>
@@ -109,17 +113,19 @@ export const Sidebar: React.FC = () => {
 
         {/* Footer */}
         <div className="mt-auto space-y-4">
-          <div className="flex items-center gap-2.5 rounded-2xl border border-[#e8ebe8] bg-white p-3 shadow-[0_2px_10px_rgba(20,35,43,.04)]">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#16a4d4] text-[10px] font-extrabold text-white ring-2 ring-[#e8f2f4]">{initials}</div>
+          <div className="flex items-center gap-2.5 rounded-2xl border border-[#cbd5e1]/70 bg-white p-3 shadow-xs">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-[10px] font-black text-white shadow-2xs">
+              {initials}
+            </div>
             <div className="min-w-0">
-              <div className="truncate text-[11px] font-extrabold text-[#26363e]">{fullName}</div>
-              <div className="truncate text-[9px] font-semibold uppercase tracking-wide text-[#9aa3a6]">{roleName}</div>
+              <div className="truncate text-[11px] font-bold text-[#0f172a]">{fullName}</div>
+              <div className="truncate text-[9px] font-semibold uppercase tracking-wider text-[#c59a58]">{roleName}</div>
             </div>
           </div>
-          <div className="border-t border-[#edf0ed] pt-3 text-[9px] leading-5 text-[#9aa3a6]">
-            <div className="font-extrabold uppercase tracking-[.16em] text-[#7d898d]">{villaName}</div>
-            <div>{villaTagline}</div>
-            <div className="mt-0.5">Ho, Volta Region · Ghana</div>
+          <div className="border-t border-slate-200/80 pt-3 text-[9px] leading-5 text-slate-500">
+            <div className="font-black uppercase tracking-[.14em] text-[#0f172a]">NS Luxury Villa</div>
+            <div className="italic text-[#8c6b38]">&ldquo;Arrive as a guest, stay as family&rdquo;</div>
+            <div className="mt-0.5">Lokoe, Ho, Volta Region &bull; Ghana</div>
           </div>
         </div>
       </div>
