@@ -1079,12 +1079,15 @@ export const ReservationsPage: React.FC = () => {
                             {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a] dark:text-slate-400">Booked by: {item.bookedBy?.name || '-'}</div>}
                           </td>
                           <td className="px-5 py-4 text-xs text-[#0c1921] dark:text-slate-100">
-                            <div className="font-extrabold">{formatGuestName(item.leadGuest)} <span className="text-[10px] font-bold text-[#b88738] dark:text-amber-400">(Lead)</span></div>
-                            {item.allGuests.length > 1 && (
-                              <div className="text-[10px] text-[#71828a] dark:text-slate-400 mt-0.5">
-                                +{item.allGuests.length - 1} other guest{item.allGuests.length - 1 !== 1 ? 's' : ''} in party
-                              </div>
-                            )}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-extrabold">{formatGuestName(item.leadGuest)}</span>
+                              <span className="text-[10px] font-bold text-[#b88738] dark:text-amber-400">(Lead)</span>
+                              {item.allGuests.length > 1 && (
+                                <span className="inline-flex items-center rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                                  +{item.allGuests.length - 1} in party
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-5 py-4 text-xs text-[#6e7a8a] dark:text-slate-300">
                             <div className="font-bold text-[#0c1921] dark:text-slate-100">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
@@ -1217,13 +1220,14 @@ export const ReservationsPage: React.FC = () => {
                       </td>
                       <td className="px-5 py-4 text-xs text-[#0c1921] dark:text-slate-100">
                         {allGuests.length ? (
-                          <>
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-extrabold">{guestName(allGuests[0])}</span>
-                            {extra > 0 && <span className="ml-1.5 text-[10px] text-[#71828a] dark:text-slate-400">+{extra} more</span>}
-                            {allGuests.slice(1).map((g: any, gi: number) => (
-                              <div key={gi} className="text-[11px] text-[#6e7a8a] dark:text-slate-300">{guestName(g)}</div>
-                            ))}
-                          </>
+                            {extra > 0 && (
+                              <span className="inline-flex items-center rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                                +{extra} more
+                              </span>
+                            )}
+                          </div>
                         ) : (
                           '-'
                         )}
@@ -1967,30 +1971,30 @@ export const ReservationsPage: React.FC = () => {
                     </button>
                   </div>
                   <div className="space-y-2 text-xs">
-                    <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
-                      <span className="text-[#899397]">Primary Guest</span>
-                      <span className="font-extrabold text-[#26363e]">{formatGuestName(primaryGuest)}</span>
+                    <div className="flex justify-between py-1 border-b border-[#f0f2f0] dark:border-slate-800">
+                      <span className="text-[#899397] dark:text-slate-400">Primary Guest</span>
+                      <span className="font-extrabold text-[#26363e] dark:text-slate-100">{formatGuestName(primaryGuest)}</span>
                     </div>
                     {primaryGuest?.phone && (
-                      <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
-                        <span className="text-[#899397]">Phone</span>
-                        <span className="font-bold text-[#26363e]">{primaryGuest.phone}</span>
+                      <div className="flex justify-between py-1 border-b border-[#f0f2f0] dark:border-slate-800">
+                        <span className="text-[#899397] dark:text-slate-400">Phone</span>
+                        <span className="font-bold text-[#26363e] dark:text-slate-100">{primaryGuest.phone}</span>
                       </div>
                     )}
                     {primaryGuest?.email && (
-                      <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
-                        <span className="text-[#899397]">Email</span>
-                        <span className="font-bold text-[#26363e]">{primaryGuest.email}</span>
+                      <div className="flex justify-between py-1 border-b border-[#f0f2f0] dark:border-slate-800">
+                        <span className="text-[#899397] dark:text-slate-400">Email</span>
+                        <span className="font-bold text-[#26363e] dark:text-slate-100">{primaryGuest.email}</span>
                       </div>
                     )}
                     {additionalGuests.length > 0 && (
-                      <div className="py-1">
-                        <span className="text-[#899397] block mb-1">Additional Guests ({additionalGuests.length}):</span>
-                        <div className="space-y-1">
+                      <div className="pt-1">
+                        <span className="text-[#899397] dark:text-slate-400 block mb-1">Additional Guests ({additionalGuests.length}):</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
                           {additionalGuests.map((ag: any) => (
-                            <div key={ag.id} className="text-[#26363e] font-semibold pl-2 border-l-2 border-[#dce5e0]">
+                            <span key={ag.id} className="inline-flex rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-200">
                               {formatGuestName(ag.guest)}
-                            </div>
+                            </span>
                           ))}
                         </div>
                       </div>

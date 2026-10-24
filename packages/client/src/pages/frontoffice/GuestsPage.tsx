@@ -436,36 +436,34 @@ export const GuestsPage: React.FC = () => {
           setSelectedGuestId(null);
           setSelectedGuest(null);
         }}
-        title={selectedGuest ? `Guest Profile: ${formatGuestName(selectedGuest)}` : 'Guest Profile'}
-        size="lg"
+        title="Guest Profile"
+        size="md"
       >
         {selectedGuest && (
-          <div className="p-6 space-y-6">
-            {/* Top Overview Banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-slate-900 to-[#102433] text-white p-5 shadow-xs">
-              <div className="flex items-center gap-4">
+          <div className="p-5 space-y-4">
+            {/* Header: Name, VIP & Quick Actions */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
                 <div
-                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-base font-black shadow-md ${
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-sm font-black ${
                     selectedGuest.isVip
-                      ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white'
-                      : 'bg-[#0c1921]/10 text-white'
+                      ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200'
                   }`}
                 >
                   {(selectedGuest.firstName?.[0] || 'G') + (selectedGuest.lastName?.[0] || '')}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-black text-white">{formatGuestName(selectedGuest)}</h3>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{formatGuestName(selectedGuest)}</h3>
                     {selectedGuest.isVip && (
-                      <span className="rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 py-0.5 text-[10px] font-black text-amber-300">
-                        VIP GUEST
+                      <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                        VIP
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 text-xs text-slate-300 flex items-center gap-2">
-                    <span>Code: <span className="font-mono text-white">{selectedGuest.id.slice(0, 8).toUpperCase()}</span></span>
-                    <span className="text-slate-400">|</span>
-                    <span>Joined {selectedGuest.createdAt ? new Date(selectedGuest.createdAt).toLocaleDateString() : '—'}</span>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    ID: {selectedGuest.id.slice(0, 8).toUpperCase()}
                   </div>
                 </div>
               </div>
@@ -475,9 +473,9 @@ export const GuestsPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => startEditGuest(selectedGuest)}
-                  className="bg-[#0c1921]/10 hover:bg-[#0c1921]/20 border-white/20 text-white text-xs font-semibold gap-1.5 self-start sm:self-auto"
+                  className="gap-1 text-xs"
                 >
-                  <Pencil size={13} /> Edit Profile
+                  <Pencil size={12} /> Edit
                 </Button>
               )}
             </div>
@@ -485,153 +483,96 @@ export const GuestsPage: React.FC = () => {
             {loadingDetails ? (
               <LoadingState />
             ) : (
-              <>
-                {/* Contact & Identity Cards */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {/* Contact Details */}
-                  <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 space-y-3">
-                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e7a8a] flex items-center gap-1.5">
-                      <Mail size={13} className="text-[#174b59]" /> Contact Information
-                    </div>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
-                        <span className="text-[#6e7a8a]">Email Address</span>
-                        <span className="font-bold text-[#0f172a]">{selectedGuest.email || '—'}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
-                        <span className="text-[#6e7a8a]">Phone Number</span>
-                        <span className="font-bold text-[#0f172a]">{selectedGuest.phone || '—'}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
-                        <span className="text-[#6e7a8a]">City / Country</span>
-                        <span className="font-bold text-[#0f172a]">
-                          {[selectedGuest.city, selectedGuest.country].filter(Boolean).join(', ') || '—'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <span className="text-[#6e7a8a]">Physical Address</span>
-                        <span className="font-bold text-[#0f172a] text-right">{selectedGuest.address || '—'}</span>
-                      </div>
-                    </div>
+              <div className="space-y-4">
+                {/* Contact & Location List */}
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-3.5 space-y-2 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Phone size={13} /> Phone</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedGuest.phone || '-'}</span>
                   </div>
-
-                  {/* Identity Verification */}
-                  <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 space-y-3">
-                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e7a8a] flex items-center gap-1.5">
-                      <Shield size={13} className="text-[#c59a58]" /> Identification &amp; Compliance
-                    </div>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
-                        <span className="text-[#6e7a8a]">Nationality</span>
-                        <span className="font-bold text-[#0f172a]">{selectedGuest.nationality || '—'}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
-                        <span className="text-[#6e7a8a]">ID Document Type</span>
-                        <span className="font-bold text-[#0f172a]">{selectedGuest.idDocumentType || '—'}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
-                        <span className="text-[#6e7a8a]">Document Number</span>
-                        <span className="font-bold font-mono text-[#0f172a]">
-                          {canViewSensitive
-                            ? selectedGuest.idDocumentNumber || '—'
-                            : selectedGuest.idDocumentNumber
-                            ? '••••••••'
-                            : '—'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <span className="text-[#6e7a8a]">Date of Birth</span>
-                        <span className="font-bold text-[#0f172a]">
-                          {selectedGuest.dateOfBirth ? new Date(selectedGuest.dateOfBirth).toLocaleDateString() : '—'}
-                        </span>
-                      </div>
-                    </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Mail size={13} /> Email</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedGuest.email || '-'}</span>
                   </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><MapPin size={13} /> Location</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{[selectedGuest.city, selectedGuest.country].filter(Boolean).join(', ') || '-'}</span>
+                  </div>
+                  {selectedGuest.nationality && (
+                    <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
+                      <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Building size={13} /> Nationality</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedGuest.nationality}</span>
+                    </div>
+                  )}
+                  {selectedGuest.idDocumentNumber && (
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Shield size={13} /> ID Document</span>
+                      <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
+                        {canViewSensitive
+                          ? `${selectedGuest.idDocumentType ? selectedGuest.idDocumentType + ' ' : ''}${selectedGuest.idDocumentNumber}`
+                          : '••••••••'}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Preferences and Notes */}
+                {/* Notes or Preferences if any */}
                 {(selectedGuest.preferences || selectedGuest.notes) && (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50/40 p-4 space-y-2 text-xs">
-                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
-                      <Tag size={13} /> Preferences &amp; Guest Notes
-                    </div>
+                  <div className="rounded-xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 p-3 text-xs space-y-1">
                     {selectedGuest.preferences && (
-                      <div className="text-amber-950">
-                        <span className="font-bold text-amber-800">Preferences: </span>
-                        {selectedGuest.preferences}
+                      <div>
+                        <span className="font-bold text-amber-800 dark:text-amber-400">Preferences: </span>
+                        <span className="text-slate-700 dark:text-slate-300">{selectedGuest.preferences}</span>
                       </div>
                     )}
                     {selectedGuest.notes && (
-                      <div className="text-amber-950">
-                        <span className="font-bold text-amber-800">Staff Notes: </span>
-                        {selectedGuest.notes}
+                      <div>
+                        <span className="font-bold text-amber-800 dark:text-amber-400">Staff Notes: </span>
+                        <span className="text-slate-700 dark:text-slate-300">{selectedGuest.notes}</span>
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* Stays History */}
-                <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 space-y-3">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e7a8a] flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <BedDouble size={14} className="text-[#174b59]" /> Reservation &amp; Stay History
-                    </span>
-                    <span className="text-[#4a5568]">
-                      {selectedGuest.reservations?.length ?? 0} booking{(selectedGuest.reservations?.length ?? 0) === 1 ? '' : 's'}
-                    </span>
+                {/* Stay History Summary */}
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-3.5 space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5"><BedDouble size={13} /> Stay History</span>
+                    <span>{selectedGuest.reservations?.length ?? 0} booking{(selectedGuest.reservations?.length ?? 0) === 1 ? '' : 's'}</span>
                   </div>
 
                   {!selectedGuest.reservations || selectedGuest.reservations.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-[#4a5568]">
-                      No previous bookings recorded for this guest.
-                    </div>
+                    <p className="text-slate-400 dark:text-slate-500 text-center py-2">No previous bookings recorded.</p>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="bg-[#0f141d] border-b border-[#1e2535] text-[10px] uppercase font-bold text-[#6e7a8a]">
-                          <tr>
-                            <th className="px-3 py-2.5">Confirmation</th>
-                            <th className="px-3 py-2.5">Room</th>
-                            <th className="px-3 py-2.5">Dates</th>
-                            <th className="px-3 py-2.5">Amount</th>
-                            <th className="px-3 py-2.5">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#1e2535] text-xs">
-                          {selectedGuest.reservations.map((item: any) => {
-                            const res = item.reservation || item;
-                            return (
-                              <tr key={res.id} className="hover:bg-[#0f141d]/80">
-                                <td className="px-3 py-2.5 font-mono text-[11px] font-bold text-[#c59a58]">
-                                  {res.confirmationNo || res.id.slice(0, 8).toUpperCase()}
-                                </td>
-                                <td className="px-3 py-2.5 text-[#0f172a]">
-                                  {res.room ? `Room ${res.room.number}` : '—'}
-                                  <div className="text-[10px] text-[#4a5568]">{res.room?.roomType?.name}</div>
-                                </td>
-                                <td className="px-3 py-2.5 text-[11px] text-[#6e7a8a]">
-                                  {new Date(res.checkInDate).toLocaleDateString()} &rarr; {new Date(res.checkOutDate).toLocaleDateString()}
-                                </td>
-                                <td className="px-3 py-2.5 font-bold text-[#0f172a]">
-                                  {formatCurrency(res.totalAmount)}
-                                </td>
-                                <td className="px-3 py-2.5">
-                                  {statusBadge(res.status)}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800">
+                      {selectedGuest.reservations.map((item: any) => {
+                        const res = item.reservation || item;
+                        return (
+                          <div key={res.id} className="pt-1.5 first:pt-0 flex items-center justify-between text-xs">
+                            <div>
+                              <div className="font-bold text-slate-900 dark:text-slate-100">
+                                {res.room ? `Room ${res.room.number}` : 'Unassigned'}
+                              </div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                                {new Date(res.checkInDate).toLocaleDateString()} → {new Date(res.checkOutDate).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div className="text-right flex items-center gap-2">
+                              <span className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(res.totalAmount)}</span>
+                              {statusBadge(res.status)}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
 
-            <div className="flex justify-end pt-2 border-t border-[#1e2535]">
-              <Button variant="outline" onClick={() => setSelectedGuestId(null)}>
-                Close Profile
+            <div className="flex justify-end pt-2">
+              <Button variant="outline" size="sm" onClick={() => setSelectedGuestId(null)}>
+                Close
               </Button>
             </div>
           </div>
