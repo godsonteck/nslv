@@ -326,7 +326,7 @@ export const RoomsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate('/reservations')}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[#cbd5e1] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5"
           >
             <CalendarDays size={14} className="text-[#174b59]" /> Reservations
           </Button>
@@ -334,7 +334,7 @@ export const RoomsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => { clearGetCache(); void load(); }}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[#cbd5e1] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5"
           >
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -344,7 +344,7 @@ export const RoomsPage: React.FC = () => {
               size="sm"
               loading={saving}
               onClick={syncBookingStatuses}
-              className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+              className="border-[#cbd5e1] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5"
             >
               <RefreshCw size={14} className="text-[#c59a58]" /> Sync Statuses
             </Button>
@@ -368,7 +368,7 @@ export const RoomsPage: React.FC = () => {
           className={`rounded-xl p-3 text-left border transition-all ${
             status === 'ALL'
               ? 'bg-[#0f172a] text-white border-[#0f172a] shadow-xs'
-              : 'bg-white border-[#cbd5e1]/70 hover:border-slate-400 text-slate-700'
+              : 'bg-[#0c1921] border-[#cbd5e1]/70 hover:border-slate-400 text-[#a0a9b8]'
           }`}
         >
           <div className="text-[10px] font-bold uppercase tracking-wider opacity-75">All Rooms</div>
@@ -385,7 +385,7 @@ export const RoomsPage: React.FC = () => {
               className={`rounded-xl p-3 text-left border transition-all ${
                 isSelected
                   ? 'bg-[#174b59] text-white border-[#174b59] shadow-xs'
-                  : 'bg-white border-[#cbd5e1]/70 hover:border-slate-400 text-slate-700'
+                  : 'bg-[#0c1921] border-[#cbd5e1]/70 hover:border-slate-400 text-[#a0a9b8]'
               }`}
             >
               <div className="text-[10px] font-bold uppercase tracking-wider opacity-75 truncate">
@@ -398,12 +398,12 @@ export const RoomsPage: React.FC = () => {
       </div>
 
       {/* ── Main Room Board Section ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
+      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] shadow-xs overflow-hidden">
         {/* Controls Toolbar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[#e2e8f0] p-4 bg-slate-50/50 gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[#e2e8f0] p-4 bg-[#0f141d]/50 gap-3">
           {/* Search */}
           <div className="relative w-full lg:w-72">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a5568]" />
             <input
               type="text"
               value={q}
@@ -415,9 +415,9 @@ export const RoomsPage: React.FC = () => {
 
           {/* Date Filter & Fast Action Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center rounded-xl border border-[#cbd5e1] bg-white px-3 py-1.5 shadow-xs">
+            <div className="flex items-center rounded-xl border border-[#cbd5e1] bg-[#0c1921] px-3 py-1.5 shadow-xs">
               <CalendarDays size={14} className="text-[#174b59] mr-2 shrink-0" />
-              <label htmlFor="roomDateFilter" className="text-[11px] font-bold text-slate-500 mr-2 whitespace-nowrap cursor-pointer">
+              <label htmlFor="roomDateFilter" className="text-[11px] font-bold text-[#6e7a8a] mr-2 whitespace-nowrap cursor-pointer">
                 Filter Date:
               </label>
               <input
@@ -431,7 +431,7 @@ export const RoomsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-                  className="ml-2 text-slate-400 hover:text-red-600"
+                  className="ml-2 text-[#4a5568] hover:text-red-600"
                   title="Clear date filter"
                 >
                   <X size={13} />
@@ -440,8 +440,8 @@ export const RoomsPage: React.FC = () => {
             </div>
 
             {dateFilter && (
-              <div className="flex items-center rounded-xl border border-[#cbd5e1] bg-white px-3 py-1.5 shadow-xs">
-                <span className="text-[11px] font-bold text-slate-500 mr-2 whitespace-nowrap">To:</span>
+              <div className="flex items-center rounded-xl border border-[#cbd5e1] bg-[#0c1921] px-3 py-1.5 shadow-xs">
+                <span className="text-[11px] font-bold text-[#6e7a8a] mr-2 whitespace-nowrap">To:</span>
                 <input
                   type="date"
                   min={dateFilter}
@@ -453,7 +453,7 @@ export const RoomsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEndDateFilter('')}
-                    className="ml-2 text-slate-400 hover:text-red-600"
+                    className="ml-2 text-[#4a5568] hover:text-red-600"
                   >
                     <X size={12} />
                   </button>
@@ -475,7 +475,7 @@ export const RoomsPage: React.FC = () => {
               className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
                 dateFilter === new Date().toISOString().slice(0, 10) && !endDateFilter
                   ? 'border-[#174b59] bg-[#174b59] text-white'
-                  : 'border-[#cbd5e1] bg-white text-slate-700 hover:border-slate-400'
+                  : 'border-[#cbd5e1] bg-[#0c1921] text-[#a0a9b8] hover:border-slate-400'
               }`}
             >
               Today
@@ -497,7 +497,7 @@ export const RoomsPage: React.FC = () => {
               className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
                 dateFilter === new Date(Date.now() + 86400000).toISOString().slice(0, 10) && !endDateFilter
                   ? 'border-[#174b59] bg-[#174b59] text-white'
-                  : 'border-[#cbd5e1] bg-white text-slate-700 hover:border-slate-400'
+                  : 'border-[#cbd5e1] bg-[#0c1921] text-[#a0a9b8] hover:border-slate-400'
               }`}
             >
               Tomorrow
@@ -534,7 +534,7 @@ export const RoomsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-              className="flex items-center gap-1 rounded-md bg-white px-2 py-0.5 text-[11px] font-bold text-sky-700 border border-sky-300 hover:bg-sky-100"
+              className="flex items-center gap-1 rounded-md bg-[#0c1921] px-2 py-0.5 text-[11px] font-bold text-sky-700 border border-sky-300 hover:bg-sky-100"
             >
               <X size={12} /> Clear Filter
             </button>
@@ -546,7 +546,7 @@ export const RoomsPage: React.FC = () => {
           <LoadingState />
         ) : displayRooms.length === 0 ? (
           <div className="p-12 text-center">
-            <BedDouble className="mx-auto text-slate-400" size={36} />
+            <BedDouble className="mx-auto text-[#4a5568]" size={36} />
             <h3 className="mt-3 text-sm font-extrabold text-[#0f172a]">
               {dateFilter ? `No ${status === 'ALL' ? '' : status.toLowerCase().replaceAll('_', ' ') + ' '}rooms on selected date` : 'No rooms found'}
             </h3>
@@ -574,7 +574,7 @@ export const RoomsPage: React.FC = () => {
               return (
                 <div
                   key={r.id}
-                  className="group rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                  className="group rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     {/* Header: Room Number & Status */}
@@ -659,21 +659,21 @@ export const RoomsPage: React.FC = () => {
                   </div>
 
                   {/* Card Footer: Floor & Quick Condition */}
-                  <div className="mt-5 pt-3 border-t border-slate-100 flex flex-col gap-2.5">
+                  <div className="mt-5 pt-3 border-t border-[#1e2535] flex flex-col gap-2.5">
                     <div className="flex items-center justify-between text-xs text-[#64748b]">
                       <span>{r.floor != null ? `Floor ${r.floor}` : 'Ground Floor'}</span>
                       {canManage && (
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEdit(r)}
-                            className="text-slate-400 hover:text-[#174b59] p-1"
+                            className="text-[#4a5568] hover:text-[#174b59] p-1"
                             title="Edit room details"
                           >
                             <Pencil size={13} />
                           </button>
                           <button
                             onClick={() => remove(r)}
-                            className="text-slate-400 hover:text-rose-600 p-1"
+                            className="text-[#4a5568] hover:text-rose-600 p-1"
                             title="Delete room"
                           >
                             <Trash2 size={13} />
@@ -684,7 +684,7 @@ export const RoomsPage: React.FC = () => {
 
                     {canStatus && (
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">Status</span>
+                        <span className="text-[10px] font-bold uppercase text-[#4a5568]">Status</span>
                         <SelectInput
                           value={r.status || 'AVAILABLE'}
                           onChange={(e) => void setRoomStatus(r, e.target.value)}
@@ -707,8 +707,8 @@ export const RoomsPage: React.FC = () => {
       </div>
 
       {/* ── Room Types Management ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50">
+      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-[#0f141d]/50">
           <div>
             <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
               <Layers size={16} className="text-[#174b59]" />
@@ -734,14 +734,14 @@ export const RoomsPage: React.FC = () => {
               return (
                 <div
                   key={t.id}
-                  className="rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all flex flex-col justify-between"
+                  className="rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-base font-extrabold text-[#0f172a]">{t.name}</h3>
                         <div className="text-xs font-bold text-[#c59a58] mt-0.5">
-                          {formatCurrency(t.basePrice)} <span className="text-[10px] text-slate-400 font-normal">/ night</span>
+                          {formatCurrency(t.basePrice)} <span className="text-[10px] text-[#4a5568] font-normal">/ night</span>
                         </div>
                       </div>
                       {!t.isActive && (
@@ -753,7 +753,7 @@ export const RoomsPage: React.FC = () => {
                     {t.description && (
                       <p className="mt-2 text-xs text-[#64748b] line-clamp-2 leading-relaxed">{t.description}</p>
                     )}
-                    <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                    <div className="mt-3 flex items-center gap-2 text-[11px] text-[#6e7a8a] font-medium">
                       <span>Max {t.maxAdults} Adults</span>
                       <span>&bull;</span>
                       <span>{t.maxChildren} Children</span>
@@ -764,25 +764,25 @@ export const RoomsPage: React.FC = () => {
                         t.amenities.map((a: any) => (
                           <span
                             key={a.amenityId}
-                            className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600"
+                            className="rounded-md bg-[#1e2535] px-2 py-0.5 text-[10px] font-semibold text-[#6e7a8a]"
                           >
                             {a.amenity?.name || 'Amenity'}
                           </span>
                         ))
                       ) : (
-                        <span className="text-[10px] text-slate-400">No amenities set</span>
+                        <span className="text-[10px] text-[#4a5568]">No amenities set</span>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-[#64748b]">
+                  <div className="mt-4 pt-3 border-t border-[#1e2535] flex items-center justify-between text-xs text-[#64748b]">
                     <span>{roomsCount} room{roomsCount === 1 ? '' : 's'} assigned</span>
                     {canManage && (
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openEditType(t)} className="text-slate-400 hover:text-[#174b59] p-1">
+                        <button onClick={() => openEditType(t)} className="text-[#4a5568] hover:text-[#174b59] p-1">
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => removeType(t)} className="text-slate-400 hover:text-rose-600 p-1">
+                        <button onClick={() => removeType(t)} className="text-[#4a5568] hover:text-rose-600 p-1">
                           <Trash2 size={13} />
                         </button>
                       </div>
@@ -819,7 +819,7 @@ export const RoomsPage: React.FC = () => {
               <TextInput value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Pool view balcony" />
             </FormField>
           </div>
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#1e2535]">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -850,7 +850,7 @@ export const RoomsPage: React.FC = () => {
           <FormField label="Category Description">
             <TextInput value={typeForm.description} onChange={(e) => setTypeForm({ ...typeForm, description: e.target.value })} placeholder="Features, bed size, view..." />
           </FormField>
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#1e2535]">
             <Button type="button" variant="ghost" onClick={() => setTypeOpen(false)}>
               Cancel
             </Button>
@@ -865,3 +865,4 @@ export const RoomsPage: React.FC = () => {
 };
 
 export default RoomsPage;
+

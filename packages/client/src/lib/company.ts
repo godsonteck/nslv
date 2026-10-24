@@ -457,3 +457,305 @@ export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContex
 
   win.document.close();
 };
+
+export interface CashHandoverSlipData {
+  businessDate: string;
+  voucherRef?: string;
+  handoverTime?: string;
+  handedOverBy: string;
+  receivedBy: string;
+  openingFloat: number;
+  cashSales: number;
+  manualInflows: number;
+  totalCollected: number;
+  expenses: number;
+  momoDeposits: number;
+  totalDeductions: number;
+  expectedAmount: number;
+  handoverAmount: number;
+  remainingCash: number;
+  notes?: string;
+  byCategory?: Record<string, number>;
+}
+
+// Prints an authoritative Close-of-Day Cash Handover Voucher
+export const printCashHandoverSlip = (data: CashHandoverSlipData) => {
+  if (typeof window === 'undefined') return;
+  const win = window.open('', '_blank', 'width=540,height=860');
+  if (!win) return;
+
+  const esc = (v: any) =>
+    String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const logoUrl = new URL(villaAssets.logo, window.location.href).href;
+  const amountWords = amountToWords(data.handoverAmount);
+  const voucherRef = data.voucherRef || `HND-${Date.now().toString().slice(-6)}`;
+  const dateFormatted = new Date(`${data.businessDate.slice(0, 10)}T12:00:00`).toLocaleDateString('en-GH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const timeFormatted = data.handoverTime
+    ? new Date(data.handoverTime).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : new Date().toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' });
+
+  win.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Cash Handover Voucher - ${esc(voucherRef)}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+    body{
+      font-family:'Inter',sans-serif;
+      font-size:11.5px;
+      color:#0f172a;
+      background:#f8fafc;
+      padding:20px 0;
+      margin:0 auto;
+      width:500px;
+    }
+    .page{
+      background:#fff;
+      width:500px;
+      padding:32px 28px 24px;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      box-shadow:0 4px 16px rgba(0,0,0,.06);
+    }
+    .header{text-align:center;padding-bottom:14px;border-bottom:2px solid #c59a58}
+    .logo{height:54px;margin-bottom:8px;object-fit:contain}
+    .title{font-family:'Cinzel',serif;font-size:16px;font-weight:800;color:#0c1921;letter-spacing:1px;text-transform:uppercase}
+    .sub{font-size:10px;font-weight:600;color:#c59a58;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+    .address{font-size:10px;color:#64748b;margin-top:4px}
+    
+    .badge-bar{
+      margin:14px 0 16px;
+      background:#fcf9f2;
+      border:1px solid #e7d8bc;
+      border-radius:8px;
+      padding:10px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .badge-bar .ref{font-family:monospace;font-size:13px;font-weight:800;color:#0c1921}
+    .badge-bar .status{font-size:10px;font-weight:800;background:#0c1921;color:#fdfbf7;padding:3px 8px;border-radius:4px;letter-spacing:0.5px}
+
+    .meta-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px 16px;
+      margin-bottom:16px;
+      font-size:11px;
+    }
+    .meta-item .lbl{color:#64748b;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:0.5px}
+    .meta-item .val{color:#0f172a;font-weight:700;margin-top:2px}
+
+    .table-section{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:11.5px}
+    th{background:#0c1921;color:#fdfbf7;text-align:left;padding:7px 12px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+    td{padding:7px 12px;border-bottom:1px solid #f1f5f9}
+    tr:last-child td{border-bottom:none}
+    .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+    .section-header{background:#f8fafc;font-weight:700;color:#334155;font-size:10.5px}
+    .total-row{background:#f1f5f9;font-weight:800;color:#0f172a}
+    .highlight-row{background:#fcf9f2;border-top:2px solid #c59a58;border-bottom:2px solid #c59a58}
+    .highlight-row td{font-size:13px;font-weight:800;color:#0c1921;padding:10px 12px}
+
+    .words-box{
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      border-radius:6px;
+      padding:8px 12px;
+      margin-bottom:16px;
+      font-size:10.5px;
+      color:#334155;
+    }
+    .words-box strong{color:#0f172a}
+
+    .notes-box{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:6px;
+      padding:8px 12px;
+      margin-bottom:20px;
+      font-size:10.5px;
+      color:#475569;
+    }
+
+    .sign-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+      margin-top:24px;
+      padding-top:16px;
+      border-top:1px dashed #cbd5e1;
+    }
+    .sign-block{text-align:center}
+    .sign-line{margin-top:40px;border-bottom:1px solid #0f172a}
+    .sign-title{font-size:10px;font-weight:700;color:#0f172a;text-transform:uppercase;margin-top:6px}
+    .sign-name{font-size:11px;font-weight:600;color:#334155;margin-top:2px}
+
+    .footer{text-align:center;margin-top:20px;font-size:9.5px;color:#94a3b8}
+    .print-btn{
+      display:block;
+      width:100%;
+      margin-top:20px;
+      padding:12px;
+      background:#0c1921;
+      color:#fdfbf7;
+      border:none;
+      border-radius:8px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    .print-btn:hover{background:#173c4d}
+
+    @media print{
+      body{background:#fff;padding:0;width:100%}
+      .page{width:100%;box-shadow:none;border:none;padding:10px}
+      .print-btn{display:none}
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <img src="${logoUrl}" alt="${esc(company.legalName)}" class="logo" onerror="this.style.display='none'"/>
+    <div class="title">${esc(company.legalName)}</div>
+    <div class="sub">Official Close-of-Day Cash Handover Voucher</div>
+    <div class="address">${esc(company.address)} &bull; ${esc(company.phone)} &bull; ${esc(company.digitalAddress)}</div>
+  </div>
+
+  <div class="badge-bar">
+    <div>
+      <span style="font-size:9.5px;text-transform:uppercase;color:#71828a;font-weight:700">VOUCHER REFERENCE: </span>
+      <span class="ref">${esc(voucherRef)}</span>
+    </div>
+    <div class="status">&#10003; CASH SETTLED &amp; HANDED OVER</div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="lbl">Business Date</div>
+      <div class="val">${esc(dateFormatted)}</div>
+    </div>
+    <div class="meta-item">
+      <div class="lbl">Handover Timestamp</div>
+      <div class="val">${esc(timeFormatted)}</div>
+    </div>
+    <div class="meta-item">
+      <div class="lbl">Handed Over By (Reception)</div>
+      <div class="val">${esc(data.handedOverBy)}</div>
+    </div>
+    <div class="meta-item">
+      <div class="lbl">Received By (Management)</div>
+      <div class="val">${esc(data.receivedBy)}</div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <table>
+      <thead>
+        <tr>
+          <th>Daily Cash Breakdown</th>
+          <th style="text-align:right">Amount (GHS)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Morning Opening Float (Today)</td>
+          <td class="num">${esc(formatCurrency(data.openingFloat))}</td>
+        </tr>
+        <tr>
+          <td>Cash Sales &amp; Collections (Front Desk + POS)</td>
+          <td class="num">+${esc(formatCurrency(data.cashSales))}</td>
+        </tr>
+        ${data.manualInflows > 0 ? `
+        <tr>
+          <td>Manual Cash Inflows</td>
+          <td class="num">+${esc(formatCurrency(data.manualInflows))}</td>
+        </tr>` : ''}
+        <tr class="section-header">
+          <td><strong>Total Cash Inflow to Drawer</strong></td>
+          <td class="num"><strong>+${esc(formatCurrency(data.totalCollected))}</strong></td>
+        </tr>
+        <tr>
+          <td>Operational Expenses &amp; Drawer Payouts</td>
+          <td class="num" style="color:#b91c1c">&minus;${esc(formatCurrency(data.expenses))}</td>
+        </tr>
+        ${data.momoDeposits > 0 ? `
+        <tr>
+          <td>MoMo Drawer Cash Transfers</td>
+          <td class="num" style="color:#b91c1c">&minus;${esc(formatCurrency(data.momoDeposits))}</td>
+        </tr>` : ''}
+        <tr class="section-header">
+          <td><strong>Total Drawer Deductions</strong></td>
+          <td class="num" style="color:#b91c1c"><strong>&minus;${esc(formatCurrency(data.totalDeductions))}</strong></td>
+        </tr>
+        <tr class="total-row">
+          <td><strong>Expected Cash Balance for Handover</strong></td>
+          <td class="num"><strong>${esc(formatCurrency(data.expectedAmount))}</strong></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>
+            <div style="font-size:11px;color:#c59a58;text-transform:uppercase;letter-spacing:0.5px">Official Handover Amount</div>
+            <div style="font-size:14px;font-weight:800;color:#0c1921">ACTUAL CASH HANDED OVER TO MANAGEMENT</div>
+          </td>
+          <td class="num" style="font-size:16px;font-weight:900;color:#0c1921">
+            ${esc(formatCurrency(data.handoverAmount))}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Remaining Cash Retained at Reception Drawer</strong>
+            <div style="font-size:9.5px;color:#64748b">Reception does not keep cash overnight; balanced to 0.00 GHS</div>
+          </td>
+          <td class="num" style="font-weight:800;color:#047857">
+            ${esc(formatCurrency(data.remainingCash))}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  ${amountWords ? `
+  <div class="words-box">
+    <strong>Amount in Words:</strong> ${esc(amountWords)}
+  </div>` : ''}
+
+  ${data.notes ? `
+  <div class="notes-box">
+    <strong>Handover Notes / Verification:</strong> ${esc(data.notes)}
+  </div>` : ''}
+
+  <div class="sign-grid">
+    <div class="sign-block">
+      <div class="sign-line"></div>
+      <div class="sign-title">Handed Over By (Receptionist)</div>
+      <div class="sign-name">${esc(data.handedOverBy)}</div>
+    </div>
+    <div class="sign-block">
+      <div class="sign-line"></div>
+      <div class="sign-title">Received &amp; Verified By (Management)</div>
+      <div class="sign-name">${esc(data.receivedBy)}</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>This is an official financial handover voucher of NS LUXURY VILLA.</p>
+    <p>Cash is received daily by Management. No front-desk cash is carried overnight.</p>
+  </div>
+
+  <button class="print-btn noprint" onclick="window.print()">&#128438; Print Official Handover Voucher</button>
+</div>
+</body>
+</html>`);
+
+  win.document.close();
+};

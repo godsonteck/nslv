@@ -1,9 +1,6 @@
 // ============================================
 // NS LUXURY VILLA — System Administration Console
-// /admin — System-level console. Restricted to the Admin role.
-// Distinct from the Manager operational control center:
-// only Admin manages accounts, roles, permissions, settings
-// and the immutable audit trail.
+// System-level console for Administrator role.
 // ============================================
 
 import React, { useEffect, useState } from 'react';
@@ -11,7 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { usersApi, rolesApi, auditApi, type AuditLogRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
-import { Button, MetricCard, DataTable, Badge, LoadingState } from '../../components/ui';
+import { Button, statusBadge, LoadingState } from '../../components/ui';
+import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import {
   ShieldCheck,
   Users,
@@ -25,10 +23,10 @@ import {
   ArrowRight,
   Server,
   Lock,
-  Upload,
   BedDouble,
   CalendarClock,
   Clock,
+  Sparkles,
 } from 'lucide-react';
 
 interface ConsoleMetrics {
@@ -45,52 +43,23 @@ const emptyMetrics: ConsoleMetrics = {
   totalPermissions: 0,
 };
 
-const actionVariant = (action: string): 'success' | 'danger' | 'warning' | 'info' | 'neutral' => {
-  if (action.includes('created') || action.includes('login')) return 'success';
-  if (action.includes('deleted') || action.includes('deactivated') || action.includes('failed')) return 'danger';
-  if (action.includes('updated') || action.includes('changed') || action.includes('assigned')) return 'warning';
-  if (action.includes('viewed') || action.includes('exported')) return 'info';
-  return 'neutral';
-};
+interface QuickTile {
+  label: string;
+  to: string;
+  icon: React.ReactNode;
+  desc: string;
+}
 
-const SystemHero: React.FC<{ greeting: string }> = ({ greeting }) => (
-  <section className="relative overflow-hidden rounded-[24px] bg-[#0E0B12] text-white shadow-[0_18px_50px_rgba(14,11,18,.4)]">
-    <div className="absolute inset-0 bg-gradient-to-br from-[#0E0B12] via-[#131019] to-[#0E2A36]"/>
-    <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#f1a83f]/20 blur-3xl"/>
-    <div className="relative grid min-h-[240px] lg:grid-cols-[1.2fr_.8fr]">
-      <div className="relative p-7 sm:p-9">
-        <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.2em] text-[#f1a83f]"><Lock size={13} /> System administration</div>
-        <h2 className="mt-3 max-w-xl text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">{greeting}</h2>
-        <p className="mt-3 max-w-lg text-sm leading-6 text-white/70">Accounts, roles, permissions, staff records, POS menus, system settings and the immutable audit trail. Operations live in the Manager control center.</p>
-      </div>
-      <div className="grid grid-cols-2 border-l border-white/10 bg-white/5">
-        <HeroStat label="User accounts" icon={<Users size={15} />} note="Managed here" />
-        <HeroStat label="Roles & grants" icon={<KeyRound size={15} />} note="Permission model" />
-        <HeroStat label="Audit trail" icon={<ScrollText size={15} />} note="Immutable events" />
-        <HeroStat label="System settings" icon={<Settings size={15} />} note="Property config" />
-      </div>
-    </div>
-  </section>
-);
-
-const HeroStat: React.FC<{ label: string; icon: React.ReactNode; note: string }> = ({ label, icon, note }) => (
-  <div className="flex flex-col justify-center border-b border-r border-white/10 p-5 last:border-r-0">
-    <div className="flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-[.15em] text-white/50">{icon}{label}</div>
-    <div className="mt-2 text-[10px] text-white/50">{note}</div>
-  </div>
-);
-
-interface QuickTile { label: string; to: string; icon: React.ReactNode; desc: string; }
 const QUICK_LINKS: QuickTile[] = [
-  { label: 'User accounts', to: '/admin/users', icon: <Users size={18} />, desc: 'Create, suspend & assign roles' },
-  { label: 'Roles & permissions', to: '/admin/roles', icon: <KeyRound size={18} />, desc: 'Define the access model' },
-  { label: 'Room config', to: '/admin/rooms', icon: <BedDouble size={18} />, desc: 'Room types, inventory & amenities' },
-  { label: 'Event spaces', to: '/admin/event-spaces', icon: <CalendarClock size={18} />, desc: 'Venue locations, capacity & rates' },
-  { label: 'Categories', to: '/admin/categories', icon: <Tags size={18} />, desc: 'Classify menus, stock, rooms & expenses' },
-  { label: 'Menu & POS', to: '/admin/menus', icon: <Utensils size={18} />, desc: 'Catalog & department pricing' },
-  { label: 'System settings', to: '/admin/settings', icon: <Settings size={18} />, desc: 'Property-wide configuration' },
-  { label: 'Late checkouts', to: '/admin/late-checkouts', icon: <Clock size={18} />, desc: 'Delayed departures & fee audit' },
-  { label: 'Audit logs', to: '/admin/audit', icon: <ScrollText size={18} />, desc: 'Immutable activity trail' },
+  { label: 'Staff Accounts', to: '/admin/users', icon: <Users size={18} />, desc: 'User credentials, roles & active status' },
+  { label: 'Roles & Permissions', to: '/admin/roles', icon: <KeyRound size={18} />, desc: 'Access control & role definitions' },
+  { label: 'Room Configuration', to: '/admin/rooms', icon: <BedDouble size={18} />, desc: 'Suites, inventory & villa amenities' },
+  { label: 'Event Function Spaces', to: '/admin/event-spaces', icon: <CalendarClock size={18} />, desc: 'Venue spaces, capacities & rates' },
+  { label: 'Catalog Categories', to: '/admin/categories', icon: <Tags size={18} />, desc: 'Menus, inventory & expense categories' },
+  { label: 'Dining & POS Menus', to: '/admin/menus', icon: <Utensils size={18} />, desc: 'Restaurant & Bar catalogs & pricing' },
+  { label: 'System Configuration', to: '/admin/settings', icon: <Settings size={18} />, desc: 'Property-wide preferences & policies' },
+  { label: 'Late Departure Fees', to: '/admin/late-checkouts', icon: <Clock size={18} />, desc: 'Delayed checkouts & fee audits' },
+  { label: 'Immutable Audit Trail', to: '/admin/audit', icon: <ScrollText size={18} />, desc: 'Full tamper-evident activity log' },
 ];
 
 export const AdminConsolePage: React.FC = () => {
@@ -108,98 +77,183 @@ export const AdminConsolePage: React.FC = () => {
       initial ? setLoading(true) : setRefreshing(true);
       setError('');
       const [usersRes, rolesRes, permsRes, auditRes] = await Promise.allSettled([
-        // The API deliberately caps page size at 100.
         usersApi.list({ pageSize: 100 }),
         rolesApi.list(),
         rolesApi.permissions(),
-        auditApi.list({ pageSize: 8 }),
+        auditApi.list({ pageSize: 6 }),
       ]);
       const next = { ...emptyMetrics };
       if (usersRes.status === 'fulfilled') {
         const list = usersRes.value.data?.data ?? usersRes.value.data?.items ?? [];
         next.totalUsers = list.length;
-        next.activeUsers = list.filter((u) => String(u.status).toUpperCase() === 'ACTIVE').length;
+        next.activeUsers = list.filter((u: any) => String(u.status).toUpperCase() === 'ACTIVE').length;
       }
       if (rolesRes.status === 'fulfilled') next.totalRoles = rolesRes.value.data?.length ?? 0;
       if (permsRes.status === 'fulfilled') next.totalPermissions = permsRes.value.data?.permissions?.length ?? 0;
       setMetrics(next);
       if (auditRes.status === 'fulfilled') setLogs(auditRes.value.data?.data ?? auditRes.value.data?.items ?? []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to load system administration data.');
+    } catch (e: any) {
+      setError(e?.message ?? 'Unable to load administration console data.');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
-  useEffect(() => { void load(true); }, []);
 
-  if (loading) return <LoadingState message="Loading the system administration console…" />;
-
-  const auditColumns = [
-    { key: 'time', header: 'When', render: (l: AuditLogRecord) => <span className="font-mono text-[10px] text-[#5b6b7a]">{new Date(l.createdAt).toLocaleString()}</span> },
-    { key: 'action', header: 'Action', render: (l: AuditLogRecord) => <Badge label={l.action} variant={actionVariant(l.action)} /> },
-    { key: 'resource', header: 'Resource', render: (l: AuditLogRecord) => <span className="font-bold text-[#1a2b3c]">{l.resource}</span> },
-    { key: 'user', header: 'Actor', render: (l: AuditLogRecord) => <span className="text-[#40525f]">{l.userName ?? l.userEmail ?? '—'}</span> },
-  ];
+  useEffect(() => {
+    void load(true);
+  }, []);
 
   return (
-    <div className="space-y-6 select-none pb-8">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]"><Server size={13} className="text-[#f1a83f]" /> NSVilla · Admin only</div>
-          <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">System Administration Console</h1>
-          <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">Secure management of user accounts, roles & permissions, staff records, POS menus, system settings and the immutable audit trail.</p>
+    <ShellPage
+      eyebrow="SYSTEM LEVEL SECURITY • ADMIN CONSOLE"
+      title="System Administration"
+      subtitle="Staff accounts, roles, access permissions, room configurations, menu catalogs, and immutable security audit logs."
+      actions={
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void load()}
+            loading={refreshing}
+            className="gap-1.5 border-[#e5ebeb] text-[#0c1921]"
+          >
+            <RefreshCw size={13} /> Refresh
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => navigate('/admin/users')}
+            className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+          >
+            <ShieldCheck size={14} /> Staff Accounts
+          </Button>
         </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => void load()} loading={refreshing}><RefreshCw size={14} /> Refresh</Button>
-          <Button size="sm" onClick={() => navigate('/admin/users')}><ShieldCheck size={14} /> Manage users</Button>
+      }
+    >
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
+          {error}
         </div>
+      )}
+
+      {/* ── Key Security Stats ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatTile
+          label="Staff Accounts"
+          value={metrics.totalUsers}
+          note={`${metrics.activeUsers} active system users`}
+          icon={Users}
+          accent
+        />
+        <StatTile
+          label="Configured Roles"
+          value={metrics.totalRoles}
+          note="Granular permission access tiers"
+          icon={KeyRound}
+        />
+        <StatTile
+          label="Tracked Permissions"
+          value={metrics.totalPermissions}
+          note="Module security grants"
+          icon={ShieldCheck}
+        />
+        <StatTile
+          label="Recent Audit Records"
+          value={logs.length}
+          note="Immutable security events"
+          icon={Activity}
+        />
       </div>
 
-      {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
-
-      <SystemHero greeting={greeting} />
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="User accounts" value={metrics.totalUsers} subtext={`${metrics.activeUsers} active`} indicator={<Users size={18} />} accent />
-        <MetricCard label="System roles" value={metrics.totalRoles} subtext="Granular permission model" indicator={<KeyRound size={18} />} />
-        <MetricCard label="Permissions" value={metrics.totalPermissions} subtext="Tracked access grants" indicator={<ShieldCheck size={18} />} />
-        <MetricCard label="Audit events" value={logs.length} subtext="Most recent activity" indicator={<Activity size={18} />} />
-      </div>
-
-      <div>
-        <h2 className="mb-3 text-base font-extrabold tracking-[-.02em] text-[#14232b]">Administration modules</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* ── Administration Modules Grid ── */}
+      <Section
+        title="Administration Modules"
+        subtitle="Manage underlying property configuration, users, permissions, and audit trails."
+      >
+        <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {QUICK_LINKS.map((tile) => (
-            <button key={tile.to} onClick={() => navigate(tile.to)} className="group flex items-start gap-4 rounded-2xl border border-[#e2e7ea] bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#f1a83f]/50 hover:shadow-md">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e6f2f7] text-[#16a4d4] transition group-hover:bg-[#0E0B12] group-hover:text-[#f1a83f]">{tile.icon}</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-extrabold text-[#1a2b3c]">{tile.label}</span>
-                <span className="mt-1 block text-[11px] leading-4 text-[#7c8a95]">{tile.desc}</span>
-                <span className="mt-2 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-[.12em] text-[#a8761e]">Open <ArrowRight size={12} /></span>
+            <button
+              key={tile.to}
+              onClick={() => navigate(tile.to)}
+              className="group flex items-start gap-4 rounded-2xl border border-[#e5ebeb] bg-white p-5 text-left shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0c1921] text-[#c59a58] transition-colors group-hover:bg-[#173c4d]">
+                {tile.icon}
               </span>
+              <div className="min-w-0 flex-1">
+                <span className="block text-sm font-bold text-[#0c1921]">{tile.label}</span>
+                <span className="mt-1 block text-[11px] leading-relaxed text-[#5a6b75]">{tile.desc}</span>
+                <span className="mt-2.5 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
+                  Open Module <ArrowRight size={11} />
+                </span>
+              </div>
             </button>
           ))}
         </div>
-      </div>
+      </Section>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-extrabold tracking-[-.02em] text-[#14232b]">Recent audit activity</h2>
-          <p className="mt-0.5 text-[11px] text-[#7c8a95]">Latest system events captured on the immutable trail.</p>
-        </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/admin/audit')}>Full audit logs →</Button>
-      </div>
-      <DataTable
-        columns={auditColumns}
-        data={logs}
-        loading={refreshing}
-        keyFn={(l) => l.id}
-        emptyTitle="No audit events recorded"
-        emptySubtitle="System actions will appear here as they are captured."
-        onRowClick={() => navigate('/admin/audit')}
-      />
-    </div>
+      {/* ── Audit Trail Preview ── */}
+      <Section
+        title="Recent Security & System Events"
+        subtitle="Live snapshot from the immutable audit trail."
+        action={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/admin/audit')}
+            className="gap-1 text-xs text-[#b88738] font-bold"
+          >
+            Full Audit Log <ArrowRight size={12} />
+          </Button>
+        }
+      >
+        {loading ? (
+          <div className="p-10"><LoadingState /></div>
+        ) : logs.length === 0 ? (
+          <div className="p-12 text-center text-xs text-[#71828a]">
+            No recent audit events captured.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <th className="py-3 px-5">Timestamp</th>
+                  <th className="py-3 px-5">Security Action</th>
+                  <th className="py-3 px-5">Target Resource</th>
+                  <th className="py-3 px-5">User / Actor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {logs.map((l) => (
+                  <tr
+                    key={l.id}
+                    onClick={() => navigate('/admin/audit')}
+                    className="cursor-pointer hover:bg-[#fbfcfb] transition-colors"
+                  >
+                    <td className="py-3 px-5 font-mono text-[11px] text-[#5a6b75]">
+                      {new Date(l.createdAt).toLocaleString('en-GH')}
+                    </td>
+                    <td className="py-3 px-5">
+                      <span className="inline-flex rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-bold text-[#0c1921]">
+                        {l.action}
+                      </span>
+                    </td>
+                    <td className="py-3 px-5 font-bold text-[#0c1921]">
+                      {l.resource}
+                    </td>
+                    <td className="py-3 px-5 text-[#5a6b75]">
+                      {l.userName ?? l.userEmail ?? 'System'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+    </ShellPage>
   );
 };
 

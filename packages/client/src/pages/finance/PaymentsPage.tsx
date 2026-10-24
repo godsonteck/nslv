@@ -411,7 +411,7 @@ export const PaymentsPage: React.FC = () => {
       subtitle="Direct collections, group deposits, part-payment settlement verification, and manager refund approvals."
       actions={
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[#cbd5e1] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
           <Button size="sm" onClick={openModal} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
@@ -433,10 +433,10 @@ export const PaymentsPage: React.FC = () => {
           <p className="mt-1 text-[11px] text-emerald-700 font-medium">Immutable ledger balance</p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Total Collections</span>
-            <div className="rounded-xl bg-slate-100 p-2 text-[#475569]">
+            <div className="rounded-xl bg-[#1e2535] p-2 text-[#475569]">
               <WalletCards size={18} />
             </div>
           </div>
@@ -458,10 +458,10 @@ export const PaymentsPage: React.FC = () => {
           <p className="mt-1 text-[11px] text-rose-700">{completedRefunds.length} ledger reversal{completedRefunds.length === 1 ? '' : 's'}</p>
         </div>
 
-        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200 bg-white'}`}>
+        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-amber-300 bg-amber-50/50' : 'border-[#1e2535] bg-[#0c1921]'}`}>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Pending Approvals</span>
-            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'bg-amber-200 text-amber-900 animate-pulse' : 'bg-slate-100 text-[#475569]'}`}>
+            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'bg-amber-200 text-amber-900 animate-pulse' : 'bg-[#1e2535] text-[#475569]'}`}>
               <Clock size={18} />
             </div>
           </div>
@@ -528,7 +528,7 @@ export const PaymentsPage: React.FC = () => {
                     key={m}
                     type="button"
                     onClick={() => setMethodFilter(m)}
-                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition border ${methodFilter === m ? 'border-[#c59a58] bg-[#fbf8f2] text-[#8c672b]' : 'border-transparent text-[#64748b] hover:bg-slate-100'}`}
+                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition border ${methodFilter === m ? 'border-[#c59a58] bg-[#fbf8f2] text-[#8c672b]' : 'border-transparent text-[#64748b] hover:bg-[#1e2535]'}`}
                   >
                     {m === 'ALL' ? 'All' : methodLabel(m)}
                   </button>
@@ -545,7 +545,7 @@ export const PaymentsPage: React.FC = () => {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by guest, room, receipt reference, or handled-by staff…"
-              className="w-full rounded-xl border border-[#dfe5e5] bg-white py-2 pl-9 pr-4 text-xs font-medium text-[#0c1921] placeholder-[#71828a] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
+              className="w-full rounded-xl border border-[#dfe5e5] bg-[#0c1921] py-2 pl-9 pr-4 text-xs font-medium text-[#0c1921] placeholder-[#71828a] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
             />
           </div>
         </div>
@@ -615,7 +615,7 @@ export const PaymentsPage: React.FC = () => {
                               <BedDouble size={11} className="text-[#c59a58]" /> Group · Rooms {p.groupRooms!.join(', ')}
                             </span>
                           ) : roomNumber ? (
-                            <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-extrabold text-[#475569] flex items-center gap-1 border border-slate-200">
+                            <span className="rounded-md bg-[#1e2535] px-1.5 py-0.5 text-[10px] font-extrabold text-[#475569] flex items-center gap-1 border border-[#1e2535]">
                               <BedDouble size={11} /> Room {roomNumber}
                             </span>
                           ) : null}
@@ -634,7 +634,7 @@ export const PaymentsPage: React.FC = () => {
 
                       {/* Method */}
                       <td className="px-5 py-4 font-semibold text-[#475569]">
-                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-bold text-[#334155] border border-slate-200">
+                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-[#1e2535] px-2 py-1 text-[11px] font-bold text-[#334155] border border-[#1e2535]">
                           <MethodIcon method={p.method} />
                           <span>{methodLabel(p.method)}</span>
                         </div>
@@ -805,7 +805,7 @@ export const PaymentsPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="rounded-md bg-white px-2.5 py-1 text-[11px] font-mono font-bold text-[#0e7490] border border-[#bee3ec]">
+                  <div className="rounded-md bg-[#0c1921] px-2.5 py-1 text-[11px] font-mono font-bold text-[#0e7490] border border-[#bee3ec]">
                     Folio #{folio.id.slice(0, 8).toUpperCase()}
                   </div>
                   <p className="mt-1 text-[10px] text-[#64748b]">
@@ -1063,3 +1063,4 @@ export const PaymentsPage: React.FC = () => {
 };
 
 export default PaymentsPage;
+

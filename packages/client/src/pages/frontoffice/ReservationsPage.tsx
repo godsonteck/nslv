@@ -858,10 +858,10 @@ export const ReservationsPage: React.FC = () => {
       subtitle="Manage group bookings, individual room commitments, guest registration, and deposit settlements."
       actions={
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={load} className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={load} className="border-[#1e2535] hover:bg-[#0f141d]/60 bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[#1e2535] hover:bg-[#0f141d]/60 bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5">
             <CreditCard size={14} className="text-[#174b59]" /> Payments &amp; Receipts
           </Button>
           <Button size="sm" onClick={() => setOpen(true)} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
@@ -881,9 +881,9 @@ export const ReservationsPage: React.FC = () => {
         <Toolbar search={q} onSearch={setQ} placeholder="Search guest, booking code or room…">
           {/* Prominent Date Filter with label & Today shortcut */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <div className="flex items-center rounded-xl border border-[#dfe5e5] bg-white px-2.5 h-10 shadow-sm focus-within:border-[#c59a58] focus-within:ring-1 focus-within:ring-[#c59a58]">
+            <div className="flex items-center rounded-xl border border-[#1e2535] bg-[#0c1921] px-2.5 h-10 shadow-sm focus-within:border-[#c59a58] focus-within:ring-1 focus-within:ring-[#c59a58]">
               <CalendarDays size={14} className="text-[#c59a58] mr-2 flex-shrink-0" />
-              <label htmlFor="resDateFilter" className="text-[11px] font-bold text-[#566870] mr-2 whitespace-nowrap cursor-pointer">
+              <label htmlFor="resDateFilter" className="text-[11px] font-bold text-[#6e7a8a] mr-2 whitespace-nowrap cursor-pointer">
                 Filter date:
               </label>
               <input
@@ -914,7 +914,7 @@ export const ReservationsPage: React.FC = () => {
               className={`h-10 px-3.5 rounded-xl border text-xs font-bold transition ${
                 dateFilter === new Date().toISOString().slice(0, 10)
                   ? 'border-[#173c4d] bg-[#173c4d] text-[#fdfbf7] shadow-sm font-black'
-                  : 'border-[#dfe5e5] bg-white text-[#566870] hover:border-[#c59a58] hover:text-[#0c1921]'
+                  : 'border-[#1e2535] bg-[#0c1921] text-[#6e7a8a] hover:border-[#c59a58] hover:text-[#0c1921]'
               }`}
               title="Show reservations active today"
             >
@@ -923,7 +923,7 @@ export const ReservationsPage: React.FC = () => {
           </div>
 
           {/* Sort By Dropdown */}
-          <div className="flex items-center rounded-xl border border-[#dfe5e5] bg-white px-2.5 h-10 shadow-sm focus-within:border-[#c59a58]">
+          <div className="flex items-center rounded-xl border border-[#1e2535] bg-[#0c1921] px-2.5 h-10 shadow-sm focus-within:border-[#c59a58]">
             <ArrowUpDown size={14} className="text-[#8a9598] mr-2 flex-shrink-0" />
             <select
               value={sortField ? `${sortField}_${sortDir}` : 'default'}
@@ -984,7 +984,7 @@ export const ReservationsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setDateFilter('')}
-              className="flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[11px] font-bold text-[#b88738] hover:bg-[#fcf8f0] border border-[#c59a58]/30"
+              className="flex items-center gap-1 rounded-lg bg-[#0c1921] px-2 py-1 text-[11px] font-bold text-[#b88738] hover:bg-[#fcf8f0] border border-[#c59a58]/30"
             >
               <X size={12} /> Clear date filter
             </button>
@@ -994,7 +994,7 @@ export const ReservationsPage: React.FC = () => {
           <LoadingState />
         ) : displayItems.length === 0 ? (
           <div className="p-5">
-            <div className="rounded-2xl border border-dashed border-[#dfe5e5] p-12 text-center bg-[#fdfbf7]/50">
+            <div className="rounded-2xl border border-dashed border-[#1e2535] p-12 text-center bg-[#fdfbf7]/50">
               <CalendarDays className="mx-auto text-[#71828a]" />
               <h3 className="mt-3 text-sm font-extrabold text-[#0c1921]">
                 {dateFilter ? `No bookings on ${new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'No bookings yet'}
@@ -1003,7 +1003,7 @@ export const ReservationsPage: React.FC = () => {
                 {dateFilter ? 'Try a different date or clear the filter.' : 'Your fresh property database is ready for its first booking.'}
               </p>
               {dateFilter && (
-                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl bg-[#173c4d] px-4 py-2 text-[11px] font-extrabold text-[#fdfbf7] hover:bg-[#0c1921]">
+                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl bg-[#173c4d] px-4 py-2 text-[11px] font-extrabold text-[#fdfbf7] hover:bg-[#0f141d]/60">
                   Clear date filter
                 </button>
               )}
@@ -1076,7 +1076,7 @@ export const ReservationsPage: React.FC = () => {
                               </span>
                             </div>
                             <div className="mt-1 text-[10px] text-[#71828a]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}</div>
-                            {isAdmin && <div className="mt-1 text-[10px] text-[#566870]">Booked by: {item.bookedBy?.name || '—'}</div>}
+                            {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a]">Booked by: {item.bookedBy?.name || '—'}</div>}
                           </td>
                           <td className="px-5 py-4 text-xs text-[#0c1921]">
                             <div className="font-extrabold">{formatGuestName(item.leadGuest)} <span className="text-[10px] font-bold text-[#b88738]">(Lead)</span></div>
@@ -1086,11 +1086,11 @@ export const ReservationsPage: React.FC = () => {
                               </div>
                             )}
                           </td>
-                          <td className="px-5 py-4 text-xs text-[#566870]">
+                          <td className="px-5 py-4 text-xs text-[#6e7a8a]">
                             <div className="font-bold text-[#0c1921]">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
                             <div className="text-[10px] text-[#71828a]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
                           </td>
-                          <td className="px-5 py-4 text-[11px] text-[#566870]">
+                          <td className="px-5 py-4 text-[11px] text-[#6e7a8a]">
                             <div>{new Date(item.checkInDate).toLocaleDateString()} → {new Date(item.checkOutDate).toLocaleDateString()}</div>
                             <div className="text-[10px] text-[#71828a]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
                           </td>
@@ -1164,7 +1164,7 @@ export const ReservationsPage: React.FC = () => {
                             onClick={() => openDetails(subRes)}
                             className="bg-[#fbfbf9] border-l-4 border-l-[#c59a58] text-xs hover:bg-[#f6f4ee] transition-colors cursor-pointer"
                           >
-                            <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[#566870]">
+                            <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[#6e7a8a]">
                               <span className="text-[#c59a58] font-bold mr-1.5">↳</span>
                               {subRes.confirmationNo}
                             </td>
@@ -1174,7 +1174,7 @@ export const ReservationsPage: React.FC = () => {
                             <td className="px-5 py-2.5 font-bold text-[#0c1921]">
                               Room {subRes.room?.number || '—'} <span className="text-[10px] font-normal text-[#71828a]">({subRes.room?.roomType?.name || 'Room'})</span>
                             </td>
-                            <td className="px-5 py-2.5 text-[11px] text-[#566870]">
+                            <td className="px-5 py-2.5 text-[11px] text-[#6e7a8a]">
                               {new Date(subRes.checkInDate).toLocaleDateString()} → {new Date(subRes.checkOutDate).toLocaleDateString()}
                             </td>
                             <td className="px-5 py-2.5 font-bold text-[#0c1921]">
@@ -1213,7 +1213,7 @@ export const ReservationsPage: React.FC = () => {
                           <span className="font-mono text-[11px] font-bold text-[#b88738]">{r.confirmationNo || r.id.slice(0, 8)}</span>
                         </div>
                         <div className="mt-1 text-[10px] text-[#71828a]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</div>
-                        {isAdmin && <div className="mt-1 text-[10px] text-[#566870]">Booked by: {r.bookedBy?.name || '—'}</div>}
+                        {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a]">Booked by: {r.bookedBy?.name || '—'}</div>}
                       </td>
                       <td className="px-5 py-4 text-xs text-[#0c1921]">
                         {allGuests.length ? (
@@ -1221,18 +1221,18 @@ export const ReservationsPage: React.FC = () => {
                             <span className="font-extrabold">{guestName(allGuests[0])}</span>
                             {extra > 0 && <span className="ml-1.5 text-[10px] text-[#71828a]">+{extra} more</span>}
                             {allGuests.slice(1).map((g: any, gi: number) => (
-                              <div key={gi} className="text-[11px] text-[#566870]">{guestName(g)}</div>
+                              <div key={gi} className="text-[11px] text-[#6e7a8a]">{guestName(g)}</div>
                             ))}
                           </>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-5 py-4 text-xs text-[#566870]">
+                      <td className="px-5 py-4 text-xs text-[#6e7a8a]">
                         {r.room ? `Room ${r.room.number}` : 'Unassigned'}
                         <div className="text-[10px] text-[#71828a]">{r.room?.roomType?.name || '—'}</div>
                       </td>
-                      <td className="px-5 py-4 text-[11px] text-[#566870]">
+                      <td className="px-5 py-4 text-[11px] text-[#6e7a8a]">
                         {new Date(r.checkInDate).toLocaleDateString()} → {new Date(r.checkOutDate).toLocaleDateString()}
                       </td>
                       <td className="px-5 py-4 text-xs font-extrabold text-[#0c1921]">
@@ -1264,7 +1264,7 @@ export const ReservationsPage: React.FC = () => {
                           <span className="text-[#a0aaad]">—</span>
                         )}
                       </td>
-                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#566870]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#566870]">Out: {r.checkedOutBy.name}</div>}</td>
+                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#6e7a8a]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#6e7a8a]">Out: {r.checkedOutBy.name}</div>}</td>
                       <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
                           <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[#71828a] hover:bg-[#c59a58]/10 hover:text-[#b88738]" title="View booking details">
@@ -1308,10 +1308,10 @@ export const ReservationsPage: React.FC = () => {
       <Modal open={open} onClose={closeModal} title="New reservation" size="lg">
         <form onSubmit={save} className="space-y-5">
           <div className="flex flex-wrap gap-1.5">
-            <button type="button" onClick={() => setMulti(false)} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${!multi ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'border border-[#dfe5e5] bg-white text-[#566870] hover:border-[#c59a58]'}`}>
+            <button type="button" onClick={() => setMulti(false)} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${!multi ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a] hover:border-[#c59a58]'}`}>
               Single room
             </button>
-            <button type="button" onClick={startMulti} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center gap-1.5 transition ${multi ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'border border-[#dfe5e5] bg-white text-[#566870] hover:border-[#c59a58]'}`}>
+            <button type="button" onClick={startMulti} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center gap-1.5 transition ${multi ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a] hover:border-[#c59a58]'}`}>
               <Users size={12} className="text-[#c59a58]" /> Group booking (multiple rooms)
             </button>
           </div>
@@ -1337,7 +1337,7 @@ export const ReservationsPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="rounded-2xl border border-[#dfe5e5] p-4">
+              <div className="rounded-2xl border border-[#1e2535] p-4">
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#0c1921]">Guests in this booking</div>
                   <Button size="sm" type="button" variant="outline" onClick={() => setPeople((p) => [...p, { ...emptyPerson, key: uid() }])}>
@@ -1349,10 +1349,10 @@ export const ReservationsPage: React.FC = () => {
                     <div key={p.key} className="rounded-xl border border-[#edf2f2] bg-[#fbfdfd] p-3">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex flex-wrap gap-1.5">
-                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'existing' } : x)))} className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'existing' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}>
+                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'existing' } : x)))} className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'existing' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}>
                             Existing
                           </button>
-                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'new' } : x)))} className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'new' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}>
+                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'new' } : x)))} className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'new' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}>
                             New guest
                           </button>
                         </div>
@@ -1410,7 +1410,7 @@ export const ReservationsPage: React.FC = () => {
                         className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${
                           roomLines.length === cnt
                             ? 'bg-[#173c4d] text-[#fdfbf7] shadow-xs'
-                            : 'border border-[#dfe5e5] bg-white text-[#566870] hover:border-[#c59a58] hover:text-[#b88738]'
+                            : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a] hover:border-[#c59a58] hover:text-[#b88738]'
                         }`}
                       >
                         {cnt} Rooms
@@ -1487,7 +1487,7 @@ export const ReservationsPage: React.FC = () => {
                                           ),
                                         )
                                       }
-                                      className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}
+                                      className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}
                                     >
                                       {label || 'Person'}
                                     </button>
@@ -1500,7 +1500,7 @@ export const ReservationsPage: React.FC = () => {
                     );
                   })}
                   {roomLines.length === 0 && (
-                    <button type="button" onClick={() => setRoomLines((l) => [...l, emptyRoomLine(people[0]?.key || '')])} className="w-full rounded-xl border border-dashed border-[#dfe5e5] py-6 text-xs font-bold text-[#71828a] hover:border-[#c59a58] hover:text-[#b88738]">
+                    <button type="button" onClick={() => setRoomLines((l) => [...l, emptyRoomLine(people[0]?.key || '')])} className="w-full rounded-xl border border-dashed border-[#1e2535] py-6 text-xs font-bold text-[#71828a] hover:border-[#c59a58] hover:text-[#b88738]">
                       + Add the first room
                     </button>
                   )}
@@ -1508,7 +1508,7 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               {/* Group Partial Payment & Real-time Due Card */}
-              <div className="rounded-2xl border border-[#dfe5e5] bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#edf2f2] pb-2.5">
                   <div>
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#0c1921] flex items-center gap-1.5">
@@ -1612,12 +1612,12 @@ export const ReservationsPage: React.FC = () => {
             </>
           ) : (
             <>
-              <div className="rounded-2xl border border-[#dfe5e5] p-4">
+              <div className="rounded-2xl border border-[#1e2535] p-4">
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" onClick={() => setGuestMode('existing')} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'existing' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}>
+                  <button type="button" onClick={() => setGuestMode('existing')} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'existing' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}>
                     Select existing guest
                   </button>
-                  <button type="button" onClick={() => setGuestMode('new')} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'new' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}>
+                  <button type="button" onClick={() => setGuestMode('new')} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'new' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}>
                     Enter new guest details
                   </button>
                 </div>
@@ -1664,7 +1664,7 @@ export const ReservationsPage: React.FC = () => {
                               key={g.id}
                               type="button"
                               onClick={() => toggleFormGuest(g.id)}
-                              className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}
+                              className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}
                             >
                               {g.firstName} {g.lastName}
                             </button>
@@ -1710,7 +1710,7 @@ export const ReservationsPage: React.FC = () => {
                 </FormField>
               </div>
 
-              <div className="rounded-2xl border border-[#dfe5e5] bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#edf2f2] pb-2.5">
                   <div>
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#0c1921] flex items-center gap-1.5">
@@ -1859,7 +1859,7 @@ export const ReservationsPage: React.FC = () => {
                             {groupRooms.length} Room{groupRooms.length !== 1 ? 's' : ''} in Party
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#566870]">
+                        <div className="mt-0.5 text-[11px] text-[#6e7a8a]">
                           Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[#0c1921]">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-[#1b4332]">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[#b0743a]">{formatCurrency(groupBalance)}</strong>
                         </div>
                       </div>
@@ -1871,7 +1871,7 @@ export const ReservationsPage: React.FC = () => {
                         setDetailsRes(null);
                         setSelectedGroupId(bid);
                       }}
-                      className="flex items-center gap-1.5 rounded-xl bg-[#173c4d] px-3.5 py-1.5 text-xs font-extrabold text-[#fdfbf7] shadow-sm hover:bg-[#0c1921] transition"
+                      className="flex items-center gap-1.5 rounded-xl bg-[#173c4d] px-3.5 py-1.5 text-xs font-extrabold text-[#fdfbf7] shadow-sm hover:bg-[#0f141d]/60 transition"
                     >
                       View Entire Group <ChevronRight size={13} />
                     </button>
@@ -1880,7 +1880,7 @@ export const ReservationsPage: React.FC = () => {
               })()}
 
               {/* Header Overview Card */}
-              <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#dfe5e5] bg-[#fbfdfd] p-5">
+              <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#1e2535] bg-[#fbfdfd] p-5">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-base font-extrabold text-[#b88738]">
@@ -1912,7 +1912,7 @@ export const ReservationsPage: React.FC = () => {
               {/* Grid 1: Stay & Room Details & Guest Details */}
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Stay & Room */}
-                <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                <div className="rounded-2xl border border-[#e8ebe8] bg-[#0c1921] p-4 space-y-3">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
                     <BedDouble size={14} /> Room & Stay Information
                   </div>
@@ -1950,7 +1950,7 @@ export const ReservationsPage: React.FC = () => {
                 </div>
 
                 {/* Primary & Additional Guests */}
-                <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+                <div className="rounded-2xl border border-[#e8ebe8] bg-[#0c1921] p-4 space-y-3">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <Users size={14} /> Guests on Booking
@@ -2000,7 +2000,7 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               {/* Financial Summary Card */}
-              <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-[#e8ebe8] bg-[#0c1921] p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
                     <CreditCard size={14} /> Financial Breakdown &amp; Money Due
@@ -2095,7 +2095,7 @@ export const ReservationsPage: React.FC = () => {
                                   remainingBalance: reservationBalance(detailsRes),
                                 })
                               }
-                              className="rounded-md p-1 text-[#71828a] hover:bg-white hover:text-[#b88738] transition-colors"
+                              className="rounded-md p-1 text-[#71828a] hover:bg-[#0f141d]/60 hover:text-[#b88738] transition-colors"
                             >
                               <Printer size={12} />
                             </button>
@@ -2119,7 +2119,7 @@ export const ReservationsPage: React.FC = () => {
 
               {/* Special Requests & Notes */}
               {(detailsRes.specialRequests || detailsRes.notes) && (
-                <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-2 text-xs">
+                <div className="rounded-2xl border border-[#e8ebe8] bg-[#0c1921] p-4 space-y-2 text-xs">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
                     <FileText size={13} /> Notes & Special Requests
                   </div>
@@ -2206,7 +2206,7 @@ export const ReservationsPage: React.FC = () => {
         {selectedGroup && (
           <div className="p-6 space-y-6">
             {/* Header Overview Card */}
-            <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#dfe5e5] bg-[#fbfdfd] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#1e2535] bg-[#fbfdfd] p-5">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-base font-extrabold text-[#b88738]">
@@ -2236,7 +2236,7 @@ export const ReservationsPage: React.FC = () => {
             {/* Grid 1: Stay & Lead Guest Details */}
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Stay Dates */}
-              <div className="rounded-2xl border border-[#dfe5e5] bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-4 space-y-3">
                 <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#71828a] flex items-center gap-1.5">
                   <CalendarDays size={14} className="text-[#c59a58]" /> Group Stay Dates
                 </div>
@@ -2261,7 +2261,7 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               {/* Lead Guest */}
-              <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-[#e8ebe8] bg-[#0c1921] p-4 space-y-3">
                 <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
                   <Users size={14} /> Lead Guest Contact
                 </div>
@@ -2302,7 +2302,7 @@ export const ReservationsPage: React.FC = () => {
             </div>
 
             {/* Rooms in Group */}
-            <div className="rounded-2xl border border-[#e8ebe8] bg-white p-4 space-y-3">
+            <div className="rounded-2xl border border-[#e8ebe8] bg-[#0c1921] p-4 space-y-3">
               <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#7d898d] flex items-center gap-1.5">
                 <BedDouble size={14} /> Booked Rooms ({selectedGroup.reservations.length})
               </div>
@@ -2349,7 +2349,7 @@ export const ReservationsPage: React.FC = () => {
             </div>
 
             {/* Financial Summary & Group Payment Card */}
-            <div className="rounded-2xl border border-[#dfe5e5] bg-white p-4 space-y-3">
+            <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#71828a] flex items-center gap-1.5">
                   <CreditCard size={14} className="text-[#c59a58]" /> Group Payment &amp; Financial Summary
@@ -2409,7 +2409,7 @@ export const ReservationsPage: React.FC = () => {
                                 remainingBalance: selectedGroup.balance,
                               })
                             }
-                            className="rounded-md p-1 text-[#71828a] hover:bg-white hover:text-[#b88738] transition-colors"
+                            className="rounded-md p-1 text-[#71828a] hover:bg-[#0f141d]/60 hover:text-[#b88738] transition-colors"
                           >
                             <Printer size={12} />
                           </button>
@@ -2436,7 +2436,7 @@ export const ReservationsPage: React.FC = () => {
                   <Button
                     variant="primary"
                     size="sm"
-                    className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#0c1921] font-bold"
+                    className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#0f141d]/60 font-bold"
                     onClick={() => {
                       const g = selectedGroup;
                       setSelectedGroupId(null);
@@ -2591,7 +2591,7 @@ export const ReservationsPage: React.FC = () => {
               </label>
 
               {depositSplitOpen && (
-                <div className="rounded-xl border border-slate-200 p-3">
+                <div className="rounded-xl border border-[#1e2535] p-3">
                   <TenderSplit total={Number(depositForm.amount) || 0} rows={depositTenders} onChange={setDepositTenders} />
                 </div>
               )}
@@ -2733,7 +2733,7 @@ export const ReservationsPage: React.FC = () => {
               </label>
 
               {depositSplitOpen && (
-                <div className="rounded-xl border border-slate-200 p-3">
+                <div className="rounded-xl border border-[#1e2535] p-3">
                   <TenderSplit total={Number(depositForm.amount) || 0} rows={depositTenders} onChange={setDepositTenders} />
                 </div>
               )}
@@ -2786,7 +2786,7 @@ export const ReservationsPage: React.FC = () => {
                         key={g.id}
                         type="button"
                         onClick={() => setManageIds((ids) => (active ? ids.filter((x) => x !== g.id) : [...ids, g.id]))}
-                        className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#dfe5e5] bg-white text-[#566870]'}`}
+                        className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[#1e2535] bg-[#0c1921] text-[#6e7a8a]'}`}
                       >
                         {g.firstName} {g.lastName}
                       </button>
@@ -2808,3 +2808,4 @@ export const ReservationsPage: React.FC = () => {
 };
 
 export default ReservationsPage;
+

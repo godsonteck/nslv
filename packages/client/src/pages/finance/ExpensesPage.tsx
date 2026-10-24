@@ -1,28 +1,51 @@
 // ============================================
 // NS LUXURY VILLA — Expenditure Management
-// Section #23: Property Expenditures & Operational Outflows
+// Property Expenditures & Operational Outflows
 // ============================================
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { formatCurrency } from '@nslv/shared';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { formatCurrency, PERMISSIONS } from '@nslv/shared';
 import {
-  PageHeader,
-  DataTable,
+  Receipt,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Check,
+  X,
+  Pencil,
+  Settings,
+  TrendingDown,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  Filter,
+} from 'lucide-react';
+import {
   Button,
-  statusBadge,
   Modal,
   FormField,
   TextInput,
   SelectInput,
   showToast,
+  statusBadge,
+  LoadingState,
 } from '../../components/ui';
-import { Receipt, Plus, RefreshCw, Trash2, Check, X, Pencil, Settings } from 'lucide-react';
+import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { categoriesApi, expensesApi, ExpenseRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { PERMISSIONS } from '@nslv/shared';
 import { CategoryManager } from '../../components/admin/CategoryManager';
 
-const EXPENSE_CATEGORIES = ['UTILITIES', 'SUPPLIES', 'MAINTENANCE', 'STAFF', 'MARKETING', 'FOOD', 'BEVERAGES', 'OTHER'];
+const EXPENSE_CATEGORIES = [
+  'UTILITIES',
+  'SUPPLIES',
+  'MAINTENANCE',
+  'STAFF',
+  'MARKETING',
+  'FOOD',
+  'BEVERAGES',
+  'OTHER',
+];
 
 export const ExpensesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -37,6 +60,7 @@ export const ExpensesPage: React.FC = () => {
 
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseRecord | null>(null);
@@ -47,6 +71,7 @@ export const ExpensesPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [incurredOn, setIncurredOn] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
@@ -112,32 +137,35 @@ export const ExpensesPage: React.FC = () => {
 
   const handleCreateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description || !amount || parseFloat(amount) <= 0) {
-      showToast('error', 'Please enter a valid expenditure description and amount');
+    if (!description.trim() || !amount || parseFloat(amount) <= 0) {
+      showToast('error', 'Please enter a valid expenditure description and positive amount');
       return;
     }
+    setSaving(true);
     try {
       const payload = {
         category,
-        description,
+        description: description.trim(),
         amount: parseFloat(amount),
-        vendor: vendor || undefined,
+        vendor: vendor.trim() || undefined,
         paymentMethod,
         incurredOn,
-        notes: notes || undefined,
+        notes: notes.trim() || undefined,
       };
       if (editingExpense) {
         await expensesApi.update(editingExpense.id, payload);
         showToast('success', 'Expenditure voucher updated.');
       } else {
         await expensesApi.create(payload);
-        showToast('success', 'Expenditure voucher created and submitted for approval');
+        showToast('success', 'Expenditure voucher created and submitted for approval.');
       }
       setCreateModalOpen(false);
       resetExpenseForm();
       fetchExpenses();
     } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to create expenditure.');
+      showToast('error', err?.message ?? 'Failed to save expenditure.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -152,7 +180,7 @@ export const ExpensesPage: React.FC = () => {
   };
 
   const handleDelete = async (exp: ExpenseRecord) => {
-    if (!window.confirm(`Delete expenditure ${exp.expenseNo} (${exp.description})?`)) return;
+    if (!window.confirm(`Delete expenditure ${exp.expenseNo} (${exp.description})? This cannot be undone.`)) return;
     try {
       await expensesApi.remove(exp.id);
       showToast('success', 'Expenditure record deleted.');
@@ -162,136 +190,238 @@ export const ExpensesPage: React.FC = () => {
     }
   };
 
-  const columns = [
-    {
-      key: 'category',
-      header: 'Expenditure Category',
-      render: (row: ExpenseRecord) => (
-        <div>
-          <div className="font-semibold text-[#F4F4F2]">{row.category}</div>
-          <div className="text-[11px] text-[#A0A5AD]">{row.description}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'expenseNo',
-      header: 'Voucher No',
-      render: (row: ExpenseRecord) => <span className="font-mono text-xs text-[#A0A5AD]">{row.expenseNo}</span>,
-    },
-    {
-      key: 'date',
-      header: 'Incurred On',
-      render: (row: ExpenseRecord) => (
-        <span className="text-xs text-[#A0A5AD]">{new Date(row.incurredOn).toLocaleDateString()}</span>
-      ),
-    },
-    {
-      key: 'vendor',
-      header: 'Vendor',
-      render: (row: ExpenseRecord) => <span className="text-xs text-[#A0A5AD]">{row.vendor ?? '—'}</span>,
-    },
-    {
-      key: 'amount',
-      header: 'Amount',
-      align: 'right' as const,
-      render: (row: ExpenseRecord) => (
-        <span className="font-mono font-semibold text-[#F4F4F2]">{formatCurrency(Number(row.amount))}</span>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Approval Status',
-      align: 'center' as const,
-      render: (row: ExpenseRecord) => statusBadge(row.status),
-    },
-    {
-      key: 'actions',
-      header: '',
-      align: 'right' as const,
-      render: (row: ExpenseRecord) => (
-        <div className="flex items-center justify-end gap-1">
-          {canApprove && row.status === 'PENDING' && (
-            <>
-              <button onClick={() => handleApprove(row, 'APPROVED')} className="p-1.5 hover:bg-emerald-500/10 rounded text-[#A0A5AD] hover:text-emerald-400" title="Approve">
-                <Check size={14} />
-              </button>
-              <button onClick={() => handleApprove(row, 'REJECTED')} className="p-1.5 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Reject">
-                <X size={14} />
-              </button>
-            </>
-          )}
-          {canCreate && row.status !== 'APPROVED' && (
-            <button onClick={() => openEdit(row)} className="p-1.5 hover:bg-blue-500/10 rounded text-[#A0A5AD] hover:text-blue-400" title="Edit">
-              <Pencil size={14} />
-            </button>
-          )}
-          {canDelete && (
-            <button onClick={() => handleDelete(row)} className="p-1.5 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete">
-              <Trash2 size={14} />
-            </button>
-          )}
-        </div>
-      ),
-    },
-  ];
+  // Filtered list
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter((e) => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        e.description.toLowerCase().includes(q) ||
+        (e.vendor && e.vendor.toLowerCase().includes(q)) ||
+        (e.expenseNo && e.expenseNo.toLowerCase().includes(q)) ||
+        e.category.toLowerCase().includes(q)
+      );
+    });
+  }, [expenses, searchQuery]);
+
+  // Aggregate stats
+  const totalApproved = useMemo(() => {
+    return expenses
+      .filter((e) => e.status === 'APPROVED')
+      .reduce((s, e) => s + Number(e.amount), 0);
+  }, [expenses]);
+
+  const pendingCount = useMemo(() => {
+    return expenses.filter((e) => e.status === 'PENDING').length;
+  }, [expenses]);
+
+  const pendingTotal = useMemo(() => {
+    return expenses
+      .filter((e) => e.status === 'PENDING')
+      .reduce((s, e) => s + Number(e.amount), 0);
+  }, [expenses]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Expenditure Management"
-        subtitle="Property operational outflows, supplier vouchers & department expenses"
-        actions={
-          <div className="flex items-center gap-2">
-            {canManageCategories && (
-              <Button variant="outline" size="sm" onClick={() => setCategoryManagerOpen(true)}>
-                <Settings size={14} /> Categories
-              </Button>
-            )}
-            {canCreate && (
-              <Button variant="primary" size="sm" onClick={openCreate}>
-                <Plus size={14} /> New Expenditure Voucher
-              </Button>
-            )}
-          </div>
-        }
-      />
-
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-[#1C1F28] border border-[#2B303E] rounded-md">
+    <ShellPage
+      eyebrow="FINANCE • OPERATIONAL OUTFLOWS"
+      title="Property Expenditures"
+      subtitle="Operational expense vouchers, supplier payments, utility bills, and department disbursements."
+      actions={
         <div className="flex items-center gap-2">
-          <SelectInput value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-44">
+          {canManageCategories && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCategoryManagerOpen(true)}
+              className="gap-1.5 border-[#e5ebeb] text-[#0c1921]"
+            >
+              <Settings size={13} /> Categories
+            </Button>
+          )}
+          {canCreate && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={openCreate}
+              className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+            >
+              <Plus size={14} /> New Expense Voucher
+            </Button>
+          )}
+        </div>
+      }
+    >
+      {/* ── Stat Tiles ── */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatTile
+          label="Total Approved Expenses"
+          value={formatCurrency(totalApproved)}
+          note="Verified operational disbursements"
+          icon={TrendingDown}
+          accent
+        />
+        <StatTile
+          label="Pending Approvals"
+          value={`${pendingCount} vouchers`}
+          note={pendingCount > 0 ? formatCurrency(pendingTotal) + ' pending review' : 'No vouchers awaiting approval'}
+          icon={Clock}
+        />
+        <StatTile
+          label="Total Recorded"
+          value={expenses.length}
+          note="All historical & active vouchers"
+          icon={FileText}
+        />
+      </div>
+
+      {/* ── Section Table ── */}
+      <Section
+        title="Expenditure Vouchers"
+        subtitle="Review, approve, and track all property operational payments and vendor invoices."
+        action={
+          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-xs text-[#5a6b75]">
+            <RefreshCw size={13} /> Refresh
+          </Button>
+        }
+      >
+        <Toolbar search={searchQuery} onSearch={setSearchQuery} placeholder="Search by description, vendor, or voucher #…">
+          <SelectInput
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="w-40 text-xs"
+          >
             <option value="">All Categories</option>
             {categoryOptions.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </SelectInput>
-          <SelectInput value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-40">
+          <SelectInput
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-36 text-xs"
+          >
             <option value="">All Statuses</option>
             <option value="PENDING">Pending</option>
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </SelectInput>
-        </div>
-        <Button variant="ghost" size="sm" onClick={fetchExpenses}>
-          <RefreshCw size={14} /> Refresh
-        </Button>
-      </div>
+        </Toolbar>
 
-      <DataTable
-        columns={columns}
-        data={expenses}
-        loading={loading}
-        emptyTitle="No expenditure vouchers recorded"
-        emptySubtitle="Create an expenditure voucher to log operational costs."
-        keyFn={(e) => e.id}
-      />
+        {loading ? (
+          <div className="p-12"><LoadingState /></div>
+        ) : filteredExpenses.length === 0 ? (
+          <div className="p-16 text-center text-xs text-[#71828a]">
+            {expenses.length === 0 ? 'No expenditure vouchers recorded.' : 'No expenditures match your filters.'}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <th className="py-3 px-5">Voucher #</th>
+                  <th className="py-3 px-5">Category & Description</th>
+                  <th className="py-3 px-5">Vendor / Payee</th>
+                  <th className="py-3 px-5">Date</th>
+                  <th className="py-3 px-5">Method</th>
+                  <th className="py-3 px-5 text-right">Amount</th>
+                  <th className="py-3 px-5 text-center">Status</th>
+                  <th className="py-3 px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {filteredExpenses.map((exp) => (
+                  <tr key={exp.id} className="hover:bg-[#fbfcfb] transition-colors">
+                    <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[#b88738]">
+                      {exp.expenseNo || exp.id.slice(0, 8).toUpperCase()}
+                    </td>
+                    <td className="py-3.5 px-5">
+                      <div className="font-bold text-[#0c1921] text-xs">{exp.description}</div>
+                      <div className="text-[10px] font-semibold text-[#5a6b75]">{exp.category}</div>
+                    </td>
+                    <td className="py-3.5 px-5 font-medium text-[#0c1921]">
+                      {exp.vendor || '—'}
+                    </td>
+                    <td className="py-3.5 px-5 text-[#5a6b75] font-mono text-[11px]">
+                      {new Date(exp.incurredOn).toLocaleDateString('en-GH')}
+                    </td>
+                    <td className="py-3.5 px-5">
+                      <span className="inline-flex rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-bold text-[#173c4d]">
+                        {exp.paymentMethod || 'CASH'}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-5 text-right font-mono text-sm font-black text-rose-600">
+                      −{formatCurrency(Number(exp.amount))}
+                    </td>
+                    <td className="py-3.5 px-5 text-center">
+                      {statusBadge(exp.status)}
+                    </td>
+                    <td className="py-3.5 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {canApprove && exp.status === 'PENDING' && (
+                          <>
+                            <button
+                              onClick={() => handleApprove(exp, 'APPROVED')}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                              title="Approve Voucher"
+                            >
+                              <Check size={13} />
+                            </button>
+                            <button
+                              onClick={() => handleApprove(exp, 'REJECTED')}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors"
+                              title="Reject Voucher"
+                            >
+                              <X size={13} />
+                            </button>
+                          </>
+                        )}
+                        {canCreate && exp.status !== 'APPROVED' && (
+                          <button
+                            onClick={() => openEdit(exp)}
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(exp)}
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
 
-      <Modal open={createModalOpen} onClose={() => { setCreateModalOpen(false); resetExpenseForm(); }} title={editingExpense ? `Edit Expenditure — ${editingExpense.expenseNo}` : 'Record Operational Expenditure'} size="md">
+      {/* ── Modal: Create / Edit Expenditure ── */}
+      <Modal
+        open={createModalOpen}
+        onClose={() => {
+          setCreateModalOpen(false);
+          resetExpenseForm();
+        }}
+        title={editingExpense ? `Edit Expenditure — ${editingExpense.expenseNo}` : 'Record Property Expenditure'}
+      >
         <form onSubmit={handleCreateExpense} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Category" required>
               <SelectInput value={category} onChange={(e) => setCategory(e.target.value)} required>
                 {categoryOptions.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </SelectInput>
             </FormField>
@@ -304,7 +434,7 @@ export const ExpensesPage: React.FC = () => {
             <TextInput
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Linen restock or Generator diesel"
+              placeholder="e.g. Linen restock, Generator diesel, Pool chemicals"
               required
             />
           </FormField>
@@ -314,6 +444,7 @@ export const ExpensesPage: React.FC = () => {
               <TextInput
                 type="number"
                 step="0.01"
+                min="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
@@ -331,19 +462,26 @@ export const ExpensesPage: React.FC = () => {
           </div>
 
           <FormField label="Vendor / Payee">
-            <TextInput value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="e.g. ECG, Ho Market" />
+            <TextInput value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="e.g. ECG Electricity, TotalEnergies, Ho Central Market" />
           </FormField>
 
-          <FormField label="Notes">
-            <TextInput value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" />
+          <FormField label="Notes / Reference (optional)">
+            <TextInput value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Invoice # or receipt details" />
           </FormField>
 
-          <div className="pt-4 border-t border-[#2B303E] flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => setCreateModalOpen(false)}>
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setCreateModalOpen(false);
+                resetExpenseForm();
+              }}
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              {editingExpense ? 'Save Changes' : 'Submit Expenditure Voucher'}
+            <Button type="submit" variant="primary" loading={saving} className="bg-[#0c1921] hover:bg-[#173c4d] text-white">
+              {editingExpense ? 'Save Changes' : 'Submit Voucher'}
             </Button>
           </div>
         </form>
@@ -359,7 +497,7 @@ export const ExpensesPage: React.FC = () => {
           }}
         />
       )}
-    </div>
+    </ShellPage>
   );
 };
 

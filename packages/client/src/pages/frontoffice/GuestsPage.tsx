@@ -232,7 +232,7 @@ export const GuestsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={load}
-            className="border-[#cbd5e1] hover:bg-white bg-white/70 shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[#cbd5e1] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5"
           >
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -251,10 +251,10 @@ export const GuestsPage: React.FC = () => {
       {/* ── Metric Cards ── */}
       <div className="grid gap-4 sm:grid-cols-3">
         {/* Total Profiles */}
-        <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs">
+        <div className="rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Total Registered Guests</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#174b59]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e2535] text-[#174b59]">
               <UserRound size={18} />
             </div>
           </div>
@@ -275,7 +275,7 @@ export const GuestsPage: React.FC = () => {
         </div>
 
         {/* Filter / Search Status */}
-        <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white p-5 shadow-xs">
+        <div className="rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Search Status</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
@@ -290,8 +290,8 @@ export const GuestsPage: React.FC = () => {
       </div>
 
       {/* ── Main Guest Table Section ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-white shadow-xs overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-slate-50/50 gap-3">
+      <div className="rounded-2xl border border-[#cbd5e1]/70 bg-[#0c1921] shadow-xs overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#e2e8f0] px-6 py-4 bg-[#0f141d]/50 gap-3">
           <div>
             <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
               <UserCheck size={16} className="text-[#174b59]" />
@@ -303,7 +303,7 @@ export const GuestsPage: React.FC = () => {
           </div>
 
           <div className="relative w-full sm:w-80">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a5568]" />
             <input
               type="text"
               value={q}
@@ -318,7 +318,7 @@ export const GuestsPage: React.FC = () => {
           <LoadingState />
         ) : data.length === 0 ? (
           <div className="p-12 text-center">
-            <UserRound className="mx-auto text-slate-400" size={40} />
+            <UserRound className="mx-auto text-[#4a5568]" size={40} />
             <h3 className="mt-3 text-sm font-extrabold text-[#0f172a]">No guest records found</h3>
             <p className="mt-1 text-xs text-[#64748b]">
               {q ? 'No guests match your search criteria.' : 'Register the first guest profile when a new guest arrives.'}
@@ -327,7 +327,7 @@ export const GuestsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="border-b border-[#e2e8f0] bg-slate-50 text-[10px] uppercase font-bold tracking-wider text-[#64748b]">
+              <thead className="border-b border-[#e2e8f0] bg-[#0f141d] text-[10px] uppercase font-bold tracking-wider text-[#64748b]">
                 <tr>
                   <th className="px-6 py-3.5">Guest Name &amp; Code</th>
                   <th className="px-6 py-3.5">Contact Details</th>
@@ -345,7 +345,7 @@ export const GuestsPage: React.FC = () => {
                     <tr
                       key={g.id}
                       onClick={() => openGuestDetails(g)}
-                      className="cursor-pointer hover:bg-slate-50/80 transition-colors group"
+                      className="cursor-pointer hover:bg-[#0f141d]/80 transition-colors group"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3.5">
@@ -394,14 +394,14 @@ export const GuestsPage: React.FC = () => {
                             VIP GUEST
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">
+                          <span className="inline-flex items-center rounded-md border border-[#1e2535] bg-[#1e2535] px-2 py-1 text-[10px] font-semibold text-[#6e7a8a]">
                             STANDARD
                           </span>
                         )}
                       </td>
 
                       <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-extrabold text-[#0f172a]">
+                        <span className="inline-flex items-center rounded-full bg-[#1e2535] px-2.5 py-1 text-xs font-extrabold text-[#0f172a]">
                           {g._count?.reservations ?? 0}
                         </span>
                       </td>
@@ -415,7 +415,7 @@ export const GuestsPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => openGuestDetails(g)}
-                          className="border-[#cbd5e1] hover:bg-slate-100 text-xs font-semibold gap-1"
+                          className="border-[#cbd5e1] hover:bg-[#1e2535] text-xs font-semibold gap-1"
                         >
                           <Eye size={13} /> View
                         </Button>
@@ -448,7 +448,7 @@ export const GuestsPage: React.FC = () => {
                   className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-base font-black shadow-md ${
                     selectedGuest.isVip
                       ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white'
-                      : 'bg-white/10 text-white'
+                      : 'bg-[#0c1921]/10 text-white'
                   }`}
                 >
                   {(selectedGuest.firstName?.[0] || 'G') + (selectedGuest.lastName?.[0] || '')}
@@ -475,7 +475,7 @@ export const GuestsPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => startEditGuest(selectedGuest)}
-                  className="bg-white/10 hover:bg-white/20 border-white/20 text-white text-xs font-semibold gap-1.5 self-start sm:self-auto"
+                  className="bg-[#0c1921]/10 hover:bg-[#0c1921]/20 border-white/20 text-white text-xs font-semibold gap-1.5 self-start sm:self-auto"
                 >
                   <Pencil size={13} /> Edit Profile
                 </Button>
@@ -489,48 +489,48 @@ export const GuestsPage: React.FC = () => {
                 {/* Contact & Identity Cards */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   {/* Contact Details */}
-                  <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
-                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 space-y-3">
+                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e7a8a] flex items-center gap-1.5">
                       <Mail size={13} className="text-[#174b59]" /> Contact Information
                     </div>
                     <div className="space-y-2 text-xs">
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Email Address</span>
+                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
+                        <span className="text-[#6e7a8a]">Email Address</span>
                         <span className="font-bold text-[#0f172a]">{selectedGuest.email || '—'}</span>
                       </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Phone Number</span>
+                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
+                        <span className="text-[#6e7a8a]">Phone Number</span>
                         <span className="font-bold text-[#0f172a]">{selectedGuest.phone || '—'}</span>
                       </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">City / Country</span>
+                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
+                        <span className="text-[#6e7a8a]">City / Country</span>
                         <span className="font-bold text-[#0f172a]">
                           {[selectedGuest.city, selectedGuest.country].filter(Boolean).join(', ') || '—'}
                         </span>
                       </div>
                       <div className="flex justify-between py-1">
-                        <span className="text-slate-500">Physical Address</span>
+                        <span className="text-[#6e7a8a]">Physical Address</span>
                         <span className="font-bold text-[#0f172a] text-right">{selectedGuest.address || '—'}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Identity Verification */}
-                  <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
-                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 space-y-3">
+                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e7a8a] flex items-center gap-1.5">
                       <Shield size={13} className="text-[#c59a58]" /> Identification &amp; Compliance
                     </div>
                     <div className="space-y-2 text-xs">
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Nationality</span>
+                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
+                        <span className="text-[#6e7a8a]">Nationality</span>
                         <span className="font-bold text-[#0f172a]">{selectedGuest.nationality || '—'}</span>
                       </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">ID Document Type</span>
+                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
+                        <span className="text-[#6e7a8a]">ID Document Type</span>
                         <span className="font-bold text-[#0f172a]">{selectedGuest.idDocumentType || '—'}</span>
                       </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Document Number</span>
+                      <div className="flex justify-between py-1 border-b border-[#1e2535]">
+                        <span className="text-[#6e7a8a]">Document Number</span>
                         <span className="font-bold font-mono text-[#0f172a]">
                           {canViewSensitive
                             ? selectedGuest.idDocumentNumber || '—'
@@ -540,7 +540,7 @@ export const GuestsPage: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex justify-between py-1">
-                        <span className="text-slate-500">Date of Birth</span>
+                        <span className="text-[#6e7a8a]">Date of Birth</span>
                         <span className="font-bold text-[#0f172a]">
                           {selectedGuest.dateOfBirth ? new Date(selectedGuest.dateOfBirth).toLocaleDateString() : '—'}
                         </span>
@@ -571,24 +571,24 @@ export const GuestsPage: React.FC = () => {
                 )}
 
                 {/* Stays History */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+                <div className="rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 space-y-3">
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e7a8a] flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <BedDouble size={14} className="text-[#174b59]" /> Reservation &amp; Stay History
                     </span>
-                    <span className="text-slate-400">
+                    <span className="text-[#4a5568]">
                       {selectedGuest.reservations?.length ?? 0} booking{(selectedGuest.reservations?.length ?? 0) === 1 ? '' : 's'}
                     </span>
                   </div>
 
                   {!selectedGuest.reservations || selectedGuest.reservations.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-slate-400">
+                    <div className="p-6 text-center text-xs text-[#4a5568]">
                       No previous bookings recorded for this guest.
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-left">
-                        <thead className="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-500">
+                        <thead className="bg-[#0f141d] border-b border-[#1e2535] text-[10px] uppercase font-bold text-[#6e7a8a]">
                           <tr>
                             <th className="px-3 py-2.5">Confirmation</th>
                             <th className="px-3 py-2.5">Room</th>
@@ -597,19 +597,19 @@ export const GuestsPage: React.FC = () => {
                             <th className="px-3 py-2.5">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 text-xs">
+                        <tbody className="divide-y divide-[#1e2535] text-xs">
                           {selectedGuest.reservations.map((item: any) => {
                             const res = item.reservation || item;
                             return (
-                              <tr key={res.id} className="hover:bg-slate-50/80">
+                              <tr key={res.id} className="hover:bg-[#0f141d]/80">
                                 <td className="px-3 py-2.5 font-mono text-[11px] font-bold text-[#c59a58]">
                                   {res.confirmationNo || res.id.slice(0, 8).toUpperCase()}
                                 </td>
                                 <td className="px-3 py-2.5 text-[#0f172a]">
                                   {res.room ? `Room ${res.room.number}` : '—'}
-                                  <div className="text-[10px] text-slate-400">{res.room?.roomType?.name}</div>
+                                  <div className="text-[10px] text-[#4a5568]">{res.room?.roomType?.name}</div>
                                 </td>
-                                <td className="px-3 py-2.5 text-[11px] text-slate-600">
+                                <td className="px-3 py-2.5 text-[11px] text-[#6e7a8a]">
                                   {new Date(res.checkInDate).toLocaleDateString()} &rarr; {new Date(res.checkOutDate).toLocaleDateString()}
                                 </td>
                                 <td className="px-3 py-2.5 font-bold text-[#0f172a]">
@@ -629,7 +629,7 @@ export const GuestsPage: React.FC = () => {
               </>
             )}
 
-            <div className="flex justify-end pt-2 border-t border-slate-200">
+            <div className="flex justify-end pt-2 border-t border-[#1e2535]">
               <Button variant="outline" onClick={() => setSelectedGuestId(null)}>
                 Close Profile
               </Button>
@@ -691,18 +691,18 @@ export const GuestsPage: React.FC = () => {
           </div>
 
           {/* Additional details toggle */}
-          <div className="border-t border-slate-200 pt-3">
+          <div className="border-t border-[#1e2535] pt-3">
             <button
               type="button"
               onClick={() => setShowMoreCreate(!showMoreCreate)}
-              className="flex w-full items-center justify-between rounded-xl bg-slate-100 px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors"
+              className="flex w-full items-center justify-between rounded-xl bg-[#1e2535] px-3.5 py-2.5 text-xs font-bold text-[#a0a9b8] hover:bg-slate-200 transition-colors"
             >
               <span>{showMoreCreate ? '− Hide additional details' : '+ Additional details (ID Document, Address, Notes — Optional)'}</span>
               {showMoreCreate ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
             </button>
 
             {showMoreCreate && (
-              <div className="mt-3 space-y-3.5 rounded-xl border border-slate-200 bg-slate-50/50 p-3.5">
+              <div className="mt-3 space-y-3.5 rounded-xl border border-[#1e2535] bg-[#0f141d]/50 p-3.5">
                 <div className="grid gap-3 sm:grid-cols-3">
                   <FormField label="Document Type">
                     <SelectInput
@@ -776,7 +776,7 @@ export const GuestsPage: React.FC = () => {
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#1e2535]">
             <Button variant="ghost" type="button" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -835,18 +835,18 @@ export const GuestsPage: React.FC = () => {
             </label>
           </div>
 
-          <div className="border-t border-slate-200 pt-3">
+          <div className="border-t border-[#1e2535] pt-3">
             <button
               type="button"
               onClick={() => setShowMoreEdit(!showMoreEdit)}
-              className="flex w-full items-center justify-between rounded-xl bg-slate-100 px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors"
+              className="flex w-full items-center justify-between rounded-xl bg-[#1e2535] px-3.5 py-2.5 text-xs font-bold text-[#a0a9b8] hover:bg-slate-200 transition-colors"
             >
               <span>{showMoreEdit ? '− Hide additional details' : '+ Additional details (ID Document, Address, Notes — Optional)'}</span>
               {showMoreEdit ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
             </button>
 
             {showMoreEdit && (
-              <div className="mt-3 space-y-3.5 rounded-xl border border-slate-200 bg-slate-50/50 p-3.5">
+              <div className="mt-3 space-y-3.5 rounded-xl border border-[#1e2535] bg-[#0f141d]/50 p-3.5">
                 <div className="grid gap-3 sm:grid-cols-3">
                   <FormField label="Document Type">
                     <SelectInput
@@ -913,7 +913,7 @@ export const GuestsPage: React.FC = () => {
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#1e2535]">
             <Button variant="ghost" type="button" onClick={() => setEditModalOpen(false)}>
               Cancel
             </Button>

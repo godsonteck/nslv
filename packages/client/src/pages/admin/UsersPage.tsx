@@ -1,60 +1,70 @@
 // ============================================
-// NS LUXURY VILLA — Users Management Page
-// /admin/users — Multi-Role & Cross-Functional Access Control
+// NS LUXURY VILLA — Staff & Users Management
+// User Accounts, Multi-Role Access Control & Security
 // ============================================
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { UserPlus, Edit2, ShieldOff, ShieldCheck, Trash2, Info, Monitor, CheckSquare, Square, Shield } from 'lucide-react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  PageHeader,
+  UserPlus,
+  Edit2,
+  ShieldOff,
+  ShieldCheck,
+  Trash2,
+  Monitor,
+  CheckSquare,
+  Square,
+  Shield,
+  Users,
+  KeyRound,
+  UserCheck,
+  UserX,
+  RefreshCw,
+  Search,
+} from 'lucide-react';
+import {
   Button,
-  DataTable,
   Pagination,
-  SearchInput,
   SelectInput,
-  Badge,
   Modal,
   FormField,
   TextInput,
   showToast,
   statusBadge,
+  LoadingState,
 } from '../../components/ui';
+import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { usersApi, rolesApi, type UserRecord } from '../../services/apiService';
-import { ApiClientError } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
 
-/** What each named role unlocks — shown as a preview when admin assigns roles */
-const ROLE_ACCESS_MAP: Record<string, { description: string; interfaces: string[]; color: string; badgeBg: string }> = {
-  'Admin': {
-    description: 'Full system access — supervise all departments, users, settings, and audit logs.',
-    interfaces: ['All System Interfaces', 'Users & Security', 'Roles & Permissions', 'Settings & Branding', 'Financial Reports', 'Audit Logs', 'All Department Workspaces'],
-    color: 'text-red-400',
-    badgeBg: 'bg-red-950/60 text-red-300 border-red-800/40',
+const ROLE_ACCESS_MAP: Record<
+  string,
+  { description: string; interfaces: string[]; badgeBg: string }
+> = {
+  Admin: {
+    description: 'Full system oversight — users, roles, settings, financials & audit trail.',
+    interfaces: ['All Modules', 'Security & Users', 'Roles & Grants', 'Settings', 'Audit Logs'],
+    badgeBg: 'bg-rose-50 text-rose-800 border-rose-200',
   },
-  'Manager': {
-    description: 'Operational manager — oversees reservations, front desk, all POS outlets, and operational reporting.',
-    interfaces: ['Dashboard Overview', 'Reservations & Rooms', 'Guest Directory', 'Front Desk', 'Restaurant POS', 'Bar POS', 'Pool Services', 'Payments & Ledgers', 'Expenses', 'Inventory', 'Reports', 'Events'],
-    color: 'text-[#f1a83f]',
-    badgeBg: 'bg-amber-950/60 text-amber-300 border-amber-800/40',
+  Manager: {
+    description: 'Operational manager — oversees reservations, front desk, POS outlets & reports.',
+    interfaces: ['Dashboard', 'Reservations', 'Front Desk', 'POS Outlets', 'Ledgers', 'Reports'],
+    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
   },
-  'Reception': {
-    description: 'Front office desk — handles check-in, check-out, reservations, guest folios, and pool entry counter.',
-    interfaces: ['Front Desk Check-In/Out', 'Reservations', 'Guest Profiles', 'Room Status', 'Guest Bills & Folios', 'Payments Desk', 'Pool Entry & Receipts'],
-    color: 'text-blue-400',
-    badgeBg: 'bg-blue-950/60 text-blue-300 border-blue-800/40',
+  Reception: {
+    description: 'Front office desk — handles bookings, check-in/out, folios, and daily cash.',
+    interfaces: ['Front Desk', 'Reservations', 'Guest Folios', 'Cash at Hand', 'Pool Passes'],
+    badgeBg: 'bg-blue-50 text-blue-800 border-blue-200',
   },
-  'Restaurant': {
-    description: 'Restaurant-only staff — access restaurant kitchen/dining orders and Restaurant POS.',
-    interfaces: ['Restaurant Workspace', 'Restaurant POS & Kitchen Orders', 'Inventory Items', 'Menu Categories'],
-    color: 'text-orange-400',
-    badgeBg: 'bg-orange-950/60 text-orange-300 border-orange-800/40',
+  Restaurant: {
+    description: 'Dining room & kitchen staff — dining orders, menus & Restaurant POS.',
+    interfaces: ['Restaurant POS', 'Kitchen Orders', 'Stock Inventory'],
+    badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
   },
-  'Bar': {
-    description: 'Bar-only staff — access bar/lounge drinks, beverage orders, and Bar POS.',
-    interfaces: ['Bar Workspace', 'Bar POS & Drink Orders', 'Inventory Items', 'Menu Categories'],
-    color: 'text-purple-400',
-    badgeBg: 'bg-purple-950/60 text-purple-300 border-purple-800/40',
+  Bar: {
+    description: 'Bar & lounge staff — beverage orders, drink recipes & Bar POS.',
+    interfaces: ['Bar POS', 'Drink Orders', 'Beverage Inventory'],
+    badgeBg: 'bg-purple-50 text-purple-800 border-purple-200',
   },
 };
 
@@ -79,27 +89,25 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
     primaryRoleId: '',
     additionalRoleIds: [] as string[],
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (editUser) {
-      const userRoleIds = (editUser.roles || []).map((r) => r.id);
-      const primary = userRoleIds[0] || '';
-      const additional = userRoleIds.slice(1);
+      const userRoles = editUser.roles || [];
+      const primaryId = userRoles[0]?.id || '';
+      const additionalIds = userRoles.slice(1).map((r) => r.id);
 
       setForm({
-        firstName: editUser.firstName,
-        lastName: editUser.lastName,
-        email: editUser.email,
-        username: editUser.username,
+        firstName: editUser.firstName || '',
+        lastName: editUser.lastName || '',
+        email: editUser.email || '',
+        username: editUser.username || '',
         password: '',
-        phone: editUser.phone ?? '',
-        primaryRoleId: primary,
-        additionalRoleIds: additional,
+        phone: editUser.phone || '',
+        primaryRoleId: primaryId,
+        additionalRoleIds: additionalIds,
       });
     } else {
-      const defaultRole = roles.find((r) => r.name === 'Reception')?.id || roles[0]?.id || '';
       setForm({
         firstName: '',
         lastName: '',
@@ -107,214 +115,193 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
         username: '',
         password: '',
         phone: '',
-        primaryRoleId: defaultRole,
+        primaryRoleId: roles[0]?.id || '',
         additionalRoleIds: [],
       });
     }
-    setErrors({});
-  }, [editUser, open, roles]);
-
-  const setField = (k: string, v: any) => setForm((f) => ({ ...f, [k]: v }));
+  }, [editUser, roles]);
 
   const toggleAdditionalRole = (roleId: string) => {
-    setForm((f) => {
-      const exists = f.additionalRoleIds.includes(roleId);
-      const updated = exists
-        ? f.additionalRoleIds.filter((id) => id !== roleId)
-        : [...f.additionalRoleIds, roleId];
-      return { ...f, additionalRoleIds: updated };
+    setForm((prev) => {
+      const exists = prev.additionalRoleIds.includes(roleId);
+      return {
+        ...prev,
+        additionalRoleIds: exists
+          ? prev.additionalRoleIds.filter((id) => id !== roleId)
+          : [...prev.additionalRoleIds, roleId],
+      };
     });
   };
 
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (!form.firstName.trim()) errs.firstName = 'First name is required';
-    if (!form.lastName.trim()) errs.lastName = 'Last name is required';
-    if (!form.email.trim() || !form.email.includes('@')) errs.email = 'Valid email address required';
-    if (!isEdit && !form.username.trim()) errs.username = 'Username is required';
-    if (!isEdit) {
-      if (!form.password) {
-        errs.password = 'Password is required';
-      } else if (form.password.length < 8) {
-        errs.password = 'Min 8 characters required';
-      } else if (!/[A-Z]/.test(form.password)) {
-        errs.password = 'Must contain at least 1 uppercase letter (A-Z)';
-      } else if (!/[a-z]/.test(form.password)) {
-        errs.password = 'Must contain at least 1 lowercase letter (a-z)';
-      } else if (!/[0-9]/.test(form.password)) {
-        errs.password = 'Must contain at least 1 number (0-9)';
-      } else if (!/[^A-Za-z0-9]/.test(form.password)) {
-        errs.password = 'Must contain at least 1 special symbol (!@#$%...)';
-      }
-    }
-    if (form.phone && form.phone.trim() && !/^\+?[0-9\s-]{7,20}$/.test(form.phone.trim())) {
-      errs.phone = 'Valid phone number required (e.g. +233XXXXXXXXX)';
-    }
-    if (!form.primaryRoleId) errs.primaryRoleId = 'Please select a primary role';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
+  const allAssignedRoleIds = useMemo(() => {
+    return Array.from(new Set([form.primaryRoleId, ...form.additionalRoleIds].filter(Boolean)));
+  }, [form.primaryRoleId, form.additionalRoleIds]);
+
+  const selectedRoleObjs = useMemo(() => {
+    return roles.filter((r) => allAssignedRoleIds.includes(r.id));
+  }, [roles, allAssignedRoleIds]);
 
   const save = async () => {
-    if (!validate()) return;
+    if (!form.firstName.trim() || !form.lastName.trim() || !form.username.trim() || !form.email.trim()) {
+      showToast('error', 'Please fill in all required name, username and email fields.');
+      return;
+    }
+    if (!isEdit && !form.password) {
+      showToast('error', 'Initial temporary password is required.');
+      return;
+    }
+    if (!form.primaryRoleId) {
+      showToast('error', 'Please select at least one primary role.');
+      return;
+    }
+
     setSaving(true);
-
-    const allAssignedRoleIds = Array.from(
-      new Set([form.primaryRoleId, ...form.additionalRoleIds].filter(Boolean))
-    );
-
     try {
-      if (isEdit) {
+      if (isEdit && editUser) {
         await usersApi.update(editUser.id, {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email,
-          phone: form.phone || null,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || null,
           roleIds: allAssignedRoleIds,
         });
-        showToast('success', `User ${form.firstName} updated with ${allAssignedRoleIds.length} role(s).`);
+        showToast('success', 'User updated successfully.');
       } else {
         await usersApi.create({
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email,
-          username: form.username,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          username: form.username.trim(),
           password: form.password,
-          phone: form.phone || null,
+          phone: form.phone.trim() || undefined,
           roleIds: allAssignedRoleIds,
         });
-        showToast('success', `User ${form.firstName} created with ${allAssignedRoleIds.length} role(s).`);
+        showToast('success', 'Staff account created.');
       }
       onSaved();
       onClose();
     } catch (err: any) {
-      if (err instanceof ApiClientError && err.details) {
-        const fieldErrs: Record<string, string> = {};
-        for (const [k, msgs] of Object.entries(err.details)) {
-          if (Array.isArray(msgs) && msgs.length > 0) {
-            fieldErrs[k] = msgs[0];
-          }
-        }
-        if (Object.keys(fieldErrs).length > 0) {
-          setErrors((prev) => ({ ...prev, ...fieldErrs }));
-        }
-      }
-      showToast('error', err?.message ?? 'An error occurred.');
+      showToast('error', err?.message ?? 'Failed to save staff user.');
     } finally {
       setSaving(false);
     }
   };
 
-  // Compute all assigned roles and their aggregated interfaces
-  const selectedRoleObjs = roles.filter(
-    (r) => r.id === form.primaryRoleId || form.additionalRoleIds.includes(r.id)
-  );
-
-  const aggregatedInterfaces = Array.from(
-    new Set(
-      selectedRoleObjs.flatMap((r) => ROLE_ACCESS_MAP[r.name]?.interfaces || [`${r.name} capabilities`])
-    )
-  );
-
   return (
-    <Modal open={open} onClose={onClose} title={isEdit ? `Edit User & Role Access · ${editUser?.firstName}` : 'Create User & Assign Role Access'} size="lg">
-      <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-        <div className="grid grid-cols-2 gap-x-4">
-          <FormField label="First Name" required error={errors.firstName}>
-            <TextInput value={form.firstName} onChange={(e) => setField('firstName', e.target.value)} error={!!errors.firstName} placeholder="John" />
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? `Edit Staff Member — ${editUser?.firstName} ${editUser?.lastName}` : 'Add New Staff Account'}
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="First Name" required>
+            <TextInput
+              value={form.firstName}
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+              placeholder="e.g. Ama"
+              required
+            />
           </FormField>
-          <FormField label="Last Name" required error={errors.lastName}>
-            <TextInput value={form.lastName} onChange={(e) => setField('lastName', e.target.value)} error={!!errors.lastName} placeholder="Doe" />
+          <FormField label="Last Name" required>
+            <TextInput
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+              placeholder="e.g. Mensah"
+              required
+            />
           </FormField>
         </div>
 
-        <FormField label="Email Address" required error={errors.email}>
-          <TextInput type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} error={!!errors.email} placeholder="john@nsvilla.com" />
-        </FormField>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Username" required>
+            <TextInput
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              placeholder="e.g. amensah"
+              required
+            />
+          </FormField>
+          <FormField label="Email Address" required>
+            <TextInput
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="e.g. ama@nsvilla.com"
+              required
+            />
+          </FormField>
+        </div>
 
-        {!isEdit && (
-          <div className="grid grid-cols-2 gap-x-4">
-            <FormField label="Username" required error={errors.username}>
-              <TextInput value={form.username} onChange={(e) => setField('username', e.target.value)} error={!!errors.username} placeholder="johndoe" />
-            </FormField>
-            <FormField label="Password" required error={errors.password}>
-              <TextInput type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} error={!!errors.password} placeholder="Min 8 chars (e.g. Pass@1234)" />
-            </FormField>
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label={isEdit ? 'Reset Password (optional)' : 'Initial Password'} required={!isEdit}>
+            <TextInput
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder={isEdit ? 'Leave blank to retain current' : 'Min. 8 characters'}
+              required={!isEdit}
+            />
+          </FormField>
+          <FormField label="Phone Number">
+            <TextInput
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              placeholder="+233 …"
+            />
+          </FormField>
+        </div>
 
-        <FormField label="Phone (optional)" error={errors.phone}>
-          <TextInput value={form.phone} onChange={(e) => setField('phone', e.target.value)} error={!!errors.phone} placeholder="+233 XX XXX XXXX" />
-        </FormField>
-
-        {/* 1. Primary Role Selection */}
-        <div className="p-4 rounded-xl bg-[#14161D] border border-[#2B303E] space-y-3">
-          <FormField label="Primary / Default Role" required error={errors.primaryRoleId}>
+        {/* Primary Role */}
+        <div className="rounded-xl border border-[#e5ebeb] bg-[#fbfdfd] p-4 space-y-3">
+          <FormField label="Primary Department Role" required>
             <SelectInput
               value={form.primaryRoleId}
               onChange={(e) => {
-                const newPrimary = e.target.value;
-                setField('primaryRoleId', newPrimary);
-                // remove from additional if selected as primary
-                setField(
-                  'additionalRoleIds',
-                  form.additionalRoleIds.filter((id) => id !== newPrimary)
-                );
+                const newId = e.target.value;
+                setForm((prev) => ({
+                  ...prev,
+                  primaryRoleId: newId,
+                  additionalRoleIds: prev.additionalRoleIds.filter((id) => id !== newId),
+                }));
               }}
-              error={!!errors.primaryRoleId}
+              required
             >
-              <option value="">Select primary role</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name.replace(/_/g, ' ')}
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
                 </option>
               ))}
             </SelectInput>
-            {errors.primaryRoleId && <p className="text-xs text-[#EF4444] mt-1">{errors.primaryRoleId}</p>}
           </FormField>
 
-          {/* 2. Additional Roles / Multi-Access Checkboxes */}
+          {/* Additional Cross-Functional Roles */}
           <div>
-            <div className="text-xs font-semibold text-[#A0A5AD] mb-1.5 flex items-center justify-between">
-              <span>Grant Additional Roles &amp; Interface Access:</span>
-              <span className="text-[10px] text-[#6E737B]">Allow user to do more across departments</span>
-            </div>
-
-            <div className="grid gap-2 sm:grid-cols-2 pt-1">
+            <label className="text-xs font-bold text-[#0c1921] block pb-2">
+              Cross-Functional Delegated Roles (optional)
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {roles
                 .filter((r) => r.id !== form.primaryRoleId)
-                .map((role) => {
-                  const isChecked = form.additionalRoleIds.includes(role.id);
-                  const accessMeta = ROLE_ACCESS_MAP[role.name];
-
+                .map((r) => {
+                  const isChecked = form.additionalRoleIds.includes(r.id);
                   return (
                     <button
-                      key={role.id}
+                      key={r.id}
                       type="button"
-                      onClick={() => toggleAdditionalRole(role.id)}
-                      className={`p-2.5 rounded-lg border text-left flex items-start gap-2.5 transition-all text-xs ${
+                      onClick={() => toggleAdditionalRole(r.id)}
+                      className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
                         isChecked
-                          ? 'bg-[#1C202B] border-[#C5A880] text-[#F4F4F2]'
-                          : 'bg-[#181B24]/70 border-[#2B303E] text-[#A0A5AD] hover:border-[#3D4457]'
+                          ? 'border-[#c59a58] bg-[#fcf9f2] text-[#0c1921]'
+                          : 'border-[#e5ebeb] bg-white text-[#5a6b75] hover:bg-slate-50'
                       }`}
                     >
                       {isChecked ? (
-                        <CheckSquare size={16} className="text-[#C5A880] shrink-0 mt-0.5" />
+                        <CheckSquare size={14} className="text-[#c59a58] shrink-0" />
                       ) : (
-                        <Square size={16} className="text-[#6E737B] shrink-0 mt-0.5" />
+                        <Square size={14} className="text-[#cbd5e1] shrink-0" />
                       )}
-                      <div className="min-w-0">
-                        <div className="font-bold flex items-center gap-1.5">
-                          <span className={isChecked ? 'text-[#F4F4F2]' : 'text-[#A0A5AD]'}>
-                            + {role.name.replace(/_/g, ' ')} Access
-                          </span>
-                        </div>
-                        {accessMeta && (
-                          <div className="text-[10px] text-[#6E737B] line-clamp-1 mt-0.5">
-                            {accessMeta.description}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs font-semibold">{r.name} Access</span>
                     </button>
                   );
                 })}
@@ -322,49 +309,35 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
           </div>
         </div>
 
-        {/* 3. Combined Capabilities & Unlocked Interfaces Summary */}
+        {/* Selected Capabilities Badge */}
         {selectedRoleObjs.length > 0 && (
-          <div className="p-3.5 rounded-xl bg-[#14161D] border border-[#2B303E] text-xs space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 font-bold text-[#C5A880]">
-                <Shield size={14} />
-                <span>Effective Interfaces &amp; Capabilities Unlocked ({selectedRoleObjs.length} role{selectedRoleObjs.length !== 1 ? 's' : ''}):</span>
-              </div>
-              <div className="flex items-center gap-1">
-                {selectedRoleObjs.map((r) => {
-                  const meta = ROLE_ACCESS_MAP[r.name];
-                  return (
-                    <span
-                      key={r.id}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                        meta?.badgeBg || 'bg-[#232733] text-[#F4F4F2] border-[#2B303E]'
-                      }`}
-                    >
-                      {r.name}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {aggregatedInterfaces.map((iface) => (
-                <span
-                  key={iface}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-[#1C202B] text-[#F4F4F2] border border-[#2B303E]"
-                >
-                  <Monitor size={10} className="text-[#C5A880]" />
-                  {iface}
-                </span>
-              ))}
-            </div>
+          <div className="rounded-xl border border-[#c59a58]/30 bg-[#fcf9f2] p-3 text-xs flex flex-wrap items-center gap-1.5">
+            <span className="font-bold text-[#0c1921] flex items-center gap-1">
+              <Shield size={13} className="text-[#c59a58]" /> Unlocked Access:
+            </span>
+            {selectedRoleObjs.map((r) => (
+              <span
+                key={r.id}
+                className="rounded-md bg-[#0c1921] px-2 py-0.5 text-[10px] font-bold text-[#fcf9f2]"
+              >
+                {r.name}
+              </span>
+            ))}
           </div>
         )}
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-[#2B303E]">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={saving} onClick={save} className="bg-[#C5A880] text-[#10131A] font-bold">
-            {isEdit ? 'Save Changes' : 'Create User'}
+        <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            loading={saving}
+            onClick={save}
+            className="bg-[#0c1921] hover:bg-[#173c4d] text-white font-semibold"
+          >
+            {isEdit ? 'Save Changes' : 'Create Staff User'}
           </Button>
         </div>
       </div>
@@ -389,24 +362,31 @@ export const UsersPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<UserRecord | null>(null);
 
-  const pageSize = 10;
+  const pageSize = 12;
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await usersApi.list({ page, pageSize, search: search || undefined, status: statusFilter || undefined });
+      const res = await usersApi.list({
+        page,
+        pageSize,
+        search: search || undefined,
+        status: statusFilter || undefined,
+      });
       if (res.success && res.data) {
         setUsers(res.data.data ?? res.data.items ?? []);
         setTotal(res.data.total);
       }
     } catch {
-      showToast('error', 'Failed to load system users.');
+      showToast('error', 'Failed to load system staff users.');
     } finally {
       setLoading(false);
     }
   }, [page, search, statusFilter]);
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   useEffect(() => {
     rolesApi.list().then((r) => {
@@ -436,141 +416,192 @@ export const UsersPage: React.FC = () => {
     }
   };
 
-  const columns = [
-    {
-      key: 'name',
-      header: 'Name',
-      render: (u: UserRecord) => (
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-semibold text-[#f1a83f] shrink-0">
-            {u.firstName[0]}{u.lastName[0]}
-          </div>
-          <div>
-            <div className="font-medium text-[#F4F4F2]">{u.firstName} {u.lastName}</div>
-            <div className="text-[11px] text-[#6E737B]">@{u.username}</div>
-          </div>
-        </div>
-      ),
-    },
-    { key: 'email', header: 'Email', render: (u: UserRecord) => <span className="text-[#A0A5AD]">{u.email}</span> },
-    {
-      key: 'roles',
-      header: 'Assigned Roles & Access',
-      render: (u: UserRecord) => (
-        <div className="flex flex-wrap gap-1.5">
-          {u.roles.map((r) => {
-            const meta = ROLE_ACCESS_MAP[r.name];
-            return (
-              <span
-                key={r.id}
-                className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                  meta?.badgeBg || 'bg-[#232733] text-[#F4F4F2] border-[#2B303E]'
-                }`}
-              >
-                {r.name.replace(/_/g, ' ')}
-              </span>
-            );
-          })}
-        </div>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      align: 'center' as const,
-      render: (u: UserRecord) => statusBadge(u.status),
-    },
-    {
-      key: '2fa',
-      header: '2FA',
-      align: 'center' as const,
-      render: (u: UserRecord) => u.totpEnabled ? <Badge label="Enabled" variant="success" /> : <Badge label="Disabled" variant="neutral" />,
-    },
-    {
-      key: 'lastLogin',
-      header: 'Last Login',
-      render: (u: UserRecord) => u.lastLoginAt ? <span className="text-[#A0A5AD]">{new Date(u.lastLoginAt).toLocaleDateString()}</span> : <span className="text-[#6E737B]">Never</span>,
-    },
-    {
-      key: 'actions',
-      header: '',
-      align: 'right' as const,
-      render: (u: UserRecord) => (
-        <div className="flex items-center gap-1 justify-end">
-          {canEdit && (
-            <>
-              <button onClick={() => { setEditUser(u); setModalOpen(true); }} className="p-1 hover:bg-[#232733] rounded text-[#A0A5AD] hover:text-[#F4F4F2]" title="Edit Roles & Access">
-                <Edit2 size={14} />
-              </button>
-              <button onClick={() => handleStatusToggle(u)} className="p-1 hover:bg-[#232733] rounded text-[#A0A5AD] hover:text-[#F4F4F2]" title={u.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}>
-                {u.status === 'ACTIVE' ? <ShieldOff size={14} /> : <ShieldCheck size={14} />}
-              </button>
-              {canDelete && (
-                <button onClick={() => handleDelete(u)} className="p-1 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete">
-                  <Trash2 size={14} />
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      ),
-    },
-  ];
+  // Metrics
+  const activeCount = useMemo(() => {
+    return users.filter((u) => u.status === 'ACTIVE').length;
+  }, [users]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="User accounts & access"
-        subtitle="Manage staff accounts, assign multiple roles, and grant cross-departmental interface permissions."
-        actions={
-          canCreate ? (
-            <Button variant="primary" size="sm" onClick={() => { setEditUser(null); setModalOpen(true); }} className="bg-[#C5A880] text-[#10131A] font-bold">
-              <UserPlus size={14} /> Add User
-            </Button>
-          ) : undefined
-        }
-      />
+    <ShellPage
+      eyebrow="ADMINISTRATION • STAFF ACCOUNTS & ROLES"
+      title="Staff User Accounts"
+      subtitle="Manage employee access credentials, assign multi-role security tiers, and cross-functional operational authorizations."
+      actions={
+        canCreate && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              setEditUser(null);
+              setModalOpen(true);
+            }}
+            className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+          >
+            <UserPlus size={14} /> Add Staff User
+          </Button>
+        )
+      }
+    >
+      {/* ── Stat Tiles ── */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatTile
+          label="Total Staff Users"
+          value={total}
+          note="Registered system accounts"
+          icon={Users}
+        />
+        <StatTile
+          label="Active Accounts"
+          value={activeCount}
+          note="Currently authorized to sign in"
+          icon={UserCheck}
+          accent
+        />
+        <StatTile
+          label="Configured Roles"
+          value={roles.length}
+          note="Security tiers & permission sets"
+          icon={KeyRound}
+        />
+      </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <SearchInput
-            placeholder="Search by name, email, username..."
-            value={search}
-            onChange={(v) => { setSearch(v); setPage(1); }}
-            className="w-72"
-          />
+      {/* ── Users Table Section ── */}
+      <Section
+        title="Authorized Personnel Directory"
+        subtitle="Staff member details, usernames, department roles, and account security states."
+        action={
+          <Button variant="ghost" size="sm" onClick={fetchUsers} className="h-8 gap-1.5 text-xs text-[#5a6b75]">
+            <RefreshCw size={13} /> Refresh
+          </Button>
+        }
+      >
+        <Toolbar search={search} onSearch={(v) => { setSearch(v); setPage(1); }} placeholder="Search staff by name, email, or username…">
           <SelectInput
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="w-36"
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="w-36 text-xs"
           >
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active</option>
             <option value="SUSPENDED">Suspended</option>
             <option value="DEACTIVATED">Deactivated</option>
           </SelectInput>
-        </div>
-        <div className="text-xs text-[#6E737B]">Total: {total} users</div>
-      </div>
+        </Toolbar>
 
-      <DataTable
-        keyFn={(u) => u.id}
-        columns={columns}
-        data={users}
-        loading={loading}
-        emptyMessage="No users found."
-      />
+        {loading ? (
+          <div className="p-12"><LoadingState /></div>
+        ) : users.length === 0 ? (
+          <div className="p-16 text-center text-xs text-[#71828a]">
+            No staff accounts found.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <th className="py-3 px-5">Staff Member</th>
+                  <th className="py-3 px-5">Email Address</th>
+                  <th className="py-3 px-5">Assigned Roles</th>
+                  <th className="py-3 px-5 text-center">Status</th>
+                  <th className="py-3 px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {users.map((u) => (
+                  <tr key={u.id} className="hover:bg-[#fbfcfb] transition-colors">
+                    <td className="py-3.5 px-5">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0c1921] font-mono text-xs font-bold text-[#c59a58] shrink-0">
+                          {u.firstName[0]}{u.lastName[0]}
+                        </div>
+                        <div>
+                          <div className="font-bold text-[#0c1921] text-xs">
+                            {u.firstName} {u.lastName}
+                          </div>
+                          <div className="text-[10px] text-[#71828a] font-mono">@{u.username}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-5 text-[#5a6b75] font-medium">
+                      {u.email}
+                    </td>
+                    <td className="py-3.5 px-5">
+                      <div className="flex flex-wrap gap-1">
+                        {(u.roles || []).map((r: any) => {
+                          const rName = typeof r === 'string' ? r : r?.name;
+                          return (
+                            <span
+                              key={rName}
+                              className="rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-bold text-[#0c1921]"
+                            >
+                              {rName}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-5 text-center">
+                      {statusBadge(u.status)}
+                    </td>
+                    <td className="py-3.5 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {canEdit && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditUser(u);
+                                setModalOpen(true);
+                              }}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                              title="Edit Roles & Access"
+                            >
+                              <Edit2 size={13} />
+                            </button>
+                            <button
+                              onClick={() => handleStatusToggle(u)}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                              title={u.status === 'ACTIVE' ? 'Suspend Access' : 'Reactivate Access'}
+                            >
+                              {u.status === 'ACTIVE' ? (
+                                <ShieldOff size={13} className="text-amber-600" />
+                              ) : (
+                                <ShieldCheck size={13} className="text-emerald-600" />
+                              )}
+                            </button>
+                          </>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(u)}
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                            title="Delete User"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {total > pageSize && (
-        <div className="flex justify-end">
-          <Pagination
-            page={page}
-            totalPages={Math.ceil(total / pageSize)}
-            total={total}
-            onPageChange={setPage}
-          />
-        </div>
-      )}
+        {total > pageSize && (
+          <div className="p-4 border-t border-[#edf2f2] flex justify-end">
+            <Pagination
+              page={page}
+              totalPages={Math.ceil(total / pageSize)}
+              total={total}
+              onPageChange={setPage}
+            />
+          </div>
+        )}
+      </Section>
 
       {modalOpen && (
         <UserModal
@@ -581,7 +612,7 @@ export const UsersPage: React.FC = () => {
           onSaved={fetchUsers}
         />
       )}
-    </div>
+    </ShellPage>
   );
 };
 

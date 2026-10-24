@@ -266,79 +266,79 @@ export const FrontDeskPage: React.FC = () => {
       </div>
 
       {/* ── Dynamic Room Availability Bar (Tallies 100% with Overview and Rooms Page) ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <div className="ns-card p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1e2535] pb-3">
           <div className="flex items-center gap-2">
-            <DoorOpen size={16} className="text-[#174b59]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#174b59]">
+            <DoorOpen size={16} className="text-[#c59a58]" />
+            <span className="text-xs font-black uppercase tracking-wider text-[#c59a58]">
               Front Desk Live Room Rack &bull; Today's Inventory Status
             </span>
           </div>
-          <span className="text-xs text-slate-500 font-medium">
+          <span className="text-xs text-[#6e7a8a] font-medium">
             Total property rooms: <strong className="text-slate-900">{rooms.length}</strong>
           </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
           {/* Ready to Sell / Available Today */}
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+          <div className="ns-card p-4 border-l-2 border-l-emerald-500">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Ready to Sell (Available)</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Ready to Sell (Available)</span>
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <div className="mt-2 text-3xl font-black text-emerald-950">{availableRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-emerald-700 font-medium">Clean & available today</div>
+            <div className="mt-2 text-3xl font-black text-[#e8e6e0]">{availableRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[#4a5568]">Clean & available today</div>
           </div>
 
           {/* Reserved for Today */}
-          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+          <div className="ns-card p-4 border-l-2 border-l-amber-500">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Reserved Today</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Reserved Today</span>
               <Calendar size={13} className="text-amber-700" />
             </div>
-            <div className="mt-2 text-3xl font-black text-amber-950">{reservedRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-amber-700 font-medium">Arrivals due / active bookings</div>
+            <div className="mt-2 text-3xl font-black text-[#e8e6e0]">{reservedRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[#4a5568]">Arrivals due / active bookings</div>
           </div>
 
           {/* In-House Occupied */}
-          <div className="rounded-xl border border-sky-200 bg-sky-50/50 p-4">
+          <div className="ns-card p-4 border-l-2 border-l-blue-500">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">In-House Stays</span>
-              <UserCheck size={13} className="text-sky-700" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">In-House Stays</span>
+              <UserCheck size={13} className="text-blue-400" />
             </div>
-            <div className="mt-2 text-3xl font-black text-sky-950">{occupiedRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-sky-700 font-medium">Currently occupied rooms</div>
+            <div className="mt-2 text-3xl font-black text-[#e8e6e0]">{occupiedRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[#4a5568]">Currently occupied rooms</div>
           </div>
 
           {/* Housekeeping Turnover */}
-          <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4">
+          <div className="ns-card p-4 border-l-2 border-l-red-500">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800">Housekeeping Turnover</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">Housekeeping Turnover</span>
               <Building size={13} className="text-rose-700" />
             </div>
-            <div className="mt-2 text-3xl font-black text-rose-950">{dirtyRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-rose-700 font-medium">Dirty / cleaning in progress</div>
+            <div className="mt-2 text-3xl font-black text-[#e8e6e0]">{dirtyRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[#4a5568]">Dirty / cleaning in progress</div>
           </div>
         </div>
 
         {/* Live Available Rooms Key Rack (Interactive walk-in selection) */}
         {availableRoomsToday.length > 0 && (
-          <div className="pt-2 border-t border-slate-100">
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <div className="pt-2 border-t border-[#1e2535]">
+            <div className="text-[11px] font-bold text-[#6e7a8a] uppercase tracking-wider mb-2 flex items-center justify-between">
               <span>Ready Rooms Available for Walk-Ins ({availableRoomsToday.length})</span>
-              <span className="text-[#174b59] font-normal lowercase">click room to view</span>
+              <span className="text-[#c59a58] font-normal lowercase">click room to view</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableRoomsToday.map((room) => (
                 <div
                   key={room.id}
                   onClick={() => navigate('/reservations')}
-                  className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50/40 px-3 py-1.5 hover:bg-emerald-100/70 hover:border-emerald-400 transition-all shadow-2xs"
+                  className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-900/20 px-3 py-1.5 hover:bg-emerald-900/40 hover:border-emerald-500 transition-all"
                   title="Click to book room in reservations"
                 >
-                  <DoorOpen size={13} className="text-emerald-700" />
-                  <span className="text-xs font-black text-emerald-950">Room {room.number}</span>
-                  <span className="text-[10px] text-emerald-800 font-medium">
+                  <DoorOpen size={13} className="text-emerald-400" />
+                  <span className="text-xs font-black text-[#e8e6e0]">Room {room.number}</span>
+                  <span className="text-[10px] text-emerald-400 font-medium">
                     {room.roomType?.name ? `(${room.roomType.name})` : ''}
                   </span>
                 </div>
@@ -351,27 +351,27 @@ export const FrontDeskPage: React.FC = () => {
       {/* ── Main Operations: Arrivals Queue & In-House Departures ── */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Arrivals Due Desk */}
-        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
+        <div className="ns-card overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60 gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#1e2535] px-6 py-4 bg-[#0f141d]/60 gap-3">
               <div>
-                <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
-                  <LogIn size={16} className="text-sky-700" />
+                <h2 className="text-sm font-extrabold text-[#e8e6e0] flex items-center gap-2">
+                  <LogIn size={16} className="text-blue-400" />
                   Expected Arrivals Queue ({arrivals.length})
                 </h2>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-[#6e7a8a] mt-0.5">
                   Guest check-in starts at 2:00 PM &bull; Identity verification required
                 </p>
               </div>
 
               <div className="relative w-full sm:w-56">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a5568]" />
                 <input
                   type="text"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Filter arrivals..."
-                  className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1 text-xs text-[#0f172a] focus:border-[#174b59] focus:outline-none"
+                  className="w-full rounded-xl border border-[#1e2535] pl-8 pr-3 py-1 text-xs text-[#e8e6e0] focus:border-[#174b59] focus:outline-none"
                 />
               </div>
             </div>
@@ -379,11 +379,11 @@ export const FrontDeskPage: React.FC = () => {
             {loading ? (
               <LoadingState />
             ) : arrivals.length === 0 ? (
-              <div className="p-12 text-center text-xs text-slate-400">
+              <div className="p-12 text-center text-xs text-[#4a5568]">
                 No arrivals currently waiting in the check-in queue.
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto">
+              <div className="divide-y divide-[#1e2535] max-h-[520px] overflow-y-auto">
                 {arrivals.map((reservation) => {
                   const guestFullName =
                     [reservation.guests?.[0]?.guest?.firstName, reservation.guests?.[0]?.guest?.lastName]
@@ -392,20 +392,20 @@ export const FrontDeskPage: React.FC = () => {
                   return (
                     <div
                       key={reservation.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50/80 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-[#0f141d]/60 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-800 text-xs font-black shadow-xs">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-blue-400 text-xs font-black shadow-xs">
                           <UserRound size={17} />
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate text-xs font-bold text-[#0f172a] flex items-center gap-2">
+                          <div className="truncate text-xs font-bold text-[#e8e6e0] flex items-center gap-2">
                             <span>{guestFullName}</span>
-                            <span className="rounded-md border border-sky-300 bg-sky-50 px-2 py-0.5 text-[10px] font-black text-sky-800">
+                            <span className="rounded-md border border-blue-500/40 bg-blue-900/20 px-2 py-0.5 text-[10px] font-black text-blue-400">
                               Room {reservation.room?.number || 'Unassigned'}
                             </span>
                           </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500 flex items-center gap-2 flex-wrap">
+                          <div className="mt-0.5 text-[11px] text-[#6e7a8a] flex items-center gap-2 flex-wrap">
                             <span>Checkout: {new Date(reservation.checkOutDate).toLocaleDateString()} 12:00 PM</span>
                             <span>&bull;</span>
                             <span>Ref: {reservation.confirmationNo || reservation.id.slice(0, 8).toUpperCase()}</span>
@@ -432,15 +432,15 @@ export const FrontDeskPage: React.FC = () => {
         </div>
 
         {/* In-House Guests & Departure Settlement Desk */}
-        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
+        <div className="ns-card overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+            <div className="flex items-center justify-between border-b border-[#1e2535] px-6 py-4 bg-[#0f141d]/60">
               <div>
-                <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
+                <h2 className="text-sm font-extrabold text-[#e8e6e0] flex items-center gap-2">
                   <LogOut size={16} className="text-amber-700" />
                   In-House Guests &bull; Checkout Desk ({stays.length})
                 </h2>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-[#6e7a8a] mt-0.5">
                   Standard checkout deadline: 12:00 PM &bull; Late departures: +GHS {checkoutPolicy.hourlyRate}/hr
                 </p>
               </div>
@@ -449,11 +449,11 @@ export const FrontDeskPage: React.FC = () => {
             {loading ? (
               <LoadingState />
             ) : stays.length === 0 ? (
-              <div className="p-12 text-center text-xs text-slate-400">
+              <div className="p-12 text-center text-xs text-[#4a5568]">
                 No active in-house stays currently registered.
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto">
+              <div className="divide-y divide-[#1e2535] max-h-[520px] overflow-y-auto">
                 {stays.map((stay) => {
                   const late = getLateInfo(stay);
                   const guestFullName =
@@ -461,21 +461,21 @@ export const FrontDeskPage: React.FC = () => {
                   return (
                     <div
                       key={stay.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50/80 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-[#0f141d]/60 transition-colors"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-bold text-[#0f172a]">{guestFullName}</span>
-                          <span className="rounded-md border border-[#c59a58]/40 bg-[#fbf8f2] px-2 py-0.5 text-[10px] font-black text-[#9b6e2e]">
+                          <span className="text-xs font-bold text-[#e8e6e0]">{guestFullName}</span>
+                          <span className="rounded-md border border-[#c59a58]/40 bg-[#1a1505] px-2 py-0.5 text-[10px] font-black text-[#c59a58]">
                             Room {stay.room?.number || '—'}
                           </span>
                           {late && (
-                            <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-800 animate-pulse">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-900/20 px-2 py-0.5 text-[10px] font-black text-amber-400 animate-pulse">
                               <AlertTriangle size={11} /> LATE +GHS {late.fee} ({late.lateHours}h)
                             </span>
                           )}
                         </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500 flex items-center gap-2 flex-wrap">
+                        <div className="mt-0.5 text-[11px] text-[#6e7a8a] flex items-center gap-2 flex-wrap">
                           <span>
                             Departs {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : '—'} 12:00 PM
                           </span>
@@ -491,7 +491,7 @@ export const FrontDeskPage: React.FC = () => {
                           className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs ${
                             late
                               ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                              : 'border border-slate-300 hover:bg-slate-100 text-slate-800'
+                              : 'border border-[#1e2535] hover:bg-[#1e2535] text-[#e8e6e0]'
                           }`}
                         >
                           <LogOut size={13} />
@@ -516,8 +516,8 @@ export const FrontDeskPage: React.FC = () => {
         <form onSubmit={submit} className="space-y-4">
           {action?.type === 'in' ? (
             <>
-              <div className="rounded-xl border border-sky-200 bg-sky-50 p-3.5 text-xs text-sky-900 leading-relaxed">
-                <span className="font-bold">Identity Document Verification:</span> Check passport or national ID against booking particulars prior to key handover.
+              <div className="rounded-xl border border-blue-500/30 bg-blue-900/20 p-3.5 text-xs text-blue-200 leading-relaxed">
+                <span className="font-bold text-blue-300">Identity Document Verification:</span> Check passport or national ID against booking particulars prior to key handover.
               </div>
               <FormField label="ID Document Type">
                 <SelectInput
@@ -540,22 +540,22 @@ export const FrontDeskPage: React.FC = () => {
           ) : (
             <>
               {activeLateInfo ? (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-950">
-                  <div className="flex items-center justify-between font-bold text-amber-900">
+                <div className="rounded-xl border border-amber-500/30 bg-amber-900/20 p-3.5 text-xs">
+                  <div className="flex items-center justify-between font-bold text-amber-300">
                     <span>Late Checkout Policy Applied</span>
-                    <span className="rounded bg-amber-200/80 px-2 py-0.5 font-mono text-[11px] font-extrabold text-amber-900">
+                    <span className="rounded bg-amber-900/40 px-2 py-0.5 font-mono text-[11px] font-extrabold text-amber-300">
                       +GHS {activeLateInfo.fee.toFixed(2)}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] text-amber-800 leading-relaxed">
+                  <p className="mt-1 text-[11px] text-amber-400/80 leading-relaxed">
                     Departure is {activeLateInfo.lateHours} hour{activeLateInfo.lateHours > 1 ? 's' : ''} past the {checkoutPolicy.checkoutTime} deadline at GHS {checkoutPolicy.hourlyRate.toFixed(2)}/hour.
                   </p>
-                  <label className="mt-3 flex items-center gap-2 font-semibold text-amber-950">
+                  <label className="mt-3 flex items-center gap-2 font-semibold text-amber-300">
                     <input
                       type="checkbox"
                       checked={chargeLateCheckoutFee}
                       onChange={(e) => setChargeLateCheckoutFee(e.target.checked)}
-                      className="h-3.5 w-3.5 accent-[#174B59]"
+                      className="h-3.5 w-3.5 accent-[#c59a58]"
                     />
                     Charge late checkout fee (GHS {activeLateInfo.fee.toFixed(2)})
                   </label>
@@ -570,7 +570,7 @@ export const FrontDeskPage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
+                <div className="rounded-xl bg-[#0f141d] border border-[#1e2535] p-3 text-xs text-[#6e7a8a]">
                   The selected payment method will settle the remaining balance on the guest's folio before releasing the room.
                 </div>
               )}
@@ -586,13 +586,13 @@ export const FrontDeskPage: React.FC = () => {
                 </SelectInput>
               </FormField>
 
-              <div className="rounded-xl bg-gradient-to-r from-slate-900 to-[#102433] p-4 text-white shadow-xs">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+              <div className="rounded-xl bg-[#0f141d] border border-[#c59a58]/30 p-4 shadow-sm">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#6e7a8a]">
                   <span>Total Amount Due at Checkout</span>
-                  <span className="text-xl font-black text-white">GHS {checkoutTotal.toFixed(2)}</span>
+                  <span className="text-xl font-black text-[#c59a58]">GHS {checkoutTotal.toFixed(2)}</span>
                 </div>
                 {activeLateInfo && chargeLateCheckoutFee && (
-                  <p className="mt-1 text-[11px] text-amber-300">
+                  <p className="mt-1 text-[11px] text-amber-400">
                     Includes late checkout fee of GHS {activeLateInfo.fee.toFixed(2)}.
                   </p>
                 )}
@@ -611,7 +611,7 @@ export const FrontDeskPage: React.FC = () => {
                 </SelectInput>
               </FormField>
 
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-700">
+              <label className="flex items-center gap-2 text-xs font-bold text-[#6e7a8a]">
                 <input
                   type="checkbox"
                   checked={splitOpen}
@@ -625,14 +625,14 @@ export const FrontDeskPage: React.FC = () => {
               </label>
 
               {splitOpen && checkoutTotal > 0 && (
-                <div className="rounded-xl border border-slate-200 p-3 bg-slate-50/50">
+                <div className="rounded-xl border border-[#1e2535] p-3 bg-[#0f141d]">
                   <TenderSplit total={checkoutTotal} rows={tenders} onChange={setTenders} />
                 </div>
               )}
             </>
           )}
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
+          <div className="flex justify-end gap-2 pt-2 border-t border-[#1e2535]">
             <Button type="button" variant="ghost" onClick={() => setAction(null)}>
               Cancel
             </Button>
@@ -652,3 +652,4 @@ export const FrontDeskPage: React.FC = () => {
 };
 
 export default FrontDeskPage;
+

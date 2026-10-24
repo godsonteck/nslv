@@ -3,106 +3,60 @@ import { formatCurrency, PERMISSIONS } from '@nslv/shared';
 import {
   ArrowDown,
   ArrowUp,
-  Calculator,
+  Banknote,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Coins,
   DollarSign,
+  FileText,
+  HelpCircle,
+  Lock,
   Plus,
   Printer,
+  Receipt,
   RefreshCw,
+  Send,
   ShieldAlert,
   Smartphone,
   Trash2,
+  TrendingDown,
+  TrendingUp,
+  UserCheck,
   Users,
+  Wallet,
 } from 'lucide-react';
 import {
   Button,
   DataTable,
   FormField,
   Modal,
-  PageHeader,
   SelectInput,
   showToast,
   TextInput,
 } from '../../components/ui';
-import { apiFetch } from '../../services/api';
+import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { useAuthStore } from '../../stores/authStore';
-import { cashRegisterApi } from '../../services/apiService';
+import { cashRegisterApi, CashRegisterSummary, CashEntryRecord } from '../../services/apiService';
+import { printCashHandoverSlip, CashHandoverSlipData } from '../../lib/company';
 
 const CASH_CATEGORIES = [
-  { value: 'FUEL', label: 'Fuel' },
-  { value: 'SUPPLIES', label: 'Supplies' },
-  { value: 'STAFF_MEALS', label: 'Staff Meals' },
-  { value: 'MAINTENANCE', label: 'Maintenance' },
-  { value: 'UTILITIES', label: 'Utilities' },
-  { value: 'TRANSPORT', label: 'Transport' },
-  { value: 'MISC', label: 'Miscellaneous' },
+  { value: 'FUEL', label: 'Generator & Vehicle Fuel' },
+  { value: 'SUPPLIES', label: 'Guest & Kitchen Supplies' },
+  { value: 'STAFF_MEALS', label: 'Staff Meals & Catering' },
+  { value: 'MAINTENANCE', label: 'Villa Repairs & Maintenance' },
+  { value: 'UTILITIES', label: 'Water, Electricity & Waste' },
+  { value: 'TRANSPORT', label: 'Transport & Errands' },
+  { value: 'MISC', label: 'Miscellaneous Operational' },
 ];
-
-interface CashEntry {
-  id: string;
-  type: 'OPENING' | 'INFLOW' | 'OUTFLOW';
-  amount: number;
-  description: string;
-  category?: string;
-  recipient?: string;
-  receiptRef?: string;
-  recordedAt: string;
-}
-
-interface CashPayment {
-  id: string;
-  amount: number;
-  type: 'PAYMENT';
-  source?: string;
-  sourceId?: string;
-  reference?: string;
-  description?: string;
-  processedAt: string;
-}
-
-interface CashRegisterSummary {
-  businessDate: string;
-  openingCash?: number;
-  carriedForward?: number;
-  carriedIntoToday?: number;
-  carriedFromDate?: string | null;
-  inflows?: number;
-  manualInflows?: number;
-  outflows?: number;
-  manualOutflows?: number;
-  cashSales?: number;
-  cashRefunds?: number;
-  netCash?: number;
-  expectedCash?: number;
-  entries: CashEntry[];
-  cashPayments: CashPayment[];
-  byCategory: Record<string, number>;
-}
-
-const token = () => useAuthStore.getState().tokens?.accessToken ?? null;
-
-const typeColors = {
-  OPENING: 'bg-blue-100 text-blue-700',
-  INFLOW: 'bg-emerald-100 text-emerald-700',
-  OUTFLOW: 'bg-rose-100 text-rose-700',
-};
-
-const typeIcons = {
-  OPENING: DollarSign,
-  INFLOW: ArrowUp,
-  OUTFLOW: ArrowDown,
-};
-
-const typeLabels = {
-  OPENING: 'Opening Balance',
-  INFLOW: 'Money In',
-  OUTFLOW: 'Money Out',
-};
 
 export const CashRegisterPage: React.FC = () => {
   const { hasPermission, user } = useAuthStore();
-  const isReception = user?.roles?.some((role) => role.name === 'Reception') ?? false;
+  const isReception = user?.roles?.some((role: any) => {
+    const roleName = typeof role === 'string' ? role : role?.name;
+    return roleName?.toLowerCase() === 'reception';
+  }) ?? false;
   const canManage = hasPermission(PERMISSIONS.CASH_REGISTER_MANAGE) || isReception;
 
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -110,7 +64,9 @@ export const CashRegisterPage: React.FC = () => {
   const [summary, setSummary] = useState<CashRegisterSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'ENTRIES' | 'PAYMENTS' | 'CATEGORIES'>('ENTRIES');
 
+  // Modals state
   const [openingOpen, setOpeningOpen] = useState(false);
   const [openingAmount, setOpeningAmount] = useState('');
   const [openingNotes, setOpeningNotes] = useState('');
@@ -130,25 +86,27 @@ export const CashRegisterPage: React.FC = () => {
   const [momoDepositDescription, setMomoDepositDescription] = useState('');
   const [momoDepositReference, setMomoDepositReference] = useState('');
 
-  const token = () => useAuthStore.getState().tokens?.accessToken ?? null;
+  // End-of-Day Handover Modal state
+  const [handoverOpen, setHandoverOpen] = useState(false);
+  const [handoverAmount, setHandoverAmount] = useState('');
+  const [handoverRecipient, setHandoverRecipient] = useState('');
+  const [handoverNotes, setHandoverNotes] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<CashRegisterSummary | null>(`/cash-register?businessDate=${selectedDate}`, {}, token());
-      setSummary(data);
-      if (data) {
-        const alert = await cashRegisterApi.getLowCashAlert(selectedDate, 200);
-        if (alert.data?.isLow) showToast('warning', alert.data.message);
-      }
+      const res = await cashRegisterApi.getSummary(selectedDate);
+      setSummary(res.data);
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to load the cash record.');
+      showToast('error', error?.message ?? 'Unable to load cash register.');
     } finally {
       setLoading(false);
     }
   }, [selectedDate]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const shiftDate = (days: number) => {
     const date = new Date(`${selectedDate}T12:00:00`);
@@ -156,450 +114,1109 @@ export const CashRegisterPage: React.FC = () => {
     setSelectedDate(date.toISOString().slice(0, 10));
   };
 
-  const saveOpening = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (openingAmount === '' || Number(openingAmount) < 0) return showToast('error', 'Enter a valid cash balance.');
+  // Calculations & Safety fallbacks
+  const openingCash = summary?.openingCash ?? 0;
+  const cashSales = summary?.cashSales ?? 0;
+  const manualInflows = summary?.manualInflows ?? 0;
+  const totalCollections = summary?.totalCashCollected ?? (cashSales + manualInflows);
+  const manualOutflows = summary?.manualOutflows ?? summary?.outflows ?? 0;
+  const momoDeposits = summary?.momoDeposits ?? 0;
+  const totalDeductions = manualOutflows;
+  const expectedTotal = summary?.expectedCash ?? Math.max(0, openingCash + totalCollections - totalDeductions);
+  const handovers = summary?.handovers ?? summary?.totalHandedOver ?? 0;
+  const cashAtHand = summary?.availableCashAtHand ?? summary?.netCash ?? Math.max(0, expectedTotal - handovers);
+  const isHandedOver = summary?.isHandedOver ?? (handovers > 0 && cashAtHand <= 0.01);
+
+  // Handover entries
+  const handoverEntries = useMemo(() => {
+    return (summary?.entries ?? []).filter((e) => e.category === 'HANDOVER');
+  }, [summary?.entries]);
+
+  // General entries (non-handover)
+  const displayEntries = useMemo(() => {
+    return (summary?.entries ?? []).filter((e) => e.type !== 'OPENING');
+  }, [summary?.entries]);
+
+  // Actions
+  const handleSaveOpening = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = Number(openingAmount);
+    if (!Number.isFinite(amt) || amt < 0) return showToast('error', 'Please enter a valid non-negative float amount.');
     setSaving(true);
     try {
-      await apiFetch('/cash-register/opening', {
-        method: 'POST',
-        body: JSON.stringify({ businessDate: selectedDate, amount: Number(openingAmount), notes: openingNotes || undefined }),
-      }, token());
-      showToast('success', 'Cash at hand balance recorded.');
+      await cashRegisterApi.setOpeningCash({
+        businessDate: selectedDate,
+        amount: amt,
+        notes: openingNotes.trim() || undefined,
+      });
+      showToast('success', 'Morning change float recorded.');
       setOpeningOpen(false);
       await load();
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to record the cash balance.');
+      showToast('error', error?.message ?? 'Failed to set morning float.');
     } finally {
       setSaving(false);
     }
   };
 
-  const saveEntry = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!entry.amount || Number(entry.amount) <= 0 || !entry.description.trim()) return showToast('error', 'Amount and description are required.');
+  const handleSaveEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = Number(entry.amount);
+    if (!Number.isFinite(amt) || amt <= 0) return showToast('error', 'Amount must be greater than zero.');
+    if (!entry.description.trim()) return showToast('error', 'Please enter a description.');
     setSaving(true);
     try {
-      await apiFetch('/cash-register/entries', {
-        method: 'POST',
-        body: JSON.stringify({
-          businessDate: selectedDate,
-          type: entry.type,
-          amount: Number(entry.amount),
-          description: entry.description.trim(),
-          ...(entry.type === 'OUTFLOW' ? { category: entry.category } : {}),
-          recipient: entry.recipient || undefined,
-          receiptRef: entry.receiptRef || undefined,
-        }),
-      }, token());
-      showToast('success', entry.type === 'OUTFLOW' ? 'Money-out record saved.' : 'Money-in record saved.');
+      await cashRegisterApi.addEntry({
+        businessDate: selectedDate,
+        type: entry.type,
+        amount: amt,
+        description: entry.description.trim(),
+        category: entry.type === 'OUTFLOW' ? entry.category : undefined,
+        recipient: entry.recipient.trim() || undefined,
+        receiptRef: entry.receiptRef.trim() || undefined,
+      });
+      showToast('success', entry.type === 'OUTFLOW' ? 'Cash payout recorded.' : 'Cash inflow recorded.');
       setEntryOpen(false);
-      setEntry({ type: 'OUTFLOW', amount: '', description: '', category: 'FUEL', recipient: '', receiptRef: '' });
+      setEntry({
+        type: 'OUTFLOW',
+        amount: '',
+        description: '',
+        category: 'FUEL',
+        recipient: '',
+        receiptRef: '',
+      });
       await load();
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to record cash movement.');
+      showToast('error', error?.message ?? 'Failed to record entry.');
     } finally {
       setSaving(false);
     }
   };
 
-  const saveMomoDeposit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!momoDepositAmount || Number(momoDepositAmount) <= 0 || !momoDepositDescription.trim()) return showToast('error', 'Amount and description are required.');
+  const handleSaveMomoDeposit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = Number(momoDepositAmount);
+    if (!Number.isFinite(amt) || amt <= 0) return showToast('error', 'Amount must be greater than zero.');
+    if (!momoDepositDescription.trim()) return showToast('error', 'Please enter wallet/deposit description.');
     setSaving(true);
     try {
       await cashRegisterApi.recordBankDeposit({
         businessDate: selectedDate,
-        amount: Number(momoDepositAmount),
+        amount: amt,
         description: momoDepositDescription.trim(),
-        reference: momoDepositReference || undefined,
+        reference: momoDepositReference.trim() || undefined,
       });
-      showToast('success', 'MoMo deposit recorded.');
+      showToast('success', 'Cash deduction for MoMo deposit recorded.');
       setMomoDepositOpen(false);
       setMomoDepositAmount('');
       setMomoDepositDescription('');
       setMomoDepositReference('');
       await load();
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to record MoMo deposit.');
+      showToast('error', error?.message ?? 'Failed to record MoMo deposit.');
     } finally {
       setSaving(false);
     }
   };
 
-  const openHandover = async () => {
-    try {
-      const res = await cashRegisterApi.getShiftHandover(selectedDate);
-      if (res.data?.items) {
-        const itemsHtml = res.data.items.map((i: { checked: boolean; label: string; value: string }) =>
-          `${i.checked ? '✅' : '⬜'} ${i.label}: ${i.value}`
-        ).join('\n');
-        const msg = `SHIFT HANDOVER - ${new Date(selectedDate).toLocaleDateString()}
-Expected cash: GHS ${res.data.expectedCash.toFixed(2)}
-${res.data.incompleteCount > 0 ? `\n⚠️ ${res.data.incompleteCount} items pending:\n${itemsHtml}` : '\n✅ All checks complete'}
+  const handleOpenHandoverModal = () => {
+    setHandoverAmount(cashAtHand > 0 ? String(cashAtHand) : (expectedTotal > 0 ? String(expectedTotal) : '0'));
+    setHandoverRecipient('');
+    setHandoverNotes('');
+    setHandoverOpen(true);
+  };
 
-${itemsHtml}`;
-        alert(msg);
-      } else {
-        showToast('error', 'No data for handover');
-      }
+  const handleSaveHandover = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = Number(handoverAmount);
+    if (!Number.isFinite(amt) || amt <= 0) return showToast('error', 'Handover amount must be greater than zero.');
+    if (!handoverRecipient.trim()) return showToast('error', 'Recipient name (Management/Accounts) is required.');
+    setSaving(true);
+    try {
+      await cashRegisterApi.recordHandover({
+        businessDate: selectedDate,
+        amount: amt,
+        recipient: handoverRecipient.trim(),
+        notes: handoverNotes.trim() || undefined,
+      });
+      showToast('success', 'Close-of-Day cash handover to Management recorded!');
+      setHandoverOpen(false);
+      await load();
+
+      // Trigger automatic handover slip print
+      const staffName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || user?.email || 'Reception Staff';
+      printCashHandoverSlip({
+        businessDate: selectedDate,
+        handedOverBy: staffName,
+        receivedBy: handoverRecipient.trim(),
+        openingFloat: openingCash,
+        cashSales,
+        manualInflows,
+        totalCollected: totalCollections,
+        expenses: manualOutflows - momoDeposits,
+        momoDeposits,
+        totalDeductions,
+        expectedAmount: expectedTotal,
+        handoverAmount: amt,
+        remainingCash: Math.max(0, cashAtHand - amt),
+        notes: handoverNotes.trim() || undefined,
+        byCategory: summary?.byCategory,
+      });
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to load handover');
+      showToast('error', error?.message ?? 'Failed to record handover.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const deleteEntry = async (entry: CashEntry) => {
-    const label = entry.type === 'OPENING' ? 'opening balance' : 'cash movement';
-    if (!window.confirm(`Delete this ${label}? This cannot be undone.`)) return;
+  const handleDeleteEntry = async (entryRecord: CashEntryRecord) => {
+    if (!window.confirm(`Delete cash movement "${entryRecord.description}"? This cannot be undone.`)) return;
     try {
-      await apiFetch(`/cash-register/entries/${entry.id}`, { method: 'DELETE' }, token());
-      showToast('success', `Cash ${label} deleted.`);
+      await cashRegisterApi.deleteEntry(entryRecord.id);
+      showToast('success', 'Entry deleted.');
       await load();
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Unable to delete the cash movement.');
+      showToast('error', error?.message ?? 'Failed to delete entry.');
     }
   };
 
-  const printReceipt = (entry: CashEntry) => {
-    const receiptHtml = `
-      <div style="font-family: monospace; max-width: 300px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2>NS LUXURY VILLA</h2>
-          <div>Cash Receipt</div>
-        </div>
-        <hr>
-        <div><strong>Date:</strong> ${new Date(entry.recordedAt).toLocaleString()}</div>
-        <div><strong>Type:</strong> ${entry.type}</div>
-        <div><strong>Description:</strong> ${entry.description}</div>
-        <div><strong>Category:</strong> ${entry.category || '—'}</div>
-        <div><strong>Recipient:</strong> ${entry.recipient || '—'}</div>
-        <div><strong>Receipt Ref:</strong> ${entry.receiptRef || '—'}</div>
-        <hr>
-        <div style="font-size: 1.2em;"><strong>Amount: ${entry.type === 'OUTFLOW' ? '−' : '+'}GHS ${Number(entry.amount).toFixed(2)}</strong></div>
-        <hr>
-        <div style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #666;">
-          NS Luxury Villa - Ho, Ghana<br>
-          Thank you!
-        </div>
-      </div>
-    `;
-    const printWindow = window.open('', '_blank');
-    printWindow!.document.write(receiptHtml);
-    printWindow!.document.close();
-    printWindow!.print();
+  const handlePrintHandoverSlip = (entryItem?: CashEntryRecord) => {
+    const staffName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || user?.email || 'Reception Staff';
+    const recipient = entryItem?.recipient || 'Villa Management';
+    const handoverAmt = entryItem ? Number(entryItem.amount) : (handovers > 0 ? handovers : cashAtHand);
+
+    const slipData: CashHandoverSlipData = {
+      businessDate: selectedDate,
+      voucherRef: entryItem?.receiptRef || undefined,
+      handoverTime: entryItem?.recordedAt || undefined,
+      handedOverBy: staffName,
+      receivedBy: recipient,
+      openingFloat: openingCash,
+      cashSales,
+      manualInflows,
+      totalCollected: totalCollections,
+      expenses: manualOutflows - momoDeposits,
+      momoDeposits,
+      totalDeductions,
+      expectedAmount: expectedTotal,
+      handoverAmount: handoverAmt,
+      remainingCash: isHandedOver ? 0 : Math.max(0, cashAtHand - handoverAmt),
+      notes: entryItem?.description || summary?.openingNotes || undefined,
+      byCategory: summary?.byCategory,
+    };
+
+    printCashHandoverSlip(slipData);
   };
 
-  const clearAllEntries = async () => {
-    if (!window.confirm(`Reset the cash register for ${selectedDate}? This removes the opening balance and every manual cash entry for that date. Completed cash sales stay recorded for accounting. This cannot be undone.`)) return;
+  const handlePrintIndividualSlip = (row: CashEntryRecord) => {
+    const slipHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>Receipt - ${row.receiptRef || row.id.slice(-6)}</title>
+        <style>
+          body { font-family: monospace; padding: 20px; max-width: 300px; margin: 0 auto; color: #111; }
+          .header { text-align: center; border-bottom: 1px dashed #666; padding-bottom: 10px; margin-bottom: 12px; }
+          .title { font-size: 14px; font-weight: bold; }
+          .sub { font-size: 10px; color: #555; }
+          .row { display: flex; justify-content: space-between; margin: 4px 0; font-size: 11px; }
+          .bold { font-weight: bold; }
+          .total { border-top: 1px solid #111; border-bottom: 1px solid #111; padding: 6px 0; margin-top: 10px; font-size: 13px; font-weight: bold; }
+          .footer { text-align: center; font-size: 9px; color: #777; margin-top: 16px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="title">NS LUXURY VILLA</div>
+          <div class="sub">Front Desk Cash Voucher</div>
+          <div class="sub">Ho, Volta Region, Ghana</div>
+        </div>
+        <div class="row"><span>Date:</span><span>${new Date(row.recordedAt).toLocaleString('en-GH')}</span></div>
+        <div class="row"><span>Type:</span><span class="bold">${row.type}</span></div>
+        <div class="row"><span>Category:</span><span>${row.category || 'GENERAL'}</span></div>
+        <div class="row"><span>Ref:</span><span>${row.receiptRef || '—'}</span></div>
+        <div class="row"><span>Recipient:</span><span>${row.recipient || '—'}</span></div>
+        <div style="margin-top:8px;font-size:11px;"><strong>Description:</strong> ${row.description}</div>
+        <div class="total row">
+          <span>Amount:</span>
+          <span>${row.type === 'OUTFLOW' ? '−' : '+'}GH₵ ${Number(row.amount).toFixed(2)}</span>
+        </div>
+        <div style="margin-top:20px;border-top:1px dashed #999;padding-top:4px;font-size:10px;">
+          <div>Recorded By: ${row.recordedBy || 'Staff'}</div>
+          <div style="margin-top:20px;border-bottom:1px solid #333;"></div>
+          <div style="text-align:center;font-size:9px;">Authorized Signature</div>
+        </div>
+        <div class="footer">NS Luxury Villa • Thank you</div>
+      </body>
+      </html>
+    `;
+    const win = window.open('', '_blank', 'width=360,height=560');
+    if (win) {
+      win.document.write(slipHtml);
+      win.document.close();
+      win.print();
+    }
+  };
+
+  const handleResetRegister = async () => {
+    if (!window.confirm(`Reset manual cash drawer entries for ${selectedDate}? POS cash sales are not removed. This will allow recording a fresh day register.`)) return;
     try {
       await cashRegisterApi.clearAllEntries(selectedDate);
-      showToast('success', 'Cash register reset. You can enter a new opening balance and new cash movements.');
+      showToast('success', 'Day cash drawer entries reset.');
       await load();
     } catch (error: any) {
-      showToast('error', error?.message ?? 'Failed to clear entries');
+      showToast('error', error?.message ?? 'Failed to reset.');
     }
   };
 
-  const columns = [
-    { key: 'recordedAt', header: 'Time', render: (row: CashEntry) => new Date(row.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
-    { key: 'type', header: 'Type', render: (row: CashEntry) => {
-        const Icon = typeIcons[row.type];
-        return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${typeColors[row.type]}`}>
-            <Icon size={10} />
-            {typeLabels[row.type]}
-          </span>
-        );
-      } },
-    { key: 'description', header: 'Description', render: (row: CashEntry) => row.description },
-    { key: 'category', header: 'Category', render: (row: CashEntry) => row.category || '—' },
-    { key: 'recipient', header: 'Recipient', render: (row: CashEntry) => row.recipient || '—' },
-    { key: 'receiptRef', header: 'Receipt', render: (row: CashEntry) => row.receiptRef || '—' },
-    { key: 'amount', header: 'Amount', align: 'right' as const, render: (row: CashEntry) => (
-      <span className={row.type === 'OUTFLOW' ? 'text-rose-600 font-semibold' : row.type === 'INFLOW' ? 'text-emerald-600 font-semibold' : 'font-semibold'}>
-        {row.type === 'OUTFLOW' ? '−' : row.type === 'INFLOW' ? '+' : ''}{formatCurrency(row.amount)}
-      </span>
-    ) },
-    { key: 'actions', header: '', align: 'right' as const, render: (row: CashEntry) => canManage ? (
-      <div className="flex items-center gap-1 justify-end">
-        <Button variant="ghost" size="sm" onClick={() => printReceipt(row)} title="Print receipt"><Printer size={14} /></Button>
-        <Button variant="ghost" size="sm" onClick={() => void deleteEntry(row)} title={row.type === 'OPENING' ? 'Delete opening balance' : 'Delete movement'} className="text-rose-600 hover:bg-rose-50"><Trash2 size={14} /></Button>
-      </div>
-    ) : null },
-  ];
-
-  const paymentColumns = [
-    { key: 'processedAt', header: 'Time', render: (row: CashPayment) => new Date(row.processedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
-    { key: 'type', header: 'Movement', render: (row: CashPayment) => (
-      <span className="text-emerald-700 font-semibold">Cash sale</span>
-    ) },
-    { key: 'description', header: 'Source', render: (row: CashPayment) => row.description || row.source || 'Cash payment' },
-    { key: 'reference', header: 'Reference', render: (row: CashPayment) => row.reference || row.sourceId || '—' },
-    { key: 'amount', header: 'Amount', align: 'right' as const, render: (row: CashPayment) => (
-      <span className="text-emerald-700 font-semibold">+{formatCurrency(Number(row.amount))}</span>
-    ) },
-  ];
-
-  const openBalance = () => { setOpeningAmount(summary ? String(summary.openingCash) : ''); setOpeningNotes(''); setOpeningOpen(true); };
-  const openEntry = (type: 'INFLOW' | 'OUTFLOW') => { setEntry({ type, amount: '', description: '', category: 'FUEL', recipient: '', receiptRef: '' }); setEntryOpen(true); };
-
-  if (!summary && loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#16a4d4] border-t-transparent" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Low cash alert banner */}
-      {summary && (summary.netCash ?? summary.expectedCash ?? 0) < 200 && (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-center gap-3">
-          <ShieldAlert className="text-amber-600" size={24} />
-          <div className="flex-1">
-            <div className="font-bold text-amber-800">Low Cash Alert</div>
-            <div className="text-sm text-amber-700">
-              Cash at hand (GHS {(summary.netCash ?? summary.expectedCash ?? 0).toFixed(2)}) is below GHS 200. Consider recording a MoMo deposit or requesting float top-up.
+    <ShellPage
+      eyebrow="FRONT DESK FINANCE • DAILY CASH SETTLEMENT"
+      title="Cash at Hand"
+      subtitle="Daily cash desk reconciliation. Reception does not keep cash overnight; all physical drawer cash is balanced and handed over to Management at close of day."
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          {canManage && (
+            <>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleOpenHandoverModal}
+                className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+              >
+                <UserCheck size={14} /> Hand Over to Management
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEntry({
+                    type: 'OUTFLOW',
+                    amount: '',
+                    description: '',
+                    category: 'FUEL',
+                    recipient: '',
+                    receiptRef: '',
+                  });
+                  setEntryOpen(true);
+                }}
+                className="gap-1.5 border-[#e5ebeb] text-[#0c1921] hover:border-[#c59a58]/40"
+              >
+                <TrendingDown size={14} className="text-rose-600" /> Record Cash Out
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEntry({
+                    type: 'INFLOW',
+                    amount: '',
+                    description: '',
+                    category: 'MISC',
+                    recipient: '',
+                    receiptRef: '',
+                  });
+                  setEntryOpen(true);
+                }}
+                className="gap-1.5 border-[#e5ebeb] text-[#0c1921] hover:border-[#c59a58]/40"
+              >
+                <TrendingUp size={14} className="text-emerald-600" /> Record Cash In
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setMomoDepositAmount('');
+                  setMomoDepositDescription('');
+                  setMomoDepositReference('');
+                  setMomoDepositOpen(true);
+                }}
+                className="gap-1.5 border-[#e5ebeb] text-[#0c1921] hover:border-[#c59a58]/40"
+              >
+                <Smartphone size={14} className="text-amber-600" /> MoMo Wallet Deposit
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setOpeningAmount(openingCash > 0 ? String(openingCash) : '');
+                  setOpeningNotes(summary?.openingNotes || '');
+                  setOpeningOpen(true);
+                }}
+                className="gap-1.5 text-[#5a6b75] hover:text-[#0c1921]"
+              >
+                <Coins size={14} /> Morning Float
+              </Button>
+            </>
+          )}
+        </div>
+      }
+    >
+      {/* ── Business Date Navigator ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5ebeb] bg-white p-3.5 shadow-sm">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => shiftDate(-1)}
+            aria-label="Previous Day"
+            className="h-9 w-9 p-0 border-[#e5ebeb]"
+          >
+            <ChevronLeft size={16} />
+          </Button>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="h-9 rounded-xl border border-[#cbd5e1] px-3 text-sm font-semibold text-[#0c1921] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => shiftDate(1)}
+            aria-label="Next Day"
+            className="h-9 w-9 p-0 border-[#e5ebeb]"
+          >
+            <ChevronRight size={16} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedDate(todayStr)}
+            className="h-9 text-xs font-bold text-[#b88738] hover:bg-[#c59a58]/10"
+          >
+            Today
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="hidden sm:inline-flex text-[11px] font-semibold text-[#71828a]">
+            {new Date(`${selectedDate}T12:00:00`).toLocaleDateString('en-GH', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => void load()}
+            loading={loading}
+            className="h-9 gap-1.5 text-xs font-bold text-[#173c4d] hover:bg-[#173c4d]/5"
+          >
+            <RefreshCw size={13} /> Refresh
+          </Button>
+          {canManage && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetRegister}
+              className="h-9 gap-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50"
+              title="Reset manual drawer entries for this day"
+            >
+              <Trash2 size={13} /> Reset Day
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Status Banner: Close-of-Day Handover Status ── */}
+      {isHandedOver ? (
+        <div className="relative overflow-hidden rounded-2xl border border-[#c59a58]/40 bg-gradient-to-r from-[#fcfaf5] via-[#faf6ed] to-[#f7f0e0] p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0c1921] text-[#c59a58] shadow-sm">
+                <CheckCircle2 size={22} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-[.18em] text-[#b88738]">
+                    AUDIT STATUS: SETTLED & HANDED OVER
+                  </span>
+                  <span className="rounded-md bg-[#0c1921] px-2 py-0.5 text-[10px] font-bold text-[#fcf9f2]">
+                    ZERO CARRY-OVER
+                  </span>
+                </div>
+                <h3 className="mt-0.5 text-lg font-bold text-[#0c1921] font-serif">
+                  Close-of-Day Cash Handover Completed ({formatCurrency(handovers)})
+                </h3>
+                <p className="mt-0.5 text-xs text-[#5a6b75]">
+                  Reception cash was balanced and officially handed over to Management. The till is balanced at{' '}
+                  <strong className="text-[#0c1921]">GH₵ 0.00</strong>. Tomorrow starts fresh with no carry-over.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-start sm:self-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePrintHandoverSlip(handoverEntries[0])}
+                className="gap-1.5 border-[#c59a58] bg-white text-[#0c1921] font-semibold hover:bg-[#fcfaf5]"
+              >
+                <Printer size={14} className="text-[#c59a58]" /> Print Handover Slip
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : cashAtHand > 0 ? (
+        <div className="relative overflow-hidden rounded-2xl border border-amber-300/80 bg-gradient-to-r from-[#fffbeb] via-[#fef3c7] to-[#fef9c3] p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-600 text-white shadow-sm">
+                <Lock size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-[.18em] text-amber-800">
+                    SHIFT PENDING HANDOVER
+                  </span>
+                  <span className="rounded-md bg-amber-800 px-2 py-0.5 text-[10px] font-bold text-amber-50">
+                    DUE AT CLOSE
+                  </span>
+                </div>
+                <h3 className="mt-0.5 text-lg font-bold text-amber-950 font-serif">
+                  Physical Cash in Drawer: {formatCurrency(cashAtHand)}
+                </h3>
+                <p className="mt-0.5 text-xs text-amber-800">
+                  Reception does not keep cash overnight. Please verify count and record handover to Management before ending shift.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-start sm:self-center">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleOpenHandoverModal}
+                className="gap-1.5 bg-[#0c1921] hover:bg-[#173c4d] text-[#fcf9f2] font-semibold"
+              >
+                <UserCheck size={14} className="text-[#c59a58]" /> Hand Over Cash Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="relative overflow-hidden rounded-2xl border border-[#e5ebeb] bg-[#fbfcfb] p-4.5 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#173c4d]/10 text-[#173c4d]">
+                <Clock size={16} />
+              </div>
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#71828a]">
+                  DRAWER STATUS • ZERO BALANCE
+                </span>
+                <p className="text-xs font-semibold text-[#0c1921]">
+                  Current drawer balance is GH₵ 0.00. Ready for daily cash receipts or morning change float.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Cash at Hand</h1>
-          <p className="text-slate-500 mt-1">Live handover balance — brought forward + cash sales + cash received − money paid out</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {canManage && (
-            <>
-              <Button variant="outline" size="sm" onClick={openBalance} className="gap-1.5">
-                <DollarSign size={14} /> Set opening balance
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => openEntry('INFLOW')} className="gap-1.5">
-                <ArrowUp size={14} /> Record cash in
-              </Button>
-              <Button variant="primary" size="sm" onClick={() => openEntry('OUTFLOW')} className="gap-1.5">
-                <ArrowDown size={14} /> Record money out
-              </Button>
-<Button variant="outline" size="sm" onClick={() => { setMomoDepositAmount(''); setMomoDepositDescription(''); setMomoDepositReference(''); setMomoDepositOpen(true); }} className="gap-1.5">
-                <Smartphone size={14} /> Record MoMo deposit
-              </Button>
-              <Button variant="secondary" size="sm" onClick={openHandover} className="gap-1.5">
-                <Users size={14} /> Shift handover
-              </Button>
-              <Button variant="ghost" size="sm" onClick={clearAllEntries} className="text-rose-600 hover:bg-rose-50 border-rose-200 gap-1.5">
-                <Trash2 size={14} /> Clear entries
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Date Navigation */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
-        <Button variant="outline" size="sm" onClick={() => shiftDate(-1)} aria-label="Previous day"><ChevronLeft size={14} /></Button>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium focus:border-[#16a4d4] focus:outline-none"
-        />
-        <Button variant="outline" size="sm" onClick={() => shiftDate(1)} aria-label="Next day"><ChevronRight size={14} /></Button>
-        <Button variant="ghost" size="sm" onClick={() => setSelectedDate(new Date().toISOString().slice(0, 10))}>Today</Button>
-        <Button variant="ghost" size="sm" onClick={() => void load()} loading={loading}><RefreshCw size={14} /> Refresh</Button>
-      </div>
-
-      {/* Summary Cards */}
+      {/* ── Executive Metric Tiles ── */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <SummaryCard
-          label="Brought forward"
-          amount={summary?.carriedForward ?? summary?.carriedIntoToday ?? 0}
-          icon={<DollarSign size={16} />}
-          note={summary?.carriedFromDate ? `Calculated from ${new Date(summary.carriedFromDate!).toLocaleDateString()}` : 'No counted balance recorded yet'}
-          color="blue"
+        <StatTile
+          label="1. Morning Float"
+          value={formatCurrency(openingCash)}
+          note={openingCash > 0 ? 'Counted change float today' : 'Started fresh (GH₵ 0.00)'}
+          icon={Coins}
         />
-        <SummaryCard
-          label="Cash sales (POS)"
-          amount={summary?.cashSales ?? 0}
-          icon={<ArrowUp size={16} />}
-          note="Completed cash payments, recorded automatically"
-          color="emerald"
+        <StatTile
+          label="2. Cash Inflows Today"
+          value={formatCurrency(totalCollections)}
+          note={`POS Sales (${formatCurrency(cashSales)}) + In (${formatCurrency(manualInflows)})`}
+          icon={TrendingUp}
+          accent={totalCollections > 0}
         />
-        <SummaryCard
-          label="Cash received"
-          amount={summary?.inflows ?? summary?.manualInflows ?? 0}
-          icon={<ArrowUp size={16} />}
-          note="Manual additions recorded today"
-          color="emerald"
+        <StatTile
+          label="3. Drawer Deductions"
+          value={formatCurrency(totalDeductions)}
+          note={`Expenses (${formatCurrency(manualOutflows - momoDeposits)}) + MoMo (${formatCurrency(momoDeposits)})`}
+          icon={TrendingDown}
         />
-        <SummaryCard
-          label="Cash out"
-          amount={summary?.outflows ?? summary?.manualOutflows ?? 0}
-          icon={<ArrowDown size={16} />}
-          note="Payouts recorded today"
-          color="rose"
+        <StatTile
+          label="4. Handed Over"
+          value={formatCurrency(handovers)}
+          note={isHandedOver ? '✓ Closed & signed to Management' : 'Pending end of day close'}
+          icon={UserCheck}
+          accent={isHandedOver}
         />
-        <SummaryCard
-          label="Available cash at hand"
-          amount={summary?.netCash ?? summary?.expectedCash ?? 0}
-          icon={<Calculator size={16} />}
-          note="Live balance for the next handover"
-          color="slate"
-        />
+        <div
+          className={`relative overflow-hidden rounded-2xl border p-5 transition-all duration-200 ${
+            cashAtHand > 0
+              ? 'border-[#c59a58] bg-gradient-to-br from-[#fcf9f2] to-white shadow-[0_8px_24px_rgba(197,154,88,0.12)]'
+              : 'border-[#e5ebeb] bg-[#fbfdfd]'
+          }`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <span className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#c59a58]">
+              5. Cash at Hand Now
+            </span>
+            <span
+              className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                cashAtHand > 0 ? 'bg-[#c59a58]/15 text-[#b88738]' : 'bg-[#173c4d]/5 text-[#71828a]'
+              }`}
+            >
+              <Wallet size={16} />
+            </span>
+          </div>
+          <div className="mt-3.5 text-[28px] font-black tracking-tight text-[#0c1921]">
+            {formatCurrency(cashAtHand)}
+          </div>
+          <div className="mt-1 text-[11px] font-semibold text-[#7a8a92]">
+            {cashAtHand === 0 && isHandedOver
+              ? '✓ Balanced to 0.00 after handover'
+              : cashAtHand > 0
+              ? 'Physical cash currently in reception till'
+              : 'Drawer empty (0.00 GHS)'}
+          </div>
+        </div>
       </div>
 
-      {/* Manual Entries Table */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Manual Entries</h2>
-          <span className="text-sm text-slate-500">{summary?.entries?.length ?? 0} entries</span>
-        </div>
-        <DataTable
-          columns={columns}
-          data={summary?.entries ?? []}
-          loading={loading}
-          keyFn={(row) => row.id}
-          emptyTitle="No cash record for this date"
-          emptySubtitle="Choose any prior date to record its cash balance, then record money paid out for expenses or other uses."
-        />
-      </section>
+      {/* ── Tabs Navigation ── */}
+      <div className="flex border-b border-[#e5ebeb] bg-white rounded-t-2xl px-5 pt-3">
+        <button
+          onClick={() => setActiveTab('ENTRIES')}
+          className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
+            activeTab === 'ENTRIES'
+              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
+              : 'text-[#71828a] hover:text-[#0c1921]'
+          }`}
+        >
+          <Banknote size={15} />
+          <span>Drawer Cash Ledger</span>
+          <span className="rounded-full bg-[#173c4d]/10 px-2 py-0.5 text-[10px]">
+            {displayEntries.length}
+          </span>
+        </button>
 
-      {/* POS Cash Sales Table */}
-      {summary && summary.cashPayments && summary.cashPayments.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">POS Cash Sales</h2>
-            <span className="text-sm text-slate-500">{summary.cashPayments.length} transactions</span>
+        <button
+          onClick={() => setActiveTab('PAYMENTS')}
+          className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
+            activeTab === 'PAYMENTS'
+              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
+              : 'text-[#71828a] hover:text-[#0c1921]'
+          }`}
+        >
+          <Receipt size={15} />
+          <span>Front Desk & POS Cash Sales</span>
+          <span className="rounded-full bg-[#173c4d]/10 px-2 py-0.5 text-[10px]">
+            {summary?.cashPayments?.length ?? 0}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('CATEGORIES')}
+          className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
+            activeTab === 'CATEGORIES'
+              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
+              : 'text-[#71828a] hover:text-[#0c1921]'
+          }`}
+        >
+          <FileText size={15} />
+          <span>Expenses by Category</span>
+        </button>
+      </div>
+
+      {/* ── Tab Content: Drawer Cash Ledger ── */}
+      {activeTab === 'ENTRIES' && (
+        <Section
+          title="Daily Drawer Activity Log"
+          subtitle="Manual payouts, inflows, Mobile Money drawer deposits, and close-of-day handovers recorded today."
+          action={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#71828a]">
+                Showing {displayEntries.length} recorded movement{displayEntries.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          }
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <th className="py-3 px-4">Time</th>
+                  <th className="py-3 px-4">Type</th>
+                  <th className="py-3 px-4">Description / Purpose</th>
+                  <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-4">Recipient</th>
+                  <th className="py-3 px-4">Reference</th>
+                  <th className="py-3 px-4 text-right">Amount</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {displayEntries.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-xs text-[#71828a]">
+                      No manual drawer cash movements recorded for {selectedDate}.
+                    </td>
+                  </tr>
+                ) : (
+                  displayEntries.map((row) => {
+                    const isHandover = row.category === 'HANDOVER';
+                    const isOutflow = row.type === 'OUTFLOW';
+                    const isMomo = row.category === 'MOMO_DEPOSIT';
+
+                    return (
+                      <tr
+                        key={row.id}
+                        className={`hover:bg-[#fbfcfb] transition-colors ${
+                          isHandover ? 'bg-[#fcfaf5]' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-4 font-mono text-[11px] text-[#5a6b75]">
+                          {new Date(row.recordedAt).toLocaleTimeString('en-GH', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </td>
+                        <td className="py-3 px-4">
+                          {isHandover ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-[#0c1921] px-2 py-0.5 text-[10px] font-bold text-[#fcf9f2]">
+                              <UserCheck size={11} className="text-[#c59a58]" /> Handover
+                            </span>
+                          ) : isMomo ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                              <Smartphone size={11} /> MoMo
+                            </span>
+                          ) : isOutflow ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800">
+                              <ArrowDown size={11} /> Money Out
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                              <ArrowUp size={11} /> Money In
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 font-medium text-[#0c1921] max-w-xs truncate">
+                          {row.description}
+                        </td>
+                        <td className="py-3 px-4 text-[#5a6b75] font-semibold text-[11px]">
+                          {row.category || '—'}
+                        </td>
+                        <td className="py-3 px-4 text-[#0c1921] font-medium">
+                          {row.recipient || '—'}
+                        </td>
+                        <td className="py-3 px-4 font-mono text-[11px] text-[#71828a]">
+                          {row.receiptRef || '—'}
+                        </td>
+                        <td className="py-3 px-4 text-right font-mono text-sm font-bold">
+                          <span
+                            className={
+                              isHandover
+                                ? 'text-[#b88738]'
+                                : isOutflow
+                                ? 'text-rose-600'
+                                : 'text-emerald-600'
+                            }
+                          >
+                            {isOutflow ? '−' : '+'}
+                            {formatCurrency(Number(row.amount))}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {isHandover ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handlePrintHandoverSlip(row)}
+                                className="h-7 w-7 p-0 text-[#b88738] hover:bg-[#c59a58]/10"
+                                title="Print Handover Slip"
+                              >
+                                <Printer size={13} />
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handlePrintIndividualSlip(row)}
+                                className="h-7 w-7 p-0 text-[#5a6b75] hover:bg-slate-100"
+                                title="Print Slip"
+                              >
+                                <Printer size={13} />
+                              </Button>
+                            )}
+                            {canManage && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteEntry(row)}
+                                className="h-7 w-7 p-0 text-rose-500 hover:bg-rose-50"
+                                title="Delete entry"
+                              >
+                                <Trash2 size={13} />
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
-          <DataTable
-            columns={paymentColumns}
-            data={summary.cashPayments}
-            loading={loading}
-            keyFn={(row) => row.id}
-            emptyTitle="No cash sales for this date"
-            emptySubtitle="Completed cash payments appear here automatically and are included in the live handover balance."
-          />
-        </section>
+        </Section>
       )}
 
-      {/* Modals */}
-      <Modal open={openingOpen} onClose={() => setOpeningOpen(false)} title="Set Opening Balance">
-        <form onSubmit={saveOpening} className="space-y-4">
-          <FormField label="Business date" required>
-            <input type="date" value={selectedDate} readOnly className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm" />
+      {/* ── Tab Content: POS & Room Cash Payments ── */}
+      {activeTab === 'PAYMENTS' && (
+        <Section
+          title="Direct Cash Revenue Today"
+          subtitle="Guest payments made in cash at Front Desk or dining POS. These automatically flow into drawer cash and must be handed over."
+          action={
+            <div className="text-xs font-bold text-[#0c1921]">
+              Total Cash Revenue: {formatCurrency(cashSales)}
+            </div>
+          }
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <th className="py-3 px-4">Time</th>
+                  <th className="py-3 px-4">Source</th>
+                  <th className="py-3 px-4">Description / Folio</th>
+                  <th className="py-3 px-4">Reference</th>
+                  <th className="py-3 px-4 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {(summary?.cashPayments ?? []).length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-xs text-[#71828a]">
+                      No cash sales or reservation payments recorded on this date.
+                    </td>
+                  </tr>
+                ) : (
+                  (summary?.cashPayments ?? []).map((p) => (
+                    <tr key={p.id} className="hover:bg-[#fbfcfb] transition-colors">
+                      <td className="py-3 px-4 font-mono text-[11px] text-[#5a6b75]">
+                        {new Date(p.processedAt).toLocaleTimeString('en-GH', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[#173c4d]">
+                          {p.source || 'FRONT_DESK'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-medium text-[#0c1921]">
+                        {p.description || `Payment #${p.sourceId?.slice(0, 8)}`}
+                      </td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-[#71828a]">
+                        {p.reference || p.sourceId || '—'}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-sm font-bold text-emerald-600">
+                        +{formatCurrency(Number(p.amount))}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+      )}
+
+      {/* ── Tab Content: Expenses by Category ── */}
+      {activeTab === 'CATEGORIES' && (
+        <Section
+          title="Operational Expense Breakdown"
+          subtitle="Summary of physical cash paid out from the reception till for villa operations."
+        >
+          <div className="p-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(summary?.byCategory ?? {}).map(([cat, amt]) => (
+                <div
+                  key={cat}
+                  className="rounded-xl border border-[#e5ebeb] bg-white p-4 shadow-sm flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                      {cat}
+                    </span>
+                    <div className="mt-1 text-base font-bold text-[#0c1921]">
+                      {formatCurrency(Number(amt))}
+                    </div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 font-bold text-xs">
+                    {manualOutflows > 0 ? `${Math.round((Number(amt) / manualOutflows) * 100)}%` : '0%'}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {Object.keys(summary?.byCategory ?? {}).length === 0 && (
+              <div className="py-10 text-center text-xs text-[#71828a]">
+                No expenses or payouts recorded today.
+              </div>
+            )}
+          </div>
+        </Section>
+      )}
+
+      {/* ── Modal: Close-of-Day Handover ── */}
+      <Modal
+        open={handoverOpen}
+        onClose={() => setHandoverOpen(false)}
+        title="Close-of-Day Cash Handover to Management"
+      >
+        <form onSubmit={handleSaveHandover} className="space-y-4">
+          <div className="rounded-xl border border-[#c59a58]/30 bg-[#fcf9f2] p-4 text-xs text-[#5a6b75] space-y-2">
+            <div className="flex items-center gap-2 font-bold text-[#0c1921]">
+              <Lock size={15} className="text-[#c59a58]" />
+              Official Handover Policy
+            </div>
+            <p>
+              Reception does <strong>not</strong> keep cash overnight. All physical drawer cash is counted and handed over to Management or Accounts. This resets the cash-at-hand to <strong>GH₵ 0.00</strong>.
+            </p>
+            <div className="flex justify-between border-t border-[#e7d8bc] pt-2 font-semibold text-[#0c1921]">
+              <span>Current Cash in Till:</span>
+              <span className="font-mono text-sm font-bold text-[#b88738]">
+                {formatCurrency(cashAtHand)}
+              </span>
+            </div>
+          </div>
+
+          <FormField label="Business Date" required>
+            <input
+              type="date"
+              value={selectedDate}
+              readOnly
+              className="w-full rounded-xl border border-[#cbd5e1] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0c1921]"
+            />
           </FormField>
-          <FormField label="Opening amount (GHS)" required>
-            <TextInput type="number" min="0" step="0.01" value={openingAmount} onChange={(e) => setOpeningAmount(e.target.value)} placeholder="0.00" required />
+
+          <FormField label="Handover Amount (GHS)" required>
+            <TextInput
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={handoverAmount}
+              onChange={(e) => setHandoverAmount(e.target.value)}
+              placeholder="0.00"
+              required
+            />
           </FormField>
-          <FormField label="Notes (optional)">
-            <TextInput value={openingNotes} onChange={(e) => setOpeningNotes(e.target.value)} placeholder="e.g. cash brought forward from last week" />
+
+          <FormField label="Recipient Name (Management / Accounts Officer)" required>
+            <TextInput
+              value={handoverRecipient}
+              onChange={(e) => setHandoverRecipient(e.target.value)}
+              placeholder="e.g. Madam Comfort (General Manager) or Accounts Office"
+              required
+            />
           </FormField>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setOpeningOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" loading={saving}>Save opening balance</Button>
+
+          <FormField label="Shift Notes / Audit Verification (optional)">
+            <TextInput
+              value={handoverNotes}
+              onChange={(e) => setHandoverNotes(e.target.value)}
+              placeholder="e.g. Count verified with POS settlement & receipts"
+            />
+          </FormField>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+            <Button type="button" variant="ghost" onClick={() => setHandoverOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              className="bg-[#0c1921] hover:bg-[#173c4d] text-[#fcf9f2] font-semibold gap-1.5"
+            >
+              <Send size={14} className="text-[#c59a58]" /> Confirm & Hand Over Cash
+            </Button>
           </div>
         </form>
       </Modal>
 
-      <Modal open={entryOpen} onClose={() => setEntryOpen(false)} title={entry.type === 'OUTFLOW' ? 'Record money out' : 'Record money in'}>
-        <form onSubmit={saveEntry} className="space-y-4">
-          <FormField label="Movement" required>
+      {/* ── Modal: Record Cash In / Out Movement ── */}
+      <Modal
+        open={entryOpen}
+        onClose={() => setEntryOpen(false)}
+        title={entry.type === 'OUTFLOW' ? 'Record Cash Payout (Money Out)' : 'Record Cash Addition (Money In)'}
+      >
+        <form onSubmit={handleSaveEntry} className="space-y-4">
+          <FormField label="Movement Type" required>
             <SelectInput
               value={entry.type}
               onChange={(e) => setEntry({ ...entry, type: e.target.value as 'INFLOW' | 'OUTFLOW' })}
             >
-              <option value="INFLOW">Money in (cash received / added)</option>
-              <option value="OUTFLOW">Money out (expense / payout)</option>
+              <option value="OUTFLOW">Money Out (Expense / Operational Payout)</option>
+              <option value="INFLOW">Money In (Cash Added / Replenishment)</option>
             </SelectInput>
           </FormField>
+
           <FormField label="Amount (GHS)" required>
-            <TextInput type="number" min="0.01" step="0.01" value={entry.amount} onChange={(e) => setEntry({ ...entry, amount: e.target.value })} placeholder="0.00" required />
+            <TextInput
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={entry.amount}
+              onChange={(e) => setEntry({ ...entry, amount: e.target.value })}
+              placeholder="0.00"
+              required
+            />
           </FormField>
-          <FormField label="Reason / description" required>
-            <TextInput value={entry.description} onChange={(e) => setEntry({ ...entry, description: e.target.value })} placeholder="e.g. Generator fuel, Staff lunch, Guest refund" required />
+
+          <FormField label="Reason / Description" required>
+            <TextInput
+              value={entry.description}
+              onChange={(e) => setEntry({ ...entry, description: e.target.value })}
+              placeholder="e.g. Generator diesel top-up, Plumbing repair parts"
+              required
+            />
           </FormField>
+
           {entry.type === 'OUTFLOW' && (
-            <FormField label="Category" required>
+            <FormField label="Expense Category" required>
               <SelectInput
                 value={entry.category}
                 onChange={(e) => setEntry({ ...entry, category: e.target.value })}
               >
                 {CASH_CATEGORIES.map((cat) => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
                 ))}
               </SelectInput>
             </FormField>
           )}
-          <FormField label="Recipient (who received the money)">
-            <TextInput value={entry.recipient} onChange={(e) => setEntry({ ...entry, recipient: e.target.value })} placeholder="e.g. Kofi Mensah, Shell Station" />
-          </FormField>
-          <FormField label="Receipt reference (optional)">
-            <TextInput value={entry.receiptRef} onChange={(e) => setEntry({ ...entry, receiptRef: e.target.value })} placeholder="Receipt # or invoice reference" />
-          </FormField>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setEntryOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" loading={saving}>Save {entry.type === 'OUTFLOW' ? 'money out' : 'money in'}</Button>
-          </div>
-        </form>
-      </Modal>
 
-      <Modal open={momoDepositOpen} onClose={() => setMomoDepositOpen(false)} title="Record MoMo Deposit (from Drawer Cash)">
-        <form onSubmit={saveMomoDeposit} className="space-y-4">
-          <p className="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
-            <strong>Cash Deduction:</strong> This records physical cash taken from the reception drawer and transferred/deposited into a Mobile Money wallet. It reduces the available cash at hand.
-          </p>
-          <FormField label="Business date" required>
-            <input type="date" value={selectedDate} readOnly className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm" />
+          <FormField label="Recipient Name (Who received the cash)">
+            <TextInput
+              value={entry.recipient}
+              onChange={(e) => setEntry({ ...entry, recipient: e.target.value })}
+              placeholder="e.g. Shell Filling Station, Kofi Carpenter"
+            />
           </FormField>
-          <FormField label="Amount to Deposit (GHS)" required>
-            <TextInput type="number" min="0.01" step="0.01" value={momoDepositAmount} onChange={(e) => setMomoDepositAmount(e.target.value)} placeholder="0.00" required />
+
+          <FormField label="Receipt / Invoice Reference (optional)">
+            <TextInput
+              value={entry.receiptRef}
+              onChange={(e) => setEntry({ ...entry, receiptRef: e.target.value })}
+              placeholder="e.g. INV-2026-089"
+            />
           </FormField>
-          <FormField label="Description / Wallet details" required>
-            <TextInput value={momoDepositDescription} onChange={(e) => setMomoDepositDescription(e.target.value)} placeholder="e.g. Cash deposited to MTN MoMo 0244XXXXXX" required />
-          </FormField>
-          <FormField label="Transaction Reference / ID (optional)">
-            <TextInput value={momoDepositReference} onChange={(e) => setMomoDepositReference(e.target.value)} placeholder="MoMo transaction ID / SMS reference" />
-          </FormField>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setMomoDepositOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-amber-600 hover:bg-amber-700 text-white">
-              <Smartphone size={14} /> Deduct cash & record MoMo deposit
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+            <Button type="button" variant="ghost" onClick={() => setEntryOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" loading={saving}>
+              Save {entry.type === 'OUTFLOW' ? 'Money Out' : 'Money In'}
             </Button>
           </div>
         </form>
       </Modal>
-    </div>
-  );
-};
 
-// Summary Card Component
-const SummaryCard: React.FC<{
-  label: string;
-  amount: number;
-  icon: React.ReactNode;
-  note: string;
-  color: 'blue' | 'emerald' | 'rose' | 'slate';
-}> = ({ label, amount, icon, note, color }) => {
-  const colors = {
-    blue: { border: 'border-blue-500', iconBg: 'bg-blue-100', iconColor: 'text-blue-700', amountColor: 'text-blue-700' },
-    emerald: { border: 'border-emerald-500', iconBg: 'bg-emerald-100', iconColor: 'text-emerald-700', amountColor: 'text-emerald-700' },
-    rose: { border: 'border-rose-500', iconBg: 'bg-rose-100', iconColor: 'text-rose-700', amountColor: 'text-rose-700' },
-    slate: { border: 'border-slate-500', iconBg: 'bg-slate-100', iconColor: 'text-slate-700', amountColor: 'text-slate-900' },
-  };
-  const c = colors[color];
+      {/* ── Modal: MoMo Wallet Deposit from Drawer Cash ── */}
+      <Modal
+        open={momoDepositOpen}
+        onClose={() => setMomoDepositOpen(false)}
+        title="Record Mobile Money Deposit (from Drawer Cash)"
+      >
+        <form onSubmit={handleSaveMomoDeposit} className="space-y-4">
+          <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900">
+            <strong>Drawer Cash Deduction:</strong> Physical cash taken from the drawer to deposit into the villa MoMo merchant wallet will reduce the available cash at hand.
+          </div>
 
-  return (
-    <div className={`rounded-xl border-l-4 ${c.border} bg-white p-4.5 shadow-sm border-slate-200 space-y-2`}>
-      <div className="flex items-center justify-between text-slate-500">
-        <span className="text-[10px] font-extrabold uppercase tracking-wider">{label}</span>
-        <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${c.iconBg} ${c.iconColor}`}>{icon}</span>
-      </div>
-      <div className={`text-xl font-extrabold leading-tight ${c.amountColor}`}>{formatCurrency(amount)}</div>
-      <div className="text-[10px] text-slate-500 font-semibold">{note}</div>
-    </div>
+          <FormField label="Amount to Transfer to MoMo (GHS)" required>
+            <TextInput
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={momoDepositAmount}
+              onChange={(e) => setMomoDepositAmount(e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </FormField>
+
+          <FormField label="Wallet / Agent Description" required>
+            <TextInput
+              value={momoDepositDescription}
+              onChange={(e) => setMomoDepositDescription(e.target.value)}
+              placeholder="e.g. Deposited cash to MTN Merchant 0535572774"
+              required
+            />
+          </FormField>
+
+          <FormField label="MoMo Transaction ID / Reference (optional)">
+            <TextInput
+              value={momoDepositReference}
+              onChange={(e) => setMomoDepositReference(e.target.value)}
+              placeholder="e.g. MoMo Trans ID 29381029102"
+            />
+          </FormField>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+            <Button type="button" variant="ghost" onClick={() => setMomoDepositOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              className="bg-amber-600 hover:bg-amber-700 text-white font-semibold gap-1.5"
+            >
+              <Smartphone size={14} /> Record MoMo Deduction
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ── Modal: Set Morning Float ── */}
+      <Modal
+        open={openingOpen}
+        onClose={() => setOpeningOpen(false)}
+        title="Morning Change Float"
+      >
+        <form onSubmit={handleSaveOpening} className="space-y-4">
+          <div className="rounded-xl border border-[#e5ebeb] bg-[#fbfdfd] p-3.5 text-xs text-[#5a6b75]">
+            Each business day starts fresh with <strong>GH₵ 0.00</strong> because cash is handed over to Management daily. If Management gave a change float for this morning, enter it below.
+          </div>
+
+          <FormField label="Morning Change Float (GHS)" required>
+            <TextInput
+              type="number"
+              min="0"
+              step="0.01"
+              value={openingAmount}
+              onChange={(e) => setOpeningAmount(e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </FormField>
+
+          <FormField label="Notes (optional)">
+            <TextInput
+              value={openingNotes}
+              onChange={(e) => setOpeningNotes(e.target.value)}
+              placeholder="e.g. Morning petty cash float issued by Manager"
+            />
+          </FormField>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+            <Button type="button" variant="ghost" onClick={() => setOpeningOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" loading={saving}>
+              Save Morning Float
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </ShellPage>
   );
 };
 

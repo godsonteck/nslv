@@ -174,7 +174,7 @@ const PropertyDashboard: React.FC = () => {
             <button
               onClick={() => void load()}
               disabled={refreshing}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-[#0c1921]/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0c1921]/20 transition-all backdrop-blur-xs disabled:opacity-50"
             >
               <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
               <span>Refresh</span>
@@ -209,14 +209,14 @@ const PropertyDashboard: React.FC = () => {
       )}
 
       {/* ── Authoritative Room Availability Ledger ── */}
-      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1e2535] pb-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#174b59]">
               <BedDouble size={16} />
               <span>Authoritative Room Availability &bull; Today's Snapshot</span>
             </div>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-[#6e7a8a]">
               Rooms reserved for future dates remain strictly <strong>Available today</strong> until their arrival date arrives.
             </p>
           </div>
@@ -286,11 +286,11 @@ const PropertyDashboard: React.FC = () => {
 
         {/* Visual Room Distribution Ribbon */}
         <div className="space-y-1.5 pt-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#6e7a8a]">
             <span>Overall Room Distribution ({m.totalRooms} Total Rooms)</span>
             <span className="text-[#174b59] font-black">{m.occupancyRate}% Occupancy</span>
           </div>
-          <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden flex">
+          <div className="h-2.5 w-full bg-[#1e2535] rounded-full overflow-hidden flex">
             <div
               className="bg-emerald-500 transition-all duration-500"
               style={{ width: `${m.totalRooms ? (m.availableRooms / m.totalRooms) * 100 : 0}%` }}
@@ -320,10 +320,10 @@ const PropertyDashboard: React.FC = () => {
         {/* Collections */}
         <div
           onClick={() => navigate('/payments')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Collected Today</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e7a8a]">Collected Today</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 group-hover:scale-105 transition-transform">
               <CreditCard size={18} />
             </div>
@@ -340,10 +340,10 @@ const PropertyDashboard: React.FC = () => {
         {/* Open Folios */}
         <div
           onClick={() => navigate('/guest-bills')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Open Folio Balance</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e7a8a]">Open Folio Balance</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700 group-hover:scale-105 transition-transform">
               <Users size={18} />
             </div>
@@ -362,10 +362,10 @@ const PropertyDashboard: React.FC = () => {
         {/* Arrivals Today */}
         <div
           onClick={() => navigate('/frontdesk')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-sky-500/50 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] p-5 shadow-xs hover:border-sky-500/50 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's Arrivals</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e7a8a]">Today's Arrivals</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-700 group-hover:scale-105 transition-transform">
               <LogIn size={18} />
             </div>
@@ -382,16 +382,16 @@ const PropertyDashboard: React.FC = () => {
         {/* Departures Today */}
         <div
           onClick={() => navigate('/frontdesk')}
-          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-white p-5 shadow-xs hover:border-slate-400 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] p-5 shadow-xs hover:border-slate-400 hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's Departures</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 group-hover:scale-105 transition-transform">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e7a8a]">Today's Departures</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e2535] text-[#a0a9b8] group-hover:scale-105 transition-transform">
               <LogOut size={18} />
             </div>
           </div>
           <div className="mt-3 text-2xl font-black text-[#0f172a]">{m.checkOutsToday}</div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-slate-600">
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[#6e7a8a]">
             <span>Completed checkouts today</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
@@ -403,14 +403,14 @@ const PropertyDashboard: React.FC = () => {
       {/* ── Active In-House Stays & Department Pulse ── */}
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
         {/* In-House Guests Concierge Ledger */}
-        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[#1e2535] px-6 py-4 bg-[#0f141d]/60">
             <div>
               <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
                 <Users size={16} className="text-[#174b59]" />
                 In-House Guests &bull; Live Active Stays
               </h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">Checked-in guests currently occupying villa rooms</p>
+              <p className="text-[11px] text-[#6e7a8a] mt-0.5">Checked-in guests currently occupying villa rooms</p>
             </div>
             {canFrontDesk && (
               <button
@@ -423,11 +423,11 @@ const PropertyDashboard: React.FC = () => {
           </div>
 
           {stays.length === 0 ? (
-            <div className="p-12 text-center text-xs text-slate-400">
+            <div className="p-12 text-center text-xs text-[#4a5568]">
               No guests currently occupying villa rooms.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-[#1e2535]">
               {stays.slice(0, 6).map((s) => {
                 const guestFullName =
                   [s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest';
@@ -436,7 +436,7 @@ const PropertyDashboard: React.FC = () => {
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-slate-50/80 transition-colors"
+                    className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-[#0f141d]/80 transition-colors"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-xs font-black text-white shadow-xs">
@@ -449,7 +449,7 @@ const PropertyDashboard: React.FC = () => {
                             Room {s.room?.number || '—'}
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500 flex items-center gap-2">
+                        <div className="mt-0.5 text-[11px] text-[#6e7a8a] flex items-center gap-2">
                           <span>Departure: {s.checkOutDate ? new Date(s.checkOutDate).toLocaleDateString() : '—'}</span>
                           <span>&bull;</span>
                           <span>Checked in: {s.actualCheckIn ? new Date(s.actualCheckIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
@@ -461,7 +461,7 @@ const PropertyDashboard: React.FC = () => {
                       {statusBadge(s.status || 'CHECKED_IN')}
                       <button
                         onClick={() => navigate('/guest-bills')}
-                        className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                        className="rounded-lg border border-[#1e2535] p-1.5 text-[#6e7a8a] hover:bg-[#1e2535] hover:text-[#e8e6e0] transition-colors"
                         title="View Folio / Bill"
                       >
                         <Receipt size={14} />
@@ -475,15 +475,15 @@ const PropertyDashboard: React.FC = () => {
         </div>
 
         {/* Department Revenue Pulse */}
-        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden flex flex-col justify-between">
+        <div className="rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] shadow-xs overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+            <div className="flex items-center justify-between border-b border-[#1e2535] px-6 py-4 bg-[#0f141d]/60">
               <div>
                 <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
                   <TrendingUp size={16} className="text-[#c59a58]" />
                   Department Pulse
                 </h2>
-                <p className="text-[11px] text-slate-500 mt-0.5">Live revenue across property outlets</p>
+                <p className="text-[11px] text-[#6e7a8a] mt-0.5">Live revenue across property outlets</p>
               </div>
               <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                 {formatCurrency(totalDeptRevenue)}
@@ -494,7 +494,7 @@ const PropertyDashboard: React.FC = () => {
               {/* Restaurant */}
               <div
                 onClick={() => navigate('/restaurant/pos')}
-                className="group cursor-pointer rounded-xl border border-slate-200/80 p-4 hover:border-[#174b59]/40 hover:bg-slate-50/60 transition-all"
+                className="group cursor-pointer rounded-xl border border-[#1e2535]/80 p-4 hover:border-[#174b59]/40 hover:bg-[#0f141d]/60 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -503,7 +503,7 @@ const PropertyDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Restaurant Station</div>
-                      <div className="text-[10px] text-slate-500">Fine dining, breakfasts & orders</div>
+                      <div className="text-[10px] text-[#6e7a8a]">Fine dining, breakfasts & orders</div>
                     </div>
                   </div>
                   <strong className="text-sm font-extrabold text-[#0f172a]">
@@ -515,7 +515,7 @@ const PropertyDashboard: React.FC = () => {
               {/* Bar */}
               <div
                 onClick={() => navigate('/bar/pos')}
-                className="group cursor-pointer rounded-xl border border-slate-200/80 p-4 hover:border-[#174b59]/40 hover:bg-slate-50/60 transition-all"
+                className="group cursor-pointer rounded-xl border border-[#1e2535]/80 p-4 hover:border-[#174b59]/40 hover:bg-[#0f141d]/60 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -524,7 +524,7 @@ const PropertyDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Bar &amp; Lounge</div>
-                      <div className="text-[10px] text-slate-500">Cocktails, wines & beverages</div>
+                      <div className="text-[10px] text-[#6e7a8a]">Cocktails, wines & beverages</div>
                     </div>
                   </div>
                   <strong className="text-sm font-extrabold text-[#0f172a]">
@@ -536,7 +536,7 @@ const PropertyDashboard: React.FC = () => {
               {/* Pool */}
               <div
                 onClick={() => navigate('/pool/services')}
-                className="group cursor-pointer rounded-xl border border-slate-200/80 p-4 hover:border-[#174b59]/40 hover:bg-slate-50/60 transition-all"
+                className="group cursor-pointer rounded-xl border border-[#1e2535]/80 p-4 hover:border-[#174b59]/40 hover:bg-[#0f141d]/60 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -545,7 +545,7 @@ const PropertyDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-[#0f172a] group-hover:text-[#174b59]">Swimming Pool</div>
-                      <div className="text-[10px] text-slate-500">Pool passes, towels & leisure</div>
+                      <div className="text-[10px] text-[#6e7a8a]">Pool passes, towels & leisure</div>
                     </div>
                   </div>
                   <strong className="text-sm font-extrabold text-[#0f172a]">
@@ -556,8 +556,8 @@ const PropertyDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="border-t border-slate-100 bg-slate-50/70 p-4 flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">Daily outlets performance</span>
+          <div className="border-t border-[#1e2535] bg-[#0f141d]/70 p-4 flex items-center justify-between text-xs">
+            <span className="text-[#6e7a8a] font-medium">Daily outlets performance</span>
             <button
               onClick={() => navigate('/reports')}
               className="text-[#174b59] font-bold hover:underline flex items-center gap-1"
@@ -632,7 +632,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
             {greeting}
           </h1>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-[#6e7a8a]">
             Real-time orders, receipts, and revenue reconciliation for this outlet.
           </p>
         </div>
@@ -643,7 +643,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="border-slate-300 hover:bg-white bg-white/70 shadow-xs text-xs font-semibold"
+            className="border-[#2a3040] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold"
           >
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </Button>
@@ -688,12 +688,12 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Orders Today</div>
+            <div className="rounded-xl bg-[#0c1921]/5 border border-white/10 p-4">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#4a5568]">Orders Today</div>
               <div className="mt-1 text-2xl font-black text-white">{todayOrders.length}</div>
             </div>
-            <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Items Sold</div>
+            <div className="rounded-xl bg-[#0c1921]/5 border border-white/10 p-4">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#4a5568]">Items Sold</div>
               <div className="mt-1 text-2xl font-black text-white">
                 {todayOrders.reduce((s, o) => s + (o.orderItems?.length || 1), 0)}
               </div>
@@ -703,11 +703,11 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       </section>
 
       {/* Recent Transactions Table */}
-      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-white shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+      <div className="rounded-2xl border border-[#cbd5e1]/80 bg-[#0c1921] shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[#1e2535] px-6 py-4 bg-[#0f141d]/60">
           <div>
             <h2 className="text-sm font-extrabold text-[#0f172a]">Recent {deptLabel} Transactions</h2>
-            <p className="text-[11px] text-slate-500 mt-0.5">Orders and receipts posted today</p>
+            <p className="text-[11px] text-[#6e7a8a] mt-0.5">Orders and receipts posted today</p>
           </div>
           <button
             onClick={() => navigate(toPOS)}
@@ -718,11 +718,11 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
         </div>
 
         {orders.length === 0 ? (
-          <div className="p-10 text-center text-xs text-slate-400">No orders posted yet today.</div>
+          <div className="p-10 text-center text-xs text-[#4a5568]">No orders posted yet today.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="border-b border-slate-200 bg-slate-50 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+              <thead className="border-b border-[#1e2535] bg-[#0f141d] text-[10px] uppercase font-bold tracking-wider text-[#6e7a8a]">
                 <tr>
                   <th className="px-6 py-3.5">Order No.</th>
                   <th className="px-6 py-3.5">Payment</th>
@@ -731,13 +731,13 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
                   <th className="px-6 py-3.5 text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#1e2535]">
                 {orders.slice(0, 10).map((o) => (
-                  <tr key={o.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={o.id} className="hover:bg-[#0f141d]/80 transition-colors">
                     <td className="px-6 py-3.5 font-mono text-xs font-bold text-[#0f172a]">
                       {o.orderNo || o.transactionNo}
                     </td>
-                    <td className="px-6 py-3.5 text-xs text-slate-500">{o.paymentMethod}</td>
+                    <td className="px-6 py-3.5 text-xs text-[#6e7a8a]">{o.paymentMethod}</td>
                     <td className="px-6 py-3.5">{statusBadge(o.paymentStatus || o.status || 'COMPLETED')}</td>
                     <td className="px-6 py-3.5 text-right font-extrabold text-xs text-[#0f172a]">
                       {formatCurrency(Number(o.totalAmount || 0))}
@@ -778,3 +778,4 @@ export const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+

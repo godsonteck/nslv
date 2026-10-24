@@ -324,16 +324,16 @@ export default function ReportsPage() {
       }
     >
       {/* Mode Tabs */}
-      <div className="bg-[#1C1F28] border border-[#2B303E] rounded-xl p-3 shadow-md">
+      <div className="bg-[#131722] border border-[#1e2535] rounded-xl p-3 shadow-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Mode Selector */}
-          <div className="flex items-center gap-1.5 bg-[#14161D] p-1 rounded-lg border border-[#2B303E]">
+          <div className="flex items-center gap-1.5 bg-[#0f141d] p-1 rounded-lg border border-[#1e2535]">
             <button
               onClick={() => setMode('daily')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'daily'
-                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
-                  : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
+                  ? 'bg-[#c59a58] text-[#10131A] shadow'
+                  : 'text-[#6e7a8a] hover:text-[#e8e6e0] hover:bg-[#1a1f2e]'
               }`}
             >
               <Calendar size={14} /> Daily Report
@@ -342,8 +342,8 @@ export default function ReportsPage() {
               onClick={() => setMode('weekly')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'weekly'
-                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
-                  : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
+                  ? 'bg-[#c59a58] text-[#10131A] shadow'
+                  : 'text-[#6e7a8a] hover:text-[#e8e6e0] hover:bg-[#1a1f2e]'
               }`}
             >
               <CalendarDays size={14} /> Weekly Report
@@ -352,8 +352,8 @@ export default function ReportsPage() {
               onClick={() => setMode('monthly')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'monthly'
-                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
-                  : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
+                  ? 'bg-[#c59a58] text-[#10131A] shadow'
+                  : 'text-[#6e7a8a] hover:text-[#e8e6e0] hover:bg-[#1a1f2e]'
               }`}
             >
               <Layers size={14} /> Monthly Report
@@ -362,8 +362,8 @@ export default function ReportsPage() {
               onClick={() => setMode('custom')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all ${
                 mode === 'custom'
-                  ? 'bg-[#f1a83f] text-[#10131A] shadow'
-                  : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
+                  ? 'bg-[#c59a58] text-[#10131A] shadow'
+                  : 'text-[#6e7a8a] hover:text-[#e8e6e0] hover:bg-[#1a1f2e]'
               }`}
             >
               <BarChart3 size={14} /> Custom Range
@@ -387,7 +387,7 @@ export default function ReportsPage() {
                 </Button>
                 <input
                   type="date"
-                  className="ns-input h-9 px-3 text-xs bg-[#14161D] border-[#2B303E] text-[#F4F4F2] rounded font-mono"
+                  className="ns-input h-9 px-3 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded font-mono"
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
                 />
@@ -423,7 +423,7 @@ export default function ReportsPage() {
                 </Button>
                 <input
                   type="date"
-                  className="ns-input h-9 px-3 text-xs bg-[#14161D] border-[#2B303E] text-[#F4F4F2] rounded font-mono"
+                  className="ns-input h-9 px-3 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded font-mono"
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
                 />
@@ -459,7 +459,7 @@ export default function ReportsPage() {
                 </Button>
                 <input
                   type="month"
-                  className="ns-input h-9 px-3 text-xs bg-[#14161D] border-[#2B303E] text-[#F4F4F2] rounded font-mono"
+                  className="ns-input h-9 px-3 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded font-mono"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
                 />
@@ -482,20 +482,20 @@ export default function ReportsPage() {
 
             {mode === 'custom' && (
               <div className="flex items-center gap-2">
-                <label className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1">
+                <label className="text-[10px] uppercase font-bold text-[#6e7a8a] flex items-center gap-1">
                   From
                   <input
                     type="date"
-                    className="ns-input h-9 px-2 text-xs bg-[#14161D] border-[#2B303E] text-[#F4F4F2] rounded font-mono"
+                    className="ns-input h-9 px-2 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded font-mono"
                     value={customStart}
                     onChange={(e) => setCustomStart(e.target.value)}
                   />
                 </label>
-                <label className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1">
+                <label className="text-[10px] uppercase font-bold text-[#6e7a8a] flex items-center gap-1">
                   To
                   <input
                     type="date"
-                    className="ns-input h-9 px-2 text-xs bg-[#14161D] border-[#2B303E] text-[#F4F4F2] rounded font-mono"
+                    className="ns-input h-9 px-2 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded font-mono"
                     value={customEnd}
                     onChange={(e) => setCustomEnd(e.target.value)}
                   />
@@ -544,11 +544,11 @@ export default function ReportsPage() {
             <div className="p-5 space-y-4">
               {/* Progress bar visualizer */}
               <div>
-                <div className="flex justify-between text-xs font-semibold text-[#A0A5AD] mb-1.5">
+                <div className="flex justify-between text-xs font-semibold text-[#6e7a8a] mb-1.5">
                   <span>Current Occupancy: {occ.occupiedRooms || 0} of {occ.totalRooms || 0} active rooms</span>
-                  <span className="text-[#f1a83f] font-bold">{occ.occupancyRate || 0}% Occupied</span>
+                  <span className="text-[#c59a58] font-bold">{occ.occupancyRate || 0}% Occupied</span>
                 </div>
-                <div className="h-3 w-full bg-[#14161D] rounded-full overflow-hidden flex border border-[#2B303E]">
+                <div className="h-3 w-full bg-[#0f141d] rounded-full overflow-hidden flex border border-[#1e2535]">
                   <div
                     className="bg-gradient-to-r from-[#f1a83f] to-[#f7d488] transition-all duration-500"
                     style={{ width: `${Math.min(100, occ.occupancyRate || 0)}%` }}
@@ -558,23 +558,23 @@ export default function ReportsPage() {
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6 pt-2">
                 <MetricBox label="Total Rooms" value={occ.totalRooms || 0} sub="Active inventory" />
-                <MetricBox label="Occupied" value={occ.occupiedRooms || 0} sub="In-house stays" highlight="text-[#f1a83f]" />
+                <MetricBox label="Occupied" value={occ.occupiedRooms || 0} sub="In-house stays" highlight="text-[#c59a58]" />
                 <MetricBox label="Reserved" value={occ.reservedRooms || 0} sub="Upcoming bookings" highlight="text-blue-400" />
                 <MetricBox label="Available" value={occ.availableRooms || 0} sub="Ready for walk-in" highlight="text-emerald-400" />
                 <MetricBox label="Dirty / Cleaning" value={occ.dirtyRooms || 0} sub="Housekeeping" highlight="text-amber-400" />
                 <MetricBox label="Maintenance" value={occ.maintenanceRooms || 0} sub="Out of service" highlight="text-red-400" />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-[#2B303E]">
-                <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Total Room Nights</div>
-                  <div className="text-lg font-extrabold text-[#F4F4F2] mt-0.5">{occ.totalRoomNights || 0} nights</div>
-                  <div className="text-[10px] text-[#6E737B]">Occupied nights in selected window</div>
+              <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-[#1e2535]">
+                <div className="p-3 bg-[#0f141d] rounded border border-[#1e2535]">
+                  <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">Total Room Nights</div>
+                  <div className="text-lg font-extrabold text-[#e8e6e0] mt-0.5">{occ.totalRoomNights || 0} nights</div>
+                  <div className="text-[10px] text-[#4a5568]">Occupied nights in selected window</div>
                 </div>
-                <div className="p-3 bg-[#14161D] rounded border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Average Daily Rate (ADR)</div>
-                  <div className="text-lg font-extrabold text-[#f1a83f] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
-                  <div className="text-[10px] text-[#6E737B]">Average revenue per occupied room</div>
+                <div className="p-3 bg-[#0f141d] rounded border border-[#1e2535]">
+                  <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">Average Daily Rate (ADR)</div>
+                  <div className="text-lg font-extrabold text-[#c59a58] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
+                  <div className="text-[10px] text-[#4a5568]">Average revenue per occupied room</div>
                 </div>
               </div>
             </div>
@@ -586,52 +586,52 @@ export default function ReportsPage() {
             subtitle="Detailed headcount of adults, children, and guest traffic"
           >
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#f1a83f]">
+              <div className="rounded-xl border border-[#1e2535] bg-[#0f141d] p-4">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#c59a58]">
                   <Users size={16} /> Total People in Period
                 </div>
-                <div className="mt-2 text-2xl font-extrabold text-[#F4F4F2]">
+                <div className="mt-2 text-2xl font-extrabold text-[#e8e6e0]">
                   {ppl.totalPeopleAccommodated || 0} Guests
                 </div>
-                <div className="mt-2 flex items-center justify-between text-xs text-[#A0A5AD] pt-2 border-t border-[#2B303E]">
-                  <span>Adults: <strong className="text-[#F4F4F2]">{ppl.totalAdults || 0}</strong></span>
-                  <span>Children: <strong className="text-[#F4F4F2]">{ppl.totalChildren || 0}</strong></span>
+                <div className="mt-2 flex items-center justify-between text-xs text-[#6e7a8a] pt-2 border-t border-[#1e2535]">
+                  <span>Adults: <strong className="text-[#e8e6e0]">{ppl.totalAdults || 0}</strong></span>
+                  <span>Children: <strong className="text-[#e8e6e0]">{ppl.totalChildren || 0}</strong></span>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4">
+              <div className="rounded-xl border border-[#1e2535] bg-[#0f141d] p-4">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase text-emerald-400">
                   <BedDouble size={16} /> Current In-House Headcount
                 </div>
-                <div className="mt-2 text-2xl font-extrabold text-[#F4F4F2]">
+                <div className="mt-2 text-2xl font-extrabold text-[#e8e6e0]">
                   {ppl.inHousePeopleTotal || 0} In-House
                 </div>
-                <div className="mt-2 flex items-center justify-between text-xs text-[#A0A5AD] pt-2 border-t border-[#2B303E]">
-                  <span>In-House Adults: <strong className="text-[#F4F4F2]">{ppl.inHouseAdults || 0}</strong></span>
-                  <span>Children: <strong className="text-[#F4F4F2]">{ppl.inHouseChildren || 0}</strong></span>
+                <div className="mt-2 flex items-center justify-between text-xs text-[#6e7a8a] pt-2 border-t border-[#1e2535]">
+                  <span>In-House Adults: <strong className="text-[#e8e6e0]">{ppl.inHouseAdults || 0}</strong></span>
+                  <span>Children: <strong className="text-[#e8e6e0]">{ppl.inHouseChildren || 0}</strong></span>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4">
+              <div className="rounded-xl border border-[#1e2535] bg-[#0f141d] p-4">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase text-blue-400">
                   <Building2 size={16} /> Lifetime Guest Directory
                 </div>
-                <div className="mt-2 text-2xl font-extrabold text-[#F4F4F2]">
+                <div className="mt-2 text-2xl font-extrabold text-[#e8e6e0]">
                   {ppl.totalRegisteredGuests || 0} Registered
                 </div>
-                <div className="mt-2 text-xs text-[#A0A5AD] pt-2 border-t border-[#2B303E]">
+                <div className="mt-2 text-xs text-[#6e7a8a] pt-2 border-t border-[#1e2535]">
                   All unique guest accounts
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4">
+              <div className="rounded-xl border border-[#1e2535] bg-[#0f141d] p-4">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase text-amber-400">
                   <CalendarDays size={16} /> New Guests Registered
                 </div>
-                <div className="mt-2 text-2xl font-extrabold text-[#F4F4F2]">
+                <div className="mt-2 text-2xl font-extrabold text-[#e8e6e0]">
                   {ppl.newGuestsInPeriod || 0} New Profiles
                 </div>
-                <div className="mt-2 text-xs text-[#A0A5AD] pt-2 border-t border-[#2B303E]">
+                <div className="mt-2 text-xs text-[#6e7a8a] pt-2 border-t border-[#1e2535]">
                   Created during report window
                 </div>
               </div>
@@ -644,27 +644,27 @@ export default function ReportsPage() {
             subtitle="Reservations, check-ins, check-outs, and late departures"
           >
             <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-xs font-bold uppercase text-[#A0A5AD]">Reservations</div>
-                <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{ops.reservationsCount || 0}</div>
-                <div className="mt-2 text-xs text-[#6E737B]">
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-xs font-bold uppercase text-[#6e7a8a]">Reservations</div>
+                <div className="text-2xl font-extrabold text-[#e8e6e0] mt-1">{ops.reservationsCount || 0}</div>
+                <div className="mt-2 text-xs text-[#4a5568]">
                   Confirmed: <span className="text-emerald-400 font-semibold">{ops.confirmedCount || 0}</span> · Cancelled: <span className="text-red-400 font-semibold">{ops.cancelledCount || 0}</span>
                 </div>
               </div>
 
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-xs font-bold uppercase text-[#A0A5AD]">Arrivals (Check-Ins)</div>
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-xs font-bold uppercase text-[#6e7a8a]">Arrivals (Check-Ins)</div>
                 <div className="text-2xl font-extrabold text-emerald-400 mt-1">{ops.checkInsCount || 0}</div>
-                <div className="mt-2 text-xs text-[#6E737B]">Front desk arrival entries</div>
+                <div className="mt-2 text-xs text-[#4a5568]">Front desk arrival entries</div>
               </div>
 
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-xs font-bold uppercase text-[#A0A5AD]">Departures (Check-Outs)</div>
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-xs font-bold uppercase text-[#6e7a8a]">Departures (Check-Outs)</div>
                 <div className="text-2xl font-extrabold text-blue-400 mt-1">{ops.checkOutsCount || 0}</div>
-                <div className="mt-2 text-xs text-[#6E737B]">Settled & closed checkouts</div>
+                <div className="mt-2 text-xs text-[#4a5568]">Settled & closed checkouts</div>
               </div>
 
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-bold uppercase text-amber-400">Late Check-Outs</div>
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-900/30 text-amber-300 font-mono font-bold">
@@ -674,7 +674,7 @@ export default function ReportsPage() {
                 <div className="text-2xl font-extrabold text-amber-300 mt-1">
                   {formatCurrency(ops.netLateCheckoutFees ?? ops.totalLateCheckoutFees ?? 0)}
                 </div>
-                <div className="mt-2 text-xs text-[#A0A5AD]">
+                <div className="mt-2 text-xs text-[#6e7a8a]">
                   Hourly departure charges
                 </div>
                 {(ops.totalLateCheckoutRefunds ?? 0) > 0 && (
@@ -693,37 +693,37 @@ export default function ReportsPage() {
           >
             <div className="p-5 space-y-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Total Swimmers</div>
-                  <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{poolData.swimmersCount || 0}</div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Registered in period (all entries)</div>
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                  <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">Total Swimmers</div>
+                  <div className="text-2xl font-extrabold text-[#c59a58] mt-1">{poolData.swimmersCount || 0}</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Registered in period (all entries)</div>
                 </div>
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Groups / Visits</div>
-                  <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{poolData.groupsCount || 0}</div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Individual attendance entries</div>
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                  <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">Groups / Visits</div>
+                  <div className="text-2xl font-extrabold text-[#e8e6e0] mt-1">{poolData.groupsCount || 0}</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Individual attendance entries</div>
                 </div>
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Paid Transactions</div>
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                  <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">Paid Transactions</div>
                   <div className="text-2xl font-extrabold text-emerald-400 mt-1">{poolData.transactionsCount || 0}</div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Charged pool pass receipts</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Charged pool pass receipts</div>
                 </div>
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                  <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Pool Revenue</div>
-                  <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{formatCurrency(poolData.revenue || 0)}</div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">All paid pool transactions</div>
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                  <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">Pool Revenue</div>
+                  <div className="text-2xl font-extrabold text-[#c59a58] mt-1">{formatCurrency(poolData.revenue || 0)}</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">All paid pool transactions</div>
                 </div>
               </div>
 
               {Object.keys(poolData.byMethod || {}).length > 0 && (
                 <div>
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Pool Revenue by Payment Method</div>
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a] mb-2">Pool Revenue by Payment Method</div>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     {Object.entries(poolData.byMethod || {}).map(([method, info]: any) => (
-                      <div key={method} className="p-3 bg-[#14161D] rounded-lg border border-[#2B303E] flex items-center justify-between">
+                      <div key={method} className="p-3 bg-[#0f141d] rounded-lg border border-[#1e2535] flex items-center justify-between">
                         <div>
-                          <div className="text-xs font-bold text-[#F4F4F2]">{method}</div>
-                          <div className="text-[10px] text-[#6E737B]">{info.count} transaction{info.count !== 1 ? 's' : ''}</div>
+                          <div className="text-xs font-bold text-[#e8e6e0]">{method}</div>
+                          <div className="text-[10px] text-[#4a5568]">{info.count} transaction{info.count !== 1 ? 's' : ''}</div>
                         </div>
                         <div className="text-sm font-extrabold text-amber-300">{formatCurrency(info.amount)}</div>
                       </div>
@@ -740,25 +740,25 @@ export default function ReportsPage() {
             subtitle="Restaurant and bar order counts with revenue totals"
           >
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Orders</div>
-                <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{fnbData.restaurantOrderCount || 0}</div>
-                <div className="text-[10px] text-[#6E737B] mt-1">Completed / Served orders</div>
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-[10px] uppercase font-bold text-[#6e7a8a] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Orders</div>
+                <div className="text-2xl font-extrabold text-[#e8e6e0] mt-1">{fnbData.restaurantOrderCount || 0}</div>
+                <div className="text-[10px] text-[#4a5568] mt-1">Completed / Served orders</div>
               </div>
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Revenue</div>
-                <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{formatCurrency(fnbData.restaurantRevenue || 0)}</div>
-                <div className="text-[10px] text-[#6E737B] mt-1">Kitchen & dining sales</div>
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-[10px] uppercase font-bold text-[#6e7a8a] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Revenue</div>
+                <div className="text-2xl font-extrabold text-[#c59a58] mt-1">{formatCurrency(fnbData.restaurantRevenue || 0)}</div>
+                <div className="text-[10px] text-[#4a5568] mt-1">Kitchen & dining sales</div>
               </div>
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><Wine size={12} /> Bar Orders</div>
-                <div className="text-2xl font-extrabold text-[#F4F4F2] mt-1">{fnbData.barOrderCount || 0}</div>
-                <div className="text-[10px] text-[#6E737B] mt-1">Completed / Served orders</div>
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-[10px] uppercase font-bold text-[#6e7a8a] flex items-center gap-1"><Wine size={12} /> Bar Orders</div>
+                <div className="text-2xl font-extrabold text-[#e8e6e0] mt-1">{fnbData.barOrderCount || 0}</div>
+                <div className="text-[10px] text-[#4a5568] mt-1">Completed / Served orders</div>
               </div>
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                <div className="text-[10px] uppercase font-bold text-[#A0A5AD] flex items-center gap-1"><Wine size={12} /> Bar Revenue</div>
-                <div className="text-2xl font-extrabold text-[#f1a83f] mt-1">{formatCurrency(fnbData.barRevenue || 0)}</div>
-                <div className="text-[10px] text-[#6E737B] mt-1">Beverage POS sales</div>
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                <div className="text-[10px] uppercase font-bold text-[#6e7a8a] flex items-center gap-1"><Wine size={12} /> Bar Revenue</div>
+                <div className="text-2xl font-extrabold text-[#c59a58] mt-1">{formatCurrency(fnbData.barRevenue || 0)}</div>
+                <div className="text-[10px] text-[#4a5568] mt-1">Beverage POS sales</div>
               </div>
             </div>
           </Section>
@@ -772,15 +772,15 @@ export default function ReportsPage() {
               {[
                 { label: 'Cash', key: 'CASH', color: 'text-emerald-400' },
                 { label: 'Card / POS', key: 'CARD', color: 'text-blue-400' },
-                { label: 'Mobile Money', key: 'MOBILE_MONEY', color: 'text-[#f1a83f]' },
+                { label: 'Mobile Money', key: 'MOBILE_MONEY', color: 'text-[#c59a58]' },
                 { label: 'Bank Transfer', key: 'BANK_TRANSFER', color: 'text-purple-400' },
               ].map(({ label, key, color }) => (
-                <div key={key} className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div key={key} className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
                   <div className={`text-[10px] uppercase font-bold ${color}`}>{label}</div>
                   <div className={`text-2xl font-extrabold mt-1 ${color}`}>
                     {formatCurrency(payMethodBreakdown[key] || 0)}
                   </div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">
+                  <div className="text-[10px] text-[#4a5568] mt-1">
                     {payMethodBreakdown[key] > 0
                       ? `${((payMethodBreakdown[key] / Math.max(1, Object.values(payMethodBreakdown as Record<string,number>).reduce((a, b) => a + b, 0))) * 100).toFixed(1)}% of total`
                       : 'No payments in period'}
@@ -828,12 +828,12 @@ export default function ReportsPage() {
               />
             </div>
             <div className="px-5 pb-5">
-              <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535] flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div>
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD]">Total Accrued Revenue</div>
-                  <div className="text-xs text-[#6E737B]">Sum of all accommodation, restaurant, bar, pool, and late checkout fees</div>
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a]">Total Accrued Revenue</div>
+                  <div className="text-xs text-[#4a5568]">Sum of all accommodation, restaurant, bar, pool, and late checkout fees</div>
                 </div>
-                <div className="text-2xl font-extrabold text-[#f1a83f]">
+                <div className="text-2xl font-extrabold text-[#c59a58]">
                   {formatCurrency(Number(fin.accruedRevenue || data?.accruedRevenue || 0))}
                 </div>
               </div>
@@ -847,56 +847,56 @@ export default function ReportsPage() {
           >
             <div className="p-5 space-y-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
                   <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-emerald-400">
                     <ArrowUpRight size={16} /> Cash Inflow
                   </div>
-                  <div className="text-xl font-extrabold text-[#F4F4F2] mt-1">
+                  <div className="text-xl font-extrabold text-[#e8e6e0] mt-1">
                     {formatCurrency(Number(cash.payments || 0))}
                   </div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Cash collections at desk & POS</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Cash collections at desk & POS</div>
                 </div>
 
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
                   <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-red-400">
                     <ArrowDownRight size={16} /> Cash Outflow (Expenses)
                   </div>
                   <div className="text-xl font-extrabold text-red-400 mt-1">
                     {formatCurrency(Number(cash.approvedExpenses || 0))}
                   </div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Approved cash expenses paid</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Approved cash expenses paid</div>
                 </div>
 
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
-                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-[#f1a83f]">
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-[#c59a58]">
                     <Wallet size={16} /> Net Cash Movement
                   </div>
-                  <div className="text-xl font-extrabold text-[#f1a83f] mt-1">
+                  <div className="text-xl font-extrabold text-[#c59a58] mt-1">
                     {formatCurrency(Number(cash.netMovement || 0))}
                   </div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Cash in hand balance change</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Cash in hand balance change</div>
                 </div>
 
-                <div className="p-4 bg-[#14161D] rounded-xl border border-[#2B303E]">
+                <div className="p-4 bg-[#0f141d] rounded-xl border border-[#1e2535]">
                   <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-amber-400">
                     <Receipt size={16} /> Open Receivables
                   </div>
                   <div className="text-xl font-extrabold text-amber-300 mt-1">
                     {formatCurrency(Number(fin.receivables || data?.receivables || 0))}
                   </div>
-                  <div className="text-[10px] text-[#6E737B] mt-1">Unpaid folio balances</div>
+                  <div className="text-[10px] text-[#4a5568] mt-1">Unpaid folio balances</div>
                 </div>
               </div>
 
               {/* Expenses Breakdown if any */}
               {Object.keys(expensesByCat).length > 0 && (
                 <div className="pt-2">
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Approved Expenses by Category</div>
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a] mb-2">Approved Expenses by Category</div>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     {Object.entries(expensesByCat).map(([cat, amount]) => (
-                      <div key={cat} className="p-2.5 bg-[#14161D] rounded border border-[#2B303E] flex justify-between items-center text-xs">
-                        <span className="text-[#A0A5AD] font-medium">{cat}</span>
-                        <span className="font-bold text-[#F4F4F2]">{formatCurrency(Number(amount))}</span>
+                      <div key={cat} className="p-2.5 bg-[#0f141d] rounded border border-[#1e2535] flex justify-between items-center text-xs">
+                        <span className="text-[#6e7a8a] font-medium">{cat}</span>
+                        <span className="font-bold text-[#e8e6e0]">{formatCurrency(Number(amount))}</span>
                       </div>
                     ))}
                   </div>
@@ -906,10 +906,10 @@ export default function ReportsPage() {
               {/* Expense Detail List */}
               {expenseDetail.length > 0 && (
                 <div className="pt-2">
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Approved Expenses — Full Ledger</div>
-                  <div className="overflow-x-auto rounded-xl border border-[#2B303E]">
-                    <table className="w-full text-xs text-left text-[#A0A5AD]">
-                      <thead className="text-[10px] uppercase font-bold text-[#6E737B] bg-[#14161D] border-b border-[#2B303E]">
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a] mb-2">Approved Expenses — Full Ledger</div>
+                  <div className="overflow-x-auto rounded-xl border border-[#1e2535]">
+                    <table className="w-full text-xs text-left text-[#6e7a8a]">
+                      <thead className="text-[10px] uppercase font-bold text-[#4a5568] bg-[#0f141d] border-b border-[#1e2535]">
                         <tr>
                           <th className="p-2.5">Date</th>
                           <th className="p-2.5">Category</th>
@@ -918,18 +918,18 @@ export default function ReportsPage() {
                           <th className="p-2.5">Paid By</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#2B303E]/50 text-[11px]">
+                      <tbody className="divide-y divide-[#1e2535]/50 text-[11px]">
                         {expenseDetail.map((exp: any) => (
-                          <tr key={exp.id} className="hover:bg-[#14161D]/60 transition-colors">
-                            <td className="p-2.5 font-mono text-[#A0A5AD]">{exp.incurredOn || '—'}</td>
+                          <tr key={exp.id} className="hover:bg-[#0f141d]/60 transition-colors">
+                            <td className="p-2.5 font-mono text-[#6e7a8a]">{exp.incurredOn || '—'}</td>
                             <td className="p-2.5">
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#232733] text-amber-300">
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#1a1f2e] text-amber-300">
                                 {exp.category}
                               </span>
                             </td>
-                            <td className="p-2.5 text-[#F4F4F2] font-medium max-w-[200px] truncate">{exp.description || '—'}</td>
+                            <td className="p-2.5 text-[#e8e6e0] font-medium max-w-[200px] truncate">{exp.description || '—'}</td>
                             <td className="p-2.5 text-right font-extrabold text-red-400 font-mono">{formatCurrency(exp.amount)}</td>
-                            <td className="p-2.5 text-[#A0A5AD]">{exp.paymentMethod || 'CASH'}</td>
+                            <td className="p-2.5 text-[#6e7a8a]">{exp.paymentMethod || 'CASH'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -949,7 +949,7 @@ export default function ReportsPage() {
             <div className="p-5 space-y-5">
               {/* Event Stat Tiles */}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricBox label="Total Events" value={evts.totalInPeriod || 0} sub="In period" highlight="text-[#f1a83f]" />
+                <MetricBox label="Total Events" value={evts.totalInPeriod || 0} sub="In period" highlight="text-[#c59a58]" />
                 <MetricBox label="Confirmed" value={evts.confirmedCount || 0} sub="Active bookings" highlight="text-emerald-400" />
                 <MetricBox label="Cancelled" value={evts.cancelledCount || 0} sub="In period" highlight="text-red-400" />
                 <MetricBox label="Event Guests" value={evts.totalGuestCount || 0} sub="Total attendees" highlight="text-blue-400" />
@@ -958,15 +958,15 @@ export default function ReportsPage() {
               {/* Space Utilization */}
               {(evts.spaceUtilization || []).length > 0 && (
                 <div>
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Space Utilization</div>
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a] mb-2">Space Utilization</div>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                     {(evts.spaceUtilization || []).map((sp: any) => (
-                      <div key={sp.name} className="p-3 bg-[#14161D] rounded-lg border border-[#2B303E] flex justify-between items-center">
+                      <div key={sp.name} className="p-3 bg-[#0f141d] rounded-lg border border-[#1e2535] flex justify-between items-center">
                         <div>
-                          <div className="text-xs font-bold text-[#F4F4F2]">{sp.name}</div>
-                          <div className="text-[10px] text-[#6E737B] mt-0.5">{sp.guests} guests</div>
+                          <div className="text-xs font-bold text-[#e8e6e0]">{sp.name}</div>
+                          <div className="text-[10px] text-[#4a5568] mt-0.5">{sp.guests} guests</div>
                         </div>
-                        <div className="text-lg font-extrabold text-[#f1a83f]">{sp.bookings} <span className="text-[10px] font-normal text-[#6E737B]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
+                        <div className="text-lg font-extrabold text-[#c59a58]">{sp.bookings} <span className="text-[10px] font-normal text-[#4a5568]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
                       </div>
                     ))}
                   </div>
@@ -976,10 +976,10 @@ export default function ReportsPage() {
               {/* Events in Period Table */}
               {(evts.recentEvents || []).length > 0 ? (
                 <div>
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Events in Period</div>
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a] mb-2">Events in Period</div>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left text-[#A0A5AD]">
-                      <thead className="text-[10px] uppercase font-bold text-[#6E737B] bg-[#14161D] border-b border-[#2B303E]">
+                    <table className="w-full text-xs text-left text-[#6e7a8a]">
+                      <thead className="text-[10px] uppercase font-bold text-[#4a5568] bg-[#0f141d] border-b border-[#1e2535]">
                         <tr>
                           <th className="p-2.5">Event Title</th>
                           <th className="p-2.5">Space</th>
@@ -991,11 +991,11 @@ export default function ReportsPage() {
                           <th className="p-2.5">Booked By</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#2B303E]/50 text-[11px]">
+                      <tbody className="divide-y divide-[#1e2535]/50 text-[11px]">
                         {(evts.recentEvents || []).map((ev: any) => (
-                          <tr key={ev.id} className="hover:bg-[#14161D]/60 transition-colors">
-                            <td className="p-2.5 font-bold text-[#F4F4F2]">{ev.title}</td>
-                            <td className="p-2.5 text-[#f1a83f]">{ev.spaceName}</td>
+                          <tr key={ev.id} className="hover:bg-[#0f141d]/60 transition-colors">
+                            <td className="p-2.5 font-bold text-[#e8e6e0]">{ev.title}</td>
+                            <td className="p-2.5 text-[#c59a58]">{ev.spaceName}</td>
                             <td className="p-2.5 font-mono">{new Date(ev.startAt).toLocaleString()}</td>
                             <td className="p-2.5 font-mono">{new Date(ev.endAt).toLocaleString()}</td>
                             <td className="p-2.5 text-center font-bold text-blue-400">{ev.guestCount}</td>
@@ -1006,9 +1006,9 @@ export default function ReportsPage() {
                                 'bg-amber-900/40 text-amber-400'
                               }`}>{ev.status}</span>
                             </td>
-                            <td className="p-2.5 text-[#A0A5AD]">{ev.contactName || '—'}</td>
+                            <td className="p-2.5 text-[#6e7a8a]">{ev.contactName || '—'}</td>
                             <td className="p-2.5">
-                              <span className="flex items-center gap-1 text-[#F4F4F2] font-semibold">
+                              <span className="flex items-center gap-1 text-[#e8e6e0] font-semibold">
                                 👤 {ev.createdByName || 'Staff'}
                               </span>
                             </td>
@@ -1019,19 +1019,19 @@ export default function ReportsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-[#6E737B] text-xs">No events recorded in this period.</div>
+                <div className="text-center py-8 text-[#4a5568] text-xs">No events recorded in this period.</div>
               )}
 
               {/* Upcoming Events */}
               {(evts.upcomingEvents || []).length > 0 && (
-                <div className="pt-2 border-t border-[#2B303E]">
-                  <div className="text-xs font-bold uppercase text-[#A0A5AD] mb-2">Upcoming Confirmed Events</div>
+                <div className="pt-2 border-t border-[#1e2535]">
+                  <div className="text-xs font-bold uppercase text-[#6e7a8a] mb-2">Upcoming Confirmed Events</div>
                   <div className="space-y-2">
                     {(evts.upcomingEvents || []).map((ev: any) => (
-                      <div key={ev.id} className="flex items-center justify-between p-3 bg-[#14161D] rounded-lg border border-[#2B303E]">
+                      <div key={ev.id} className="flex items-center justify-between p-3 bg-[#0f141d] rounded-lg border border-[#1e2535]">
                         <div>
-                          <div className="text-xs font-bold text-[#F4F4F2]">{ev.title}</div>
-                          <div className="text-[10px] text-[#6E737B] mt-0.5">{ev.spaceName} · {new Date(ev.startAt).toLocaleString()}</div>
+                          <div className="text-xs font-bold text-[#e8e6e0]">{ev.title}</div>
+                          <div className="text-[10px] text-[#4a5568] mt-0.5">{ev.spaceName} · {new Date(ev.startAt).toLocaleString()}</div>
                         </div>
                         <div className="text-right">
                           <div className="text-xs font-bold text-blue-400">{ev.guestCount} guests</div>
@@ -1051,8 +1051,8 @@ export default function ReportsPage() {
               subtitle={`Complete day-by-day revenue, headcount, arrivals, and expense ledger`}
             >
               <div className="p-4 overflow-x-auto">
-                <table className="w-full text-xs text-left text-[#A0A5AD]">
-                  <thead className="text-[10px] uppercase font-bold text-[#6E737B] bg-[#14161D] border-b border-[#2B303E]">
+                <table className="w-full text-xs text-left text-[#6e7a8a]">
+                  <thead className="text-[10px] uppercase font-bold text-[#4a5568] bg-[#0f141d] border-b border-[#1e2535]">
                     <tr>
                       <th className="p-2.5">Date</th>
                       <th className="p-2.5">Day</th>
@@ -1069,12 +1069,12 @@ export default function ReportsPage() {
                       <th className="p-2.5 text-center">People</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#2B303E]/50 font-mono text-[11px]">
+                  <tbody className="divide-y divide-[#1e2535]/50 font-mono text-[11px]">
                     {dailyTimeline.map((d: any) => (
-                      <tr key={d.date} className="hover:bg-[#14161D]/60 transition-colors">
-                        <td className="p-2.5 font-bold text-[#F4F4F2]">{d.date}</td>
-                        <td className="p-2.5 text-[#f1a83f] font-sans font-semibold">{d.dayName}</td>
-                        <td className="p-2.5 text-right font-bold text-[#F4F4F2]">{formatCurrency(d.revenue)}</td>
+                      <tr key={d.date} className="hover:bg-[#0f141d]/60 transition-colors">
+                        <td className="p-2.5 font-bold text-[#e8e6e0]">{d.date}</td>
+                        <td className="p-2.5 text-[#c59a58] font-sans font-semibold">{d.dayName}</td>
+                        <td className="p-2.5 text-right font-bold text-[#e8e6e0]">{formatCurrency(d.revenue)}</td>
                         <td className="p-2.5 text-right">{formatCurrency(d.accommodation)}</td>
                         <td className="p-2.5 text-right">{formatCurrency(d.restaurant)}</td>
                         <td className="p-2.5 text-right">{formatCurrency(d.bar)}</td>
@@ -1086,7 +1086,7 @@ export default function ReportsPage() {
                         </td>
                         <td className="p-2.5 text-center text-emerald-400 font-bold">{d.checkIns}</td>
                         <td className="p-2.5 text-center text-blue-400 font-bold">{d.checkOuts}</td>
-                        <td className="p-2.5 text-center font-sans font-bold text-[#F4F4F2]">{d.peopleAccommodated}</td>
+                        <td className="p-2.5 text-center font-sans font-bold text-[#e8e6e0]">{d.peopleAccommodated}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1104,12 +1104,12 @@ const MetricBox: React.FC<{ label: string; value: string | number; sub: string; 
   label,
   value,
   sub,
-  highlight = 'text-[#F4F4F2]',
+  highlight = 'text-[#e8e6e0]',
 }) => (
-  <div className="p-3 bg-[#14161D] rounded-lg border border-[#2B303E]">
-    <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">{label}</div>
+  <div className="p-3 bg-[#0f141d] rounded-lg border border-[#1e2535]">
+    <div className="text-[10px] uppercase font-bold text-[#6e7a8a]">{label}</div>
     <div className={`text-xl font-extrabold mt-0.5 ${highlight}`}>{value}</div>
-    <div className="text-[10px] text-[#6E737B] mt-0.5">{sub}</div>
+    <div className="text-[10px] text-[#4a5568] mt-0.5">{sub}</div>
   </div>
 );
 
@@ -1119,16 +1119,17 @@ const DeptCard: React.FC<{ icon: any; label: string; value: any; note: string }>
   value,
   note,
 }) => (
-  <div className="rounded-xl border border-[#2B303E] bg-[#14161D] p-4 flex flex-col justify-between">
-    <div className="flex items-center gap-2 text-xs font-bold text-[#A0A5AD]">
-      <Icon size={16} className="text-[#f1a83f]" />
+  <div className="rounded-xl border border-[#1e2535] bg-[#0f141d] p-4 flex flex-col justify-between">
+    <div className="flex items-center gap-2 text-xs font-bold text-[#6e7a8a]">
+      <Icon size={16} className="text-[#c59a58]" />
       <span>{label}</span>
     </div>
-    <div className="mt-3 text-xl font-extrabold text-[#F4F4F2]">
+    <div className="mt-3 text-xl font-extrabold text-[#e8e6e0]">
       {formatCurrency(Number(value || 0))}
     </div>
-    <div className="mt-2 text-[10px] text-[#6E737B] pt-1.5 border-t border-[#2B303E]">
+    <div className="mt-2 text-[10px] text-[#4a5568] pt-1.5 border-t border-[#1e2535]">
       {note}
     </div>
   </div>
 );
+

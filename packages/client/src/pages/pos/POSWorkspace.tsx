@@ -1,7 +1,15 @@
+// ============================================
+// NS LUXURY VILLA — POS Workspace
+// Restaurant & Bar Point of Sale Workstation
+// ============================================
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { categoriesApi, posApi, staysApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
-import { Plus, Minus, RefreshCw, Receipt, Search, Printer, Pencil, Trash2, Power, ShoppingBag } from 'lucide-react';
+import {
+  Plus, Minus, RefreshCw, Receipt, Search, Printer, Pencil,
+  Trash2, Power, ShoppingBag, UtensilsCrossed, Wine, X,
+} from 'lucide-react';
 import { Button, SelectInput, TextInput, showToast, LoadingState, statusBadge, Modal, FormField } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { ShellPage, Section } from '../../components/common/WorkspaceUI';
@@ -26,6 +34,11 @@ const PAYMENT_LABELS: Record<string, string> = {
   ROOM_CHARGE: 'Room charge',
 };
 
+const ACCENT = {
+  restaurant: { color: '#c59a58', light: '#2a1f0e', btn: 'bg-[#c59a58] hover:bg-[#b08848] text-[#0c1921]' },
+  bar: { color: '#9b6de0', light: '#1e1430', btn: 'bg-[#9b6de0] hover:bg-[#8559c8] text-white' },
+};
+
 export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   const [items, setItems] = useState<any[]>([]);
   const [managedCategories, setManagedCategories] = useState<string[]>([]);
@@ -46,6 +59,9 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   const [mForm, setMForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
+  const ac = ACCENT[kind];
+  const Icon = kind === 'restaurant' ? UtensilsCrossed : Wine;
+
   const load = async () => {
     try {
       setLoading(true);
@@ -63,6 +79,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       setLoading(false);
     }
   };
+
   const loadCategories = async () => {
     try {
       const result = await categoriesApi.listByType(kind === 'restaurant' ? 'RESTAURANT' : 'BAR');
@@ -71,19 +88,17 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       setManagedCategories([]);
     }
   };
+
   useEffect(() => {
     void load();
     void loadCategories();
   }, [kind]);
 
   const categoryOptions = managedCategories.length > 0 ? managedCategories : CATEGORIES[kind];
-
   const catName = (i: any) => i.category?.name || i.category || 'General';
   const cats = ['ALL', ...Array.from(new Set(items.map((i) => catName(i))))];
   const visible = items.filter(
-    (i) =>
-      (category === 'ALL' || catName(i) === category) &&
-      (!q || i.name?.toLowerCase().includes(q.toLowerCase())),
+    (i) => (category === 'ALL' || catName(i) === category) && (!q || i.name?.toLowerCase().includes(q.toLowerCase())),
   );
 
   const add = (item: any) => {
@@ -240,14 +255,14 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
   return (
     <ShellPage
-      eyebrow={`${kind.toUpperCase()} · POINT OF SALE`}
-      title={`${kind === 'restaurant' ? 'Restaurant' : 'Bar'} service`}
-      subtitle="A focused order workstation connected to the live property database."
+      eyebrow={`${kind === 'restaurant' ? 'RESTAURANT' : 'BAR & LOUNGE'} · POINT OF SALE`}
+      title={`${kind === 'restaurant' ? 'Restaurant' : 'Bar'} POS`}
+      subtitle="Order workstation — select items, choose payment, and post."
       actions={
         <div className="flex items-center gap-2">
           {canManage && (
-            <Button size="sm" onClick={openAddItem}>
-              <Plus size={14} /> Add item
+            <Button size="sm" variant="outline" onClick={openAddItem}>
+              <Plus size={14} /> Add Item
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => { clearGetCache(); void load(); }}>
@@ -259,31 +274,47 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       {loading ? (
         <LoadingState />
       ) : (
-        <div className="grid items-start gap-4 lg:grid-cols-[1fr_360px]">
-          {/* ────────────────────── Menu Section ────────────────────── */}
-          <Section title="Menu" subtitle="Select items to add them to the order">
-            <div className="flex flex-col gap-3 border-b border-[#e8ebe8] bg-[#fbfcfa] p-4 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#899397]" />
+        <div className="grid items-start gap-5 lg:grid-cols-[1fr_340px]">
+
+          {/* ── Menu Panel ──────────────────────────────────── */}
+          <div className="flex flex-col gap-4">
+            {/* Category filter bar */}
+            <div className="ns-card p-3 flex flex-wrap items-center gap-2">
+              <div className="relative flex-1 min-w-[160px]">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a5568]" />
                 <input
-                  className="ns-input h-10 w-full pl-9 text-xs"
+                  className="ns-input h-9 w-full pl-9 text-xs"
                   placeholder="Search menu…"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                 />
               </div>
-              <SelectInput value={category} onChange={(e) => setCategory(e.target.value)} className="w-full sm:w-56">
+              <div className="flex flex-wrap gap-1.5">
                 {cats.map((c) => (
-                  <option key={c} value={c}>
-                    {c === 'ALL' ? 'All categories' : c}
-                  </option>
+                  <button
+                    key={c}
+                    onClick={() => setCategory(c)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
+                      category === c
+                        ? 'text-[#0c1921] shadow'
+                        : 'bg-[#1a1f2e] text-[#6e7a8a] hover:text-[#c59a58]'
+                    }`}
+                    style={category === c ? { backgroundColor: ac.color } : {}}
+                  >
+                    {c === 'ALL' ? 'All' : c.replace(/_/g, ' ')}
+                  </button>
                 ))}
-              </SelectInput>
+              </div>
             </div>
+
+            {/* Menu items grid */}
             {visible.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#899397]">No menu items match this filter.</div>
+              <div className="ns-card p-14 text-center">
+                <Icon size={28} className="mx-auto mb-3 opacity-20" style={{ color: ac.color }} />
+                <p className="text-xs text-[#6e7a8a]">No items match this filter.</p>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                 {visible.map((i) => {
                   const inCart = cartMap[i.id] || 0;
                   const off = i.isAvailable === false;
@@ -291,63 +322,52 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                     <div
                       key={i.id}
                       onClick={() => !off && add(i)}
-                      className={`relative flex cursor-pointer flex-col justify-between rounded-xl border p-3 transition ${
-                        off
-                          ? 'border-[#e8ece9] bg-[#f7f8f6] opacity-60'
-                          : 'border-[#e7ebe8] bg-white hover:-translate-y-0.5 hover:border-[#16a4d4] hover:shadow-sm'
+                      className={`ns-card relative flex flex-col justify-between p-3 transition-all cursor-pointer group ${
+                        off ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5 hover:shadow-lg'
                       }`}
+                      style={inCart > 0 ? { borderColor: ac.color } : {}}
                     >
+                      {inCart > 0 && (
+                        <span
+                          className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[9px] font-bold text-[#0c1921] shadow"
+                          style={{ backgroundColor: ac.color }}
+                        >
+                          {inCart}
+                        </span>
+                      )}
                       <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <span className={`line-clamp-2 text-xs font-bold leading-snug ${off ? 'text-slate-400' : 'text-slate-800'}`}>
-                            {i.name}
-                          </span>
-                          {inCart > 0 && (
-                            <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-[#16a4d4] px-1 text-[9px] font-bold text-white shadow-sm">
-                              {inCart}
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-400">
-                          {catName(i)}
+                        <div className="text-[11px] font-bold text-[#e8e6e0] leading-tight line-clamp-2">{i.name}</div>
+                        <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#4a5568]">
+                          {catName(i).replace(/_/g, ' ')}
                         </div>
                       </div>
-
-                      <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
-                        <span className="text-xs font-extrabold text-[#a8761e]">{formatCurrency(Number(i.price || 0))}</span>
+                      <div className="mt-3 flex items-center justify-between border-t border-[#1e2535] pt-2">
+                        <span className="text-[11px] font-extrabold" style={{ color: ac.color }}>
+                          {formatCurrency(Number(i.price || 0))}
+                        </span>
                         {off ? (
-                          <span className="rounded bg-amber-50 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-700">
+                          <span className="rounded bg-amber-900/40 px-1.5 py-0.5 text-[8px] font-bold uppercase text-amber-400">
                             Sold out
                           </span>
                         ) : (
-                          <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-100 text-slate-600 transition group-hover:bg-[#16a4d4] group-hover:text-white">
-                            <Plus size={11} />
+                          <span
+                            className="flex h-5 w-5 items-center justify-center rounded text-[#0c1921] opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ backgroundColor: ac.color }}
+                          >
+                            <Plus size={10} />
                           </span>
                         )}
                       </div>
-
                       {canManage && (
-                        <div className="mt-2.5 flex items-center gap-1 border-t border-slate-100 pt-2" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => toggleItem(i)}
-                            title={off ? 'Put on menu' : 'Take off menu'}
-                            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                          >
-                            <Power size={11} />
+                        <div className="mt-2 flex items-center gap-1 border-t border-[#1e2535] pt-2" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => toggleItem(i)} title={off ? 'Enable' : 'Disable'} className="rounded p-1 text-[#4a5568] hover:text-[#c59a58] transition-colors">
+                            <Power size={10} />
                           </button>
-                          <button
-                            onClick={() => openEditItem(i)}
-                            title="Edit"
-                            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                          >
-                            <Pencil size={11} />
+                          <button onClick={() => openEditItem(i)} title="Edit" className="rounded p-1 text-[#4a5568] hover:text-[#c59a58] transition-colors">
+                            <Pencil size={10} />
                           </button>
-                          <button
-                            onClick={() => removeItem(i)}
-                            title="Delete"
-                            className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
-                          >
-                            <Trash2 size={11} />
+                          <button onClick={() => removeItem(i)} title="Delete" className="rounded p-1 text-[#4a5568] hover:text-red-400 transition-colors">
+                            <Trash2 size={10} />
                           </button>
                         </div>
                       )}
@@ -356,126 +376,134 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                 })}
               </div>
             )}
-          </Section>
+          </div>
 
-          {/* ────────────────────── Cart Section ────────────────────── */}
-          <Section
-            title="Current order"
-            subtitle={totalQty ? `${totalQty} item${totalQty === 1 ? '' : 's'} on this ticket` : 'Review before posting'}
-            action={
-              cart.length > 0 ? (
+          {/* ── Order Panel ──────────────────────────────────── */}
+          <div className="ns-card flex flex-col gap-0 overflow-hidden sticky top-4">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-[#1e2535] flex items-center justify-between">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-[#4a5568]">Current Order</div>
+                <div className="text-xs font-extrabold text-[#e8e6e0] mt-0.5">
+                  {totalQty > 0 ? `${totalQty} item${totalQty > 1 ? 's' : ''}` : 'Empty'}
+                </div>
+              </div>
+              {cart.length > 0 && (
                 <button
-                  onClick={() => {
-                    setCart([]);
-                    setIdempotencyKey(null);
-                  }}
-                  className="text-[10px] font-extrabold uppercase tracking-[.1em] text-[#899397] transition hover:text-[#b23a3a]"
+                  onClick={() => { setCart([]); setIdempotencyKey(null); }}
+                  className="text-[10px] font-bold uppercase tracking-wider text-[#4a5568] hover:text-red-400 flex items-center gap-1 transition-colors"
                 >
-                  Clear
+                  <X size={11} /> Clear
                 </button>
-              ) : undefined
-            }
-          >
-            <div className="p-4">
-              {cart.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-[#dfe4e0] p-10 text-center">
-                  <ShoppingBag className="mx-auto text-[#a0aaad]" />
-                  <div className="mt-3 text-xs font-extrabold text-[#59676d]">Order is empty</div>
-                  <div className="mt-1 text-[10px] text-[#929da0]">Select menu items to begin.</div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {cart.map((i) => (
-                    <div key={i.id} className="flex items-center gap-2 rounded-lg border border-slate-100 bg-[#fbfcfa] p-2 text-xs">
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate font-semibold text-slate-800">{i.name}</div>
-                        <div className="text-[10px] text-slate-500">{formatCurrency(Number(i.price))} each</div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
-                          <Minus size={10} />
-                        </button>
-                        <span className="w-4 text-center font-bold text-slate-800">{i.quantity}</span>
-                        <button onClick={() => add(i)} className="flex h-5 w-5 items-center justify-center rounded bg-[#16a4d4] text-white hover:bg-[#1390bb]">
-                          <Plus size={10} />
-                        </button>
-                      </div>
-                      <span className="w-16 text-right font-bold text-slate-800">{formatCurrency(Number(i.price) * i.quantity)}</span>
-                      <button onClick={() => removeLine(i.id)} title="Remove line" className="text-slate-400 hover:text-red-500">
-                        <Trash2 size={11} />
-                      </button>
-                    </div>
-                  ))}
-                  <div className="mt-4 space-y-3 border-t border-[#e8ebe8] pt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] uppercase tracking-wide text-[#899397]">Total</span>
-                      <strong className="ns-number text-lg font-extrabold text-[#20343e]">{formatCurrency(total)}</strong>
-                    </div>
-                    <SelectInput value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
-                      <option value="CASH">Direct payment · Cash</option>
-                      <option value="CARD">Direct payment · Card</option>
-                      <option value="MOBILE_MONEY">Direct payment · Mobile Money</option>
-                      <option value="BANK_TRANSFER">Direct payment · Bank transfer</option>
-                      <option value="SPLIT">Split payment (e.g. cash + mobile money)</option>
-                      <option value="ROOM_CHARGE">Charge to guest folio</option>
-                    </SelectInput>
-                    {paymentType === 'SPLIT' && (
-                      <TenderSplit total={total} rows={tenders} onChange={setTenders} />
-                    )}
-                    {paymentType === 'ROOM_CHARGE' && (
-                      <SelectInput value={selectedStay} onChange={(e) => setSelectedStay(e.target.value)} required>
-                        <option value="">Select in-house guest</option>
-                        {stays.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            Room {s.room?.number || '—'} · {[s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest'}
-                          </option>
-                        ))}
-                      </SelectInput>
-                    )}
-                    <Button
-                      className="w-full"
-                      loading={submitting}
-                      disabled={!cart.length || (paymentType === 'ROOM_CHARGE' && !selectedStay) || (paymentType === 'SPLIT' && !tendersCoverTotal(tenders, total))}
-                      onClick={submit}
-                    >
-                      <Receipt size={14} /> Post order
-                    </Button>
-                  </div>
-                </div>
               )}
             </div>
-          </Section>
+
+            {/* Cart lines */}
+            <div className="flex-1 px-4 py-3 min-h-[140px] max-h-[300px] overflow-y-auto space-y-2">
+              {cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full py-8 text-center">
+                  <ShoppingBag size={22} className="text-[#2a3040] mb-2" />
+                  <div className="text-[10px] text-[#4a5568]">Select items from the menu</div>
+                </div>
+              ) : (
+                cart.map((i) => (
+                  <div key={i.id} className="flex items-center gap-2 rounded-lg bg-[#0f141d] border border-[#1e2535] px-3 py-2 text-xs">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold text-[#e8e6e0] text-[11px]">{i.name}</div>
+                      <div className="text-[9px] text-[#4a5568]">{formatCurrency(Number(i.price))} each</div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-[#2a3040] text-[#6e7a8a] hover:text-[#e8e6e0] transition-colors">
+                        <Minus size={9} />
+                      </button>
+                      <span className="w-5 text-center font-bold text-[#e8e6e0] text-[11px]">{i.quantity}</span>
+                      <button onClick={() => add(i)} className="flex h-5 w-5 items-center justify-center rounded text-[#0c1921]" style={{ backgroundColor: ac.color }}>
+                        <Plus size={9} />
+                      </button>
+                    </div>
+                    <span className="w-14 text-right font-bold text-[11px]" style={{ color: ac.color }}>{formatCurrency(Number(i.price) * i.quantity)}</span>
+                    <button onClick={() => removeLine(i.id)} className="text-[#2a3040] hover:text-red-400 transition-colors">
+                      <X size={11} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Totals & payment */}
+            {cart.length > 0 && (
+              <div className="border-t border-[#1e2535] px-5 py-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a5568]">Order Total</span>
+                  <span className="text-lg font-extrabold" style={{ color: ac.color }}>{formatCurrency(total)}</span>
+                </div>
+
+                <SelectInput value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
+                  <option value="CASH">Cash</option>
+                  <option value="CARD">Card</option>
+                  <option value="MOBILE_MONEY">Mobile Money</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                  <option value="SPLIT">Split Payment</option>
+                  <option value="ROOM_CHARGE">Charge to Guest Folio</option>
+                </SelectInput>
+
+                {paymentType === 'SPLIT' && (
+                  <TenderSplit total={total} rows={tenders} onChange={setTenders} />
+                )}
+
+                {paymentType === 'ROOM_CHARGE' && (
+                  <SelectInput value={selectedStay} onChange={(e) => setSelectedStay(e.target.value)} required>
+                    <option value="">Select in-house guest</option>
+                    {stays.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        Room {s.room?.number || '—'} · {[s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest'}
+                      </option>
+                    ))}
+                  </SelectInput>
+                )}
+
+                <button
+                  disabled={submitting || !cart.length || (paymentType === 'ROOM_CHARGE' && !selectedStay) || (paymentType === 'SPLIT' && !tendersCoverTotal(tenders, total))}
+                  onClick={submit}
+                  className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-extrabold tracking-wider uppercase transition-all ${ac.btn} disabled:opacity-40 disabled:cursor-not-allowed`}
+                >
+                  {submitting ? <RefreshCw size={13} className="animate-spin" /> : <Receipt size={13} />}
+                  Post Order
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* ────────────────────── Posted Orders ────────────────────── */}
-      <Section title="Posted orders" subtitle="Recent transactions recorded at this workstation">
+      {/* ── Posted Orders ──────────────────────────────── */}
+      <Section title="Posted Orders" subtitle="Recent transactions at this workstation">
         <div className="overflow-x-auto">
           {orders.length === 0 ? (
-            <div className="p-10 text-center text-xs text-[#899397]">No orders have been posted yet.</div>
+            <div className="p-10 text-center text-xs text-[#4a5568]">No orders posted yet.</div>
           ) : (
             <table className="w-full text-left">
-              <thead className="bg-[#f7f8f6] text-[10px] uppercase tracking-[.12em] text-[#7d898d]">
-                <tr>
-                  <th className="px-5 py-3">Order no.</th>
-                  <th className="px-5 py-3">Payment</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Amount</th>
-                  <th className="px-5 py-3 text-right">Receipt</th>
+              <thead>
+                <tr className="border-b border-[#1e2535]">
+                  {['Order No', 'Payment', 'Status', 'Amount', ''].map((h) => (
+                    <th key={h} className={`px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#4a5568] ${h === 'Amount' || h === '' ? 'text-right' : ''}`}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ed]">
-                {orders.slice(0, 10).map((o) => (
-                  <tr key={o.id} className="hover:bg-[#fbfcfa]">
-                    <td className="px-5 py-3 font-mono text-[11px] font-extrabold text-[#26363e]">{o.orderNo}</td>
-                    <td className="px-5 py-3 text-[11px] text-[#718086]">{PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod}</td>
+              <tbody className="divide-y divide-[#0f141d]">
+                {orders.slice(0, 12).map((o) => (
+                  <tr key={o.id} className="hover:bg-[#0f141d]/60 transition-colors">
+                    <td className="px-5 py-3 font-mono text-[11px] font-extrabold text-[#e8e6e0]">{o.orderNo}</td>
+                    <td className="px-5 py-3 text-[11px] text-[#6e7a8a]">{PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod}</td>
                     <td className="px-5 py-3">{statusBadge(o.status || 'COMPLETED')}</td>
-                    <td className="px-5 py-3 text-right text-[11px] font-extrabold text-[#26363e]">
+                    <td className="px-5 py-3 text-right text-[11px] font-extrabold" style={{ color: ac.color }}>
                       {formatCurrency(Number(o.totalAmount || 0))}
                     </td>
                     <td className="px-5 py-3 text-right">
                       <Button variant="outline" size="sm" onClick={() => printReceipt(o)}>
-                        <Printer size={13} /> Print
+                        <Printer size={12} /> Print
                       </Button>
                     </td>
                   </tr>
@@ -486,7 +514,8 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
         </div>
       </Section>
 
-      <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={editingItem ? `Edit ${kind} item` : `New ${kind} item`}>
+      {/* ── Menu Item Modal ──────────────────────────────── */}
+      <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={editingItem ? `Edit item` : `New menu item`}>
         <form onSubmit={saveItem} className="space-y-4 p-6">
           <FormField label="Name" required>
             <TextInput required value={mForm.name} onChange={(e) => setMForm({ ...mForm, name: e.target.value })} placeholder="Item name" />
@@ -495,38 +524,20 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             <FormField label="Category" required>
               <SelectInput required value={mForm.category} onChange={(e) => setMForm({ ...mForm, category: e.target.value })}>
                 {categoryOptions.map((c) => (
-                  <option key={c} value={c}>
-                    {c.replaceAll('_', ' ')}
-                  </option>
+                  <option key={c} value={c}>{c.replaceAll('_', ' ')}</option>
                 ))}
               </SelectInput>
             </FormField>
             <FormField label="Price (GHS)" required>
-              <TextInput
-                required
-                type="number"
-                min="0"
-                step="0.01"
-                value={mForm.price}
-                onChange={(e) => setMForm({ ...mForm, price: e.target.value })}
-                placeholder="0.00"
-              />
+              <TextInput required type="number" min="0" step="0.01" value={mForm.price} onChange={(e) => setMForm({ ...mForm, price: e.target.value })} placeholder="0.00" />
             </FormField>
           </div>
           <FormField label="Description">
-            <TextInput
-              value={mForm.description}
-              onChange={(e) => setMForm({ ...mForm, description: e.target.value })}
-              placeholder="Short description (optional)"
-            />
+            <TextInput value={mForm.description} onChange={(e) => setMForm({ ...mForm, description: e.target.value })} placeholder="Short description (optional)" />
           </FormField>
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setManageOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={saving}>
-              {editingItem ? 'Save changes' : 'Add item'}
-            </Button>
+            <Button type="button" variant="ghost" onClick={() => setManageOpen(false)}>Cancel</Button>
+            <Button type="submit" loading={saving}>{editingItem ? 'Save Changes' : 'Add Item'}</Button>
           </div>
         </form>
       </Modal>

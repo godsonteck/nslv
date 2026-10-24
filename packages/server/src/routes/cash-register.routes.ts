@@ -57,6 +57,13 @@ const handoverQuerySchema = z.object({
   businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
 });
 
+const handoverRecordSchema = z.object({
+  businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
+  amount: z.number().positive('Handover amount must be greater than zero'),
+  recipient: z.string().min(1, 'Recipient name is required').max(200),
+  notes: z.string().max(500).optional(),
+});
+
 const bankDepositSchema = z.object({
   businessDate: z.string().min(10, 'Business date required (YYYY-MM-DD)'),
   amount: z.number().positive('Amount must be greater than zero'),
@@ -157,6 +164,17 @@ router.get('/handover', requireCashRegisterAccess(), validateQuery(handoverQuery
     const userId = (req as AuthenticatedRequest).user.userId;
     const checklist = await CashRegisterService.getShiftHandoverChecklist(businessDate, userId);
     res.json({ success: true, data: checklist });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/cash-register/handover - record close-of-day cash handover to management
+router.post('/handover', requireCashRegisterAccess(true), validateBody(handoverRecordSchema), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const entry = await CashRegisterService.recordHandover(req.body, userId);
+    res.status(201).json({ success: true, data: entry, message: 'Cash handover to management recorded.' });
   } catch (error) {
     next(error);
   }

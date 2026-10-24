@@ -15,7 +15,7 @@ import { DailyCloseService, lockBusinessDay } from './daily-close.service';
 export class CashRegisterService {
   /**
    * Get or create register for a business date.
-   * If creating, automatically carry forward yesterday's net cash as opening balance.
+   * Reception hands over cash daily; new registers start fresh at 0.00 GHS opening float.
    */
   static async getOrCreateRegister(businessDate: string, tx?: Prisma.TransactionClient) {
     const date = new Date(`${businessDate.slice(0, 10)}T00:00:00.000Z`);
@@ -25,72 +25,17 @@ export class CashRegisterService {
     const existing = await client.cashRegister.findUnique({ where: { businessDate: date } });
     if (existing) return existing;
 
-    // Find yesterday's register and calculate its net cash
-    const prevDay = new Date(date); prevDay.setUTCDate(prevDay.getUTCDate() - 1);
-    const yesterdaySummary = await this.getSummary(prevDay.toISOString().slice(0, 10));
-    const carriedForward = yesterdaySummary?.expectedCash ?? 0;
-
     return client.cashRegister.create({
-      data: { businessDate: date, openingCash: carriedForward },
+      data: { businessDate: date, openingCash: 0 },
     });
   }
 
   /**
-   * Ensure today's register exists and has the correct carried-forward opening balance.
-   * Call this at start of day or before any cash activity.
+   * Ensure today's register exists.
+   * Reception does not carry over cash overnight; any float must be explicitly set for today.
    */
   static async ensureRegisterInitialized(businessDate: string, userId: string, tx?: Prisma.TransactionClient) {
-    const date = new Date(`${businessDate.slice(0, 10)}T00:00:00.000Z`);
-    const register = await this.getOrCreateRegister(businessDate);
-
-    const client = tx ?? prisma;
-    const openingEntry = await client.cashRegisterEntry.findFirst({
-      where: { cashRegisterId: register.id, type: 'OPENING' },
-      select: { id: true },
-    });
-
-    if (!openingEntry) {
-      if (tx) {
-        await CashRegisterService.lockRegister(tx, date);
-        await tx.cashRegisterEntry.create({
-          data: {
-            cashRegisterId: register.id,
-            type: 'OPENING',
-            amount: register.openingCash,
-            description: 'Carried forward from previous day',
-            recordedBy: userId,
-          },
-        });
-        await AuditService.logInTransaction(tx, {
-          userId,
-          action: 'cash_register.opening_auto',
-          resource: 'cash_register',
-          resourceId: register.id,
-          afterData: { businessDate, carriedForward: register.openingCash },
-        });
-      } else {
-        await prisma.$transaction(async (ctx) => {
-          await CashRegisterService.lockRegister(ctx, date);
-          await ctx.cashRegisterEntry.create({
-            data: {
-              cashRegisterId: register.id,
-              type: 'OPENING',
-              amount: register.openingCash,
-              description: 'Carried forward from previous day',
-              recordedBy: userId,
-            },
-          });
-          await AuditService.logInTransaction(ctx, {
-            userId,
-            action: 'cash_register.opening_auto',
-            resource: 'cash_register',
-            resourceId: register.id,
-            afterData: { businessDate, carriedForward: register.openingCash },
-          });
-        });
-      }
-    }
-
+    const register = await this.getOrCreateRegister(businessDate, tx);
     return register;
   }
 
@@ -360,7 +305,9 @@ export class CashRegisterService {
     if (!input.description?.trim()) throw new AppError('Description is required.', 422, 'DESCRIPTION_REQUIRED');
     if (input.type === 'OUTFLOW' && !input.category?.trim()) throw new AppError('Category is required for outflows.', 422, 'CATEGORY_REQUIRED');
 
-    if (input.category) await CategoryService.assertConfiguredValue('CASH_REGISTER', input.category);
+    if (input.category && !['HANDOVER', 'MOMO_DEPOSIT', 'REFUND'].includes(input.category)) {
+      await CategoryService.assertConfiguredValue('CASH_REGISTER', input.category);
+    }
 
     // Standalone mode (no transaction) - for fire-and-forget
     if (!tx) {
@@ -431,146 +378,168 @@ export class CashRegisterService {
     const end = new Date(date); end.setUTCDate(end.getUTCDate() + 1);
     const register = await this.listEntries(businessDate);
 
-    // 1. Check if the query date itself has an explicit manual opening count entered by staff
-    const todayManualOpening = register?.entries?.find(
-      (e) => e.type === 'OPENING' && e.description !== 'Carried forward from previous day'
-    );
+    // Reception does not keep cash overnight; opening float starts at 0 unless manually provided for today
+    const openingEntry = register?.entries?.find((e) => e.type === 'OPENING');
+    const openingCash = openingEntry ? Number(openingEntry.amount) : (register ? Number(register.openingCash) : 0);
 
-    let anchor: { id?: string; businessDate: Date; openingCash: Prisma.Decimal | { toNumber: () => number }; notes?: string | null } | null = null;
+    // Completed cash payments processed on this date (Room reservations & folios + POS restaurant/bar/pool)
+    const payments = await prisma.payment.findMany({
+      where: {
+        processedAt: { gte: date, lt: end },
+        method: 'CASH',
+        type: 'PAYMENT',
+        status: 'COMPLETED',
+        voidedAt: null,
+      },
+      select: {
+        id: true,
+        amount: true,
+        type: true,
+        source: true,
+        sourceId: true,
+        reference: true,
+        description: true,
+        processedAt: true,
+        processedBy: true,
+      },
+      orderBy: { processedAt: 'asc' },
+    });
 
-    if (todayManualOpening) {
-      anchor = {
-        businessDate: date,
-        openingCash: new Prisma.Decimal(todayManualOpening.amount),
-        notes: register?.notes,
-      };
-    } else {
-      // Find the most recent day before today with a manual opening count
-      const prevManual = await prisma.cashRegister.findFirst({
-        where: {
-          businessDate: { lt: date },
-          entries: {
-            some: {
-              type: 'OPENING',
-              description: { not: 'Carried forward from previous day' },
-            },
-          },
-        },
-        orderBy: { businessDate: 'desc' },
-        select: { id: true, businessDate: true, openingCash: true, notes: true },
-      });
+    const entries = (register?.entries ?? []).filter((e) => e.category !== 'REFUND');
 
-      if (prevManual) {
-        anchor = prevManual;
-      } else {
-        // If no prior manual count, find any register anchor
-        const fallback = await prisma.cashRegister.findFirst({
-          where: { businessDate: { lte: date }, entries: { some: { type: 'OPENING' } } },
-          orderBy: { businessDate: 'desc' },
-          select: { id: true, businessDate: true, openingCash: true, notes: true },
-        });
-        anchor = fallback;
-      }
+    let todayCashSales = 0;
+    for (const p of payments) {
+      todayCashSales += Number(p.amount);
     }
 
-    const replayFrom = anchor?.businessDate ?? date;
-    const hasAnchor = !!anchor;
-
-    // Refunds remain in the payments ledger but are intentionally outside the
-    // cash-at-hand workflow until refund reconciliation is introduced.
-    // Only completed cash sales contribute to this live handover balance.
-    const [manualEntries, payments] = await Promise.all([
-      prisma.cashRegisterEntry.findMany({
-        where: { type: { not: 'OPENING' }, cashRegister: { businessDate: { gte: replayFrom, lt: end } } },
-        include: { cashRegister: { select: { businessDate: true } } },
-        orderBy: { recordedAt: 'asc' },
-      }),
-      prisma.payment.findMany({
-        where: { processedAt: { gte: replayFrom, lt: end }, method: 'CASH', type: 'PAYMENT', status: 'COMPLETED', voidedAt: null },
-        select: { id: true, amount: true, type: true, source: true, sourceId: true, reference: true, description: true, processedAt: true, processedBy: true },
-        orderBy: { processedAt: 'asc' },
-      }),
-    ]);
-
-    // Start from the anchor's opening cash (manual count or carried forward)
-    let runningBalance = anchor ? (typeof anchor.openingCash === 'object' && 'toNumber' in anchor.openingCash ? anchor.openingCash.toNumber() : Number(anchor.openingCash)) : 0;
-    let todayInflows = 0;
-    let todayOutflows = 0;
-    let todayCashSales = 0;
+    let manualInflows = 0;
+    let manualOutflows = 0;
+    let handovers = 0;
+    let momoDeposits = 0;
     const byCategory: Record<string, number> = {};
 
-    // Replay manual entries.
-    for (const e of manualEntries) {
-      if (e.category === 'REFUND') continue;
-      const amt = typeof e.amount === 'object' && 'toNumber' in e.amount ? e.amount.toNumber() : Number(e.amount);
-      runningBalance += (e.type === 'INFLOW' ? amt : -amt);
-      if (e.cashRegister.businessDate >= date) {
-        if (e.type === 'INFLOW') todayInflows += amt;
-        if (e.type === 'OUTFLOW') {
-          todayOutflows += amt;
-          const cat = e.category || 'UNCATEGORIZED';
-          byCategory[cat] = (byCategory[cat] || 0) + amt;
+    for (const e of entries) {
+      if (e.type === 'OPENING') continue;
+      const amt = Number(e.amount);
+
+      // Auto-inflow entries from cash sales (marked with source category) are already accounted in cashSales
+      const isAutoPaymentEntry = ['FRONT_DESK', 'RESTAURANT', 'BAR', 'POOL'].includes(e.category || '');
+
+      if (e.type === 'INFLOW') {
+        if (!isAutoPaymentEntry) {
+          manualInflows += amt;
         }
+      } else if (e.type === 'OUTFLOW') {
+        if (e.category === 'HANDOVER') {
+          handovers += amt;
+        } else if (e.category === 'MOMO_DEPOSIT') {
+          momoDeposits += amt;
+          manualOutflows += amt;
+        } else {
+          manualOutflows += amt;
+        }
+        const cat = e.category || 'UNCATEGORIZED';
+        byCategory[cat] = (byCategory[cat] || 0) + amt;
       }
     }
 
-    // Replay actual cash payments from POS
-    for (const payment of payments) {
-      const amount = typeof payment.amount === 'object' && 'toNumber' in payment.amount ? payment.amount.toNumber() : Number(payment.amount);
-      runningBalance += amount;
-      if (payment.processedAt >= date) {
-        todayCashSales += amount;
-      }
-    }
+    // Total cash collected today
+    const totalCashCollected = todayCashSales + manualInflows;
 
-    // Calculate what was carried into today (balance before today's activity)
-    const carriedIntoToday = hasAnchor
-      ? runningBalance - todayInflows + todayOutflows - todayCashSales
-      : 0;
+    // Expected cash in drawer before end-of-day handover
+    const totalExpectedCash = openingCash + totalCashCollected - manualOutflows;
 
-    // Dynamically sanitize entries so auto-carried OPENING entry reflects the true calculated balance
-    const sanitizedEntries = (register?.entries ?? [])
-      .filter((entry) => entry.category !== 'REFUND')
-      .map((entry) => {
-        if (entry.type === 'OPENING' && entry.description === 'Carried forward from previous day') {
-          return {
-            ...entry,
-            amount: new Prisma.Decimal(carriedIntoToday),
-          };
-        }
-        return entry;
-      });
+    // Physical cash remaining in drawer right now after any handovers
+    const availableCashAtHand = Math.max(0, totalExpectedCash - handovers);
 
     return {
       businessDate: date,
-      // What was in the drawer at start of today (carried from previous day)
-      carriedForward: carriedIntoToday,
-      carriedIntoToday,
-      // What receptionist manually counted this morning (if they did a count)
-      openingCash: todayManualOpening ? Number(todayManualOpening.amount) : carriedIntoToday,
-      manualOpeningCount: todayManualOpening ? Number(todayManualOpening.amount) : 0,
-      // Auto-carried amount from previous day
-      autoCarriedForward: anchor ? (typeof anchor.openingCash === 'object' && 'toNumber' in anchor.openingCash ? anchor.openingCash.toNumber() : Number(anchor.openingCash)) : 0,
-      carriedFromDate: anchor ? anchor.businessDate : null,
-      openingNotes: anchor ? anchor.notes : null,
-      // Today's activity
-      inflows: todayInflows,
-      manualInflows: todayInflows,
-      outflows: todayOutflows,
-      manualOutflows: todayOutflows,
+      // No overnight carry-over
+      carriedForward: 0,
+      carriedIntoToday: 0,
+      carriedFromDate: null,
+      openingCash,
+      openingFloat: openingCash,
+      openingNotes: register?.notes || null,
+
+      // Inflows
       cashSales: todayCashSales,
-      // Kept as a zero compatibility field for daily-close consumers. Refunds
-      // are not part of cash-at-hand until refund reconciliation is enabled.
+      manualInflows,
+      totalCashCollected,
+
+      // Outflows & Deductions
+      outflows: manualOutflows,
+      manualOutflows,
+      momoDeposits,
       cashRefunds: 0,
-      // Expected / Net cash in drawer on this date
-      netCash: runningBalance,
-      expectedCash: runningBalance,
-      // All entries for today
-      entries: sanitizedEntries,
-      // Cash payments from POS for today
-      cashPayments: payments.filter((p) => p.processedAt >= date).map((p) => ({ ...p, amount: typeof p.amount === 'object' && 'toNumber' in p.amount ? p.amount.toNumber() : Number(p.amount) })),
+
+      // Handover to Management (End of Day Close)
+      handovers,
+      totalHandedOver: handovers,
+      isHandedOver: handovers > 0 && availableCashAtHand <= 0.01,
+
+      // Balances
+      expectedCash: totalExpectedCash, // Total cash to be accounted for / handed over
+      netCash: availableCashAtHand,    // Actual cash remaining in drawer right now
+      availableCashAtHand,
+
+      // Detailed collections
+      entries,
+      cashPayments: payments.map((p) => ({ ...p, amount: Number(p.amount) })),
       byCategory,
     };
+  }
+
+  /**
+   * Record close-of-day cash handover to management / accounts.
+   */
+  static async recordHandover(input: {
+    businessDate: string;
+    amount: number;
+    recipient: string;
+    notes?: string;
+  }, userId: string) {
+    const date = new Date(`${input.businessDate.slice(0, 10)}T00:00:00.000Z`);
+    const amount = Number(input.amount);
+    if (!Number.isFinite(amount) || amount <= 0) throw new AppError('Handover amount must be greater than zero.', 422, 'INVALID_AMOUNT');
+    if (!input.recipient?.trim()) throw new AppError('Recipient name is required.', 422, 'RECIPIENT_REQUIRED');
+
+    return prisma.$transaction(async (tx) => {
+      await CashRegisterService.lockRegister(tx, date);
+      const register = await tx.cashRegister.upsert({
+        where: { businessDate: date },
+        create: { businessDate: date, openingCash: 0 },
+        update: {},
+      });
+
+      const entry = await tx.cashRegisterEntry.create({
+        data: {
+          cashRegisterId: register.id,
+          type: 'OUTFLOW',
+          amount,
+          description: `Close of Day Cash Handover to ${input.recipient.trim()}${input.notes?.trim() ? ` — ${input.notes.trim()}` : ''}`,
+          category: 'HANDOVER',
+          recipient: input.recipient.trim(),
+          receiptRef: `HND-${Date.now().toString().slice(-6)}`,
+          recordedBy: userId,
+        },
+      });
+
+      await tx.cashRegister.update({
+        where: { id: register.id },
+        data: { closedBy: userId, closedAt: new Date() },
+      });
+
+      await AuditService.logInTransaction(tx, {
+        userId,
+        action: 'cash_register.handover',
+        resource: 'cash_register_entry',
+        resourceId: entry.id,
+        afterData: { ...entry, businessDate: input.businessDate },
+      });
+
+      return entry;
+    });
   }
 
   static async deleteEntry(entryId: string, userId: string) {

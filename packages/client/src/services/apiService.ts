@@ -772,10 +772,36 @@ export interface CashEntryRecord {
 export interface CashRegisterSummary {
   businessDate: string;
   openingCash: number;
-  inflows: number;
+  openingFloat?: number;
+  openingNotes?: string | null;
+  carriedForward?: number;
+  carriedIntoToday?: number;
+  cashSales?: number;
+  manualInflows?: number;
+  totalCashCollected?: number;
+  inflows?: number;
   outflows: number;
+  manualOutflows?: number;
+  momoDeposits?: number;
+  cashRefunds?: number;
+  handovers?: number;
+  totalHandedOver?: number;
+  isHandedOver?: boolean;
+  expectedCash?: number;
+  availableCashAtHand?: number;
   netCash: number;
   entries: CashEntryRecord[];
+  cashPayments?: Array<{
+    id: string;
+    amount: number;
+    type: string;
+    source: string;
+    sourceId: string;
+    reference: string | null;
+    description: string | null;
+    processedAt: string;
+    processedBy: string;
+  }>;
   byCategory: Record<string, number>;
 }
 
@@ -826,6 +852,14 @@ export const cashRegisterApi = {
     const data = await apiFetch<any>(`/cash-register/handover?businessDate=${businessDate}`, {}, token());
     return { success: true, data };
   },
+
+  recordHandover: async (body: {
+    businessDate: string;
+    amount: number;
+    recipient: string;
+    notes?: string;
+  }): Promise<any> =>
+    apiFetch<any>('/cash-register/handover', { method: 'POST', body: JSON.stringify(body) }, token()),
 
   recordBankDeposit: async (body: {
     businessDate: string;

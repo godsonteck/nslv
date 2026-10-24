@@ -1,17 +1,31 @@
 // ============================================
-// NS LUXURY VILLA — Guest Bills (Reception)
-// Live guest folios: restaurant/bar/pool room charges
-// appear here automatically. Amounts are always read-only.
+// NS LUXURY VILLA — Guest Bills & Live Folios
+// Front Desk: View, inspect and print in-house guest folios
 // ============================================
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshCw, ReceiptText, Printer, WalletCards, Search, UserRound, Eye, Plus, ArrowUpRight } from 'lucide-react';
-import { Button, Modal, SearchInput, LoadingState, showToast, statusBadge } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
+import {
+  RefreshCw,
+  ReceiptText,
+  Printer,
+  WalletCards,
+  UserRound,
+  Eye,
+  CheckCircle2,
+  Clock,
+  Search,
+  BedDouble,
+  CreditCard,
+  Building,
+  ShieldCheck,
+  ChevronRight,
+} from 'lucide-react';
+import { Button, Modal, LoadingState, showToast, statusBadge } from '../../components/ui';
+import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { staysApi, foliosApi } from '../../services/apiService';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { villaAssets } from '../../assets';
-import { receiptCompanyBlock, printPaymentReceipt } from '../../lib/company';
+import { receiptCompanyBlock } from '../../lib/company';
 
 interface BillStay {
   id: string;
@@ -52,7 +66,7 @@ export const GuestBillsPage: React.FC = () => {
   const [stays, setStays] = useState<BillStay[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
-  
+
   // Selected Bill for Modal View
   const [selectedBill, setSelectedBill] = useState<{ stay: BillStay; folio: any } | null>(null);
   const [loadingFolio, setLoadingFolio] = useState(false);
@@ -106,7 +120,7 @@ export const GuestBillsPage: React.FC = () => {
         setSelectedBill({ stay, folio: res.data || res });
       }
     } catch {
-      // Keep existing folio object if live reload fails
+      // Retain existing folio data if live reload fails
     } finally {
       setLoadingFolio(false);
     }
@@ -115,247 +129,370 @@ export const GuestBillsPage: React.FC = () => {
   const printBill = () => {
     if (!selectedBill) return;
     const { stay, folio } = selectedBill;
-    const win = window.open('', '_blank');
+    const win = window.open('', '_blank', 'width=520,height=800');
     if (!win) {
       showToast('error', 'Pop-up blocked. Please allow pop-ups to print bill.');
       return;
     }
 
-    // Voided items (e.g. a waived late checkout fee) never belong on the
-    // guest-facing bill; they remain visible, struck through, in the app.
     const items = (folio.items || [])
       .filter((i: any) => !i.voidedAt)
       .map(
         (i: any) =>
-          `<tr><td>${i.description}</td><td class="r">${i.quantity ?? 1}</td><td class="r">${formatCurrency(money(i.unitPrice || i.amount))}</td><td class="r">${formatCurrency(money(i.amount))}</td></tr>`,
+          `<tr>
+            <td>${i.description}</td>
+            <td style="text-align:center">${i.quantity ?? 1}</td>
+            <td style="text-align:right">${formatCurrency(money(i.unitPrice || i.amount))}</td>
+            <td style="text-align:right;font-weight:bold">${formatCurrency(money(i.amount))}</td>
+          </tr>`,
       )
       .join('');
+
     const payments = (folio.payments || [])
       .map(
         (p: any) =>
-          `<tr><td>${p.method} payment</td><td class="r">${new Date(p.processedAt || p.createdAt).toLocaleDateString()}</td><td class="r">${formatCurrency(money(p.amount))}</td></tr>`,
+          `<tr>
+            <td>${p.method} Payment</td>
+            <td style="text-align:center">${new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH')}</td>
+            <td style="text-align:right;font-weight:bold;color:#047857">-${formatCurrency(money(p.amount))}</td>
+          </tr>`,
       )
       .join('');
+
     const guestName = formatGuestName(stay.guest, 'Guest');
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
+    const balance = money(folio.balance);
 
-    win.document.write(`<!DOCTYPE html><html><head><title>Guest bill</title><style>
-      body{font-family:'Courier New',monospace;font-size:12px;color:#111;padding:24px;width:320px;margin:0 auto}
-      h1{font-size:15px;text-align:center;margin:0 0 4px} .company{text-align:center;font-size:10px;line-height:1.45;color:#444;margin-bottom:8px}.sub{text-align:center;font-size:10px;color:#555;margin-bottom:16px}
-      .logo{display:block;margin:0 auto 10px;width:56px;height:56px;border-radius:12px;object-fit:cover}
-      .row{display:flex;justify-content:space-between;font-size:11px;margin:2px 0}
-      table{width:100%;border-collapse:collapse;margin:12px 0} th{font-size:10px;text-align:left;border-bottom:1px solid #999;padding:4px 0}
-      td{padding:3px 0;font-size:11px;vertical-align:top} td.r,th.r{text-align:right}
-      .sec{font-size:10px;font-weight:bold;letter-spacing:.08em;margin:10px 0 4px;border-top:1px dashed #999;padding-top:10px}
-      .total{border-top:1px solid #111;padding-top:8px;font-size:13px;font-weight:bold;display:flex;justify-content:space-between}
-      .foot{text-align:center;font-size:10px;color:#555;margin-top:18px;border-top:1px dashed #999;padding-top:8px}
-      @media print{.noprint{display:none}}</style></head><body>
-      <img src="${logoUrl}" alt="NS Luxury Villa" class="logo"/>
-      ${receiptCompanyBlock()}<div class="sub">GUEST BILL · ROOM ${stay.room?.number ?? '—'}</div>
-      <div class="row"><span>Guest</span><span>${guestName}</span></div>
-      <div class="row"><span>Checked in</span><span>${new Date(stay.actualCheckIn).toLocaleDateString()}</span></div>
-      <div class="row"><span>Folio</span><span>${folio.id.slice(0, 8).toUpperCase()}</span></div>
-      <div class="row"><span>Printed</span><span>${new Date().toLocaleString()}</span></div>
-      <div class="sec">CHARGES</div>
-      ${items ? `<table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Amount</th></tr></thead><tbody>${items}</tbody></table>` : '<div style="text-align:center;font-size:11px;color:#777;margin:6px 0">No charges recorded</div>'}
-      ${payments ? `<div class="sec">PAYMENTS</div><table><thead><tr><th>Method</th><th class="r">Date</th><th class="r">Amount</th></tr></thead><tbody>${payments}</tbody></table>` : ''}
-      <div class="total"><span>Balance due</span><span>${formatCurrency(money(folio.balance))}</span></div>
-      <div class="foot">Currency: GHS · Check-in 2:00 PM · Check-out 12:00 PM<br/>Thank you for staying at NS Luxury Villa.</div>
-      <div class="noprint" style="text-align:center;margin-top:16px"><button onclick="window.print()" style="padding:8px 24px;font-size:12px">Print bill</button></div>
-      </body></html>`);
+    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Guest Bill · Room ${stay.room?.number ?? '—'}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; font-size: 11.5px; color: #0c1921; background: #fff; padding: 24px; max-width: 460px; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px solid #c59a58; padding-bottom: 12px; margin-bottom: 16px; }
+    .logo { height: 48px; object-fit: contain; margin-bottom: 8px; }
+    .title { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 800; color: #0c1921; letter-spacing: 1px; }
+    .sub { font-size: 10px; font-weight: 600; color: #c59a58; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .company { font-size: 9.5px; color: #5a6b75; margin-top: 4px; }
+    .meta-card { background: #fcf9f2; border: 1px solid #e7d8bc; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10.5px; }
+    .lbl { color: #71828a; font-weight: 600; text-transform: uppercase; font-size: 9px; }
+    .val { font-weight: 700; color: #0c1921; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
+    th { background: #0c1921; color: #fcf9f2; text-align: left; padding: 6px 10px; font-size: 9.5px; text-transform: uppercase; font-weight: 700; }
+    td { padding: 6px 10px; border-bottom: 1px solid #edf2f2; }
+    .section-title { font-size: 11px; font-weight: 800; color: #0c1921; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 6px; }
+    .total-card { border-top: 2px solid #0c1921; border-bottom: 2px solid #0c1921; padding: 10px 0; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .total-card .lbl { font-size: 12px; font-weight: 800; color: #0c1921; }
+    .total-card .amt { font-size: 16px; font-weight: 900; color: ${balance > 0 ? '#b91c1c' : '#047857'}; }
+    .footer { text-align: center; font-size: 9.5px; color: #71828a; margin-top: 24px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+    .btn { display: block; width: 100%; padding: 10px; background: #0c1921; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; margin-top: 16px; }
+    @media print { .btn { display: none; } body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="${logoUrl}" alt="NS Luxury Villa" class="logo" onerror="this.style.display='none'"/>
+    <div class="title">NS LUXURY VILLA</div>
+    <div class="sub">Official In-House Guest Folio</div>
+    <div class="company">Lokoe, Ho, Volta Region, Ghana &bull; Tel: +233 535 572 774</div>
+  </div>
+
+  <div class="meta-card">
+    <div class="grid">
+      <div><div class="lbl">Room Number</div><div class="val">Room ${stay.room?.number ?? '—'} (${stay.room?.roomType?.name || 'Suite'})</div></div>
+      <div><div class="lbl">Guest Name</div><div class="val">${guestName}</div></div>
+      <div><div class="lbl">Checked In</div><div class="val">${new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}</div></div>
+      <div><div class="lbl">Folio Reference</div><div class="val" style="font-family:monospace">${folio.id.slice(0, 8).toUpperCase()}</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Room & Department Charges</div>
+  ${items ? `<table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead><tbody>${items}</tbody></table>` : '<div style="font-size:11px;color:#71828a;padding:8px 0">No posted charges on record.</div>'}
+
+  ${payments ? `<div class="section-title" style="margin-top:16px">Recorded Payments & Deposits</div><table><thead><tr><th>Method</th><th style="text-align:center">Date</th><th style="text-align:right">Amount</th></tr></thead><tbody>${payments}</tbody></table>` : ''}
+
+  <div class="total-card">
+    <div class="lbl">BALANCE OUTSTANDING DUE:</div>
+    <div class="amt">${formatCurrency(balance)}</div>
+  </div>
+
+  <div class="footer">
+    Thank you for staying at NS Luxury Villa &bull; Lokoe, Ho, Ghana<br/>
+    Check-in: 2:00 PM &bull; Check-out: 12:00 PM
+  </div>
+
+  <button class="btn" onclick="window.print()">&#128438; Print Guest Folio</button>
+</body>
+</html>`);
+
     win.document.close();
   };
 
   return (
     <ShellPage
-      eyebrow="RECEPTION · GUEST BILLS"
-      title="Guest bills"
-      subtitle="Live folio charges posted by the restaurant, bar and pool appear automatically. All amounts are calculated automatically."
+      eyebrow="FRONT OFFICE • LIVE GUEST ACCOUNTS"
+      title="Guest Bills & Folios"
+      subtitle="Live room accounts for checked-in guests. Room charges from the restaurant, bar, pool, and front desk accumulate automatically."
       actions={
-        <Button variant="outline" size="sm" onClick={load}>
-          <RefreshCw size={14} /> Refresh
+        <Button variant="outline" size="sm" onClick={load} className="gap-1.5 border-[#e5ebeb]">
+          <RefreshCw size={13} /> Refresh
         </Button>
       }
     >
+      {/* ── Metric Cards ── */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile label="Guests in house" value={stays.length} icon={UserRound} />
-        <StatTile label="Open bills" value={openFolios.length} icon={ReceiptText} />
-        <StatTile label="Outstanding total" value={formatCurrency(outstandingTotal)} icon={WalletCards} accent />
+        <StatTile
+          label="In-House Guests"
+          value={stays.length}
+          note="Active checked-in reservations"
+          icon={UserRound}
+        />
+        <StatTile
+          label="Open Folios"
+          value={openFolios.length}
+          note="Live guest room billing accounts"
+          icon={ReceiptText}
+        />
+        <StatTile
+          label="Total Balance Due"
+          value={formatCurrency(outstandingTotal)}
+          note={outstandingTotal > 0 ? 'Pending payment before departure' : 'All accounts settled'}
+          icon={WalletCards}
+          accent={outstandingTotal > 0}
+        />
       </div>
 
-      <Section title="In-house guest bills" subtitle="Click on any row or 'View bill' to inspect charges, payments and print receipts">
-        <div className="border-b border-[#e8ebe8] p-4">
-          <SearchInput value={q} onChange={setQ} placeholder="Search by guest or room…" />
-        </div>
+      {/* ── Table Section ── */}
+      <Section
+        title="Active Guest Room Folios"
+        subtitle="Click any row or 'View Bill' to inspect breakdown, posted items, payments, or print official slips."
+      >
+        <Toolbar search={q} onSearch={setQ} placeholder="Search by guest name or room number…" />
+
         {loading ? (
-          <div className="p-10"><LoadingState /></div>
+          <div className="p-12"><LoadingState /></div>
         ) : visible.length === 0 ? (
-          <div className="p-12 text-center text-xs text-[#899397]">
-            {stays.length === 0 ? 'No guests are currently checked in.' : 'No in-house guest bills match your search.'}
+          <div className="p-16 text-center text-xs text-[#71828a]">
+            {stays.length === 0 ? 'No guests are currently checked in.' : 'No in-house guest accounts match your search.'}
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-[#f7f8f6] text-[10px] uppercase tracking-[.12em] text-[#7d898d]">
-                <tr>
-                  <th className="px-5 py-3">Room</th>
-                  <th className="px-5 py-3">Guest</th>
-                  <th className="px-5 py-3">Folio ID</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Balance</th>
-                  <th className="px-5 py-3 text-right">Action</th>
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <th className="py-3 px-5">Room</th>
+                  <th className="py-3 px-5">Guest Name</th>
+                  <th className="py-3 px-5">Folio Ref</th>
+                  <th className="py-3 px-5">Account Status</th>
+                  <th className="py-3 px-5 text-right">Balance Due</th>
+                  <th className="py-3 px-5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ed]">
-                {visible.map(({ stay, folio }) => (
-                  <tr
-                    key={stay.id}
-                    onClick={() => openBillModal(stay, folio)}
-                    className="cursor-pointer hover:bg-[#f5f8f6] transition-colors"
-                  >
-                    <td className="px-5 py-4 font-mono text-xs font-extrabold text-[#26363e]">
-                      Room {stay.room?.number ?? '—'}
-                      <div className="text-[10px] font-normal text-[#899397]">{stay.room?.roomType?.name || 'Room'}</div>
-                    </td>
-                    <td className="px-5 py-4 text-xs font-extrabold text-[#26363e]">
-                      {formatGuestName(stay.guest, 'Guest')}
-                      <div className="text-[10px] font-normal text-[#899397]">
-                        Checked in {new Date(stay.actualCheckIn).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 font-mono text-[11px] font-bold text-[#a8761e]">
-                      {folio.id.slice(0, 8).toUpperCase()}
-                    </td>
-                    <td className="px-5 py-4">{statusBadge(folio.status)}</td>
-                    <td className="px-5 py-4 text-right text-xs font-extrabold text-[#26363e]">
-                      {formatCurrency(money(folio.balance))}
-                    </td>
-                    <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <Button variant="outline" size="sm" onClick={() => openBillModal(stay, folio)}>
-                        <ReceiptText size={13} /> View bill
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {visible.map(({ stay, folio }) => {
+                  const balance = money(folio.balance);
+                  const isSettled = balance <= 0.01;
+
+                  return (
+                    <tr
+                      key={stay.id}
+                      onClick={() => openBillModal(stay, folio)}
+                      className="cursor-pointer hover:bg-[#fbfcfb] transition-colors"
+                    >
+                      <td className="py-3.5 px-5">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0c1921] font-mono text-xs font-black text-[#c59a58]">
+                            {stay.room?.number ?? '—'}
+                          </span>
+                          <span className="text-[11px] font-semibold text-[#5a6b75]">
+                            {stay.room?.roomType?.name || 'Room'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-5">
+                        <div className="font-bold text-[#0c1921] text-xs">
+                          {formatGuestName(stay.guest, 'Guest')}
+                        </div>
+                        <div className="text-[10px] text-[#71828a]">
+                          Checked in: {new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[#b88738]">
+                        {folio.id.slice(0, 8).toUpperCase()}
+                      </td>
+                      <td className="py-3.5 px-5">
+                        {isSettled ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                            <CheckCircle2 size={10} /> Fully Settled
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200">
+                            <Clock size={10} /> Balance Pending
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-5 text-right font-mono text-sm font-black">
+                        <span className={balance > 0 ? 'text-[#b91c1c]' : 'text-[#047857]'}>
+                          {formatCurrency(balance)}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openBillModal(stay, folio)}
+                          className="h-8 gap-1.5 border-[#e5ebeb] text-xs font-semibold hover:border-[#c59a58]/40"
+                        >
+                          <ReceiptText size={13} className="text-[#c59a58]" /> View Bill
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </Section>
 
-      {/* Guest Bill Modal */}
+      {/* ── Guest Bill Modal ── */}
       <Modal
         open={!!selectedBill}
         onClose={() => setSelectedBill(null)}
-        title={selectedBill ? `Guest bill · Room ${selectedBill.stay.room?.number ?? '—'}` : 'Guest bill'}
-        size="lg"
+        title={
+          selectedBill
+            ? `Guest Bill · Room ${selectedBill.stay.room?.number ?? '—'} (${formatGuestName(selectedBill.stay.guest, 'Guest')})`
+            : 'Guest Bill'
+        }
       >
         {selectedBill && (
-          <div className="p-6">
-            <div className="mb-5 flex items-start justify-between gap-4">
+          <div className="space-y-4">
+            {/* Header info */}
+            <div className="rounded-xl border border-[#c59a58]/30 bg-[#fcf9f2] p-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="text-base font-extrabold text-[#26363e]">
-                  {formatGuestName(selectedBill.stay.guest, 'Guest')}
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
+                  Folio {selectedBill.folio.id.slice(0, 8).toUpperCase()}
+                </span>
+                <div className="text-sm font-bold text-[#0c1921]">
+                  Room {selectedBill.stay.room?.number ?? '—'} &bull; {formatGuestName(selectedBill.stay.guest, 'Guest')}
                 </div>
-                <div className="mt-1 text-xs text-[#899397]">
-                  Checked in {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString()} · Room {selectedBill.stay.room?.number ?? '—'} ({selectedBill.stay.room?.roomType?.name || 'Room'})
-                </div>
-                <div className="mt-0.5 font-mono text-[10px] text-[#a8761e]">
-                  Folio: {selectedBill.folio.id.slice(0, 8).toUpperCase()} · Status: {selectedBill.folio.status}
+                <div className="text-[11px] text-[#5a6b75]">
+                  Checked in {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString('en-GH')}
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={printBill}>
-                <Printer size={13} /> Print bill
-              </Button>
+              <div className="text-right">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  Balance Due
+                </span>
+                <div className="text-xl font-black text-[#0c1921]">
+                  {formatCurrency(money(selectedBill.folio.balance))}
+                </div>
+              </div>
             </div>
 
-            {loadingFolio ? (
-              <LoadingState />
-            ) : (!selectedBill.folio.items || selectedBill.folio.items.length === 0) ? (
-              <div className="rounded-2xl border border-dashed border-[#dfe4e0] p-10 text-center">
-                <WalletCards className="mx-auto text-[#a0aaad]" size={32} />
-                <div className="mt-3 text-xs font-extrabold text-[#59676d]">No charges on this bill yet</div>
-                <p className="mt-1 text-[11px] text-[#899397]">Room charges from restaurant, bar or pool will post here automatically.</p>
+            {/* Charges List */}
+            <div>
+              <div className="flex items-center justify-between pb-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0c1921]">
+                  Department Charges & Room Services
+                </h4>
+                <span className="text-[11px] text-[#71828a]">
+                  {(selectedBill.folio.items || []).filter((i: any) => !i.voidedAt).length} item(s)
+                </span>
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-[#f7f8f6] text-[10px] uppercase tracking-[.12em] text-[#7d898d]">
-                    <tr>
-                      <th className="px-4 py-3">Charge</th>
-                      <th className="px-4 py-3">Department</th>
-                      <th className="px-4 py-3 text-right">Qty</th>
-                      <th className="px-4 py-3 text-right">Unit Rate</th>
-                      <th className="px-4 py-3 text-right">Amount</th>
+              <div className="max-h-60 overflow-y-auto rounded-xl border border-[#edf2f2] bg-white">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase text-[#71828a]">
+                      <th className="py-2 px-3">Item / Description</th>
+                      <th className="py-2 px-3">Dept</th>
+                      <th className="py-2 px-3 text-center">Qty</th>
+                      <th className="py-2 px-3 text-right">Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#edf0ed]">
-                    {selectedBill.folio.items.map((item: any) => (
-                      <tr key={item.id} className={item.voidedAt ? 'opacity-40 line-through' : 'hover:bg-[#fbfcfa]'}>
-                        <td className="px-4 py-3 text-xs font-bold text-[#26363e]">
-                          {item.description}
-                          {item.voidedAt && <span className="ml-2 text-[10px] text-red-500">(Voided)</span>}
-                        </td>
-                        <td className="px-4 py-3 text-[10px] font-extrabold text-[#16a4d4] uppercase">{item.department}</td>
-                        <td className="px-4 py-3 text-right text-xs text-[#718086]">{item.quantity ?? 1}</td>
-                        <td className="px-4 py-3 text-right text-xs text-[#718086]">{formatCurrency(money(item.unitPrice || item.amount))}</td>
-                        <td className="px-4 py-3 text-right text-xs font-extrabold text-[#26363e]">
-                          {formatCurrency(money(item.amount))}
+                  <tbody className="divide-y divide-[#f1f5f9]">
+                    {(selectedBill.folio.items || [])
+                      .filter((i: any) => !i.voidedAt)
+                      .map((i: any) => (
+                        <tr key={i.id} className="hover:bg-[#fbfcfb]">
+                          <td className="py-2 px-3 font-medium text-[#0c1921]">{i.description}</td>
+                          <td className="py-2 px-3 text-[10px] font-semibold text-[#5a6b75]">{i.department || 'ROOM'}</td>
+                          <td className="py-2 px-3 text-center font-mono">{i.quantity ?? 1}</td>
+                          <td className="py-2 px-3 text-right font-mono font-bold text-[#0c1921]">
+                            {formatCurrency(money(i.amount))}
+                          </td>
+                        </tr>
+                      ))}
+                    {(selectedBill.folio.items || []).filter((i: any) => !i.voidedAt).length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="py-6 text-center text-[#71828a]">
+                          No posted charges on record.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
-            )}
-
-            {selectedBill.folio.payments && selectedBill.folio.payments.length > 0 && (
-              <div className="mt-5">
-                <div className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#7d898d]">Payments received</div>
-                <div className="mt-2 space-y-2">
-                  {selectedBill.folio.payments.map((p: any) => (
-                    <div key={p.id} className="flex items-center justify-between gap-2 rounded-xl bg-[#f0f7f2] px-4 py-2.5">
-                      <span className="text-[11px] font-bold text-[#26363e]">
-                        {p.method.replace('_', ' ')}&nbsp;
-                        {p.type === 'DEPOSIT' ? <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-700 uppercase tracking-wide">Part payment</span> : <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[9px] font-extrabold text-green-700 uppercase tracking-wide">Full payment</span>}
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <span className="text-[11px] font-extrabold text-[#2d8a68]">− {formatCurrency(money(p.amount))}</span>
-                        <button
-                          type="button"
-                          title="Print payment receipt"
-                          onClick={() => {
-                            const folioBalance = money(selectedBill.folio.balance);
-                            const totalCharges = (selectedBill.folio.items || []).reduce((s: number, i: any) => s + money(i.amount), 0);
-                            printPaymentReceipt(p, {
-                              type: p.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
-                              fullySettled: folioBalance <= 0.005,
-                              guestName: formatGuestName(selectedBill.stay.guest, 'Guest'),
-                              bookingRef: selectedBill.stay.reservation.id.slice(0, 8).toUpperCase(),
-                              roomNumber: String(selectedBill.stay.room?.number ?? ''),
-                              amountDue: totalCharges > 0 ? totalCharges : folioBalance,
-                              remainingBalance: folioBalance,
-                            });
-                          }}
-                          className="rounded-md p-1 text-[#718086] hover:bg-white hover:text-[#16a4d4] transition-colors"
-                        >
-                          <Printer size={13} />
-                        </button>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="mt-5 flex items-center justify-between border-t border-[#e8ebe8] px-4 pb-2 pt-4">
-              <span className="text-xs font-bold text-[#899397]">Total Balance Due</span>
-              <strong className="text-2xl font-extrabold text-[#20343e]">{formatCurrency(money(selectedBill.folio.balance))}</strong>
             </div>
 
-            <div className="mt-4 flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setSelectedBill(null)}>
+            {/* Payments List */}
+            <div>
+              <div className="flex items-center justify-between pb-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0c1921]">
+                  Recorded Payments & Deposits
+                </h4>
+                <span className="text-[11px] text-[#71828a]">
+                  {(selectedBill.folio.payments || []).length} payment(s)
+                </span>
+              </div>
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-[#edf2f2] bg-white">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase text-[#71828a]">
+                      <th className="py-2 px-3">Method</th>
+                      <th className="py-2 px-3">Date</th>
+                      <th className="py-2 px-3 text-right">Amount Paid</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f1f5f9]">
+                    {(selectedBill.folio.payments || []).map((p: any) => (
+                      <tr key={p.id} className="hover:bg-[#fbfcfb]">
+                        <td className="py-2 px-3 font-semibold text-[#0c1921]">{p.method}</td>
+                        <td className="py-2 px-3 text-[#5a6b75] text-[11px]">
+                          {new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH')}
+                        </td>
+                        <td className="py-2 px-3 text-right font-mono font-bold text-emerald-700">
+                          -{formatCurrency(money(p.amount))}
+                        </td>
+                      </tr>
+                    ))}
+                    {(selectedBill.folio.payments || []).length === 0 && (
+                      <tr>
+                        <td colSpan={3} className="py-4 text-center text-[#71828a]">
+                          No payments recorded yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex justify-between items-center pt-3 border-t border-[#edf2f2]">
+              <Button variant="ghost" size="sm" onClick={() => setSelectedBill(null)}>
                 Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={printBill}
+                className="gap-1.5 bg-[#0c1921] hover:bg-[#173c4d] text-white font-semibold"
+              >
+                <Printer size={14} className="text-[#c59a58]" /> Print Guest Folio
               </Button>
             </div>
           </div>

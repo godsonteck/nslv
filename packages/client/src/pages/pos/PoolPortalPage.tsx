@@ -642,7 +642,7 @@ export default function PoolPortalPage() {
               variant="outline"
               size="sm"
               onClick={() => setPricingModalOpen(true)}
-              className="border-[#C5A880]/50 text-[#C5A880] hover:bg-[#C5A880]/10 font-bold"
+              className="border-[#c59a58]/50 text-[#c59a58] hover:bg-[#c59a58]/10 font-bold"
             >
               <Settings size={14} /> Adjust Pool Prices
             </Button>
@@ -723,12 +723,12 @@ export default function PoolPortalPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-semibold text-[#A0A5AD]">Pass / Service Type *</label>
+                      <label className="text-xs font-semibold text-[#6e7a8a]">Pass / Service Type *</label>
                       {canAdjustPrices && (
                         <button
                           type="button"
                           onClick={() => setPricingModalOpen(true)}
-                          className="text-[11px] text-[#C5A880] hover:underline font-semibold flex items-center gap-1"
+                          className="text-[11px] text-[#c59a58] hover:underline font-semibold flex items-center gap-1"
                           title="Adjust prices or add new pool passes"
                         >
                           <Settings size={11} /> Adjust Prices
@@ -792,7 +792,7 @@ export default function PoolPortalPage() {
                       />
                     </FormField>
                     <div className="flex items-end pb-1">
-                      <p className="text-[11px] text-[#6E737B] leading-snug">
+                      <p className="text-[11px] text-[#4a5568] leading-snug">
                         Not included in the pass. Leave at 0 if no towel is issued.
                       </p>
                     </div>
@@ -806,9 +806,9 @@ export default function PoolPortalPage() {
                     id="complimentaryCheck"
                     checked={isComplimentary}
                     onChange={(e) => setIsComplimentary(e.target.checked)}
-                    className="h-4 w-4 rounded border-[#2B303E] bg-[#14161D] text-[#C5A880] focus:ring-[#C5A880]"
+                    className="h-4 w-4 rounded border-[#1e2535] bg-[#0f141d] text-[#c59a58] focus:ring-[#c59a58]"
                   />
-                  <label htmlFor="complimentaryCheck" className="text-xs text-[#A0A5AD] cursor-pointer">
+                  <label htmlFor="complimentaryCheck" className="text-xs text-[#6e7a8a] cursor-pointer">
                     Complimentary / In-House Hotel Resident (Free Access)
                   </label>
                 </div>
@@ -822,24 +822,24 @@ export default function PoolPortalPage() {
                 </FormField>
 
                 {/* Total Summary Box */}
-                <div className="rounded-xl bg-[#14161D] border border-[#2B303E] p-4 text-xs">
-                  <div className="flex items-center justify-between text-[#A0A5AD] mb-1">
+                <div className="rounded-xl bg-[#0f141d] border border-[#1e2535] p-4 text-xs">
+                  <div className="flex items-center justify-between text-[#6e7a8a] mb-1">
                     <span>Rate × Headcount:</span>
                     <span>
                       {formatCurrency(isComplimentary ? 0 : unitPriceNum)} × {countNum} swimmer{countNum > 1 ? 's' : ''}
                     </span>
                   </div>
                   {!isComplimentary && towelCount > 0 && (
-                    <div className="flex items-center justify-between text-[#A0A5AD] mb-1">
+                    <div className="flex items-center justify-between text-[#6e7a8a] mb-1">
                       <span>Towels{towelService ? ` (${towelService.name})` : ''}:</span>
                       <span>
                         {formatCurrency(towelUnitPrice)} × {towelCount} towel{towelCount > 1 ? 's' : ''}
                       </span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between font-extrabold text-base pt-2 border-t border-[#2B303E]/50">
-                    <span className="text-[#F4F4F2]">Total Amount Due:</span>
-                    <span className="font-mono text-amber-300">
+                  <div className="flex items-center justify-between font-extrabold text-base pt-2 border-t border-[#1e2535]/50">
+                    <span className="text-[#e8e6e0]">Total Amount Due:</span>
+                    <span className="font-mono text-[#c59a58]">
                       {isComplimentary ? 'FREE' : formatCurrency(totalDue)}
                     </span>
                   </div>
@@ -849,7 +849,7 @@ export default function PoolPortalPage() {
                 <div className="flex flex-col sm:flex-row gap-2 pt-2">
                   <Button
                     type="submit"
-                    className="flex-1 bg-[#C5A880] text-[#10131A] hover:bg-[#b59870] font-bold"
+                    className="flex-1 bg-[#c59a58] text-[#10131A] hover:bg-[#b59870] font-bold"
                     loading={busy}
                   >
                     <Printer size={15} /> Record &amp; Print Receipt
@@ -859,7 +859,7 @@ export default function PoolPortalPage() {
                     variant="outline"
                     disabled={busy}
                     onClick={(e) => handleSubmitEntry(e, false)}
-                    className="text-[#A0A5AD]"
+                    className="text-[#6e7a8a]"
                   >
                     <CheckCircle size={14} /> Record Only
                   </Button>
@@ -871,15 +871,15 @@ export default function PoolPortalPage() {
           {/* Right Column: Attendance & Entries Log + Cashier Transactions Tab */}
           <div className="lg:col-span-7 space-y-4">
             {/* Tab Navigation */}
-            <div className="flex items-center justify-between border-b border-[#2B303E] pb-2">
+            <div className="flex items-center justify-between border-b border-[#1e2535] pb-2">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab('entries')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                     activeTab === 'entries'
-                      ? 'bg-[#C5A880] text-[#10131A]'
-                      : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#14161D]'
+                      ? 'bg-[#c59a58] text-[#10131A]'
+                      : 'text-[#6e7a8a] hover:text-[#e8e6e0] hover:bg-[#0f141d]'
                   }`}
                 >
                   Swimmer Entries Log ({attendance.length})
@@ -889,15 +889,15 @@ export default function PoolPortalPage() {
                   onClick={() => setActiveTab('transactions')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                     activeTab === 'transactions'
-                      ? 'bg-[#C5A880] text-[#10131A]'
-                      : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#14161D]'
+                      ? 'bg-[#c59a58] text-[#10131A]'
+                      : 'text-[#6e7a8a] hover:text-[#e8e6e0] hover:bg-[#0f141d]'
                   }`}
                 >
                   Paid Transactions &amp; Receipts ({transactions.length})
                 </button>
               </div>
 
-              <div className="text-[11px] text-[#6E737B]">
+              <div className="text-[11px] text-[#4a5568]">
                 Showing {activeTab === 'entries' ? attendance.length : transactions.length} records
               </div>
             </div>
@@ -908,12 +908,12 @@ export default function PoolPortalPage() {
                 subtitle="All visitor entries. Re-print receipts, attach payments to unpaid entries, or edit."
               >
                 {matchedAttendanceList.length === 0 ? (
-                  <div className="p-12 text-center text-xs text-[#6E737B]">
-                    <Waves size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
+                  <div className="p-12 text-center text-xs text-[#4a5568]">
+                    <Waves size={32} className="mx-auto mb-2 opacity-30 text-[#c59a58]" />
                     No pool entries recorded yet.
                   </div>
                 ) : (
-                  <div className="divide-y divide-[#2B303E]/50 max-h-[640px] overflow-y-auto">
+                  <div className="divide-y divide-[#1e2535]/50 max-h-[640px] overflow-y-auto">
                     {matchedAttendanceList.map((entry) => {
                       const amountPaid = entry.amountPaid;
                       const isPaid = entry.isPaid;
@@ -922,14 +922,14 @@ export default function PoolPortalPage() {
                       return (
                         <div
                           key={entry.id}
-                          className="p-4 hover:bg-[#14161D]/60 transition-colors flex items-start justify-between gap-3 text-xs"
+                          className="p-4 hover:bg-[#0f141d]/60 transition-colors flex items-start justify-between gap-3 text-xs"
                         >
                           <div className="space-y-1 min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-extrabold text-[#F4F4F2] text-sm truncate">
+                              <span className="font-extrabold text-[#e8e6e0] text-sm truncate">
                                 {entry.visitorName}
                               </span>
-                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-[#232733] text-amber-300">
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-[#1a1f2e] text-[#c59a58]">
                                 <Users size={11} /> {entry.partySize} {entry.partySize > 1 ? 'Swimmers' : 'Swimmer'}
                               </span>
                               <span
@@ -938,7 +938,7 @@ export default function PoolPortalPage() {
                                     ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
                                     : entry.paymentMethod === 'COMPLIMENTARY'
                                       ? 'bg-blue-950/60 text-blue-300 border border-blue-800/40'
-                                      : 'bg-amber-950/60 text-amber-300 border border-amber-800/40'
+                                      : 'bg-amber-950/60 text-[#c59a58] border border-amber-800/40'
                                 }`}
                               >
                                 {isPaid
@@ -949,7 +949,7 @@ export default function PoolPortalPage() {
                               </span>
                             </div>
 
-                            <div className="text-[11px] text-[#6E737B] flex items-center gap-2">
+                            <div className="text-[11px] text-[#4a5568] flex items-center gap-2">
                               <span>
                                 {new Date(entry.createdAt).toLocaleString([], {
                                   dateStyle: 'short',
@@ -957,14 +957,14 @@ export default function PoolPortalPage() {
                                 })}
                               </span>
                               {entry.phone && (
-                                <span className="flex items-center gap-1 font-mono text-[#A0A5AD]">
+                                <span className="flex items-center gap-1 font-mono text-[#6e7a8a]">
                                   <Phone size={10} /> {entry.phone}
                                 </span>
                               )}
                             </div>
 
                             {entry.notes && (
-                              <div className="text-[10px] text-[#A0A5AD] italic bg-[#14161D] px-2 py-0.5 rounded inline-block">
+                              <div className="text-[10px] text-[#6e7a8a] italic bg-[#0f141d] px-2 py-0.5 rounded inline-block">
                                 Note: {entry.notes}
                               </div>
                             )}
@@ -1004,7 +1004,7 @@ export default function PoolPortalPage() {
                                     notes: entry.notes,
                                   })
                                 }
-                                className="text-[#C5A880] border-[#C5A880]/40 hover:bg-[#C5A880]/10"
+                                className="text-[#c59a58] border-[#c59a58]/40 hover:bg-[#c59a58]/10"
                                 title="Print Official Receipt"
                               >
                                 <Printer size={13} /> Print
@@ -1015,7 +1015,7 @@ export default function PoolPortalPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => openEditAttendance(entry)}
-                              className="text-[#A0A5AD] hover:text-[#F4F4F2]"
+                              className="text-[#6e7a8a] hover:text-[#e8e6e0]"
                               title="Edit / Correct Entry"
                             >
                               <Edit2 size={13} />
@@ -1049,23 +1049,23 @@ export default function PoolPortalPage() {
                 subtitle="Official cashier payment ledger for pool passes and rentals."
               >
                 {transactions.length === 0 ? (
-                  <div className="p-12 text-center text-xs text-[#6E737B]">
-                    <ReceiptText size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
+                  <div className="p-12 text-center text-xs text-[#4a5568]">
+                    <ReceiptText size={32} className="mx-auto mb-2 opacity-30 text-[#c59a58]" />
                     No paid transactions recorded yet.
                   </div>
                 ) : (
-                  <div className="divide-y divide-[#2B303E]/50 max-h-[640px] overflow-y-auto">
+                  <div className="divide-y divide-[#1e2535]/50 max-h-[640px] overflow-y-auto">
                     {transactions.map((tx) => (
                       <div
                         key={tx.id}
-                        className="p-4 hover:bg-[#14161D]/60 transition-colors flex items-start justify-between gap-3 text-xs"
+                        className="p-4 hover:bg-[#0f141d]/60 transition-colors flex items-start justify-between gap-3 text-xs"
                       >
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-[#F4F4F2] text-sm">
+                            <span className="font-extrabold text-[#e8e6e0] text-sm">
                               {tx.transactionNo || 'POL-TX'}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#232733] text-amber-300 font-mono">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1a1f2e] text-[#c59a58] font-mono">
                               {tx.service?.name || 'Pool Pass'} × {tx.quantity}
                             </span>
                             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-mono">
@@ -1073,18 +1073,18 @@ export default function PoolPortalPage() {
                             </span>
                           </div>
 
-                          <div className="text-[11px] text-[#6E737B] flex items-center gap-2">
+                          <div className="text-[11px] text-[#4a5568] flex items-center gap-2">
                             <span>
                               {new Date(tx.createdAt).toLocaleString([], {
                                 dateStyle: 'short',
                                 timeStyle: 'short',
                               })}
                             </span>
-                            <span className="font-bold text-[#A0A5AD]">Method: {tx.paymentMethod}</span>
+                            <span className="font-bold text-[#6e7a8a]">Method: {tx.paymentMethod}</span>
                           </div>
 
                           {tx.notes && (
-                            <div className="text-[10px] text-[#A0A5AD] italic bg-[#14161D] px-2 py-0.5 rounded inline-block">
+                            <div className="text-[10px] text-[#6e7a8a] italic bg-[#0f141d] px-2 py-0.5 rounded inline-block">
                               {tx.notes}
                             </div>
                           )}
@@ -1108,7 +1108,7 @@ export default function PoolPortalPage() {
                                 notes: tx.notes,
                               })
                             }
-                            className="text-[#C5A880] border-[#C5A880]/40 hover:bg-[#C5A880]/10"
+                            className="text-[#c59a58] border-[#c59a58]/40 hover:bg-[#c59a58]/10"
                             title="Print Official Receipt"
                           >
                             <Printer size={13} /> Print
@@ -1148,14 +1148,14 @@ export default function PoolPortalPage() {
           title={`Collect Payment · ${chargingEntry.visitorName} (${chargingEntry.partySize} pax)`}
         >
           <form onSubmit={handleSaveChargeEntry} className="space-y-4 text-xs">
-            <div className="p-3 bg-[#14161D] border border-[#2B303E] rounded-xl text-xs space-y-1">
-              <div className="flex justify-between text-[#A0A5AD]">
+            <div className="p-3 bg-[#0f141d] border border-[#1e2535] rounded-xl text-xs space-y-1">
+              <div className="flex justify-between text-[#6e7a8a]">
                 <span>Visitor Name:</span>
-                <span className="font-bold text-[#F4F4F2]">{chargingEntry.visitorName}</span>
+                <span className="font-bold text-[#e8e6e0]">{chargingEntry.visitorName}</span>
               </div>
-              <div className="flex justify-between text-[#A0A5AD]">
+              <div className="flex justify-between text-[#6e7a8a]">
                 <span>Swimmers Count:</span>
-                <span className="font-bold text-amber-300">{chargingEntry.partySize} Swimmers</span>
+                <span className="font-bold text-[#c59a58]">{chargingEntry.partySize} Swimmers</span>
               </div>
             </div>
 
@@ -1201,9 +1201,9 @@ export default function PoolPortalPage() {
               </FormField>
             </div>
 
-            <div className="p-3 bg-[#181B24] border border-[#C5A880]/40 rounded-xl flex justify-between items-center text-sm font-bold">
-              <span className="text-[#F4F4F2]">Total To Collect:</span>
-              <span className="text-amber-300 font-mono">
+            <div className="p-3 bg-[#131722] border border-[#c59a58]/40 rounded-xl flex justify-between items-center text-sm font-bold">
+              <span className="text-[#e8e6e0]">Total To Collect:</span>
+              <span className="text-[#c59a58] font-mono">
                 {formatCurrency(Number(chargingEntry.partySize || 1) * (Number(chargeUnitPrice) || 0))}
               </span>
             </div>
@@ -1221,7 +1221,7 @@ export default function PoolPortalPage() {
                 type="submit"
                 variant="primary"
                 loading={chargeBusy}
-                className="bg-[#C5A880] text-[#10131A] font-bold"
+                className="bg-[#c59a58] text-[#10131A] font-bold"
               >
                 <Check size={14} /> Collect &amp; Print Receipt
               </Button>
@@ -1284,7 +1284,7 @@ export default function PoolPortalPage() {
                 type="submit"
                 variant="primary"
                 loading={editBusy}
-                className="bg-[#C5A880] text-[#10131A] font-bold"
+                className="bg-[#c59a58] text-[#10131A] font-bold"
               >
                 Save Corrections
               </Button>
@@ -1347,7 +1347,7 @@ export default function PoolPortalPage() {
         >
           <div className="space-y-5 text-xs max-h-[75vh] overflow-y-auto pr-1">
             <div className="flex items-center justify-between">
-              <div className="text-[#A0A5AD]">
+              <div className="text-[#6e7a8a]">
                 Manage standard pool pass rates, rental items, and prices charged at reception.
               </div>
               {!showAddService && (
@@ -1355,7 +1355,7 @@ export default function PoolPortalPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setShowAddService(true)}
-                  className="bg-[#C5A880]/10 border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880]/20 font-bold shrink-0"
+                  className="bg-[#c59a58]/10 border-[#c59a58] text-[#c59a58] hover:bg-[#c59a58]/20 font-bold shrink-0"
                 >
                   <Plus size={13} /> Add Pass Rate
                 </Button>
@@ -1366,14 +1366,14 @@ export default function PoolPortalPage() {
             {showAddService && (
               <form
                 onSubmit={handleCreateNewService}
-                className="p-4 rounded-xl bg-[#14161D] border border-[#C5A880]/40 space-y-3"
+                className="p-4 rounded-xl bg-[#0f141d] border border-[#c59a58]/40 space-y-3"
               >
-                <div className="flex items-center justify-between font-bold text-[#C5A880]">
+                <div className="flex items-center justify-between font-bold text-[#c59a58]">
                   <span>Add New Pool Pass / Service</span>
                   <button
                     type="button"
                     onClick={() => setShowAddService(false)}
-                    className="text-[#6E737B] hover:text-[#F4F4F2]"
+                    className="text-[#4a5568] hover:text-[#e8e6e0]"
                   >
                     <X size={15} />
                   </button>
@@ -1420,7 +1420,7 @@ export default function PoolPortalPage() {
                     variant="primary"
                     size="sm"
                     loading={newServiceSaving}
-                    className="bg-[#C5A880] text-[#10131A] font-bold"
+                    className="bg-[#c59a58] text-[#10131A] font-bold"
                   >
                     <Save size={13} /> Save New Pass
                   </Button>
@@ -1438,8 +1438,8 @@ export default function PoolPortalPage() {
                     key={svc.id}
                     className={`p-4 rounded-xl border transition-all ${
                       svc.isAvailable
-                        ? 'bg-[#181B24] border-[#2B303E]'
-                        : 'bg-[#14161D]/50 border-[#2B303E]/40 opacity-70'
+                        ? 'bg-[#131722] border-[#1e2535]'
+                        : 'bg-[#0f141d]/50 border-[#1e2535]/40 opacity-70'
                     }`}
                   >
                     {isEditing ? (
@@ -1483,7 +1483,7 @@ export default function PoolPortalPage() {
                             size="sm"
                             loading={priceSaving}
                             onClick={() => handleSaveServicePrice(svc.id)}
-                            className="bg-[#C5A880] text-[#10131A] font-bold"
+                            className="bg-[#c59a58] text-[#10131A] font-bold"
                           >
                             <Save size={13} /> Save Price
                           </Button>
@@ -1493,7 +1493,7 @@ export default function PoolPortalPage() {
                       <div className="flex items-center justify-between gap-3">
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-[#F4F4F2] text-sm">{svc.name}</span>
+                            <span className="font-extrabold text-[#e8e6e0] text-sm">{svc.name}</span>
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                                 svc.isAvailable
@@ -1505,9 +1505,9 @@ export default function PoolPortalPage() {
                             </span>
                           </div>
                           {svc.description && (
-                            <div className="text-[11px] text-[#A0A5AD]">{svc.description}</div>
+                            <div className="text-[11px] text-[#6e7a8a]">{svc.description}</div>
                           )}
-                          <div className="text-base font-extrabold text-amber-300 font-mono pt-1">
+                          <div className="text-base font-extrabold text-[#c59a58] font-mono pt-1">
                             {formatCurrency(Number(svc.price || 0))}
                           </div>
                         </div>
@@ -1518,7 +1518,7 @@ export default function PoolPortalPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => startEditingService(svc)}
-                            className="text-[#C5A880] border-[#C5A880]/40 hover:bg-[#C5A880]/10 font-bold"
+                            className="text-[#c59a58] border-[#c59a58]/40 hover:bg-[#c59a58]/10 font-bold"
                             title="Edit Price and Details"
                           >
                             <Edit2 size={13} /> Change Price
@@ -1551,12 +1551,12 @@ export default function PoolPortalPage() {
               })}
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-[#2B303E]">
+            <div className="flex justify-end pt-2 border-t border-[#1e2535]">
               <Button
                 type="button"
                 variant="primary"
                 onClick={() => setPricingModalOpen(false)}
-                className="bg-[#C5A880] text-[#10131A] font-bold px-6"
+                className="bg-[#c59a58] text-[#10131A] font-bold px-6"
               >
                 Done
               </Button>
