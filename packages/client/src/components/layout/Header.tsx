@@ -64,8 +64,8 @@ export const Header: React.FC = () => {
         {/* Sidebar Toggle Button */}
         <button
           onClick={toggleSidebar}
-          aria-label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-          title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+          aria-label={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
+          title={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-all shrink-0"
           style={{ backgroundColor: 'var(--ns-surface)' }}
         >
