@@ -20,7 +20,7 @@ import {
   Tag,
   X,
 } from 'lucide-react';
-import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
+import { Button, Modal, FormField, TextInput, SelectInput, TextareaInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 
@@ -102,6 +102,8 @@ export const GuestsPage: React.FC = () => {
   };
 
   const startEditGuest = (guest: any) => {
+    setSelectedGuestId(guest.id);
+    setSelectedGuest(guest);
     setEditForm({
       firstName: guest.firstName || '',
       lastName: guest.lastName || '',
@@ -660,20 +662,43 @@ export const GuestsPage: React.FC = () => {
       </Modal>
 
       {/* ── Create Guest Modal ── */}
-      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Register New Guest" size="md">
-        <form onSubmit={saveNewGuest} className="space-y-4 p-5">
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Register New Guest"
+        subtitle="Register contact information, stay preferences and VIP status for a new guest"
+        size="lg"
+        footer={
+          <>
+            <Button variant="ghost" type="button" onClick={() => setCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="create-guest-form"
+              loading={saving}
+              className="font-bold bg-gradient-to-r from-[#174b59] to-[#0e3440] hover:from-[#133f4b] hover:to-[#0a2730] text-white px-5 shadow-xs"
+            >
+              Save Guest Profile
+            </Button>
+          </>
+        }
+      >
+        <form id="create-guest-form" onSubmit={saveNewGuest} className="space-y-4">
+          {/* Identity & Contact */}
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="First Name" required>
               <TextInput
                 required
-                placeholder="First name"
+                placeholder="e.g. Ama"
                 value={form.firstName}
                 onChange={(e) => setForm({ ...form, firstName: e.target.value })}
               />
             </FormField>
             <FormField label="Last Name">
               <TextInput
-                placeholder="Last name"
+                placeholder="e.g. Mensah"
                 value={form.lastName}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
               />
@@ -698,82 +723,145 @@ export const GuestsPage: React.FC = () => {
             </FormField>
           </div>
 
-          <div className="flex items-center gap-2 py-1">
-            <input
-              type="checkbox"
-              id="vip-create-check"
-              checked={form.isVip}
-              onChange={(e) => setForm({ ...form, isVip: e.target.checked })}
-              className="h-4 w-4 rounded accent-[#c59a58]"
-            />
-            <label htmlFor="vip-create-check" className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-              Mark as VIP Guest
-            </label>
+          {/* VIP Recognition Toggle Card */}
+          <div
+            onClick={() => setForm({ ...form, isVip: !form.isVip })}
+            className={`cursor-pointer rounded-xl border p-3.5 transition-all flex items-center justify-between gap-3 ${
+              form.isVip
+                ? 'border-[#c59a58]/60 bg-[#c59a58]/10 ring-1 ring-[#c59a58]/30 shadow-xs'
+                : 'border-[var(--ns-line)] hover:border-slate-300 dark:hover:border-slate-700'
+            }`}
+            style={{ backgroundColor: form.isVip ? undefined : 'var(--ns-surface-2)' }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
+                  form.isVip
+                    ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-xs'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                }`}
+              >
+                <Sparkles size={16} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
+                    VIP Guest Recognition
+                  </span>
+                  {form.isVip && (
+                    <span className="rounded bg-[#c59a58]/20 px-1.5 py-0.5 text-[9px] font-black uppercase text-[#c59a58]">
+                      Active
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] leading-tight" style={{ color: 'var(--ns-muted)' }}>
+                  Priority reservations, champagne welcome amenities, and dedicated concierge
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                form.isVip ? 'bg-[#c59a58]' : 'bg-slate-300 dark:bg-slate-700'
+              }`}
+              aria-label="Toggle VIP Status"
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  form.isVip ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
           </div>
 
-          <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FormField label="Nationality">
-                <TextInput
-                  placeholder="e.g. Ghanaian"
-                  value={form.nationality}
-                  onChange={(e) => setForm({ ...form, nationality: e.target.value })}
-                />
-              </FormField>
-              <FormField label="City / Country">
-                <TextInput
-                  placeholder="e.g. Accra, Ghana"
-                  value={form.city}
-                  onChange={(e) => setForm({ ...form, city: e.target.value })}
-                />
-              </FormField>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FormField label="ID Document Type">
-                <SelectInput
-                  value={form.idDocumentType}
-                  onChange={(e) => setForm({ ...form, idDocumentType: e.target.value })}
-                >
-                  <option value="">Select document type</option>
-                  <option value="PASSPORT">Passport</option>
-                  <option value="NATIONAL_ID">National ID / Ghana Card</option>
-                  <option value="DRIVERS_LICENSE">Driver's License</option>
-                  <option value="OTHER">Other</option>
-                </SelectInput>
-              </FormField>
-              <FormField label="Document Number">
-                <TextInput
-                  placeholder="ID document number"
-                  value={form.idDocumentNumber}
-                  onChange={(e) => setForm({ ...form, idDocumentNumber: e.target.value })}
-                />
-              </FormField>
-            </div>
-
-            <FormField label="Preferences / Notes">
+          {/* Location & Identification */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Nationality">
               <TextInput
-                placeholder="Special requests or internal notes"
-                value={form.preferences}
-                onChange={(e) => setForm({ ...form, preferences: e.target.value })}
+                placeholder="e.g. Ghanaian"
+                value={form.nationality}
+                onChange={(e) => setForm({ ...form, nationality: e.target.value })}
+              />
+            </FormField>
+            <FormField label="City / Country">
+              <TextInput
+                placeholder="e.g. Accra, Ghana"
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
               />
             </FormField>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <Button variant="ghost" type="button" onClick={() => setCreateOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" type="submit" loading={saving} className="font-bold">
-              Save Guest Profile
-            </Button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="ID Document Type">
+              <SelectInput
+                value={form.idDocumentType}
+                onChange={(e) => setForm({ ...form, idDocumentType: e.target.value })}
+              >
+                <option value="">Select document type</option>
+                <option value="PASSPORT">Passport</option>
+                <option value="NATIONAL_ID">National ID / Ghana Card</option>
+                <option value="DRIVERS_LICENSE">Driver's License</option>
+                <option value="OTHER">Other</option>
+              </SelectInput>
+            </FormField>
+            <FormField label="Document Number">
+              <TextInput
+                placeholder="e.g. GHA-000000000-0"
+                value={form.idDocumentNumber}
+                onChange={(e) => setForm({ ...form, idDocumentNumber: e.target.value })}
+              />
+            </FormField>
+          </div>
+
+          {/* Preferences & Staff Notes */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Guest Preferences">
+              <TextareaInput
+                rows={2}
+                placeholder="Pillow, dietary, or room preferences"
+                value={form.preferences}
+                onChange={(e) => setForm({ ...form, preferences: e.target.value })}
+              />
+            </FormField>
+            <FormField label="Internal Staff Notes">
+              <TextareaInput
+                rows={2}
+                placeholder="Internal service notes"
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              />
+            </FormField>
           </div>
         </form>
       </Modal>
 
       {/* ── Edit Guest Modal ── */}
-      <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Guest Profile" size="md">
-        <form onSubmit={saveEditGuest} className="space-y-4 p-5">
+      <Modal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Guest Profile"
+        subtitle={`Update contact details, identification and stay preferences for ${[editForm.firstName, editForm.lastName].filter(Boolean).join(' ') || 'this guest'}`}
+        size="lg"
+        footer={
+          <>
+            <Button variant="ghost" type="button" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="edit-guest-form"
+              loading={saving}
+              className="font-bold bg-gradient-to-r from-[#174b59] to-[#0e3440] hover:from-[#133f4b] hover:to-[#0a2730] text-white px-5 shadow-xs"
+            >
+              Save Changes
+            </Button>
+          </>
+        }
+      >
+        <form id="edit-guest-form" onSubmit={saveEditGuest} className="space-y-4">
+          {/* Identity & Contact */}
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="First Name" required>
               <TextInput
@@ -793,6 +881,7 @@ export const GuestsPage: React.FC = () => {
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="Phone Number">
               <TextInput
+                placeholder="e.g. +233 24 000 0000"
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
               />
@@ -800,77 +889,122 @@ export const GuestsPage: React.FC = () => {
             <FormField label="Email Address">
               <TextInput
                 type="email"
+                placeholder="guest@example.com"
                 value={editForm.email}
                 onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
               />
             </FormField>
           </div>
 
-          <div className="flex items-center gap-2 py-1">
-            <input
-              type="checkbox"
-              id="vip-edit-check"
-              checked={editForm.isVip}
-              onChange={(e) => setEditForm({ ...editForm, isVip: e.target.checked })}
-              className="h-4 w-4 rounded accent-[#c59a58]"
-            />
-            <label htmlFor="vip-edit-check" className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-              Mark as VIP Guest
-            </label>
+          {/* VIP Recognition Toggle Card */}
+          <div
+            onClick={() => setEditForm({ ...editForm, isVip: !editForm.isVip })}
+            className={`cursor-pointer rounded-xl border p-3.5 transition-all flex items-center justify-between gap-3 ${
+              editForm.isVip
+                ? 'border-[#c59a58]/60 bg-[#c59a58]/10 ring-1 ring-[#c59a58]/30 shadow-xs'
+                : 'border-[var(--ns-line)] hover:border-slate-300 dark:hover:border-slate-700'
+            }`}
+            style={{ backgroundColor: editForm.isVip ? undefined : 'var(--ns-surface-2)' }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
+                  editForm.isVip
+                    ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-xs'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                }`}
+              >
+                <Sparkles size={16} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
+                    VIP Guest Recognition
+                  </span>
+                  {editForm.isVip && (
+                    <span className="rounded bg-[#c59a58]/20 px-1.5 py-0.5 text-[9px] font-black uppercase text-[#c59a58]">
+                      Active
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] leading-tight" style={{ color: 'var(--ns-muted)' }}>
+                  Priority reservations, complimentary amenities, and dedicated villa concierge
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                editForm.isVip ? 'bg-[#c59a58]' : 'bg-slate-300 dark:bg-slate-700'
+              }`}
+              aria-label="Toggle VIP Status"
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  editForm.isVip ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
           </div>
 
-          <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FormField label="Nationality">
-                <TextInput
-                  value={editForm.nationality}
-                  onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })}
-                />
-              </FormField>
-              <FormField label="City / Country">
-                <TextInput
-                  value={editForm.city}
-                  onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
-                />
-              </FormField>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FormField label="ID Document Type">
-                <SelectInput
-                  value={editForm.idDocumentType}
-                  onChange={(e) => setEditForm({ ...editForm, idDocumentType: e.target.value })}
-                >
-                  <option value="">Select document type</option>
-                  <option value="PASSPORT">Passport</option>
-                  <option value="NATIONAL_ID">National ID / Ghana Card</option>
-                  <option value="DRIVERS_LICENSE">Driver's License</option>
-                  <option value="OTHER">Other</option>
-                </SelectInput>
-              </FormField>
-              <FormField label="Document Number">
-                <TextInput
-                  value={editForm.idDocumentNumber}
-                  onChange={(e) => setEditForm({ ...editForm, idDocumentNumber: e.target.value })}
-                />
-              </FormField>
-            </div>
-
-            <FormField label="Preferences / Notes">
+          {/* Location & Identification */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Nationality">
               <TextInput
-                value={editForm.preferences}
-                onChange={(e) => setEditForm({ ...editForm, preferences: e.target.value })}
+                placeholder="e.g. Ghanaian"
+                value={editForm.nationality}
+                onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })}
+              />
+            </FormField>
+            <FormField label="City / Country">
+              <TextInput
+                placeholder="e.g. Accra, Ghana"
+                value={editForm.city}
+                onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
               />
             </FormField>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <Button variant="ghost" type="button" onClick={() => setEditModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" type="submit" loading={saving} className="font-bold">
-              Save Changes
-            </Button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="ID Document Type">
+              <SelectInput
+                value={editForm.idDocumentType}
+                onChange={(e) => setEditForm({ ...editForm, idDocumentType: e.target.value })}
+              >
+                <option value="">Select document type</option>
+                <option value="PASSPORT">Passport</option>
+                <option value="NATIONAL_ID">National ID / Ghana Card</option>
+                <option value="DRIVERS_LICENSE">Driver's License</option>
+                <option value="OTHER">Other</option>
+              </SelectInput>
+            </FormField>
+            <FormField label="Document Number">
+              <TextInput
+                placeholder="e.g. GHA-000000000-0"
+                value={editForm.idDocumentNumber}
+                onChange={(e) => setEditForm({ ...editForm, idDocumentNumber: e.target.value })}
+              />
+            </FormField>
+          </div>
+
+          {/* Preferences & Staff Notes */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Guest Preferences">
+              <TextareaInput
+                rows={2}
+                placeholder="Pillow, dietary, or room preferences"
+                value={editForm.preferences}
+                onChange={(e) => setEditForm({ ...editForm, preferences: e.target.value })}
+              />
+            </FormField>
+            <FormField label="Internal Staff Notes">
+              <TextareaInput
+                rows={2}
+                placeholder="Internal service notes"
+                value={editForm.notes}
+                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+              />
+            </FormField>
           </div>
         </form>
       </Modal>

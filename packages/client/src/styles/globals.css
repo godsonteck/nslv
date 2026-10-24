@@ -54,6 +54,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cfd5d3; border-radius: 999px; }
+html[data-theme='dark'] ::-webkit-scrollbar-thumb { background: #2a3747; }
+html[data-theme='dark'] ::-webkit-scrollbar-thumb:hover { background: #3c4c60; }
 ::selection { background: var(--ns-teal); color: white; }
 
 html[data-theme='dark'] body,

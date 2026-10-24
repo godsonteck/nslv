@@ -543,11 +543,13 @@ interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
+  subtitle?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({ open, onClose, title, size = 'md', children }) => {
+export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, size = 'md', children, footer }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const sizes = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-2xl', xl: 'max-w-4xl' };
 
@@ -565,14 +567,39 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, size = 'md',
       className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      <div role="dialog" aria-modal="true" aria-label={title} className={`my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-xl border border-slate-300 bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)]`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0 bg-slate-50">
-          <h2 className="text-base font-bold text-[#1A202C] font-['Outfit']">{title}</h2>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-slate-200 rounded text-slate-500" aria-label={`Close ${title}`}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={`my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-2xl border border-[var(--ns-line)] shadow-2xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all`}
+        style={{ backgroundColor: 'var(--ns-surface)', color: 'var(--ns-ink)' }}
+      >
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b border-[var(--ns-line)] shrink-0"
+          style={{ backgroundColor: 'var(--ns-surface-2)' }}
+        >
+          <div>
+            <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
+            {subtitle && <p className="text-xs mt-0.5" style={{ color: 'var(--ns-muted)' }}>{subtitle}</p>}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--ns-surface)] text-slate-400 hover:text-[var(--ns-ink)] transition"
+            aria-label={`Close ${title}`}
+          >
             <X size={16} />
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
+        {footer && (
+          <div
+            className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-[var(--ns-line)] shrink-0"
+            style={{ backgroundColor: 'var(--ns-surface-2)' }}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body,
@@ -591,13 +618,22 @@ export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, 
   if (!open) return null;
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 flex justify-end">
-      <div className="w-full max-w-xl bg-white border-l border-slate-300 h-full flex flex-col shadow-2xl">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+      <div
+        className="w-full max-w-xl border-l border-[var(--ns-line)] h-full flex flex-col shadow-2xl"
+        style={{ backgroundColor: 'var(--ns-surface)', color: 'var(--ns-ink)' }}
+      >
+        <div
+          className="px-6 py-4 border-b border-[var(--ns-line)] flex items-center justify-between shrink-0"
+          style={{ backgroundColor: 'var(--ns-surface-2)' }}
+        >
           <div>
-            <h2 className="text-base font-bold text-[#1A202C] font-['Outfit']">{title}</h2>
-            {subtitle && <p className="text-xs text-[#718096]">{subtitle}</p>}
+            <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
+            {subtitle && <p className="text-xs" style={{ color: 'var(--ns-muted)' }}>{subtitle}</p>}
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded text-slate-500">
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--ns-surface)] text-slate-400 hover:text-[var(--ns-ink)] transition"
+          >
             <X size={16} />
           </button>
         </div>
@@ -619,8 +655,8 @@ interface FormFieldProps {
 }
 
 export const FormField: React.FC<FormFieldProps> = ({ label, error, required, children }) => (
-  <div className="mb-4">
-    <label className="block text-xs font-bold text-[#4A5568] mb-1.5">
+  <div className="mb-3.5">
+    <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
@@ -631,13 +667,15 @@ export const FormField: React.FC<FormFieldProps> = ({ label, error, required, ch
 export const TextInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { error?: boolean }> = ({
   error,
   className = '',
+  style,
   ...props
 }) => (
   <input
     {...props}
-    className={`w-full bg-white border ${
-      error ? 'border-red-500' : 'border-slate-300'
-    } rounded-[10px] px-3 py-2.5 text-xs text-[#1A202C] placeholder-slate-400 focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/10 transition-all ${className}`}
+    style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', ...style }}
+    className={`w-full border ${
+      error ? 'border-red-500' : 'border-[var(--ns-line)]'
+    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/15 transition-all ${className}`}
   />
 );
 
@@ -645,16 +683,33 @@ export const SelectInput: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
   error,
   className = '',
   children,
+  style,
   ...props
 }) => (
   <select
     {...props}
-    className={`w-full bg-white border ${
-      error ? 'border-red-500' : 'border-slate-300'
-    } rounded-[10px] px-3 py-2.5 text-xs text-[#1A202C] focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/10 transition-all ${className}`}
+    style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', ...style }}
+    className={`w-full border ${
+      error ? 'border-red-500' : 'border-[var(--ns-line)]'
+    } rounded-[10px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/15 transition-all ${className}`}
   >
     {children}
   </select>
+);
+
+export const TextareaInput: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement> & { error?: boolean }> = ({
+  error,
+  className = '',
+  style,
+  ...props
+}) => (
+  <textarea
+    {...props}
+    style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', ...style }}
+    className={`w-full border ${
+      error ? 'border-red-500' : 'border-[var(--ns-line)]'
+    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/15 transition-all ${className}`}
+  />
 );
 
 // ──────────────────────────────────────────
