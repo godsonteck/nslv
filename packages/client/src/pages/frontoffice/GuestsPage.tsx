@@ -354,7 +354,7 @@ export const GuestsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-[#fbfdfd] dark:bg-slate-900/80 text-[10px] uppercase tracking-[.14em] text-[#71828a] dark:text-slate-400 border-b border-[#edf2f2] dark:border-slate-800">
+              <thead className="bg-[var(--ns-surface-2)] text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-line)]">
                 <tr>
                   <th className="px-5 py-3">Guest Name</th>
                   <th className="px-5 py-3">Contact</th>
@@ -364,7 +364,7 @@ export const GuestsPage: React.FC = () => {
                   <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ed] dark:divide-slate-800/80">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {filteredGuests.map((g) => {
                   const initials = ((g.firstName?.[0] || 'G') + (g.lastName?.[0] || '')).toUpperCase();
                   const stays = g._count?.reservations ?? 0;
@@ -388,7 +388,7 @@ export const GuestsPage: React.FC = () => {
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-bold text-xs text-[#0c1921] dark:text-slate-100">
+                              <span className="font-bold text-xs text-[var(--ns-ink)]">
                                 {formatGuestName(g)}
                               </span>
                               {g.isVip && (
@@ -397,7 +397,7 @@ export const GuestsPage: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            <div className="font-mono text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                            <div className="font-mono text-[10px] text-[var(--ns-muted)] mt-0.5">
                               ID: {g.id.slice(0, 8).toUpperCase()}
                             </div>
                           </div>
@@ -406,7 +406,7 @@ export const GuestsPage: React.FC = () => {
 
                       {/* Contact */}
                       <td className="px-5 py-3.5 text-xs">
-                        <div className="font-medium text-[#0c1921] dark:text-slate-200">
+                        <div className="font-medium text-[var(--ns-ink)]">
                           {g.phone ? (
                             <a
                               href={`tel:${g.phone}`}

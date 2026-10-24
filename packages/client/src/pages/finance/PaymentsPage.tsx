@@ -411,7 +411,7 @@ export const PaymentsPage: React.FC = () => {
       subtitle="Direct collections, group deposits, part-payment settlement verification, and manager refund approvals."
       actions={
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[#cbd5e1] hover:bg-[#0c1921] bg-[#0c1921]/70 shadow-xs text-xs font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[var(--ns-line)] hover:bg-[var(--ns-surface-2)] bg-[var(--ns-surface)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
           <Button size="sm" onClick={openModal} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
@@ -433,40 +433,40 @@ export const PaymentsPage: React.FC = () => {
           <p className="mt-1 text-[11px] text-emerald-700 font-medium">Immutable ledger balance</p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-[#1e2535] bg-[#0c1921] p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Total Collections</span>
-            <div className="rounded-xl bg-[#1e2535] p-2 text-[#475569]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Total Collections</span>
+            <div className="rounded-xl bg-[var(--ns-surface-2)] p-2 text-[var(--ns-teal)]">
               <WalletCards size={18} />
             </div>
           </div>
-          <div className="mt-2 text-2xl font-black text-[#0f172a]">{completedPayments.length}</div>
-          <p className="mt-1 text-[11px] text-[#64748b]">
-            <span className="font-bold text-emerald-700">{fullPayments.length} Full</span> ·{' '}
-            <span className="font-bold text-amber-700">{partPayments.length} Part / Deposit</span>
+          <div className="mt-2 text-2xl font-black text-[var(--ns-ink)]">{completedPayments.length}</div>
+          <p className="mt-1 text-[11px] text-[var(--ns-muted)]">
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">{fullPayments.length} Full</span> ·{' '}
+            <span className="font-bold text-amber-600 dark:text-amber-400">{partPayments.length} Part / Deposit</span>
           </p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-rose-100 bg-gradient-to-br from-white to-rose-50/30 p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-rose-200/60 dark:border-rose-900/40 bg-[var(--ns-surface)] p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-800">Refunds Issued</span>
-            <div className="rounded-xl bg-rose-100 p-2 text-rose-700">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">Refunds Issued</span>
+            <div className="rounded-xl bg-rose-500/10 p-2 text-rose-600 dark:text-rose-400">
               <Undo2 size={18} />
             </div>
           </div>
-          <div className="mt-2 text-2xl font-black text-rose-950">{formatCurrency(refundedTotal)}</div>
-          <p className="mt-1 text-[11px] text-rose-700">{completedRefunds.length} ledger reversal{completedRefunds.length === 1 ? '' : 's'}</p>
+          <div className="mt-2 text-2xl font-black text-rose-700 dark:text-rose-400">{formatCurrency(refundedTotal)}</div>
+          <p className="mt-1 text-[11px] text-[var(--ns-muted)]">{completedRefunds.length} ledger reversal{completedRefunds.length === 1 ? '' : 's'}</p>
         </div>
 
-        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-amber-300 bg-amber-50/50' : 'border-[#1e2535] bg-[#0c1921]'}`}>
+        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-amber-300 dark:border-amber-700 bg-amber-500/10' : 'border-[var(--ns-line)] bg-[var(--ns-surface)]'}`}>
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Pending Approvals</span>
-            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'bg-amber-200 text-amber-900 animate-pulse' : 'bg-[#1e2535] text-[#475569]'}`}>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Pending Approvals</span>
+            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 animate-pulse' : 'bg-[var(--ns-surface-2)] text-[var(--ns-muted)]'}`}>
               <Clock size={18} />
             </div>
           </div>
-          <div className="mt-2 text-2xl font-black text-[#0f172a]">{pendingRefunds.length}</div>
-          <p className="mt-1 text-[11px] text-[#64748b]">
+          <div className="mt-2 text-2xl font-black text-[var(--ns-ink)]">{pendingRefunds.length}</div>
+          <p className="mt-1 text-[11px] text-[var(--ns-muted)]">
             {pendingRefunds.length > 0 ? 'Awaiting Manager / Admin review' : 'All transactions cleared'}
           </p>
         </div>
@@ -478,42 +478,42 @@ export const PaymentsPage: React.FC = () => {
         subtitle="Complete chronological record of receipts, collections, and reversals."
       >
         {/* Filter Bar */}
-        <div className="border-b border-[#edf2f2] bg-[#fbfdfd] p-4 space-y-3">
+        <div className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Type Tabs */}
-            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[#dfe5e5] bg-[#f7faf9] p-1">
+            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-1">
               <button
                 type="button"
                 onClick={() => setTypeFilter('ALL')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'ALL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[#64748b] hover:text-[#0c1921]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'ALL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 All ({data.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('FULL')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'FULL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[#64748b] hover:text-[#0c1921]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'FULL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Full Payments ({fullPayments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('PART')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'PART' ? 'bg-[#c59a58] text-[#0c1921] shadow-sm font-black' : 'text-[#64748b] hover:text-[#0c1921]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'PART' ? 'bg-[#c59a58] text-[#14232b] shadow-sm font-black' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Part Payments ({partPayments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('REFUND')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'REFUND' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[#64748b] hover:text-[#0c1921]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'REFUND' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Refunds ({completedRefunds.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('PENDING')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${typeFilter === 'PENDING' ? 'bg-amber-600 text-white shadow-sm' : pendingRefunds.length > 0 ? 'text-amber-700 font-extrabold bg-amber-50' : 'text-[#64748b] hover:text-[#0c1921]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${typeFilter === 'PENDING' ? 'bg-amber-600 text-white shadow-sm' : pendingRefunds.length > 0 ? 'text-amber-700 dark:text-amber-400 font-extrabold bg-amber-500/20' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Pending ({pendingRefunds.length})
               </button>
@@ -521,7 +521,7 @@ export const PaymentsPage: React.FC = () => {
 
             {/* Method Select Filter */}
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[#71828a] font-bold text-[10px] uppercase tracking-wider">Method:</span>
+              <span className="text-[var(--ns-muted)] font-bold text-[10px] uppercase tracking-wider">Method:</span>
               <div className="flex flex-wrap gap-1">
                 {(['ALL', 'CASH', 'CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'] as FilterMethod[]).map((m) => (
                   <button
@@ -539,13 +539,13 @@ export const PaymentsPage: React.FC = () => {
 
           {/* Search bar */}
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#71828a]" size={15} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" size={15} />
             <input
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by guest, room, receipt reference, or handled-by staff…"
-              className="w-full rounded-xl border border-[#dfe5e5] bg-[#0c1921] py-2 pl-9 pr-4 text-xs font-medium text-[#0c1921] placeholder-[#71828a] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
+              className="w-full rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] py-2 pl-9 pr-4 text-xs font-medium text-[var(--ns-ink)] placeholder-[var(--ns-muted)] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
             />
           </div>
         </div>
@@ -799,16 +799,16 @@ export const PaymentsPage: React.FC = () => {
             <div className="rounded-2xl border border-[#dfe4df] bg-gradient-to-br from-[#f8faf8] to-[#edf6f4] p-4 text-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748b]">Outstanding Bill Balance</span>
-                  <div className="mt-0.5 text-2xl font-black text-[#0f172a]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Outstanding Bill Balance</span>
+                  <div className="mt-0.5 text-2xl font-black text-[var(--ns-ink)]">
                     {formatCurrency(balance)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="rounded-md bg-[#0c1921] px-2.5 py-1 text-[11px] font-mono font-bold text-[#0e7490] border border-[#bee3ec]">
+                  <div className="rounded-md bg-[var(--ns-surface-2)] px-2.5 py-1 text-[11px] font-mono font-bold text-[#0e7490] dark:text-[#38bdf8] border border-[var(--ns-line)]">
                     Folio #{folio.id.slice(0, 8).toUpperCase()}
                   </div>
-                  <p className="mt-1 text-[10px] text-[#64748b]">
+                  <p className="mt-1 text-[10px] text-[var(--ns-muted)]">
                     Room {selectedStay.room?.number || '—'} · {folio.items?.length || 0} line items
                   </p>
                 </div>
@@ -816,8 +816,8 @@ export const PaymentsPage: React.FC = () => {
 
               {/* Quick Fill Buttons */}
               {balance > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-[#e2e7e4]">
-                  <span className="text-[10px] font-bold uppercase text-[#64748b] self-center">Quick fill:</span>
+                <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-[var(--ns-line)]">
+                  <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)] self-center">Quick fill:</span>
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, amount: balance.toFixed(2), tendered: '' })}
@@ -881,24 +881,24 @@ export const PaymentsPage: React.FC = () => {
 
           {/* Real-time Settlement Check Card */}
           {selectedStay && folio && Number(form.amount) > 0 && (
-            <div className="rounded-2xl border border-[#dfe4df] bg-[#f9faf9] p-4 text-xs space-y-2.5 shadow-sm">
-              <div className="flex justify-between items-center text-[#475569]">
+            <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 text-xs space-y-2.5 shadow-sm">
+              <div className="flex justify-between items-center text-[var(--ns-muted)]">
                 <span className="font-medium">Money supposed to be paid (Bill Balance):</span>
-                <span className="font-extrabold text-[#0f172a]">{formatCurrency(balance)}</span>
+                <span className="font-extrabold text-[var(--ns-ink)]">{formatCurrency(balance)}</span>
               </div>
-              <div className="flex justify-between items-center text-[#475569]">
+              <div className="flex justify-between items-center text-[var(--ns-muted)]">
                 <span className="font-medium">Money paid (This transaction):</span>
-                <span className="font-bold text-[#0f172a]">{formatCurrency(Number(form.amount))}</span>
+                <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(form.amount))}</span>
               </div>
               {form.method === 'CASH' && Number(form.tendered) > Number(form.amount) && (
-                <div className="flex justify-between items-center text-[#475569]">
+                <div className="flex justify-between items-center text-[var(--ns-muted)]">
                   <span className="font-medium">Cash tendered:</span>
-                  <span className="font-bold text-[#0f172a]">{formatCurrency(Number(form.tendered))}</span>
+                  <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(form.tendered))}</span>
                 </div>
               )}
               
-              <div className="border-t border-[#e2e7e4] pt-2 flex justify-between items-center">
-                <span className="font-bold text-[#334155]">Payment Classification:</span>
+              <div className="border-t border-[var(--ns-line)] pt-2 flex justify-between items-center">
+                <span className="font-bold text-[var(--ns-ink)]">Payment Classification:</span>
                 {Number(form.amount) >= balance - 0.005 ? (
                   <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-300">
                     ✓ Full Payment (Paid in full)
@@ -949,7 +949,7 @@ export const PaymentsPage: React.FC = () => {
           </label>
 
           {splitOpen && (
-            <div className="rounded-xl border border-[#dfe5e5] p-3 bg-[#fbfdfd]">
+            <div className="rounded-xl border border-[var(--ns-line)] p-3 bg-[var(--ns-surface-2)]">
               <TenderSplit total={Number(form.amount) || 0} rows={tenders} onChange={setTenders} />
             </div>
           )}
@@ -971,7 +971,7 @@ export const PaymentsPage: React.FC = () => {
             </FormField>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -979,7 +979,7 @@ export const PaymentsPage: React.FC = () => {
               type="submit"
               loading={busy}
               disabled={splitOpen && !tendersCoverTotal(tenders, Number(form.amount) || 0)}
-              className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#0c1921] font-bold"
+              className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#133240] font-bold"
             >
               <ReceiptText size={14} className="text-[#c59a58]" /> Record & Print Receipt
             </Button>

@@ -275,14 +275,14 @@ export const GuestBillsPage: React.FC = () => {
         {loading ? (
           <div className="p-12"><LoadingState /></div>
         ) : visible.length === 0 ? (
-          <div className="p-16 text-center text-xs text-[#71828a]">
+          <div className="p-16 text-center text-xs text-[var(--ns-muted)]">
             {stays.length === 0 ? 'No guests are currently checked in.' : 'No in-house guest accounts match your search.'}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Room</th>
                   <th className="py-3 px-5">Guest Name</th>
                   <th className="py-3 px-5">Folio Ref</th>
@@ -291,7 +291,7 @@ export const GuestBillsPage: React.FC = () => {
                   <th className="py-3 px-5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f1f5f9]">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {visible.map(({ stay, folio }) => {
                   const balance = money(folio.balance);
                   const isSettled = balance <= 0.01;
@@ -300,23 +300,23 @@ export const GuestBillsPage: React.FC = () => {
                     <tr
                       key={stay.id}
                       onClick={() => openBillModal(stay, folio)}
-                      className="cursor-pointer hover:bg-[#fbfcfb] transition-colors"
+                      className="cursor-pointer hover:bg-[var(--ns-surface-2)] transition-colors"
                     >
                       <td className="py-3.5 px-5">
                         <div className="flex items-center gap-2">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0c1921] font-mono text-xs font-black text-[#c59a58]">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#173c4d] font-mono text-xs font-black text-[#c59a58]">
                             {stay.room?.number ?? '—'}
                           </span>
-                          <span className="text-[11px] font-semibold text-[#5a6b75]">
+                          <span className="text-[11px] font-semibold text-[var(--ns-muted)]">
                             {stay.room?.roomType?.name || 'Room'}
                           </span>
                         </div>
                       </td>
                       <td className="py-3.5 px-5">
-                        <div className="font-bold text-[#0c1921] text-xs">
+                        <div className="font-bold text-[var(--ns-ink)] text-xs">
                           {formatGuestName(stay.guest, 'Guest')}
                         </div>
-                        <div className="text-[10px] text-[#71828a]">
+                        <div className="text-[10px] text-[var(--ns-muted)]">
                           Checked in: {new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}
                         </div>
                       </td>
@@ -325,17 +325,17 @@ export const GuestBillsPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-5">
                         {isSettled ? (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle2 size={10} /> Fully Settled
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200">
+                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                             <Clock size={10} /> Balance Pending
                           </span>
                         )}
                       </td>
                       <td className="py-3.5 px-5 text-right font-mono text-sm font-black">
-                        <span className={balance > 0 ? 'text-[#b91c1c]' : 'text-[#047857]'}>
+                        <span className={balance > 0 ? 'text-[#b91c1c] dark:text-[#f87171]' : 'text-[#047857] dark:text-[#34d399]'}>
                           {formatCurrency(balance)}
                         </span>
                       </td>
@@ -344,7 +344,7 @@ export const GuestBillsPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => openBillModal(stay, folio)}
-                          className="h-8 gap-1.5 border-[#e5ebeb] text-xs font-semibold hover:border-[#c59a58]/40"
+                          className="h-8 gap-1.5 border-[var(--ns-line)] text-xs font-semibold text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
                         >
                           <ReceiptText size={13} className="text-[#c59a58]" /> View Bill
                         </Button>
@@ -371,23 +371,23 @@ export const GuestBillsPage: React.FC = () => {
         {selectedBill && (
           <div className="space-y-4">
             {/* Header info */}
-            <div className="rounded-xl border border-[#c59a58]/30 bg-[#fcf9f2] p-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="rounded-xl border border-[#c59a58]/30 bg-[#c59a58]/10 p-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
                   Folio {selectedBill.folio.id.slice(0, 8).toUpperCase()}
                 </span>
-                <div className="text-sm font-bold text-[#0c1921]">
+                <div className="text-sm font-bold text-[var(--ns-ink)]">
                   Room {selectedBill.stay.room?.number ?? ''} | {formatGuestName(selectedBill.stay.guest, 'Guest')}
                 </div>
-                <div className="text-[11px] text-[#5a6b75]">
+                <div className="text-[11px] text-[var(--ns-muted)]">
                   Checked in {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString('en-GH')}
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   Balance Due
                 </span>
-                <div className="text-xl font-black text-[#0c1921]">
+                <div className="text-xl font-black text-[var(--ns-ink)]">
                   {formatCurrency(money(selectedBill.folio.balance))}
                 </div>
               </div>
@@ -396,39 +396,39 @@ export const GuestBillsPage: React.FC = () => {
             {/* Charges List */}
             <div>
               <div className="flex items-center justify-between pb-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0c1921]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--ns-ink)]">
                   Department Charges & Room Services
                 </h4>
-                <span className="text-[11px] text-[#71828a]">
+                <span className="text-[11px] text-[var(--ns-muted)]">
                   {(selectedBill.folio.items || []).filter((i: any) => !i.voidedAt).length} item(s)
                 </span>
               </div>
-              <div className="max-h-60 overflow-y-auto rounded-xl border border-[#edf2f2] bg-white">
+              <div className="max-h-60 overflow-y-auto rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase text-[#71828a]">
+                    <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
                       <th className="py-2 px-3">Item / Description</th>
                       <th className="py-2 px-3">Dept</th>
                       <th className="py-2 px-3 text-center">Qty</th>
                       <th className="py-2 px-3 text-right">Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f1f5f9]">
+                  <tbody className="divide-y divide-[var(--ns-line)]">
                     {(selectedBill.folio.items || [])
                       .filter((i: any) => !i.voidedAt)
                       .map((i: any) => (
-                        <tr key={i.id} className="hover:bg-[#fbfcfb]">
-                          <td className="py-2 px-3 font-medium text-[#0c1921]">{i.description}</td>
-                          <td className="py-2 px-3 text-[10px] font-semibold text-[#5a6b75]">{i.department || 'ROOM'}</td>
+                        <tr key={i.id} className="hover:bg-[var(--ns-surface-2)]">
+                          <td className="py-2 px-3 font-medium text-[var(--ns-ink)]">{i.description}</td>
+                          <td className="py-2 px-3 text-[10px] font-semibold text-[var(--ns-muted)]">{i.department || 'ROOM'}</td>
                           <td className="py-2 px-3 text-center font-mono">{i.quantity ?? 1}</td>
-                          <td className="py-2 px-3 text-right font-mono font-bold text-[#0c1921]">
+                          <td className="py-2 px-3 text-right font-mono font-bold text-[var(--ns-ink)]">
                             {formatCurrency(money(i.amount))}
                           </td>
                         </tr>
                       ))}
                     {(selectedBill.folio.items || []).filter((i: any) => !i.voidedAt).length === 0 && (
                       <tr>
-                        <td colSpan={4} className="py-6 text-center text-[#71828a]">
+                        <td colSpan={4} className="py-6 text-center text-[var(--ns-muted)]">
                           No posted charges on record.
                         </td>
                       </tr>
@@ -441,37 +441,37 @@ export const GuestBillsPage: React.FC = () => {
             {/* Payments List */}
             <div>
               <div className="flex items-center justify-between pb-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0c1921]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--ns-ink)]">
                   Recorded Payments & Deposits
                 </h4>
-                <span className="text-[11px] text-[#71828a]">
+                <span className="text-[11px] text-[var(--ns-muted)]">
                   {(selectedBill.folio.payments || []).length} payment(s)
                 </span>
               </div>
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-[#edf2f2] bg-white">
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase text-[#71828a]">
+                    <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
                       <th className="py-2 px-3">Method</th>
                       <th className="py-2 px-3">Date</th>
                       <th className="py-2 px-3 text-right">Amount Paid</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f1f5f9]">
+                  <tbody className="divide-y divide-[var(--ns-line)]">
                     {(selectedBill.folio.payments || []).map((p: any) => (
-                      <tr key={p.id} className="hover:bg-[#fbfcfb]">
-                        <td className="py-2 px-3 font-semibold text-[#0c1921]">{p.method}</td>
-                        <td className="py-2 px-3 text-[#5a6b75] text-[11px]">
+                      <tr key={p.id} className="hover:bg-[var(--ns-surface-2)]">
+                        <td className="py-2 px-3 font-semibold text-[var(--ns-ink)]">{p.method}</td>
+                        <td className="py-2 px-3 text-[var(--ns-muted)] text-[11px]">
                           {new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH')}
                         </td>
-                        <td className="py-2 px-3 text-right font-mono font-bold text-emerald-700">
+                        <td className="py-2 px-3 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
                           -{formatCurrency(money(p.amount))}
                         </td>
                       </tr>
                     ))}
                     {(selectedBill.folio.payments || []).length === 0 && (
                       <tr>
-                        <td colSpan={3} className="py-4 text-center text-[#71828a]">
+                        <td colSpan={3} className="py-4 text-center text-[var(--ns-muted)]">
                           No payments recorded yet.
                         </td>
                       </tr>
@@ -482,7 +482,7 @@ export const GuestBillsPage: React.FC = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex justify-between items-center pt-3 border-t border-[#edf2f2]">
+            <div className="flex justify-between items-center pt-3 border-t border-[var(--ns-line)]">
               <Button variant="ghost" size="sm" onClick={() => setSelectedBill(null)}>
                 Close
               </Button>
@@ -490,7 +490,7 @@ export const GuestBillsPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={printBill}
-                className="gap-1.5 bg-[#0c1921] hover:bg-[#173c4d] text-white font-semibold"
+                className="gap-1.5 bg-[#173c4d] hover:bg-[#133240] text-white font-semibold"
               >
                 <Printer size={14} className="text-[#c59a58]" /> Print Guest Folio
               </Button>

@@ -70,6 +70,7 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
   const dark = resolveDark(theme, preference);
 
   root.setAttribute('data-theme', dark ? 'dark' : 'light');
+  root.classList.toggle('dark', dark);
 
   root.style.setProperty('--color-primary', theme.primaryColor);
   root.style.setProperty('--color-secondary', theme.secondaryColor);

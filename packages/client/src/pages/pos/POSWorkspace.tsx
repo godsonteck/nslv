@@ -281,7 +281,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             {/* Category filter bar */}
             <div className="ns-card p-3 flex flex-wrap items-center gap-2">
               <div className="relative flex-1 min-w-[160px]">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a5568]" />
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
                 <input
                   className="ns-input h-9 w-full pl-9 text-xs"
                   placeholder="Search menu…"
@@ -297,7 +297,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                     className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
                       category === c
                         ? 'text-[#0c1921] shadow'
-                        : 'bg-[#1a1f2e] text-[#6e7a8a] hover:text-[#c59a58]'
+                        : 'bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:text-[var(--ns-ink)] border border-[var(--ns-line)]'
                     }`}
                     style={category === c ? { backgroundColor: ac.color } : {}}
                   >
@@ -311,7 +311,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             {visible.length === 0 ? (
               <div className="ns-card p-14 text-center">
                 <Icon size={28} className="mx-auto mb-3 opacity-20" style={{ color: ac.color }} />
-                <p className="text-xs text-[#6e7a8a]">No items match this filter.</p>
+                <p className="text-xs text-[var(--ns-muted)]">No items match this filter.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
@@ -336,12 +336,12 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                         </span>
                       )}
                       <div>
-                        <div className="text-[11px] font-bold text-[#e8e6e0] leading-tight line-clamp-2">{i.name}</div>
-                        <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#4a5568]">
+                        <div className="text-[11px] font-bold text-[var(--ns-ink)] leading-tight line-clamp-2">{i.name}</div>
+                        <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--ns-muted)]">
                           {catName(i).replace(/_/g, ' ')}
                         </div>
                       </div>
-                      <div className="mt-3 flex items-center justify-between border-t border-[#1e2535] pt-2">
+                      <div className="mt-3 flex items-center justify-between border-t border-[var(--ns-line)] pt-2">
                         <span className="text-[11px] font-extrabold" style={{ color: ac.color }}>
                           {formatCurrency(Number(i.price || 0))}
                         </span>
@@ -359,14 +359,14 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                         )}
                       </div>
                       {canManage && (
-                        <div className="mt-2 flex items-center gap-1 border-t border-[#1e2535] pt-2" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => toggleItem(i)} title={off ? 'Enable' : 'Disable'} className="rounded p-1 text-[#4a5568] hover:text-[#c59a58] transition-colors">
+                        <div className="mt-2 flex items-center gap-1 border-t border-[var(--ns-line)] pt-2" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => toggleItem(i)} title={off ? 'Enable' : 'Disable'} className="rounded p-1 text-[var(--ns-muted)] hover:text-[#c59a58] transition-colors">
                             <Power size={10} />
                           </button>
-                          <button onClick={() => openEditItem(i)} title="Edit" className="rounded p-1 text-[#4a5568] hover:text-[#c59a58] transition-colors">
+                          <button onClick={() => openEditItem(i)} title="Edit" className="rounded p-1 text-[var(--ns-muted)] hover:text-[#c59a58] transition-colors">
                             <Pencil size={10} />
                           </button>
-                          <button onClick={() => removeItem(i)} title="Delete" className="rounded p-1 text-[#4a5568] hover:text-red-400 transition-colors">
+                          <button onClick={() => removeItem(i)} title="Delete" className="rounded p-1 text-[var(--ns-muted)] hover:text-red-400 transition-colors">
                             <Trash2 size={10} />
                           </button>
                         </div>
@@ -381,17 +381,17 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
           {/* ── Order Panel ──────────────────────────────────── */}
           <div className="ns-card flex flex-col gap-0 overflow-hidden sticky top-4">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-[#1e2535] flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-[var(--ns-line)] flex items-center justify-between">
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[#4a5568]">Current Order</div>
-                <div className="text-xs font-extrabold text-[#e8e6e0] mt-0.5">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">Current Order</div>
+                <div className="text-xs font-extrabold text-[var(--ns-ink)] mt-0.5">
                   {totalQty > 0 ? `${totalQty} item${totalQty > 1 ? 's' : ''}` : 'Empty'}
                 </div>
               </div>
               {cart.length > 0 && (
                 <button
                   onClick={() => { setCart([]); setIdempotencyKey(null); }}
-                  className="text-[10px] font-bold uppercase tracking-wider text-[#4a5568] hover:text-red-400 flex items-center gap-1 transition-colors"
+                  className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)] hover:text-red-400 flex items-center gap-1 transition-colors"
                 >
                   <X size={11} /> Clear
                 </button>
@@ -402,27 +402,27 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             <div className="flex-1 px-4 py-3 min-h-[140px] max-h-[300px] overflow-y-auto space-y-2">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full py-8 text-center">
-                  <ShoppingBag size={22} className="text-[#2a3040] mb-2" />
-                  <div className="text-[10px] text-[#4a5568]">Select items from the menu</div>
+                  <ShoppingBag size={22} className="text-[var(--ns-muted)] opacity-40 mb-2" />
+                  <div className="text-[10px] text-[var(--ns-muted)]">Select items from the menu</div>
                 </div>
               ) : (
                 cart.map((i) => (
-                  <div key={i.id} className="flex items-center gap-2 rounded-lg bg-[#0f141d] border border-[#1e2535] px-3 py-2 text-xs">
+                  <div key={i.id} className="flex items-center gap-2 rounded-lg bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-3 py-2 text-xs">
                     <div className="min-w-0 flex-1">
-                      <div className="truncate font-semibold text-[#e8e6e0] text-[11px]">{i.name}</div>
-                      <div className="text-[9px] text-[#4a5568]">{formatCurrency(Number(i.price))} each</div>
+                      <div className="truncate font-semibold text-[var(--ns-ink)] text-[11px]">{i.name}</div>
+                      <div className="text-[9px] text-[var(--ns-muted)]">{formatCurrency(Number(i.price))} each</div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-[#2a3040] text-[#6e7a8a] hover:text-[#e8e6e0] transition-colors">
+                      <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-[var(--ns-line)] text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors">
                         <Minus size={9} />
                       </button>
-                      <span className="w-5 text-center font-bold text-[#e8e6e0] text-[11px]">{i.quantity}</span>
+                      <span className="w-5 text-center font-bold text-[var(--ns-ink)] text-[11px]">{i.quantity}</span>
                       <button onClick={() => add(i)} className="flex h-5 w-5 items-center justify-center rounded text-[#0c1921]" style={{ backgroundColor: ac.color }}>
                         <Plus size={9} />
                       </button>
                     </div>
                     <span className="w-14 text-right font-bold text-[11px]" style={{ color: ac.color }}>{formatCurrency(Number(i.price) * i.quantity)}</span>
-                    <button onClick={() => removeLine(i.id)} className="text-[#2a3040] hover:text-red-400 transition-colors">
+                    <button onClick={() => removeLine(i.id)} className="text-[var(--ns-muted)] hover:text-red-500 transition-colors">
                       <X size={11} />
                     </button>
                   </div>
@@ -432,9 +432,9 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
             {/* Totals & payment */}
             {cart.length > 0 && (
-              <div className="border-t border-[#1e2535] px-5 py-4 space-y-3">
+              <div className="border-t border-[var(--ns-line)] px-5 py-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a5568]">Order Total</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">Order Total</span>
                   <span className="text-lg font-extrabold" style={{ color: ac.color }}>{formatCurrency(total)}</span>
                 </div>
 
@@ -480,23 +480,23 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       <Section title="Posted Orders" subtitle="Recent transactions at this workstation">
         <div className="overflow-x-auto">
           {orders.length === 0 ? (
-            <div className="p-10 text-center text-xs text-[#4a5568]">No orders posted yet.</div>
+            <div className="p-10 text-center text-xs text-[var(--ns-muted)]">No orders posted yet.</div>
           ) : (
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[#1e2535]">
+                <tr className="border-b border-[var(--ns-line)]">
                   {['Order No', 'Payment', 'Status', 'Amount', ''].map((h) => (
-                    <th key={h} className={`px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#4a5568] ${h === 'Amount' || h === '' ? 'text-right' : ''}`}>
+                    <th key={h} className={`px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)] ${h === 'Amount' || h === '' ? 'text-right' : ''}`}>
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#0f141d]">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {orders.slice(0, 12).map((o) => (
-                  <tr key={o.id} className="hover:bg-[#0f141d]/60 transition-colors">
-                    <td className="px-5 py-3 font-mono text-[11px] font-extrabold text-[#e8e6e0]">{o.orderNo}</td>
-                    <td className="px-5 py-3 text-[11px] text-[#6e7a8a]">{PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod}</td>
+                  <tr key={o.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                    <td className="px-5 py-3 font-mono text-[11px] font-extrabold text-[var(--ns-ink)]">{o.orderNo}</td>
+                    <td className="px-5 py-3 text-[11px] text-[var(--ns-muted)]">{PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod}</td>
                     <td className="px-5 py-3">{statusBadge(o.status || 'COMPLETED')}</td>
                     <td className="px-5 py-3 text-right text-[11px] font-extrabold" style={{ color: ac.color }}>
                       {formatCurrency(Number(o.totalAmount || 0))}

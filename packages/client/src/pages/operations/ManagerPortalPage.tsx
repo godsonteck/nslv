@@ -115,7 +115,7 @@ export const ManagerPortalPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate('/reports')}
-            className="gap-1.5 border-[#e5ebeb] text-[#0c1921]"
+            className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
           >
             <FileBarChart size={13} className="text-[#c59a58]" /> Full Reports
           </Button>
@@ -167,50 +167,50 @@ export const ManagerPortalPage: React.FC = () => {
         <div className="p-5 grid gap-4 sm:grid-cols-3">
           <div
             onClick={() => navigate('/restaurant/pos')}
-            className="group cursor-pointer rounded-2xl border border-[#e5ebeb] bg-white p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a] flex items-center gap-1.5">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <UtensilsCrossed size={13} className="text-amber-600" /> Restaurant Dining
               </span>
-              <ArrowRight size={14} className="text-[#71828a] group-hover:text-[#c59a58] transition-colors" />
+              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[#c59a58] transition-colors" />
             </div>
-            <div className="text-2xl font-black text-[#0c1921] font-mono">
+            <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.restaurantSales)}
             </div>
-            <div className="text-[11px] text-[#5a6b75]">Kitchen orders & room service</div>
+            <div className="text-[11px] text-[var(--ns-muted)]">Kitchen orders & room service</div>
           </div>
 
           <div
             onClick={() => navigate('/bar/pos')}
-            className="group cursor-pointer rounded-2xl border border-[#e5ebeb] bg-white p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a] flex items-center gap-1.5">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <Wine size={13} className="text-purple-600" /> Bar & Lounge
               </span>
-              <ArrowRight size={14} className="text-[#71828a] group-hover:text-[#c59a58] transition-colors" />
+              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[#c59a58] transition-colors" />
             </div>
-            <div className="text-2xl font-black text-[#0c1921] font-mono">
+            <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.barSales)}
             </div>
-            <div className="text-[11px] text-[#5a6b75]">Beverages, cocktails & wine</div>
+            <div className="text-[11px] text-[var(--ns-muted)]">Beverages, cocktails & wine</div>
           </div>
 
           <div
             onClick={() => navigate('/pool/services')}
-            className="group cursor-pointer rounded-2xl border border-[#e5ebeb] bg-white p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a] flex items-center gap-1.5">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <Waves size={13} className="text-teal-600" /> Pool Services
               </span>
-              <ArrowRight size={14} className="text-[#71828a] group-hover:text-[#c59a58] transition-colors" />
+              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[#c59a58] transition-colors" />
             </div>
-            <div className="text-2xl font-black text-[#0c1921] font-mono">
+            <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.poolSales)}
             </div>
-            <div className="text-[11px] text-[#5a6b75]">Day passes, towels & poolside drinks</div>
+            <div className="text-[11px] text-[var(--ns-muted)]">Day passes, towels & poolside drinks</div>
           </div>
         </div>
       </Section>
@@ -236,14 +236,14 @@ export const ManagerPortalPage: React.FC = () => {
             {loading ? (
               <div className="p-10"><LoadingState /></div>
             ) : activeStays.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#71828a]">
+              <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
                 No guests are currently checked in.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                    <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                       <th className="py-3 px-5">Room</th>
                       <th className="py-3 px-5">Guest Name</th>
                       <th className="py-3 px-5">Stay Dates</th>
@@ -251,19 +251,19 @@ export const ManagerPortalPage: React.FC = () => {
                       <th className="py-3 px-5 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f1f5f9]">
+                  <tbody className="divide-y divide-[var(--ns-line)]">
                     {activeStays.map((stay) => (
-                      <tr key={stay.id} className="hover:bg-[#fbfcfb] transition-colors">
-                        <td className="py-3 px-5 font-mono font-bold text-[#0c1921]">
+                      <tr key={stay.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                        <td className="py-3 px-5 font-mono font-bold text-[var(--ns-ink)]">
                           Room {stay.room?.number || '—'}
                         </td>
                         <td className="py-3 px-5">
-                          <div className="font-bold text-[#0c1921]">
+                          <div className="font-bold text-[var(--ns-ink)]">
                             {[stay.guest?.firstName, stay.guest?.lastName].filter(Boolean).join(' ') || 'In-House Guest'}
                           </div>
-                          <div className="text-[10px] text-[#71828a]">{stay.guest?.phone || 'No phone'}</div>
+                          <div className="text-[10px] text-[var(--ns-muted)]">{stay.guest?.phone || 'No phone'}</div>
                         </td>
-                        <td className="py-3 px-5 text-[#5a6b75] text-[11px]">
+                        <td className="py-3 px-5 text-[var(--ns-muted)] text-[11px]">
                           {new Date(stay.checkInDate).toLocaleDateString('en-GH')} &minus; {new Date(stay.checkOutDate).toLocaleDateString('en-GH')}
                         </td>
                         <td className="py-3 px-5 text-center">
@@ -274,7 +274,7 @@ export const ManagerPortalPage: React.FC = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => navigate('/guest-bills')}
-                            className="h-7 text-xs font-semibold border-[#e5ebeb]"
+                            className="h-7 text-xs font-semibold border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
                           >
                             Inspect Folio
                           </Button>
@@ -294,15 +294,15 @@ export const ManagerPortalPage: React.FC = () => {
             title="Operational Alerts"
             subtitle="Housekeeping room status and pending room turns."
             action={
-              <span className="font-mono text-xs font-bold text-amber-700">
+              <span className="font-mono text-xs font-bold text-amber-700 dark:text-amber-400">
                 {dirtyRooms.length} Dirty
               </span>
             }
           >
             <div className="p-4 space-y-3">
               {dirtyRooms.length === 0 ? (
-                <div className="py-8 text-center text-xs text-emerald-700 flex flex-col items-center gap-2">
-                  <CheckCircle2 size={24} className="text-emerald-600" />
+                <div className="py-8 text-center text-xs text-emerald-700 dark:text-emerald-300 flex flex-col items-center gap-2">
+                  <CheckCircle2 size={24} className="text-emerald-600 dark:text-emerald-400" />
                   <span>All villa rooms are cleaned and ready for guests.</span>
                 </div>
               ) : (
@@ -311,11 +311,11 @@ export const ManagerPortalPage: React.FC = () => {
                     <div
                       key={room.id}
                       onClick={() => navigate('/rooms')}
-                      className="p-3 rounded-xl border border-[#e5ebeb] hover:border-amber-400 bg-white flex items-center justify-between cursor-pointer transition-all shadow-sm"
+                      className="p-3 rounded-xl border border-[var(--ns-line)] hover:border-amber-400 bg-[var(--ns-surface)] flex items-center justify-between cursor-pointer transition-all shadow-sm"
                     >
                       <div>
-                        <div className="font-bold text-xs text-[#0c1921]">Room {room.number}</div>
-                        <div className="text-[10px] text-[#71828a]">{room.roomType?.name || 'Suite'}</div>
+                        <div className="font-bold text-xs text-[var(--ns-ink)]">Room {room.number}</div>
+                        <div className="text-[10px] text-[var(--ns-muted)]">{room.roomType?.name || 'Suite'}</div>
                       </div>
                       {statusBadge('DIRTY')}
                     </div>
@@ -323,11 +323,11 @@ export const ManagerPortalPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="pt-2 border-t border-[#edf2f2] space-y-2">
+              <div className="pt-2 border-t border-[var(--ns-line)] space-y-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs font-semibold border-[#e5ebeb]"
+                  className="w-full text-xs font-semibold border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
                   onClick={() => navigate('/rooms')}
                 >
                   Inspect Rooms Board &rarr;

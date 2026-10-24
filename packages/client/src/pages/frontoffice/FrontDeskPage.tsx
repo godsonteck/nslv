@@ -267,15 +267,15 @@ export const FrontDeskPage: React.FC = () => {
 
       {/* ── Dynamic Room Availability Bar (Tallies 100% with Overview and Rooms Page) ── */}
       <div className="ns-card p-5 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1e2535] pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-line)] pb-3">
           <div className="flex items-center gap-2">
             <DoorOpen size={16} className="text-[#c59a58]" />
             <span className="text-xs font-black uppercase tracking-wider text-[#c59a58]">
               Room Rack Inventory
             </span>
           </div>
-          <span className="text-xs text-[#6e7a8a] font-medium">
-            Total property rooms: <strong className="text-slate-900">{rooms.length}</strong>
+          <span className="text-xs text-[var(--ns-muted)] font-medium">
+            Total property rooms: <strong className="text-[var(--ns-ink)]">{rooms.length}</strong>
           </span>
         </div>
 

@@ -876,7 +876,7 @@ export const CashRegisterPage: React.FC = () => {
           title="Direct Cash Revenue Today"
           subtitle="Guest payments made in cash at Front Desk or dining POS. These automatically flow into drawer cash and must be handed over."
           action={
-            <div className="text-xs font-bold text-[#0c1921]">
+            <div className="text-xs font-bold text-[var(--ns-ink)]">
               Total Cash Revenue: {formatCurrency(cashSales)}
             </div>
           }
@@ -884,7 +884,7 @@ export const CashRegisterPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-4">Time</th>
                   <th className="py-3 px-4">Source</th>
                   <th className="py-3 px-4">Description / Folio</th>
@@ -892,31 +892,31 @@ export const CashRegisterPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f1f5f9]">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {(summary?.cashPayments ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-xs text-[#71828a]">
+                    <td colSpan={5} className="py-12 text-center text-xs text-[var(--ns-muted)]">
                       No cash sales or reservation payments recorded on this date.
                     </td>
                   </tr>
                 ) : (
                   (summary?.cashPayments ?? []).map((p) => (
-                    <tr key={p.id} className="hover:bg-[#fbfcfb] transition-colors">
-                      <td className="py-3 px-4 font-mono text-[11px] text-[#5a6b75]">
+                    <tr key={p.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                      <td className="py-3 px-4 font-mono text-[11px] text-[var(--ns-muted)]">
                         {new Date(p.processedAt).toLocaleTimeString('en-GH', {
                           hour: '2-digit',
                           minute: '2-digit',
                         })}
                       </td>
                       <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[#173c4d]">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[#173c4d] dark:text-[#7dd3fc]">
                           {p.source || 'FRONT_DESK'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-medium text-[#0c1921]">
+                      <td className="py-3 px-4 font-medium text-[var(--ns-ink)]">
                         {p.description || `Payment #${p.sourceId?.slice(0, 8)}`}
                       </td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-[#71828a]">
+                      <td className="py-3 px-4 font-mono text-[11px] text-[var(--ns-muted)]">
                         {p.reference || p.sourceId || '—'}
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-sm font-bold text-emerald-600">
@@ -942,24 +942,24 @@ export const CashRegisterPage: React.FC = () => {
               {Object.entries(summary?.byCategory ?? {}).map(([cat, amt]) => (
                 <div
                   key={cat}
-                  className="rounded-xl border border-[#e5ebeb] bg-white p-4 shadow-sm flex items-center justify-between"
+                  className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-4 shadow-sm flex items-center justify-between"
                 >
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                       {cat}
                     </span>
-                    <div className="mt-1 text-base font-bold text-[#0c1921]">
+                    <div className="mt-1 text-base font-bold text-[var(--ns-ink)]">
                       {formatCurrency(Number(amt))}
                     </div>
                   </div>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 font-bold text-xs">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-xs">
                     {manualOutflows > 0 ? `${Math.round((Number(amt) / manualOutflows) * 100)}%` : '0%'}
                   </div>
                 </div>
               ))}
             </div>
             {Object.keys(summary?.byCategory ?? {}).length === 0 && (
-              <div className="py-10 text-center text-xs text-[#71828a]">
+              <div className="py-10 text-center text-xs text-[var(--ns-muted)]">
                 No expenses or payouts recorded today.
               </div>
             )}
@@ -974,15 +974,15 @@ export const CashRegisterPage: React.FC = () => {
         title="Close-of-Day Cash Handover to Management"
       >
         <form onSubmit={handleSaveHandover} className="space-y-4">
-          <div className="rounded-xl border border-[#c59a58]/30 bg-[#fcf9f2] p-4 text-xs text-[#5a6b75] space-y-2">
-            <div className="flex items-center gap-2 font-bold text-[#0c1921]">
+          <div className="rounded-xl border border-[#c59a58]/30 bg-[#c59a58]/10 p-4 text-xs text-[var(--ns-muted)] space-y-2">
+            <div className="flex items-center gap-2 font-bold text-[var(--ns-ink)]">
               <Lock size={15} className="text-[#c59a58]" />
               Official Handover Policy
             </div>
             <p>
               Reception does <strong>not</strong> keep cash overnight. All physical drawer cash is counted and handed over to Management or Accounts. This resets the cash-at-hand to <strong>GH₵ 0.00</strong>.
             </p>
-            <div className="flex justify-between border-t border-[#e7d8bc] pt-2 font-semibold text-[#0c1921]">
+            <div className="flex justify-between border-t border-[var(--ns-line)] pt-2 font-semibold text-[var(--ns-ink)]">
               <span>Current Cash in Till:</span>
               <span className="font-mono text-sm font-bold text-[#b88738]">
                 {formatCurrency(cashAtHand)}
@@ -995,7 +995,7 @@ export const CashRegisterPage: React.FC = () => {
               type="date"
               value={selectedDate}
               readOnly
-              className="w-full rounded-xl border border-[#cbd5e1] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0c1921]"
+              className="w-full rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] px-3.5 py-2.5 text-sm font-semibold text-[var(--ns-ink)]"
             />
           </FormField>
 
@@ -1028,7 +1028,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setHandoverOpen(false)}>
               Cancel
             </Button>
@@ -1036,7 +1036,7 @@ export const CashRegisterPage: React.FC = () => {
               type="submit"
               variant="primary"
               loading={saving}
-              className="bg-[#0c1921] hover:bg-[#173c4d] text-[#fcf9f2] font-semibold gap-1.5"
+              className="bg-[#173c4d] hover:bg-[#133240] text-[#fcf9f2] font-semibold gap-1.5"
             >
               <Send size={14} className="text-[#c59a58]" /> Confirm & Hand Over Cash
             </Button>
@@ -1113,7 +1113,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setEntryOpen(false)}>
               Cancel
             </Button>
@@ -1164,7 +1164,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setMomoDepositOpen(false)}>
               Cancel
             </Button>
@@ -1187,7 +1187,7 @@ export const CashRegisterPage: React.FC = () => {
         title="Morning Change Float"
       >
         <form onSubmit={handleSaveOpening} className="space-y-4">
-          <div className="rounded-xl border border-[#e5ebeb] bg-[#fbfdfd] p-3.5 text-xs text-[#5a6b75]">
+          <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-3.5 text-xs text-[var(--ns-muted)]">
             Each business day starts fresh with <strong>GH₵ 0.00</strong> because cash is handed over to Management daily. If Management gave a change float for this morning, enter it below.
           </div>
 
@@ -1211,7 +1211,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setOpeningOpen(false)}>
               Cancel
             </Button>

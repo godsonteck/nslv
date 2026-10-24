@@ -257,7 +257,7 @@ export const EventsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setSpaceModalOpen(true)}
-                className="gap-1.5 border-[#e5ebeb] text-[#0c1921]"
+                className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
               >
                 <Building2 size={13} /> Add Venue Space
               </Button>
@@ -298,13 +298,13 @@ export const EventsPage: React.FC = () => {
       </div>
 
       {/* ── Segmented Navigation ── */}
-      <div className="flex border-b border-[#e5ebeb] bg-white rounded-t-2xl px-5 pt-3">
+      <div className="flex border-b border-[var(--ns-line)] bg-[var(--ns-surface)] rounded-t-2xl px-5 pt-3">
         <button
           onClick={() => setActiveTab('EVENTS')}
           className={`flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'EVENTS'
-              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
-              : 'text-[#71828a] hover:text-[#0c1921]'
+              ? 'text-[var(--ns-ink)] border-b-2 border-[#c59a58]'
+              : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
           }`}
         >
           <Calendar size={14} />
@@ -317,8 +317,8 @@ export const EventsPage: React.FC = () => {
           onClick={() => setActiveTab('SPACES')}
           className={`flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'SPACES'
-              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
-              : 'text-[#71828a] hover:text-[#0c1921]'
+              ? 'text-[var(--ns-ink)] border-b-2 border-[#c59a58]'
+              : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
           }`}
         >
           <Building2 size={14} />
@@ -358,14 +358,14 @@ export const EventsPage: React.FC = () => {
           {loading ? (
             <div className="p-12"><LoadingState /></div>
           ) : filtered.length === 0 ? (
-            <div className="p-16 text-center text-xs text-[#71828a]">
+            <div className="p-16 text-center text-xs text-[var(--ns-muted)]">
               {events.length === 0 ? 'No events booked yet.' : 'No events match your search.'}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                  <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                     <th className="py-3 px-5">Event Title & Notes</th>
                     <th className="py-3 px-5">Venue Space</th>
                     <th className="py-3 px-5">Date & Time</th>
@@ -375,34 +375,34 @@ export const EventsPage: React.FC = () => {
                     <th className="py-3 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f1f5f9]">
+                <tbody className="divide-y divide-[var(--ns-line)]">
                   {filtered.map((ev) => (
-                    <tr key={ev.id} className="hover:bg-[#fbfcfb] transition-colors">
+                    <tr key={ev.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
                       <td className="py-3.5 px-5">
-                        <div className="font-bold text-[#0c1921] text-xs">{ev.title}</div>
-                        <div className="text-[10px] text-[#71828a] max-w-xs truncate">
+                        <div className="font-bold text-[var(--ns-ink)] text-xs">{ev.title}</div>
+                        <div className="text-[10px] text-[var(--ns-muted)] max-w-xs truncate">
                           {ev.description || ev.notes || '—'}
                         </div>
                       </td>
                       <td className="py-3.5 px-5">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[11px] font-semibold text-[#0c1921]">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
                           <Building2 size={11} className="text-[#c59a58]" />
                           {ev.eventSpace?.name ?? 'Villa Grounds'}
                         </span>
                       </td>
-                      <td className="py-3.5 px-5 font-mono text-[11px] text-[#5a6b75]">
+                      <td className="py-3.5 px-5 font-mono text-[11px] text-[var(--ns-muted)]">
                         <div>{new Date(ev.startAt).toLocaleDateString('en-GH', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                        <div className="text-[10px] text-[#71828a]">
+                        <div className="text-[10px] text-[var(--ns-muted)]">
                           {new Date(ev.startAt).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' })} &minus; {new Date(ev.endAt).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </td>
-                      <td className="py-3.5 px-5 text-center font-mono font-bold text-xs text-[#0c1921]">
+                      <td className="py-3.5 px-5 text-center font-mono font-bold text-xs text-[var(--ns-ink)]">
                         {ev.guestCount}
                       </td>
                       <td className="py-3.5 px-5">
-                        <div className="font-semibold text-[#0c1921] text-xs">{ev.contactName || '—'}</div>
+                        <div className="font-semibold text-[var(--ns-ink)] text-xs">{ev.contactName || '—'}</div>
                         {ev.contactPhone && (
-                          <div className="text-[10px] text-[#71828a]">{ev.contactPhone}</div>
+                          <div className="text-[10px] text-[var(--ns-muted)]">{ev.contactPhone}</div>
                         )}
                       </td>
                       <td className="py-3.5 px-5 text-center">
@@ -458,16 +458,16 @@ export const EventsPage: React.FC = () => {
             {spaces.map((sp) => (
               <div
                 key={sp.id}
-                className="rounded-2xl border border-[#e5ebeb] bg-white p-5 shadow-sm hover:border-[#c59a58]/40 transition-all space-y-3"
+                className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 transition-all space-y-3"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0c1921] text-[#c59a58]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] text-[#c59a58]">
                       <Building2 size={18} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-[#0c1921] font-serif">{sp.name}</h4>
-                      <p className="text-[11px] text-[#5a6b75] flex items-center gap-1">
+                      <h4 className="font-bold text-sm text-[var(--ns-ink)] font-serif">{sp.name}</h4>
+                      <p className="text-[11px] text-[var(--ns-muted)] flex items-center gap-1">
                         <MapPin size={11} className="text-[#c59a58]" /> {sp.location || 'NS Villa Grounds'}
                       </p>
                     </div>
@@ -475,7 +475,7 @@ export const EventsPage: React.FC = () => {
                   {canCreate && (
                     <button
                       onClick={() => handleDeleteSpace(sp)}
-                      className="text-[#71828a] hover:text-rose-600 p-1"
+                      className="text-[var(--ns-muted)] hover:text-rose-600 p-1"
                       title="Delete Space"
                     >
                       <Trash2 size={14} />
@@ -483,16 +483,16 @@ export const EventsPage: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-[#edf2f2] pt-3 text-xs">
-                  <span className="text-[#71828a]">Guest Capacity:</span>
-                  <span className="font-mono font-bold text-[#0c1921]">
+                <div className="flex items-center justify-between border-t border-[var(--ns-line)] pt-3 text-xs">
+                  <span className="text-[var(--ns-muted)]">Guest Capacity:</span>
+                  <span className="font-mono font-bold text-[var(--ns-ink)]">
                     {sp.capacity > 0 ? `${sp.capacity} Guests` : 'Flexible'}
                   </span>
                 </div>
               </div>
             ))}
             {spaces.length === 0 && (
-              <div className="col-span-3 py-12 text-center text-xs text-[#71828a]">
+              <div className="col-span-3 py-12 text-center text-xs text-[var(--ns-muted)]">
                 No event spaces configured yet. Click "Add Venue Space" above to configure areas.
               </div>
             )}
@@ -593,11 +593,11 @@ export const EventsPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-[#0c1921] hover:bg-[#173c4d] text-white">
+            <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7]">
               {editing ? 'Save Changes' : 'Confirm Booking'}
             </Button>
           </div>
@@ -638,11 +638,11 @@ export const EventsPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
             <Button type="button" variant="ghost" onClick={() => setSpaceModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-[#0c1921] hover:bg-[#173c4d] text-white">
+            <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7]">
               Add Venue
             </Button>
           </div>

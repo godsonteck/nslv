@@ -253,7 +253,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
         </div>
 
         {/* Primary Role */}
-        <div className="rounded-xl border border-[#e5ebeb] bg-[#fbfdfd] p-4 space-y-3">
+        <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
           <FormField label="Primary Department Role" required>
             <SelectInput
               value={form.primaryRoleId}
@@ -277,7 +277,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
 
           {/* Additional Cross-Functional Roles */}
           <div>
-            <label className="text-xs font-bold text-[#0c1921] block pb-2">
+            <label className="text-xs font-bold text-[var(--ns-ink)] block pb-2">
               Cross-Functional Delegated Roles (optional)
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -292,8 +292,8 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
                       onClick={() => toggleAdditionalRole(r.id)}
                       className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
                         isChecked
-                          ? 'border-[#c59a58] bg-[#fcf9f2] text-[#0c1921]'
-                          : 'border-[#e5ebeb] bg-white text-[#5a6b75] hover:bg-slate-50'
+                          ? 'border-[#c59a58] bg-amber-50 dark:bg-amber-950/40 text-[var(--ns-ink)]'
+                          : 'border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:bg-[var(--ns-surface-2)]'
                       }`}
                     >
                       {isChecked ? (
@@ -311,14 +311,14 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
 
         {/* Selected Capabilities Badge */}
         {selectedRoleObjs.length > 0 && (
-          <div className="rounded-xl border border-[#c59a58]/30 bg-[#fcf9f2] p-3 text-xs flex flex-wrap items-center gap-1.5">
-            <span className="font-bold text-[#0c1921] flex items-center gap-1">
+          <div className="rounded-xl border border-[#c59a58]/30 bg-amber-50 dark:bg-amber-950/40 p-3 text-xs flex flex-wrap items-center gap-1.5">
+            <span className="font-bold text-[var(--ns-ink)] flex items-center gap-1">
               <Shield size={13} className="text-[#c59a58]" /> Unlocked Access:
             </span>
             {selectedRoleObjs.map((r) => (
               <span
                 key={r.id}
-                className="rounded-md bg-[#0c1921] px-2 py-0.5 text-[10px] font-bold text-[#fcf9f2]"
+                className="rounded-md bg-[#173c4d] px-2 py-0.5 text-[10px] font-bold text-[#fdfbf7]"
               >
                 {r.name}
               </span>
@@ -326,7 +326,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
           </div>
         )}
 
-        <div className="flex justify-end gap-2 pt-3 border-t border-[#edf2f2]">
+        <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
@@ -335,7 +335,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
             variant="primary"
             loading={saving}
             onClick={save}
-            className="bg-[#0c1921] hover:bg-[#173c4d] text-white font-semibold"
+            className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7] font-semibold"
           >
             {isEdit ? 'Save Changes' : 'Create Staff User'}
           </Button>
@@ -494,14 +494,14 @@ export const UsersPage: React.FC = () => {
         {loading ? (
           <div className="p-12"><LoadingState /></div>
         ) : users.length === 0 ? (
-          <div className="p-16 text-center text-xs text-[#71828a]">
+          <div className="p-16 text-center text-xs text-[var(--ns-muted)]">
             No staff accounts found.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Staff Member</th>
                   <th className="py-3 px-5">Email Address</th>
                   <th className="py-3 px-5">Assigned Roles</th>
@@ -509,23 +509,23 @@ export const UsersPage: React.FC = () => {
                   <th className="py-3 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f1f5f9]">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-[#fbfcfb] transition-colors">
+                  <tr key={u.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0c1921] font-mono text-xs font-bold text-[#c59a58] shrink-0">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] font-mono text-xs font-bold text-[#c59a58] shrink-0">
                           {u.firstName[0]}{u.lastName[0]}
                         </div>
                         <div>
-                          <div className="font-bold text-[#0c1921] text-xs">
+                          <div className="font-bold text-[var(--ns-ink)] text-xs">
                             {u.firstName} {u.lastName}
                           </div>
-                          <div className="text-[10px] text-[#71828a] font-mono">@{u.username}</div>
+                          <div className="text-[10px] text-[var(--ns-muted)] font-mono">@{u.username}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-5 text-[#5a6b75] font-medium">
+                    <td className="py-3.5 px-5 text-[var(--ns-muted)] font-medium">
                       {u.email}
                     </td>
                     <td className="py-3.5 px-5">
@@ -535,7 +535,7 @@ export const UsersPage: React.FC = () => {
                           return (
                             <span
                               key={rName}
-                              className="rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-bold text-[#0c1921]"
+                              className="rounded-md bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]"
                             >
                               {rName}
                             </span>
@@ -592,7 +592,7 @@ export const UsersPage: React.FC = () => {
         )}
 
         {total > pageSize && (
-          <div className="p-4 border-t border-[#edf2f2] flex justify-end">
+          <div className="p-4 border-t border-[var(--ns-line)] flex justify-end">
             <Pagination
               page={page}
               totalPages={Math.ceil(total / pageSize)}

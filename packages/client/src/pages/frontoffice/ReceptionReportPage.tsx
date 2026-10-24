@@ -200,13 +200,13 @@ export default function ReceptionReportPage() {
     >
       {/* ── Period Selector ── */}
       <div className="ns-card p-3 flex flex-wrap items-center gap-3 print:hidden">
-        <div className="flex items-center gap-1 bg-[#0f141d] p-1 rounded-lg border border-[#1e2535]">
+        <div className="flex items-center gap-1 bg-[var(--ns-surface-2)] p-1 rounded-lg border border-[var(--ns-line)]">
           {(['today', 'yesterday', 'week', 'month', 'custom'] as PeriodMode[]).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
               className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
-                mode === m ? 'bg-[#c59a58] text-[#0c1921] shadow' : 'text-[#4a5568] hover:text-[#c59a58]'
+                mode === m ? 'bg-[#c59a58] text-[#122028] shadow font-black' : 'text-[var(--ns-muted)] hover:text-[#c59a58]'
               }`}
             >
               {m === 'today' ? "Today" : m === 'yesterday' ? 'Yesterday' : m === 'week' ? 'This Week' : m === 'month' ? 'This Month' : 'Custom'}
@@ -214,20 +214,20 @@ export default function ReceptionReportPage() {
           ))}
         </div>
         {mode === 'custom' && (
-          <div className="flex items-center gap-2 text-[11px] text-[#6e7a8a]">
+          <div className="flex items-center gap-2 text-[11px] text-[var(--ns-muted)]">
             <label className="flex items-center gap-1">
               From
               <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)}
-                className="ns-input h-8 px-2 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded ml-1" />
+                className="ns-input h-8 px-2 text-xs bg-[var(--ns-surface-2)] border-[var(--ns-line)] text-[var(--ns-ink)] rounded ml-1" />
             </label>
             <label className="flex items-center gap-1">
               To
               <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)}
-                className="ns-input h-8 px-2 text-xs bg-[#0f141d] border-[#1e2535] text-[#e8e6e0] rounded ml-1" />
+                className="ns-input h-8 px-2 text-xs bg-[var(--ns-surface-2)] border-[var(--ns-line)] text-[var(--ns-ink)] rounded ml-1" />
             </label>
           </div>
         )}
-        <span className="ml-auto text-[10px] font-bold text-[#c59a58] bg-[#1a1505] border border-[#3a2a10] px-2.5 py-1.5 rounded-lg">
+        <span className="ml-auto text-[10px] font-bold text-[#b88738] bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-lg">
           {periodTitle}
         </span>
       </div>
@@ -235,7 +235,7 @@ export default function ReceptionReportPage() {
       {loading ? (
         <LoadingState />
       ) : !data ? (
-        <div className="ns-card p-12 text-center text-[#4a5568] text-xs">No data found for this period.</div>
+        <div className="ns-card p-12 text-center text-[var(--ns-muted)] text-xs">No data found for this period.</div>
       ) : (
         <>
           {/* ── KPI Strip ── */}
@@ -250,19 +250,19 @@ export default function ReceptionReportPage() {
             ].map((tile) => (
               <div key={tile.label} className="ns-card p-4" style={{ borderTop: `2px solid ${tile.color}20` }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#4a5568]">{tile.label}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{tile.label}</span>
                   <span className="flex h-6 w-6 items-center justify-center rounded-md" style={{ backgroundColor: `${tile.color}18` }}>
                     <tile.icon size={12} style={{ color: tile.color }} />
                   </span>
                 </div>
-                <div className="text-sm font-extrabold text-[#e8e6e0]">{tile.value}</div>
-                <div className="mt-0.5 text-[9px] text-[#4a5568]">{tile.sub}</div>
+                <div className="text-sm font-extrabold text-[var(--ns-ink)]">{tile.value}</div>
+                <div className="mt-0.5 text-[9px] text-[var(--ns-muted)]">{tile.sub}</div>
               </div>
             ))}
           </div>
 
           {/* ── Tabs ── */}
-          <div className="flex items-center gap-0 border-b border-[#1e2535] print:hidden">
+          <div className="flex items-center gap-0 border-b border-[var(--ns-line)] print:hidden">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -270,13 +270,13 @@ export default function ReceptionReportPage() {
                 className={`flex items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold border-b-2 transition-all ${
                   activeTab === tab.id
                     ? 'border-[#c59a58] text-[#c59a58]'
-                    : 'border-transparent text-[#4a5568] hover:text-[#e8e6e0]'
+                    : 'border-transparent text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
                 }`}
               >
                 <tab.icon size={13} />
                 {tab.label}
                 {tab.count !== undefined && (
-                  <span className={`ml-1 rounded px-1.5 py-0.5 text-[9px] font-bold ${activeTab === tab.id ? 'bg-[#c59a58]/20 text-[#c59a58]' : 'bg-[#1e2535] text-[#4a5568]'}`}>
+                  <span className={`ml-1 rounded px-1.5 py-0.5 text-[9px] font-bold ${activeTab === tab.id ? 'bg-[#c59a58]/20 text-[#c59a58]' : 'bg-[var(--ns-surface-2)] text-[var(--ns-muted)] border border-[var(--ns-line)]'}`}>
                     {tab.count}
                   </span>
                 )}
@@ -309,47 +309,47 @@ export default function ReceptionReportPage() {
               {/* MoMo Ledger */}
               <Section title={`Mobile Money Ledger (${fin.momo?.transactions?.length || 0})`} subtitle="All MoMo payments with references and guest details">
                 {!fin.momo?.transactions?.length ? (
-                  <div className="p-8 text-center text-xs text-[#4a5568]">No MoMo payments in this period.</div>
+                  <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No MoMo payments in this period.</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead className="border-b border-[#1e2535]">
+                      <thead className="border-b border-[var(--ns-line)]">
                         <tr>
                           {['Time', 'Guest & Phone', 'Room / Conf #', 'MoMo Reference', 'Staff', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[#4a5568]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#0f141d]">
+                      <tbody className="divide-y divide-[var(--ns-line)]">
                         {fin.momo.transactions.map((t: any) => (
-                          <tr key={t.id} className="hover:bg-[#0f141d]/60 transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[#6e7a8a] text-[10px]">
+                          <tr key={t.id} className="hover:bg-[var(--ns-surface-2)] transition-colors text-xs">
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">
                               {new Date(t.processedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-bold text-[#e8e6e0]">{t.guestName}</div>
-                              <div className="text-[10px] text-[#4a5568] flex items-center gap-1">
+                              <div className="font-bold text-[var(--ns-ink)]">{t.guestName}</div>
+                              <div className="text-[10px] text-[var(--ns-muted)] flex items-center gap-1">
                                 <Phone size={9} /> {t.phone}
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-bold text-[#e8e6e0]">{t.roomNumber}</div>
-                              <div className="text-[10px] font-mono text-[#4a5568]">{t.confirmationNo}</div>
+                              <div className="font-bold text-[var(--ns-ink)]">{t.roomNumber}</div>
+                              <div className="text-[10px] font-mono text-[var(--ns-muted)]">{t.confirmationNo}</div>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="rounded border border-[#3a2a10] bg-[#1a1505] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#c59a58]">
+                              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#b88738]">
                                 {t.reference}
                               </span>
-                              <div className="text-[9px] text-[#4a5568] mt-0.5 truncate max-w-[180px]">{t.description}</div>
+                              <div className="text-[9px] text-[var(--ns-muted)] mt-0.5 truncate max-w-[180px]">{t.description}</div>
                             </td>
-                            <td className="px-4 py-3 text-[11px] text-[#6e7a8a] font-medium">{t.processedBy}</td>
+                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)] font-medium">{t.processedBy}</td>
                             <td className="px-4 py-3 text-right font-extrabold text-[#c59a58]">{formatCurrency(t.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="border-t border-[#2a3040]">
+                      <tfoot className="border-t border-[var(--ns-line)]">
                         <tr>
-                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[#4a5568]">Total MoMo Collected</td>
+                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total MoMo Collected</td>
                           <td className="px-4 py-3 text-right font-extrabold text-[#c59a58]">{formatCurrency(fin.momo?.totalAmount || 0)}</td>
                         </tr>
                       </tfoot>
@@ -361,50 +361,50 @@ export default function ReceptionReportPage() {
               {/* All Payments Audit Trail */}
               <Section title={`All Payment Collections (${fin.allPaymentRecords?.length || 0})`} subtitle="Complete audit trail across all payment methods">
                 {!fin.allPaymentRecords?.length ? (
-                  <div className="p-8 text-center text-xs text-[#4a5568]">No payment records found.</div>
+                  <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No payment records found.</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead className="border-b border-[#1e2535]">
+                      <thead className="border-b border-[var(--ns-line)]">
                         <tr>
                           {['Time', 'Method', 'Guest', 'Room / Conf #', 'Staff', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[#4a5568]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#0f141d]">
+                      <tbody className="divide-y divide-[var(--ns-line)]">
                         {fin.allPaymentRecords.map((p: any) => (
-                          <tr key={p.id} className="hover:bg-[#0f141d]/60 transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[#6e7a8a] text-[10px]">
+                          <tr key={p.id} className="hover:bg-[var(--ns-surface-2)] transition-colors text-xs">
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">
                               {new Date(p.processedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </td>
                             <td className="px-4 py-3">
                               <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
-                                p.method === 'MOBILE_MONEY' ? 'bg-[#1a1505] text-[#c59a58] border border-[#3a2a10]' :
-                                p.method === 'CASH' ? 'bg-emerald-900/30 text-emerald-400' :
-                                p.method === 'CARD' ? 'bg-blue-900/30 text-blue-400' :
-                                'bg-purple-900/30 text-purple-400'
+                                p.method === 'MOBILE_MONEY' ? 'bg-amber-500/10 text-[#b88738] border border-amber-500/30' :
+                                p.method === 'CASH' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
+                                p.method === 'CARD' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30' :
+                                'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30'
                               }`}>
                                 {p.method === 'MOBILE_MONEY' ? 'MoMo' : p.method}
                               </span>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-bold text-[#e8e6e0]">{p.guestName}</div>
-                              {p.reference !== '—' && <div className="text-[9px] font-mono text-[#4a5568]">{p.reference}</div>}
+                              <div className="font-bold text-[var(--ns-ink)]">{p.guestName}</div>
+                              {p.reference !== '—' && <div className="text-[9px] font-mono text-[var(--ns-muted)]">{p.reference}</div>}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-bold text-[#e8e6e0]">{p.roomNumber}</div>
-                              <div className="text-[9px] font-mono text-[#4a5568]">{p.confirmationNo}</div>
+                              <div className="font-bold text-[var(--ns-ink)]">{p.roomNumber}</div>
+                              <div className="text-[9px] font-mono text-[var(--ns-muted)]">{p.confirmationNo}</div>
                             </td>
-                            <td className="px-4 py-3 text-[11px] text-[#6e7a8a]">{p.processedBy}</td>
-                            <td className="px-4 py-3 text-right font-extrabold text-[#e8e6e0]">{formatCurrency(p.amount)}</td>
+                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)]">{p.processedBy}</td>
+                            <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-ink)]">{formatCurrency(p.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="border-t border-[#2a3040]">
+                      <tfoot className="border-t border-[var(--ns-line)]">
                         <tr>
-                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[#4a5568]">Total Gross Collections</td>
-                          <td className="px-4 py-3 text-right font-extrabold text-[#e8e6e0]">{formatCurrency(fin.totalCollections || 0)}</td>
+                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total Gross Collections</td>
+                          <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-ink)]">{formatCurrency(fin.totalCollections || 0)}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -420,38 +420,38 @@ export default function ReceptionReportPage() {
               {/* Category cards */}
               <Section title="Room Category Breakdown" subtitle="Revenue and headcount by room type">
                 {!bkg.categories?.length ? (
-                  <div className="p-8 text-center text-xs text-[#4a5568]">No rooms booked in this period.</div>
+                  <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No rooms booked in this period.</div>
                 ) : (
                   <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
                     {bkg.categories.map((cat: any) => (
                       <div key={cat.categoryName} className="ns-card p-4 space-y-3">
                         <div className="flex items-start justify-between">
                           <div>
-                            <div className="text-xs font-extrabold text-[#e8e6e0]">{cat.categoryName}</div>
-                            <div className="text-[9px] text-[#4a5568] mt-0.5">{formatCurrency(cat.basePrice)}/night</div>
+                            <div className="text-xs font-extrabold text-[var(--ns-ink)]">{cat.categoryName}</div>
+                            <div className="text-[9px] text-[var(--ns-muted)] mt-0.5">{formatCurrency(cat.basePrice)}/night</div>
                           </div>
                           <span className="rounded-full bg-[#c59a58]/15 text-[#c59a58] font-bold text-[9px] px-2 py-0.5 border border-[#c59a58]/30">
                             {cat.percentageShare}%
                           </span>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 border-y border-[#1e2535] py-3 text-center">
+                        <div className="grid grid-cols-3 gap-2 border-y border-[var(--ns-line)] py-3 text-center">
                           {[
                             { label: 'Bookings', value: cat.bookingsCount },
                             { label: 'Nights', value: cat.roomNights },
                             { label: 'Guests', value: cat.totalPeople },
                           ].map((s) => (
                             <div key={s.label}>
-                              <div className="text-[8px] font-bold uppercase tracking-wider text-[#4a5568]">{s.label}</div>
-                              <div className="text-sm font-extrabold text-[#e8e6e0] mt-0.5">{s.value}</div>
+                              <div className="text-[8px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">{s.label}</div>
+                              <div className="text-sm font-extrabold text-[var(--ns-ink)] mt-0.5">{s.value}</div>
                             </div>
                           ))}
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#4a5568]">Category Revenue</span>
+                          <span className="text-[var(--ns-muted)]">Category Revenue</span>
                           <span className="font-extrabold text-[#c59a58]">{formatCurrency(cat.totalRevenue)}</span>
                         </div>
                         {cat.roomsList && (
-                          <div className="text-[9px] text-[#4a5568] truncate">Rooms: <span className="text-[#6e7a8a] font-medium">{cat.roomsList}</span></div>
+                          <div className="text-[9px] text-[var(--ns-muted)] truncate">Rooms: <span className="text-[var(--ns-ink)] font-medium">{cat.roomsList}</span></div>
                         )}
                       </div>
                     ))}
@@ -462,52 +462,52 @@ export default function ReceptionReportPage() {
               {/* Bookings list */}
               <Section title={`Bookings (${bkg.bookingsList?.length || 0})`} subtitle="Guest reservations with headcounts and room assignments">
                 {!bkg.bookingsList?.length ? (
-                  <div className="p-8 text-center text-xs text-[#4a5568]">No bookings in this period.</div>
+                  <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No bookings in this period.</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead className="border-b border-[#1e2535]">
+                      <thead className="border-b border-[var(--ns-line)]">
                         <tr>
                           {['Conf #', 'Guest & Phone', 'Room / Category', 'Dates', 'People', 'Status', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[#4a5568]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#0f141d]">
+                      <tbody className="divide-y divide-[var(--ns-line)]">
                         {bkg.bookingsList.map((b: any) => (
-                          <tr key={b.id} className="hover:bg-[#0f141d]/60 transition-colors text-xs">
+                          <tr key={b.id} className="hover:bg-[var(--ns-surface-2)] transition-colors text-xs">
                             <td className="px-4 py-3 font-mono font-bold text-[#c59a58] text-[10px]">{b.confirmationNo}</td>
                             <td className="px-4 py-3">
-                              <div className="font-bold text-[#e8e6e0]">{b.guestName}</div>
-                              <div className="text-[9px] text-[#4a5568] flex items-center gap-1"><Phone size={9} />{b.phone}</div>
+                              <div className="font-bold text-[var(--ns-ink)]">{b.guestName}</div>
+                              <div className="text-[9px] text-[var(--ns-muted)] flex items-center gap-1"><Phone size={9} />{b.phone}</div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-bold text-[#e8e6e0]">Room {b.roomNumber}</div>
-                              <div className="text-[9px] text-[#4a5568]">{b.categoryName}</div>
+                              <div className="font-bold text-[var(--ns-ink)]">Room {b.roomNumber}</div>
+                              <div className="text-[9px] text-[var(--ns-muted)]">{b.categoryName}</div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-medium text-[#e8e6e0]">{b.checkInDate} → {b.checkOutDate}</div>
-                              <div className="text-[9px] text-[#4a5568]">{b.nights} night{b.nights !== 1 ? 's' : ''}</div>
+                              <div className="font-medium text-[var(--ns-ink)]">{b.checkInDate} → {b.checkOutDate}</div>
+                              <div className="text-[9px] text-[var(--ns-muted)]">{b.nights} night{b.nights !== 1 ? 's' : ''}</div>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="rounded bg-[#1e2535] px-2 py-0.5 text-[9px] font-bold text-[#e8e6e0]">
+                              <span className="rounded bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-2 py-0.5 text-[9px] font-bold text-[var(--ns-ink)]">
                                 {b.totalPeople} ({b.adults}A / {b.children}C)
                               </span>
                             </td>
                             <td className="px-4 py-3">{statusBadge(b.status)}</td>
                             <td className="px-4 py-3 text-right">
-                              <div className="font-extrabold text-[#e8e6e0]">{formatCurrency(b.totalAmount)}</div>
+                              <div className="font-extrabold text-[var(--ns-ink)]">{formatCurrency(b.totalAmount)}</div>
                               {b.depositAmount > 0 && (
-                                <div className="text-[9px] text-emerald-400">Dep: {formatCurrency(b.depositAmount)}</div>
+                                <div className="text-[9px] text-emerald-600 dark:text-emerald-400">Dep: {formatCurrency(b.depositAmount)}</div>
                               )}
                             </td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="border-t border-[#2a3040]">
+                      <tfoot className="border-t border-[var(--ns-line)]">
                         <tr>
-                          <td colSpan={6} className="px-4 py-3 text-[10px] text-[#4a5568]">
-                            Total: <strong className="text-[#e8e6e0]">{bkg.totalPeople || 0} people</strong> · {bkg.adults || 0} adults · {bkg.children || 0} children
+                          <td colSpan={6} className="px-4 py-3 text-[10px] text-[var(--ns-muted)]">
+                            Total: <strong className="text-[var(--ns-ink)]">{bkg.totalPeople || 0} people</strong> · {bkg.adults || 0} adults · {bkg.children || 0} children
                           </td>
                           <td className="px-4 py-3 text-right font-extrabold text-[#c59a58]">
                             {formatCurrency((bkg.categories || []).reduce((s: number, c: any) => s + (c.totalRevenue || 0), 0))}
@@ -529,9 +529,9 @@ export default function ReceptionReportPage() {
                 <div className="grid gap-3 sm:grid-cols-4">
                   {(exp.byCategory || []).map((cat: any) => (
                     <div key={cat.category} className="ns-card p-4 border-l-2 border-red-500/60">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-[#4a5568] truncate">{cat.category}</div>
-                      <div className="text-sm font-extrabold text-red-400 mt-1">{formatCurrency(cat.amount)}</div>
-                      <div className="text-[9px] text-[#4a5568]">{cat.percentage}% of payouts</div>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)] truncate">{cat.category}</div>
+                      <div className="text-sm font-extrabold text-red-500 dark:text-red-400 mt-1">{formatCurrency(cat.amount)}</div>
+                      <div className="text-[9px] text-[var(--ns-muted)]">{cat.percentage}% of payouts</div>
                     </div>
                   ))}
                 </div>
@@ -540,36 +540,36 @@ export default function ReceptionReportPage() {
               {/* Disbursements table */}
               <Section title={`Expense Disbursements (${exp.disbursementsList?.length || 0})`} subtitle="Cash taken from reception for operational purposes">
                 {!exp.disbursementsList?.length ? (
-                  <div className="p-8 text-center text-xs text-[#4a5568]">No expense disbursements in this period.</div>
+                  <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No expense disbursements in this period.</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead className="border-b border-[#1e2535]">
+                      <thead className="border-b border-[var(--ns-line)]">
                         <tr>
                           {['Date / Time', 'Category', 'Description', 'Recipient', 'Voucher', 'Staff', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[#4a5568]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#0f141d]">
+                      <tbody className="divide-y divide-[var(--ns-line)]">
                         {exp.disbursementsList.map((d: any) => (
-                          <tr key={d.id} className="hover:bg-[#0f141d]/60 transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[#6e7a8a] text-[10px]">{d.date} {d.time}</td>
+                          <tr key={d.id} className="hover:bg-[var(--ns-surface-2)] transition-colors text-xs">
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">{d.date} {d.time}</td>
                             <td className="px-4 py-3">
-                              <span className="rounded bg-red-900/30 text-red-400 font-bold px-1.5 py-0.5 text-[9px] uppercase">{d.category}</span>
+                              <span className="rounded bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-bold px-1.5 py-0.5 text-[9px] uppercase">{d.category}</span>
                             </td>
-                            <td className="px-4 py-3 text-[#e8e6e0] font-medium max-w-[200px] truncate">{d.description}</td>
-                            <td className="px-4 py-3 font-bold text-[#e8e6e0]">{d.recipient}</td>
-                            <td className="px-4 py-3 font-mono text-[10px] text-[#4a5568]">{d.receiptRef}</td>
-                            <td className="px-4 py-3 text-[11px] text-[#6e7a8a]">{d.recordedBy}</td>
-                            <td className="px-4 py-3 text-right font-extrabold text-red-400">-{formatCurrency(d.amount)}</td>
+                            <td className="px-4 py-3 text-[var(--ns-ink)] font-medium max-w-[200px] truncate">{d.description}</td>
+                            <td className="px-4 py-3 font-bold text-[var(--ns-ink)]">{d.recipient}</td>
+                            <td className="px-4 py-3 font-mono text-[10px] text-[var(--ns-muted)]">{d.receiptRef}</td>
+                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)]">{d.recordedBy}</td>
+                            <td className="px-4 py-3 text-right font-extrabold text-red-500 dark:text-red-400">-{formatCurrency(d.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="border-t border-[#2a3040]">
+                      <tfoot className="border-t border-[var(--ns-line)]">
                         <tr>
-                          <td colSpan={6} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[#4a5568]">Total Taken from Reception</td>
-                          <td className="px-4 py-3 text-right font-extrabold text-red-400">-{formatCurrency(exp.totalTakenForExpenses || 0)}</td>
+                          <td colSpan={6} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total Taken from Reception</td>
+                          <td className="px-4 py-3 text-right font-extrabold text-red-500 dark:text-red-400">-{formatCurrency(exp.totalTakenForExpenses || 0)}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -585,27 +585,27 @@ export default function ReceptionReportPage() {
               <div className="grid gap-5 md:grid-cols-2">
                 {/* Cash Ledger */}
                 <div className="ns-card p-6 space-y-3">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-[#4a5568] border-b border-[#1e2535] pb-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)] border-b border-[var(--ns-line)] pb-3">
                     Cash Reconciliation Ledger
                   </div>
                   <div className="space-y-2 text-xs">
                     {[
-                      { label: 'Opening Float (+)', value: rec.openingCashFloat || 0, color: '#e8e6e0', sign: '+' },
-                      { label: 'Cash Collections (+)', value: rec.cashCollectionsReceived || 0, color: '#4ade80', sign: '+' },
-                      ...(rec.manualInflows > 0 ? [{ label: 'Other Inflows (+)', value: rec.manualInflows, color: '#4ade80', sign: '+' }] : []),
-                      { label: 'Expenses Taken (-)', value: rec.moneyTakenForExpenses || 0, color: '#f87171', sign: '-' },
-                      ...(rec.cashRefundsPaid > 0 ? [{ label: 'Cash Refunds (-)', value: rec.cashRefundsPaid, color: '#f87171', sign: '-' }] : []),
-                      ...(rec.cashDepositedToBank > 0 ? [{ label: 'MoMo Deposits from Cash (-)', value: rec.cashDepositedToBank, color: '#fbbf24', sign: '-' }] : []),
+                      { label: 'Opening Float (+)', value: rec.openingCashFloat || 0, color: 'var(--ns-ink)', sign: '+' },
+                      { label: 'Cash Collections (+)', value: rec.cashCollectionsReceived || 0, color: '#16a34a', sign: '+' },
+                      ...(rec.manualInflows > 0 ? [{ label: 'Other Inflows (+)', value: rec.manualInflows, color: '#16a34a', sign: '+' }] : []),
+                      { label: 'Expenses Taken (-)', value: rec.moneyTakenForExpenses || 0, color: '#dc2626', sign: '-' },
+                      ...(rec.cashRefundsPaid > 0 ? [{ label: 'Cash Refunds (-)', value: rec.cashRefundsPaid, color: '#dc2626', sign: '-' }] : []),
+                      ...(rec.cashDepositedToBank > 0 ? [{ label: 'MoMo Deposits from Cash (-)', value: rec.cashDepositedToBank, color: '#d97706', sign: '-' }] : []),
                     ].map((row, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-[#0f141d]">
-                        <span className="text-[#6e7a8a] font-medium">{row.label}</span>
+                      <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-[var(--ns-surface-2)]">
+                        <span className="text-[var(--ns-muted)] font-medium">{row.label}</span>
                         <span className="font-mono font-extrabold" style={{ color: row.color }}>
                           {row.sign === '-' ? '-' : '+'}{formatCurrency(row.value)}
                         </span>
                       </div>
                     ))}
                     <div className="border-t-2 border-[#c59a58]/30 pt-3 flex items-center justify-between">
-                      <span className="font-extrabold text-[#e8e6e0] uppercase text-[10px] tracking-widest">Expected Cash at Hand</span>
+                      <span className="font-extrabold text-[var(--ns-ink)] uppercase text-[10px] tracking-widest">Expected Cash at Hand</span>
                       <span className="font-mono font-extrabold text-[#c59a58] text-base">{formatCurrency(rec.expectedCashAtHand || 0)}</span>
                     </div>
                   </div>
@@ -614,23 +614,23 @@ export default function ReceptionReportPage() {
                 {/* Shift Sign-off */}
                 <div className="ns-card p-6 space-y-4 flex flex-col justify-between">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[#4a5568] border-b border-[#1e2535] pb-3">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)] border-b border-[var(--ns-line)] pb-3">
                       Shift Handover
                     </div>
-                    <div className="mt-4 space-y-2 bg-[#0f141d] rounded-lg p-4 text-xs text-[#6e7a8a]">
-                      <div><span className="font-bold text-[#e8e6e0]">Receptionist:</span> {user?.firstName} {user?.lastName}</div>
-                      <div><span className="font-bold text-[#e8e6e0]">Check-ins:</span> {ops.checkInsCount || 0}</div>
-                      <div><span className="font-bold text-[#e8e6e0]">Check-outs:</span> {ops.checkOutsCount || 0}</div>
-                      <div><span className="font-bold text-[#e8e6e0]">In-House Guests:</span> {ops.activeStaysCount || 0}</div>
-                      <div><span className="font-bold text-[#e8e6e0]">Period:</span> {periodTitle}</div>
+                    <div className="mt-4 space-y-2 bg-[var(--ns-surface-2)] border border-[var(--ns-line)] rounded-lg p-4 text-xs text-[var(--ns-muted)]">
+                      <div><span className="font-bold text-[var(--ns-ink)]">Receptionist:</span> {user?.firstName} {user?.lastName}</div>
+                      <div><span className="font-bold text-[var(--ns-ink)]">Check-ins:</span> {ops.checkInsCount || 0}</div>
+                      <div><span className="font-bold text-[var(--ns-ink)]">Check-outs:</span> {ops.checkOutsCount || 0}</div>
+                      <div><span className="font-bold text-[var(--ns-ink)]">In-House Guests:</span> {ops.activeStaysCount || 0}</div>
+                      <div><span className="font-bold text-[var(--ns-ink)]">Period:</span> {periodTitle}</div>
                     </div>
-                    <p className="text-[10px] text-[#4a5568] mt-3">
+                    <p className="text-[10px] text-[var(--ns-muted)] mt-3">
                       This report certifies all cash, MoMo, and expense records for the specified shift period.
                     </p>
                   </div>
-                  <div className="pt-4 border-t border-[#1e2535] grid grid-cols-2 gap-4 text-center">
-                    <div className="border-t border-dashed border-[#2a3040] pt-2 text-[9px] text-[#4a5568]">Receptionist Signature</div>
-                    <div className="border-t border-dashed border-[#2a3040] pt-2 text-[9px] text-[#4a5568]">Manager / Auditor</div>
+                  <div className="pt-4 border-t border-[var(--ns-line)] grid grid-cols-2 gap-4 text-center">
+                    <div className="border-t border-dashed border-[var(--ns-line)] pt-2 text-[9px] text-[var(--ns-muted)]">Receptionist Signature</div>
+                    <div className="border-t border-dashed border-[var(--ns-line)] pt-2 text-[9px] text-[var(--ns-muted)]">Manager / Auditor</div>
                   </div>
                 </div>
               </div>
@@ -640,33 +640,33 @@ export default function ReceptionReportPage() {
                 <Section title={`MoMo Deposits from Cash (${rec.momoDepositsList.length})`} subtitle="Cash taken from drawer and sent via mobile money — reduces physical cash balance">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead className="border-b border-[#1e2535]">
+                      <thead className="border-b border-[var(--ns-line)]">
                         <tr>
                           {['Date', 'Time', 'Description', 'MoMo Ref', 'Staff', 'Cash Taken'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[#4a5568]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#0f141d]">
+                      <tbody className="divide-y divide-[var(--ns-line)]">
                         {rec.momoDepositsList.map((m: any) => (
-                          <tr key={m.id} className="hover:bg-[#0f141d]/60 transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[#6e7a8a] text-[10px]">{m.date}</td>
-                            <td className="px-4 py-3 font-mono text-[#6e7a8a] text-[10px]">{m.time}</td>
-                            <td className="px-4 py-3 text-[#e8e6e0]">{m.description}</td>
+                          <tr key={m.id} className="hover:bg-[var(--ns-surface-2)] transition-colors text-xs">
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">{m.date}</td>
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">{m.time}</td>
+                            <td className="px-4 py-3 text-[var(--ns-ink)]">{m.description}</td>
                             <td className="px-4 py-3">
-                              <span className="rounded border border-[#3a2a10] bg-[#1a1505] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#c59a58]">
+                              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#b88738]">
                                 {m.reference}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-[11px] text-[#6e7a8a]">{m.recordedBy}</td>
-                            <td className="px-4 py-3 text-right font-extrabold text-amber-400">-{formatCurrency(m.amount)}</td>
+                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)]">{m.recordedBy}</td>
+                            <td className="px-4 py-3 text-right font-extrabold text-amber-500 dark:text-amber-400">-{formatCurrency(m.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="border-t border-[#2a3040]">
+                      <tfoot className="border-t border-[var(--ns-line)]">
                         <tr>
-                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[#4a5568]">Total Sent via MoMo</td>
-                          <td className="px-4 py-3 text-right font-extrabold text-amber-400">
+                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total Sent via MoMo</td>
+                          <td className="px-4 py-3 text-right font-extrabold text-amber-500 dark:text-amber-400">
                             -{formatCurrency(rec.momoDepositsFromCash || rec.cashDepositedToBank || 0)}
                           </td>
                         </tr>

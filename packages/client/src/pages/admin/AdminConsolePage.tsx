@@ -116,7 +116,7 @@ export const AdminConsolePage: React.FC = () => {
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="gap-1.5 border-[#e5ebeb] text-[#0c1921]"
+            className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
           >
             <RefreshCw size={13} /> Refresh
           </Button>
@@ -176,14 +176,14 @@ export const AdminConsolePage: React.FC = () => {
             <button
               key={tile.to}
               onClick={() => navigate(tile.to)}
-              className="group flex items-start gap-4 rounded-2xl border border-[#e5ebeb] bg-white p-5 text-left shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all"
+              className="group flex items-start gap-4 rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 text-left shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0c1921] text-[#c59a58] transition-colors group-hover:bg-[#173c4d]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] text-[#c59a58] transition-colors group-hover:bg-[#173c4d] group-hover:text-white">
                 {tile.icon}
               </span>
               <div className="min-w-0 flex-1">
-                <span className="block text-sm font-bold text-[#0c1921]">{tile.label}</span>
-                <span className="mt-1 block text-[11px] leading-relaxed text-[#5a6b75]">{tile.desc}</span>
+                <span className="block text-sm font-bold text-[var(--ns-ink)]">{tile.label}</span>
+                <span className="mt-1 block text-[11px] leading-relaxed text-[var(--ns-muted)]">{tile.desc}</span>
                 <span className="mt-2.5 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
                   Open Module <ArrowRight size={11} />
                 </span>
@@ -211,39 +211,39 @@ export const AdminConsolePage: React.FC = () => {
         {loading ? (
           <div className="p-10"><LoadingState /></div>
         ) : logs.length === 0 ? (
-          <div className="p-12 text-center text-xs text-[#71828a]">
+          <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
             No recent audit events captured.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Timestamp</th>
                   <th className="py-3 px-5">Security Action</th>
                   <th className="py-3 px-5">Target Resource</th>
                   <th className="py-3 px-5">User / Actor</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f1f5f9]">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {logs.map((l) => (
                   <tr
                     key={l.id}
                     onClick={() => navigate('/admin/audit')}
-                    className="cursor-pointer hover:bg-[#fbfcfb] transition-colors"
+                    className="cursor-pointer hover:bg-[var(--ns-surface-2)] transition-colors"
                   >
-                    <td className="py-3 px-5 font-mono text-[11px] text-[#5a6b75]">
+                    <td className="py-3 px-5 font-mono text-[11px] text-[var(--ns-muted)]">
                       {new Date(l.createdAt).toLocaleString('en-GH')}
                     </td>
                     <td className="py-3 px-5">
-                      <span className="inline-flex rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-bold text-[#0c1921]">
+                      <span className="inline-flex rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
                         {l.action}
                       </span>
                     </td>
-                    <td className="py-3 px-5 font-bold text-[#0c1921]">
+                    <td className="py-3 px-5 font-bold text-[var(--ns-ink)]">
                       {l.resource}
                     </td>
-                    <td className="py-3 px-5 text-[#5a6b75]">
+                    <td className="py-3 px-5 text-[var(--ns-muted)]">
                       {l.userName ?? l.userEmail ?? 'System'}
                     </td>
                   </tr>

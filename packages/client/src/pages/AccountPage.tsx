@@ -130,7 +130,7 @@ export const AccountPage: React.FC = () => {
         {/* ── Avatar Profile Card ── */}
         <Section title="Profile Picture" subtitle="Appears across system activity logs & receipts.">
           <div className="flex flex-col items-center gap-4 p-6">
-            <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[#c59a58]/30 shadow-md bg-[#0c1921]">
+            <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[#c59a58]/30 shadow-md bg-[var(--ns-surface-2)]">
               {preview ? (
                 <img src={preview} alt="Avatar Preview" className="h-full w-full object-cover" />
               ) : user?.avatarUrl ? (
@@ -155,7 +155,7 @@ export const AccountPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => fileRef.current?.click()}
-                className="gap-1.5 border-[#e5ebeb] text-xs font-semibold"
+                className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] text-xs font-semibold"
               >
                 <Camera size={13} className="text-[#c59a58]" />
                 {preview ? 'Change Photo' : 'Upload Photo'}
@@ -175,8 +175,8 @@ export const AccountPage: React.FC = () => {
               )}
             </div>
 
-            <div className="rounded-xl border border-[#edf2f2] bg-[#fbfdfd] p-3 text-center text-xs text-[#5a6b75] space-y-1 w-full">
-              <div className="font-bold text-[#0c1921]">{user?.firstName} {user?.lastName}</div>
+            <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-3 text-center text-xs text-[var(--ns-muted)] space-y-1 w-full">
+              <div className="font-bold text-[var(--ns-ink)]">{user?.firstName} {user?.lastName}</div>
               <div className="text-[11px] text-[#b88738] font-semibold uppercase tracking-wider">
                 {user?.roles?.map((r: any) => (typeof r === 'string' ? r : r?.name)).join(' • ') || 'Staff Member'}
               </div>
@@ -201,7 +201,7 @@ export const AccountPage: React.FC = () => {
                 <TextInput
                   disabled
                   value={user?.email || ''}
-                  className="bg-[#f8fafc] text-[#71828a] font-medium"
+                  className="bg-[var(--ns-surface-2)] text-[var(--ns-muted)] font-medium"
                 />
               </FormField>
 
@@ -235,7 +235,7 @@ export const AccountPage: React.FC = () => {
                 <Button
                   type="submit"
                   loading={saving}
-                  className="gap-1.5 bg-[#0c1921] hover:bg-[#173c4d] text-white w-full sm:w-auto font-semibold"
+                  className="gap-1.5 bg-[#173c4d] hover:bg-[#133240] text-white w-full sm:w-auto font-semibold"
                 >
                   <Save size={14} className="text-[#c59a58]" /> Save Profile
                 </Button>
@@ -280,8 +280,8 @@ export const AccountPage: React.FC = () => {
                 </FormField>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#edf2f2] pt-4">
-                <div className="flex items-center gap-2 text-xs text-[#5a6b75]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--ns-line)] pt-4">
+                <div className="flex items-center gap-2 text-xs text-[var(--ns-muted)]">
                   <ShieldCheck size={14} className="text-emerald-600" />
                   <span>Secured with high-entropy cryptographic password encryption.</span>
                 </div>
