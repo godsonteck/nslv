@@ -101,9 +101,10 @@ html[data-theme='dark'] textarea {
 .ns-page { animation: ns-page-in .18s ease-out both; }
 @keyframes ns-page-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-.ns-table thead th { background: #f7f8f6; color: #778286; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.ns-table thead th { background: #f7f8f6; color: #4a5568; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
 .ns-table tbody tr { transition: background .15s ease; }
 .ns-table tbody tr:hover { background: #fbfcfa; }
+.ns-table tbody td { color: var(--ns-ink); }
 .ns-input { border: 1px solid #dfe3e0; background: white; border-radius: 10px; transition: .15s ease; }
 .ns-input:hover { border-color: #cfd6d2; }
 .ns-input:focus { border-color: var(--ns-gold); box-shadow: 0 0 0 3px rgba(177,138,85,.11); outline: none; }
@@ -215,6 +216,7 @@ html[data-theme='dark'] [class~="text-[#20343e]" i],
 html[data-theme='dark'] [class~="text-[#26363e]" i],
 html[data-theme='dark'] [class~="text-[#27383f]" i],
 html[data-theme='dark'] [class~="text-[#334155]" i],
+html[data-theme='dark'] [class~="text-[#4a5568]" i],
 html[data-theme='dark'] [class~="text-slate-700" i],
 html[data-theme='dark'] [class~="text-slate-800" i],
 html[data-theme='dark'] [class~="text-slate-900" i],
@@ -232,6 +234,12 @@ html[data-theme='dark'] [class~="hover:text-slate-900" i]:hover,
 html[data-theme='dark'] [class~="hover:text-slate-800" i]:hover,
 html[data-theme='dark'] [class~="hover:text-gray-800" i]:hover {
   color: var(--ns-ink) !important;
+}
+
+/* Exception: dark text on gold/teal accent BUTTONS & BADGES stays dark */
+html[data-theme='dark'] [class~="text-[#10131a]" i][class*="bg-["],
+html[data-theme='dark'] [class~="text-[#201608]" i][class*="bg-"] {
+  color: #10131a !important;
 }
 
 html[data-theme='dark'] [class~="text-slate-500" i],
@@ -350,36 +358,205 @@ html[data-theme='dark'] [class~="border-gray-300" i] {
 }
 
 /* Compatibility: Cards & containers with dark background classes */
-html:not([data-theme='dark']) [class~="bg-[#0c1921]" i]:not(button):not([role="button"]):not(.btn),
-html[data-theme='light'] [class~="bg-[#0c1921]" i]:not(button):not([role="button"]):not(.btn) {
+html:not([data-theme='dark']) [class*="bg-[#0c1921]"]:not(button):not([role="button"]):not(.btn),
+html[data-theme='light'] [class*="bg-[#0c1921]"]:not(button):not([role="button"]):not(.btn) {
   background-color: #ffffff !important;
   color: #14232b !important;
 }
-html:not([data-theme='dark']) [class~="bg-[#0f141d]" i]:not(button):not([role="button"]):not(.btn),
-html[data-theme='light'] [class~="bg-[#0f141d]" i]:not(button):not([role="button"]):not(.btn) {
+html:not([data-theme='dark']) [class*="bg-[#0f141d]"]:not(button):not([role="button"]):not(.btn),
+html[data-theme='light'] [class*="bg-[#0f141d]"]:not(button):not([role="button"]):not(.btn) {
   background-color: #fbfcfa !important;
   color: #14232b !important;
 }
-html:not([data-theme='dark']) [class~="border-[#1e2535]" i],
-html[data-theme='light'] [class~="border-[#1e2535]" i] {
-  border-color: #e5ebeb !important;
+html:not([data-theme='dark']) [class*="border-[#1e2535]"],
+html[data-theme='light'] [class*="border-[#1e2535]"],
+html:not([data-theme='dark']) [class*="border-[#2a3040]"],
+html[data-theme='light'] [class*="border-[#2a3040]"] {
+  border-color: #e2e8f0 !important;
 }
 
-html[data-theme='dark'] [class~="bg-[#0c1921]" i]:not(button):not([role="button"]):not(.btn) {
+/* Off-white text flips to high-contrast ink in light mode */
+html:not([data-theme='dark']) [class~="text-[#e8e6e0]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html[data-theme='light'] [class~="text-[#e8e6e0]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html:not([data-theme='dark']) [class~="text-[#f4f4f2]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html[data-theme='light'] [class~="text-[#f4f4f2]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html:not([data-theme='dark']) [class~="text-[#f3f4f6]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html[data-theme='light'] [class~="text-[#f3f4f6]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html:not([data-theme='dark']) [class~="text-[#f1f5f9]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html[data-theme='light'] [class~="text-[#f1f5f9]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html:not([data-theme='dark']) [class~="text-[#e2e8f0]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]),
+html[data-theme='light'] [class~="text-[#e2e8f0]" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]):not([class*="from-[#0f"]):not([class*="via-[#11"]) {
+  color: var(--ns-ink) !important;
+}
+
+/* Light pastel indicators flip to deep accessible shades on light surfaces */
+html:not([data-theme='dark']) [class~="text-emerald-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]),
+html[data-theme='light'] [class~="text-emerald-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]) {
+  color: #047857 !important;
+}
+html:not([data-theme='dark']) [class~="text-amber-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]),
+html[data-theme='light'] [class~="text-amber-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]) {
+  color: #b45309 !important;
+}
+html:not([data-theme='dark']) [class~="text-red-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]),
+html[data-theme='light'] [class~="text-red-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]) {
+  color: #b91c1c !important;
+}
+html:not([data-theme='dark']) [class~="text-blue-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]),
+html[data-theme='light'] [class~="text-blue-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]) {
+  color: #1d4ed8 !important;
+}
+html:not([data-theme='dark']) [class~="text-sky-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]),
+html[data-theme='light'] [class~="text-sky-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]) {
+  color: #0369a1 !important;
+}
+html:not([data-theme='dark']) [class~="text-purple-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]),
+html[data-theme='light'] [class~="text-purple-400" i]:not(button):not([role="button"]):not(.btn):not([class*="from-[#0c"]):not([class*="from-[#17"]) {
+  color: #6d28d9 !important;
+}
+
+/* Dark Mode Surface & Text Enhancements */
+html[data-theme='dark'] [class*="bg-[#0c1921]"]:not(button):not([role="button"]):not(.btn) {
   background-color: var(--ns-surface) !important;
   color: var(--ns-ink) !important;
   border-color: var(--ns-line) !important;
 }
-html[data-theme='dark'] [class~="bg-[#0f141d]" i]:not(button):not([role="button"]):not(.btn) {
+html[data-theme='dark'] [class*="bg-[#0f141d]"]:not(button):not([role="button"]):not(.btn) {
   background-color: var(--ns-surface-2) !important;
   color: var(--ns-ink) !important;
   border-color: var(--ns-line) !important;
 }
+html[data-theme='dark'] [class*="bg-[#0c1a24]"]:not(button):not([role="button"]):not(.btn),
+html[data-theme='dark'] [class*="bg-[#102433]"]:not(button):not([role="button"]):not(.btn),
+html[data-theme='dark'] [class*="bg-[#08121a]"]:not(button):not([role="button"]):not(.btn) {
+  background-color: var(--ns-surface) !important;
+  color: var(--ns-ink) !important;
+  border-color: var(--ns-line) !important;
+}
+html[data-theme='dark'] [class*="border-[#1e2535]"],
+html[data-theme='dark'] [class*="border-[#2a3040]"] {
+  border-color: var(--ns-line) !important;
+}
+
+/* Ensure table cells and list items inside dark surfaces inherit ink */
+html[data-theme='dark'] td,
+html[data-theme='dark'] th {
+  color: inherit;
+}
+html[data-theme='dark'] td.text-\[\#0f172a\],
+html[data-theme='dark'] strong.text-\[\#0f172a\] {
+  color: var(--ns-ink) !important;
+}
+
+/* Remove bright gradient backgrounds in dark mode */
+html[data-theme='dark'] [class*="from-white"] {
+  background-image: none !important;
+  background-color: var(--ns-surface) !important;
+}
+
+/* High-contrast colors for numeric values and titles in dark mode */
+html[data-theme='dark'] [class~="text-emerald-950" i],
+html[data-theme='dark'] [class~="text-emerald-900" i] {
+  color: #a7f3d0 !important;
+}
+html[data-theme='dark'] [class~="text-emerald-800" i] {
+  color: #6ee7b7 !important;
+}
+html[data-theme='dark'] [class~="text-amber-950" i],
+html[data-theme='dark'] [class~="text-amber-900" i] {
+  color: #fde68a !important;
+}
+html[data-theme='dark'] [class~="text-amber-800" i] {
+  color: #fcd34d !important;
+}
+html[data-theme='dark'] [class~="text-sky-950" i],
+html[data-theme='dark'] [class~="text-sky-900" i] {
+  color: #bae6fd !important;
+}
+html[data-theme='dark'] [class~="text-sky-800" i] {
+  color: #7dd3fc !important;
+}
+html[data-theme='dark'] [class~="text-rose-950" i],
+html[data-theme='dark'] [class~="text-rose-900" i],
+html[data-theme='dark'] [class~="text-red-950" i],
+html[data-theme='dark'] [class~="text-red-900" i] {
+  color: #fecdd3 !important;
+}
+html[data-theme='dark'] [class~="text-rose-800" i],
+html[data-theme='dark'] [class~="text-red-800" i] {
+  color: #fda4af !important;
+}
+html[data-theme='dark'] [class~="text-blue-950" i],
+html[data-theme='dark'] [class~="text-blue-900" i] {
+  color: #bfdbfe !important;
+}
+html[data-theme='dark'] [class~="text-blue-800" i] {
+  color: #93c5fd !important;
+}
+
+/* Teal text and icon glow in dark mode */
+html[data-theme='dark'] [class~="text-[#174b59]" i],
+html[data-theme='dark'] [class~="hover:text-[#174b59]" i]:hover {
+  color: var(--ns-teal) !important;
+}
+html[data-theme='dark'] [class~="text-[#0e3440]" i],
+html[data-theme='dark'] [class~="hover:text-[#0e3440]" i]:hover {
+  color: var(--ns-teal-deep) !important;
+}
+
+/* Off-white text in dark mode */
+html[data-theme='dark'] [class~="text-[#e8e6e0]" i],
+html[data-theme='dark'] [class~="text-[#f4f4f2]" i],
+html[data-theme='dark'] [class~="text-[#f3f4f6]" i],
+html[data-theme='dark'] [class~="text-[#f1f5f9]" i],
+html[data-theme='dark'] [class~="text-[#e2e8f0]" i] {
+  color: var(--ns-ink) !important;
+}
+html[data-theme='dark'] [class~="hover:text-[#e8e6e0]" i]:hover {
+  color: var(--ns-ink) !important;
+}
+
+/* Translucent tinted pills for badges in dark mode */
+html[data-theme='dark'] [class~="bg-emerald-50" i],
+html[data-theme='dark'] [class~="bg-emerald-100" i] {
+  background-color: rgba(16, 185, 129, 0.16) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+html[data-theme='dark'] [class~="bg-amber-50" i],
+html[data-theme='dark'] [class~="bg-amber-100" i] {
+  background-color: rgba(245, 158, 11, 0.16) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+html[data-theme='dark'] [class~="bg-rose-50" i],
+html[data-theme='dark'] [class~="bg-rose-100" i],
+html[data-theme='dark'] [class~="bg-red-50" i],
+html[data-theme='dark'] [class~="bg-red-100" i] {
+  background-color: rgba(239, 68, 68, 0.16) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+html[data-theme='dark'] [class~="bg-blue-50" i],
+html[data-theme='dark'] [class~="bg-blue-100" i],
+html[data-theme='dark'] [class~="bg-sky-50" i],
+html[data-theme='dark'] [class~="bg-sky-100" i] {
+  background-color: rgba(14, 165, 233, 0.16) !important;
+  border-color: rgba(14, 165, 233, 0.3) !important;
+}
+html[data-theme='dark'] [class~="bg-purple-50" i],
+html[data-theme='dark'] [class~="bg-purple-100" i] {
+  background-color: rgba(168, 85, 247, 0.16) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+html[data-theme='dark'] [class~="border-emerald-200" i] { border-color: rgba(16, 185, 129, 0.35) !important; }
+html[data-theme='dark'] [class~="border-amber-200" i] { border-color: rgba(245, 158, 11, 0.35) !important; }
+html[data-theme='dark'] [class~="border-sky-200" i] { border-color: rgba(14, 165, 233, 0.35) !important; }
+html[data-theme='dark'] [class~="border-rose-200" i] { border-color: rgba(244, 63, 94, 0.35) !important; }
 
 html[data-theme='dark'] [class~="divide-[#edf0ed]" i] > :not([hidden]) ~ :not([hidden]),
 html[data-theme='dark'] [class~="divide-[#e5e8e5]" i] > :not([hidden]) ~ :not([hidden]),
 html[data-theme='dark'] [class~="divide-[#e8ebe8]" i] > :not([hidden]) ~ :not([hidden]),
 html[data-theme='dark'] [class~="divide-[#dfe4e0]" i] > :not([hidden]) ~ :not([hidden]),
+html[data-theme='dark'] [class~="divide-[#1e2535]" i] > :not([hidden]) ~ :not([hidden]),
 html[data-theme='dark'] [class~="divide-slate-100" i] > :not([hidden]) ~ :not([hidden]),
 html[data-theme='dark'] [class~="divide-slate-200" i] > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--ns-line) !important;
@@ -393,3 +570,30 @@ html[data-theme='dark'] [class~="bg-[#e8f2f4]" i],
 html[data-theme='dark'] [class~="hover:bg-[#e8f2f4]" i]:hover,
 html[data-theme='dark'] [class~="bg-[#d6e9ee]" i] { background-color: #16232e !important; }
 html[data-theme='dark'] [class~="bg-[#f0f7f2]" i] { background-color: #15241b !important; }
+
+/* ── Extra compatibility: light-mode dark-navy icon badges flip to subtle slate ── */
+html:not([data-theme='dark']) [class~="bg-[#1e2535]"]:not([class*="from-"]):not([class*="via-"]):not([class*="gradient"]) { background-color: #f1f5f9 !important; color: #475569 !important; }
+html:not([data-theme='dark']) [class~="text-[#a0a9b8]"] { color: #64748b !important; }
+/* text-[#6e7a8a] ensure it shows in light mode */
+html:not([data-theme='dark']) [class~="text-[#6e7a8a]"] { color: #52626b !important; }
+/* In dark mode, bg-[#1e2535] icon badges stay as dark tinted surface */
+html[data-theme='dark'] [class~="bg-[#1e2535]"]:not([class*="from-"]):not([class*="border-"]) { background-color: var(--ns-surface-2) !important; color: var(--ns-muted) !important; }
+
+
+/* ── Button ghost tabs: bg-[#0c1921] buttons in light mode get a neutral bg ── */
+html:not([data-theme='dark']) button[class*="bg-[#0c1921]"]:not([class*="text-white"]):not([class*="from-"]),
+html:not([data-theme='dark']) button[class*="bg-[#0c1921]/70"]:not([class*="text-white"]):not([class*="from-"]) {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+html:not([data-theme='dark']) button[class*="hover:bg-[#0c1921]"]:hover {
+  background-color: #f1f5f9 !important;
+}
+/* Inline input within dark bg container - flip bg to white in light mode */
+html:not([data-theme='dark']) input[class*="bg-transparent"][class*="text-[#0f172a]"],
+html:not([data-theme='dark']) select[class*="bg-transparent"][class*="text-[#0f172a]"] {
+  color: #14232b !important;
+}
+/* Rooms page room cards in light mode: ensure room number and type name are dark */
+html:not([data-theme='dark']) [class~="text-[#0f172a]"] { color: #14232b !important; }
