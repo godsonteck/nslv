@@ -311,7 +311,7 @@ export const RoomsPage: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
             <Sparkles size={13} className="text-[#c59a58]" />
-            Front Office &bull; Room Inventory
+            Room Inventory
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
             Room Board &amp; Inventory
@@ -526,7 +526,7 @@ export const RoomsPage: React.FC = () => {
                     day: 'numeric',
                   })}` : ''}
                 </strong>
-                {' '}&bull; <span className="font-bold text-emerald-800">{counts.AVAILABLE || 0} Available</span>,{' '}
+                {' '}| <span className="font-bold text-emerald-800">{counts.AVAILABLE || 0} Available</span>,{' '}
                 <span className="font-bold text-amber-800">{counts.RESERVED || 0} Reserved</span>
                 {(counts.OCCUPIED || 0) > 0 && <span className="font-bold text-sky-800">, {counts.OCCUPIED} Occupied</span>}
               </span>
@@ -583,7 +583,7 @@ export const RoomsPage: React.FC = () => {
                         <div className="text-2xl font-black text-[#0f172a]">Room {r.number}</div>
                         <div className="mt-0.5 text-xs font-medium text-[#64748b]">
                           {r.roomType?.name || 'Standard Room'}
-                          {r.roomType?.basePrice != null ? ` &bull; GH₵ ${r.roomType.basePrice}/night` : ''}
+                          {r.roomType?.basePrice != null ? ` | GH₵ ${r.roomType.basePrice}/night` : ''}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
@@ -606,7 +606,7 @@ export const RoomsPage: React.FC = () => {
                     {/* Available Now Next Guest pill */}
                     {effectiveStatus === 'AVAILABLE' && upcomingReservation && !dateFilter && (
                       <div className="mt-3 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-1.5 text-[11px] text-emerald-800">
-                        <span>Available now &bull; Next arrival:</span>
+                        <span>Available now | Next arrival:</span>
                         <span className="font-black font-mono">
                           {new Date(upcomingReservation.checkInDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </span>
@@ -755,7 +755,7 @@ export const RoomsPage: React.FC = () => {
                     )}
                     <div className="mt-3 flex items-center gap-2 text-[11px] text-[#6e7a8a] font-medium">
                       <span>Max {t.maxAdults} Adults</span>
-                      <span>&bull;</span>
+                      <span className="text-slate-400">|</span>
                       <span>{t.maxChildren} Children</span>
                     </div>
 

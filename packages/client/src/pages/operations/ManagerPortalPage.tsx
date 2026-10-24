@@ -106,7 +106,7 @@ export const ManagerPortalPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="MANAGEMENT WORKSTATION • EXECUTIVE CONTROL"
+      eyebrow="Management"
       title={greeting}
       subtitle="Real-time occupancy oversight, departmental POS revenue, and operational audit."
       actions={

@@ -423,7 +423,7 @@ export const UsersPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="ADMINISTRATION • STAFF ACCOUNTS & ROLES"
+      eyebrow="Administration"
       title="Staff User Accounts"
       subtitle="Manage employee access credentials, assign multi-role security tiers, and cross-functional operational authorizations."
       actions={

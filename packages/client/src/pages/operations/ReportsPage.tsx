@@ -58,7 +58,7 @@ export default function ReportsPage() {
       return {
         startDate: selectedDay,
         endDate: selectedDay,
-        periodLabel: `Daily Report — ${new Date(selectedDay + 'T00:00:00Z').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}`,
+        periodLabel: `Daily Report: ${new Date(selectedDay + 'T00:00:00Z').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}`,
       };
     }
     if (mode === 'weekly') {
@@ -75,7 +75,7 @@ export default function ReportsPage() {
       return {
         startDate: sStr,
         endDate: eStr,
-        periodLabel: `Weekly Report — ${sStr} to ${eStr}`,
+        periodLabel: `Weekly Report: ${sStr} to ${eStr}`,
       };
     }
     if (mode === 'monthly') {
@@ -86,14 +86,14 @@ export default function ReportsPage() {
       return {
         startDate: firstDay,
         endDate: lastDay,
-        periodLabel: `Monthly Report — ${monthName}`,
+        periodLabel: `Monthly Report: ${monthName}`,
       };
     }
     // Custom
     return {
       startDate: customStart,
       endDate: customEnd,
-      periodLabel: `Custom Period Report — ${customStart} to ${customEnd}`,
+      periodLabel: `Custom Report: ${customStart} to ${customEnd}`,
     };
   }, [mode, selectedDay, selectedMonth, customStart, customEnd]);
 
@@ -688,7 +688,7 @@ export default function ReportsPage() {
 
           {/* Section 4a: Pool Facility Detail */}
           <Section
-            title="🏊 Pool Facility — Swimmer Traffic & Revenue"
+            title="Pool Facility: Swimmer Traffic & Revenue"
             subtitle={`Pool attendance headcount, paid transactions, and revenue split by payment method`}
           >
             <div className="p-5 space-y-4">
@@ -766,7 +766,7 @@ export default function ReportsPage() {
           {/* Section 4c: Payment Method Breakdown */}
           <Section
             title="💳 Revenue by Payment Method"
-            subtitle="How guests paid — cash, card, mobile money, and bank transfer breakdown"
+            subtitle="Payment methods breakdown"
           >
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               {[

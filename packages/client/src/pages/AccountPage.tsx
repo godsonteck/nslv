@@ -122,7 +122,7 @@ export const AccountPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="EXECUTIVE ACCESS • SECURITY & PROFILE"
+      eyebrow="Account"
       title="My Account"
       subtitle="Manage your personal staff credentials, avatar, contact details, and account security."
     >

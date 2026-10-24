@@ -223,7 +223,7 @@ export const ExpensesPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="FINANCE • OPERATIONAL OUTFLOWS"
+      eyebrow="Finance"
       title="Property Expenditures"
       subtitle="Operational expense vouchers, supplier payments, utility bills, and department disbursements."
       actions={

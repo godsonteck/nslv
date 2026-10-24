@@ -156,7 +156,7 @@ const PropertyDashboard: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c59a58]/50 bg-[#c59a58]/15 px-3 py-1 text-[10px] font-black tracking-widest text-[#f0d49f] uppercase">
-                <Sparkles size={11} className="text-[#c59a58]" /> NS Luxury Villa &bull; Executive Command
+                <Sparkles size={11} className="text-[#c59a58]" /> NS Luxury Villa
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold text-emerald-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live System Sync
@@ -166,7 +166,7 @@ const PropertyDashboard: React.FC = () => {
               {greeting}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300/85 max-w-xl font-medium leading-relaxed">
-              &ldquo;Arrive as a guest, stay as family&rdquo; &bull; Lokoe, Ho, Volta Region &bull; {nowFormatted}
+              Lokoe, Ho, Ghana | {nowFormatted}
             </p>
           </div>
 
@@ -214,7 +214,7 @@ const PropertyDashboard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#174b59]">
               <BedDouble size={16} />
-              <span>Authoritative Room Availability &bull; Today's Snapshot</span>
+              <span>Room Availability Today</span>
             </div>
             <p className="mt-0.5 text-xs text-[#6e7a8a]">
               Rooms reserved for future dates remain strictly <strong>Available today</strong> until their arrival date arrives.
@@ -408,7 +408,7 @@ const PropertyDashboard: React.FC = () => {
             <div>
               <h2 className="text-sm font-extrabold text-[#0f172a] flex items-center gap-2">
                 <Users size={16} className="text-[#174b59]" />
-                In-House Guests &bull; Live Active Stays
+                In-House Active Stays
               </h2>
               <p className="text-[11px] text-[#6e7a8a] mt-0.5">Checked-in guests currently occupying villa rooms</p>
             </div>
@@ -627,7 +627,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
             <Sparkles size={13} className="text-[#c59a58]" />
-            NS Luxury Villa &bull; {deptLabel} Workstation
+            {deptLabel} Workstation
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
             {greeting}

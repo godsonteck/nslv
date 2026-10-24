@@ -217,7 +217,7 @@ export const GuestsPage: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-[#fbf8f2] px-3 py-1 text-[11px] font-bold tracking-wider text-[#9b6e2e] uppercase shadow-xs">
             <Sparkles size={13} className="text-[#c59a58]" />
-            Front Office &bull; Guest Relations
+            Guest Relations
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0f172a]">
             Guest Directory
@@ -436,7 +436,7 @@ export const GuestsPage: React.FC = () => {
           setSelectedGuestId(null);
           setSelectedGuest(null);
         }}
-        title={selectedGuest ? `Guest Profile &bull; ${formatGuestName(selectedGuest)}` : 'Guest Profile'}
+        title={selectedGuest ? `Guest Profile: ${formatGuestName(selectedGuest)}` : 'Guest Profile'}
         size="lg"
       >
         {selectedGuest && (
@@ -464,7 +464,7 @@ export const GuestsPage: React.FC = () => {
                   </div>
                   <div className="mt-1 text-xs text-slate-300 flex items-center gap-2">
                     <span>Code: <span className="font-mono text-white">{selectedGuest.id.slice(0, 8).toUpperCase()}</span></span>
-                    <span>&bull;</span>
+                    <span className="text-slate-400">|</span>
                     <span>Joined {selectedGuest.createdAt ? new Date(selectedGuest.createdAt).toLocaleDateString() : '—'}</span>
                   </div>
                 </div>

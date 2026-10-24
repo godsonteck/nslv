@@ -176,7 +176,7 @@ export const InventoryPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="OPERATIONS • PROPERTY STOCK & SUPPLIES"
+      eyebrow="Operations"
       title="Inventory & Stock Levels"
       subtitle="Track housekeeping amenities, food & beverage stock, maintenance supplies, and reorder levels."
       actions={

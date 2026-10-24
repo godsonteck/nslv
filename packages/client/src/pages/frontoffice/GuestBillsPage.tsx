@@ -197,7 +197,7 @@ export const GuestBillsPage: React.FC = () => {
     <img src="${logoUrl}" alt="NS Luxury Villa" class="logo" onerror="this.style.display='none'"/>
     <div class="title">NS LUXURY VILLA</div>
     <div class="sub">Official In-House Guest Folio</div>
-    <div class="company">Lokoe, Ho, Volta Region, Ghana &bull; Tel: +233 535 572 774</div>
+    <div class="company">Lokoe, Ho, Volta Region, Ghana | Tel: +233 535 572 774</div>
   </div>
 
   <div class="meta-card">
@@ -220,8 +220,8 @@ export const GuestBillsPage: React.FC = () => {
   </div>
 
   <div class="footer">
-    Thank you for staying at NS Luxury Villa &bull; Lokoe, Ho, Ghana<br/>
-    Check-in: 2:00 PM &bull; Check-out: 12:00 PM
+    Thank you for staying at NS Luxury Villa, Lokoe, Ho, Ghana<br/>
+    Check-in: 2:00 PM | Check-out: 12:00 PM
   </div>
 
   <button class="btn" onclick="window.print()">&#128438; Print Guest Folio</button>
@@ -233,7 +233,7 @@ export const GuestBillsPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="FRONT OFFICE • LIVE GUEST ACCOUNTS"
+      eyebrow="Front Office"
       title="Guest Bills & Folios"
       subtitle="Live room accounts for checked-in guests. Room charges from the restaurant, bar, pool, and front desk accumulate automatically."
       actions={
@@ -377,7 +377,7 @@ export const GuestBillsPage: React.FC = () => {
                   Folio {selectedBill.folio.id.slice(0, 8).toUpperCase()}
                 </span>
                 <div className="text-sm font-bold text-[#0c1921]">
-                  Room {selectedBill.stay.room?.number ?? '—'} &bull; {formatGuestName(selectedBill.stay.guest, 'Guest')}
+                  Room {selectedBill.stay.room?.number ?? ''} | {formatGuestName(selectedBill.stay.guest, 'Guest')}
                 </div>
                 <div className="text-[11px] text-[#5a6b75]">
                   Checked in {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString('en-GH')}

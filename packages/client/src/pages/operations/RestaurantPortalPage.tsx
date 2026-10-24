@@ -54,7 +54,7 @@ export const RestaurantPortalPage: React.FC = () => {
     <ShellPage
       eyebrow="RESTAURANT · KITCHEN & DINING WORKSPACE"
       title={greeting}
-      subtitle="Your restaurant dashboard — manage orders, track today's service, and open the POS."
+      subtitle="Manage restaurant orders and service."
       actions={
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" loading={refreshing} onClick={() => load(false)}>
@@ -104,7 +104,7 @@ export const RestaurantPortalPage: React.FC = () => {
       ) : (
         <Section
           title="Recent Restaurant Orders"
-          subtitle="Live order feed — latest orders from your kitchen and dining area."
+          subtitle="Live feed from kitchen and dining."
         >
           {orders.length === 0 ? (
             <div className="p-12 text-center text-xs text-[#6E737B]">

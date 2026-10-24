@@ -246,7 +246,7 @@ export const EventsPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="OPERATIONS • PRIVATE FUNCTIONS & CELEBRATIONS"
+      eyebrow="Events"
       title="Events & Venues"
       subtitle="Manage function spaces, banquets, private villa parties, weddings, and corporate gatherings."
       actions={

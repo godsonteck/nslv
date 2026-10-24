@@ -257,7 +257,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
     <ShellPage
       eyebrow={`${kind === 'restaurant' ? 'RESTAURANT' : 'BAR & LOUNGE'} · POINT OF SALE`}
       title={`${kind === 'restaurant' ? 'Restaurant' : 'Bar'} POS`}
-      subtitle="Order workstation — select items, choose payment, and post."
+      subtitle="Select items, choose payment method, and complete order."
       actions={
         <div className="flex items-center gap-2">
           {canManage && (

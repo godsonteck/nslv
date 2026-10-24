@@ -372,9 +372,9 @@ export const CashRegisterPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="FRONT DESK FINANCE • DAILY CASH SETTLEMENT"
+      eyebrow="Front Desk Finance"
       title="Cash at Hand"
-      subtitle="Daily cash desk reconciliation. Reception does not keep cash overnight; all physical drawer cash is balanced and handed over to Management at close of day."
+      subtitle="Daily drawer reconciliation and close-of-day handover."
       actions={
         <div className="flex flex-wrap items-center gap-2">
           {canManage && (
@@ -401,9 +401,10 @@ export const CashRegisterPage: React.FC = () => {
                   });
                   setEntryOpen(true);
                 }}
-                className="gap-1.5 border-[#e5ebeb] text-[#0c1921] hover:border-[#c59a58]/40"
+                className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50 transition-colors"
+                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface)' }}
               >
-                <TrendingDown size={14} className="text-rose-600" /> Record Cash Out
+                <TrendingDown size={14} className="text-rose-500" /> Record Cash Out
               </Button>
               <Button
                 variant="outline"
@@ -419,9 +420,10 @@ export const CashRegisterPage: React.FC = () => {
                   });
                   setEntryOpen(true);
                 }}
-                className="gap-1.5 border-[#e5ebeb] text-[#0c1921] hover:border-[#c59a58]/40"
+                className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50 transition-colors"
+                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface)' }}
               >
-                <TrendingUp size={14} className="text-emerald-600" /> Record Cash In
+                <TrendingUp size={14} className="text-emerald-500" /> Record Cash In
               </Button>
               <Button
                 variant="outline"
@@ -432,9 +434,10 @@ export const CashRegisterPage: React.FC = () => {
                   setMomoDepositReference('');
                   setMomoDepositOpen(true);
                 }}
-                className="gap-1.5 border-[#e5ebeb] text-[#0c1921] hover:border-[#c59a58]/40"
+                className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50 transition-colors"
+                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface)' }}
               >
-                <Smartphone size={14} className="text-amber-600" /> MoMo Wallet Deposit
+                <Smartphone size={14} className="text-amber-500" /> MoMo Wallet Deposit
               </Button>
               <Button
                 variant="ghost"
@@ -444,7 +447,8 @@ export const CashRegisterPage: React.FC = () => {
                   setOpeningNotes(summary?.openingNotes || '');
                   setOpeningOpen(true);
                 }}
-                className="gap-1.5 text-[#5a6b75] hover:text-[#0c1921]"
+                className="gap-1.5 hover:bg-[var(--ns-surface-2)] transition-colors"
+                style={{ color: 'var(--ns-muted)' }}
               >
                 <Coins size={14} /> Morning Float
               </Button>
@@ -453,7 +457,7 @@ export const CashRegisterPage: React.FC = () => {
         </div>
       }
     >
-      {/* ── Business Date Navigator ── */}
+      {/* Date Navigator */}
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-line)] p-3.5 shadow-sm"
         style={{ backgroundColor: 'var(--ns-surface)' }}
@@ -465,6 +469,7 @@ export const CashRegisterPage: React.FC = () => {
             onClick={() => shiftDate(-1)}
             aria-label="Previous Day"
             className="h-9 w-9 p-0 border-[var(--ns-line)]"
+            style={{ color: 'var(--ns-ink)' }}
           >
             <ChevronLeft size={16} />
           </Button>
@@ -480,7 +485,8 @@ export const CashRegisterPage: React.FC = () => {
             size="sm"
             onClick={() => shiftDate(1)}
             aria-label="Next Day"
-            className="h-9 w-9 p-0 border-[#e5ebeb]"
+            className="h-9 w-9 p-0 border-[var(--ns-line)]"
+            style={{ color: 'var(--ns-ink)' }}
           >
             <ChevronRight size={16} />
           </Button>
@@ -488,14 +494,14 @@ export const CashRegisterPage: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setSelectedDate(todayStr)}
-            className="h-9 text-xs font-bold text-[#b88738] hover:bg-[#c59a58]/10"
+            className="h-9 text-xs font-bold text-[#c59a58] hover:bg-[#c59a58]/10"
           >
             Today
           </Button>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline-flex text-[11px] font-semibold text-[#71828a]">
+          <span className="hidden sm:inline-flex text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
             {new Date(`${selectedDate}T12:00:00`).toLocaleDateString('en-GH', {
               weekday: 'long',
               year: 'numeric',
@@ -508,7 +514,7 @@ export const CashRegisterPage: React.FC = () => {
             size="sm"
             onClick={() => void load()}
             loading={loading}
-            className="h-9 gap-1.5 text-xs font-bold text-[#173c4d] hover:bg-[#173c4d]/5"
+            className="h-9 gap-1.5 text-xs font-bold text-[#c59a58] hover:bg-[#c59a58]/10"
           >
             <RefreshCw size={13} /> Refresh
           </Button>
@@ -517,8 +523,8 @@ export const CashRegisterPage: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleResetRegister}
-              className="h-9 gap-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50"
-              title="Reset manual drawer entries for this day"
+              className="h-9 gap-1 text-[11px] font-bold text-rose-500 hover:bg-rose-500/10"
+              title="Reset manual drawer entries"
             >
               <Trash2 size={13} /> Reset Day
             </Button>
@@ -526,143 +532,133 @@ export const CashRegisterPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Status Banner: Close-of-Day Handover Status ── */}
+      {/* Status Banner */}
       {isHandedOver ? (
-        <div className="relative overflow-hidden rounded-2xl border border-[#c59a58]/40 bg-gradient-to-r from-[#fcfaf5] via-[#faf6ed] to-[#f7f0e0] p-5 shadow-sm">
+        <div
+          className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] p-5 shadow-sm"
+          style={{ backgroundColor: 'var(--ns-surface)' }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0c1921] text-[#c59a58] shadow-sm">
-                <CheckCircle2 size={22} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
+                <CheckCircle2 size={20} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-[.18em] text-[#b88738]">
-                    AUDIT STATUS: SETTLED & HANDED OVER
-                  </span>
-                  <span className="rounded-md bg-[#0c1921] px-2 py-0.5 text-[10px] font-bold text-[#fcf9f2]">
-                    ZERO CARRY-OVER
-                  </span>
-                </div>
-                <h3 className="mt-0.5 text-lg font-bold text-[#0c1921] font-serif">
-                  Close-of-Day Cash Handover Completed ({formatCurrency(handovers)})
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#c59a58]">
+                  Handover Complete
+                </span>
+                <h3 className="mt-0.5 text-base font-bold font-serif" style={{ color: 'var(--ns-ink)' }}>
+                  Cash Handover Recorded ({formatCurrency(handovers)})
                 </h3>
-                <p className="mt-0.5 text-xs text-[#5a6b75]">
-                  Reception cash was balanced and officially handed over to Management. The till is balanced at{' '}
-                  <strong className="text-[#0c1921]">GH₵ 0.00</strong>. Tomorrow starts fresh with no carry-over.
+                <p className="mt-0.5 text-xs" style={{ color: 'var(--ns-muted)' }}>
+                  Drawer balanced and handed over to Management.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 self-start sm:self-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePrintHandoverSlip(handoverEntries[0])}
-                className="gap-1.5 border-[#c59a58] bg-white text-[#0c1921] font-semibold hover:bg-[#fcfaf5]"
-              >
-                <Printer size={14} className="text-[#c59a58]" /> Print Handover Slip
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePrintHandoverSlip(handoverEntries[0])}
+              className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50"
+              style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface-2)' }}
+            >
+              <Printer size={14} className="text-[#c59a58]" /> Print Slip
+            </Button>
           </div>
         </div>
       ) : cashAtHand > 0 ? (
-        <div className="relative overflow-hidden rounded-2xl border border-amber-300/80 bg-gradient-to-r from-[#fffbeb] via-[#fef3c7] to-[#fef9c3] p-5 shadow-sm">
+        <div
+          className="relative overflow-hidden rounded-2xl border border-amber-500/40 p-5 shadow-sm"
+          style={{ backgroundColor: 'var(--ns-surface)' }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-600 text-white shadow-sm">
-                <Lock size={20} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500">
+                <Lock size={18} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-[.18em] text-amber-800">
-                    SHIFT PENDING HANDOVER
-                  </span>
-                  <span className="rounded-md bg-amber-800 px-2 py-0.5 text-[10px] font-bold text-amber-50">
-                    DUE AT CLOSE
-                  </span>
-                </div>
-                <h3 className="mt-0.5 text-lg font-bold text-amber-950 font-serif">
-                  Physical Cash in Drawer: {formatCurrency(cashAtHand)}
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-500">
+                  Pending Handover
+                </span>
+                <h3 className="mt-0.5 text-base font-bold font-serif" style={{ color: 'var(--ns-ink)' }}>
+                  Cash in Drawer: {formatCurrency(cashAtHand)}
                 </h3>
-                <p className="mt-0.5 text-xs text-amber-800">
-                  Reception does not keep cash overnight. Please verify count and record handover to Management before ending shift.
+                <p className="mt-0.5 text-xs" style={{ color: 'var(--ns-muted)' }}>
+                  Count and record handover before ending shift.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 self-start sm:self-center">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleOpenHandoverModal}
-                className="gap-1.5 bg-[#0c1921] hover:bg-[#173c4d] text-[#fcf9f2] font-semibold"
-              >
-                <UserCheck size={14} className="text-[#c59a58]" /> Hand Over Cash Now
-              </Button>
-            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenHandoverModal}
+              className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white font-semibold"
+            >
+              <UserCheck size={14} /> Hand Over Cash
+            </Button>
           </div>
         </div>
       ) : (
         <div
-          className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] p-4.5 shadow-sm"
+          className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] p-4 shadow-sm"
           style={{ backgroundColor: 'var(--ns-surface)' }}
         >
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-xl"
-                style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-teal)' }}
-              >
-                <Clock size={16} />
-              </div>
-              <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-[.18em]" style={{ color: 'var(--ns-muted)' }}>
-                  DRAWER STATUS • ZERO BALANCE
-                </span>
-                <p className="text-xs font-semibold" style={{ color: 'var(--ns-ink)' }}>
-                  Current drawer balance is GH₵ 0.00. Ready for daily cash receipts or morning change float.
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl"
+              style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-teal)' }}
+            >
+              <Clock size={16} />
+            </div>
+            <div>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+                Drawer Ready
+              </span>
+              <p className="text-xs font-semibold" style={{ color: 'var(--ns-ink)' }}>
+                Current drawer balance is GH₵ 0.00. Ready for daily entries or morning float.
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Executive Metric Tiles ── */}
+      {/* Metric Tiles */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatTile
-          label="1. Morning Float"
+          label="Morning Float"
           value={formatCurrency(openingCash)}
-          note={openingCash > 0 ? 'Counted change float today' : 'Started fresh (GH₵ 0.00)'}
+          note={openingCash > 0 ? 'Counted change float' : 'Started at zero'}
           icon={Coins}
         />
         <StatTile
-          label="2. Cash Inflows Today"
+          label="Cash Inflows"
           value={formatCurrency(totalCollections)}
-          note={`POS Sales (${formatCurrency(cashSales)}) + In (${formatCurrency(manualInflows)})`}
+          note="POS sales and recorded inflows"
           icon={TrendingUp}
           accent={totalCollections > 0}
         />
         <StatTile
-          label="3. Drawer Deductions"
+          label="Drawer Deductions"
           value={formatCurrency(totalDeductions)}
-          note={`Expenses (${formatCurrency(manualOutflows - momoDeposits)}) + MoMo (${formatCurrency(momoDeposits)})`}
+          note="Expenses and bank deposits"
           icon={TrendingDown}
         />
         <StatTile
-          label="4. Handed Over"
+          label="Handed Over"
           value={formatCurrency(handovers)}
-          note={isHandedOver ? '✓ Closed & signed to Management' : 'Pending end of day close'}
+          note={isHandedOver ? 'Closed and handed over' : 'Pending close of day'}
           icon={UserCheck}
           accent={isHandedOver}
         />
         <StatTile
-          label="5. Cash at Hand Now"
+          label="Cash at Hand"
           value={formatCurrency(cashAtHand)}
           note={
             cashAtHand === 0 && isHandedOver
-              ? '✓ Balanced to 0.00 after handover'
+              ? 'Balanced after handover'
               : cashAtHand > 0
-              ? 'Physical cash currently in reception till'
-              : 'Drawer empty (0.00 GHS)'
+              ? 'Physical cash in till'
+              : 'Drawer empty'
           }
           icon={Wallet}
           accent={cashAtHand > 0}
@@ -726,15 +722,14 @@ export const CashRegisterPage: React.FC = () => {
         </button>
       </div>
 
-      {/* ── Tab Content: Drawer Cash Ledger ── */}
+      {/* Tab Content: Drawer Cash Ledger */}
       {activeTab === 'ENTRIES' && (
         <Section
           title="Daily Drawer Activity Log"
-          subtitle="Manual payouts, inflows, Mobile Money drawer deposits, and close-of-day handovers recorded today."
           action={
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#71828a]">
-                Showing {displayEntries.length} recorded movement{displayEntries.length !== 1 ? 's' : ''}
+              <span className="text-xs" style={{ color: 'var(--ns-muted)' }}>
+                {displayEntries.length} movement{displayEntries.length !== 1 ? 's' : ''}
               </span>
             </div>
           }
@@ -742,10 +737,13 @@ export const CashRegisterPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[#edf2f2] bg-[#fbfdfd] text-[10px] font-extrabold uppercase tracking-wider text-[#71828a]">
+                <tr
+                  className="border-b border-[var(--ns-line)] text-[10px] font-extrabold uppercase tracking-wider"
+                  style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-muted)' }}
+                >
                   <th className="py-3 px-4">Time</th>
                   <th className="py-3 px-4">Type</th>
-                  <th className="py-3 px-4">Description / Purpose</th>
+                  <th className="py-3 px-4">Description</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Recipient</th>
                   <th className="py-3 px-4">Reference</th>
@@ -753,10 +751,10 @@ export const CashRegisterPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f1f5f9]">
+              <tbody className="divide-y divide-[var(--ns-line)]">
                 {displayEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-xs text-[#71828a]">
+                    <td colSpan={8} className="py-12 text-center text-xs" style={{ color: 'var(--ns-muted)' }}>
                       No manual drawer cash movements recorded for {selectedDate}.
                     </td>
                   </tr>
@@ -769,11 +767,12 @@ export const CashRegisterPage: React.FC = () => {
                     return (
                       <tr
                         key={row.id}
-                        className={`hover:bg-[#fbfcfb] transition-colors ${
-                          isHandover ? 'bg-[#fcfaf5]' : ''
-                        }`}
+                        className="transition-colors hover:bg-[var(--ns-surface-2)]"
+                        style={{
+                          backgroundColor: isHandover ? 'rgba(197,154,88,0.06)' : undefined,
+                        }}
                       >
-                        <td className="py-3 px-4 font-mono text-[11px] text-[#5a6b75]">
+                        <td className="py-3 px-4 font-mono text-[11px]" style={{ color: 'var(--ns-muted)' }}>
                           {new Date(row.recordedAt).toLocaleTimeString('en-GH', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -781,46 +780,46 @@ export const CashRegisterPage: React.FC = () => {
                         </td>
                         <td className="py-3 px-4">
                           {isHandover ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-[#0c1921] px-2 py-0.5 text-[10px] font-bold text-[#fcf9f2]">
-                              <UserCheck size={11} className="text-[#c59a58]" /> Handover
+                            <span className="inline-flex items-center gap-1 rounded-md bg-[#c59a58]/20 px-2 py-0.5 text-[10px] font-bold text-[#c59a58]">
+                              <UserCheck size={11} /> Handover
                             </span>
                           ) : isMomo ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-500">
                               <Smartphone size={11} /> MoMo
                             </span>
                           ) : isOutflow ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800">
-                              <ArrowDown size={11} /> Money Out
+                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-500">
+                              <ArrowDown size={11} /> Out
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                              <ArrowUp size={11} /> Money In
+                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                              <ArrowUp size={11} /> In
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4 font-medium text-[#0c1921] max-w-xs truncate">
+                        <td className="py-3 px-4 font-medium max-w-xs truncate" style={{ color: 'var(--ns-ink)' }}>
                           {row.description}
                         </td>
-                        <td className="py-3 px-4 text-[#5a6b75] font-semibold text-[11px]">
-                          {row.category || '—'}
+                        <td className="py-3 px-4 font-semibold text-[11px]" style={{ color: 'var(--ns-muted)' }}>
+                          {row.category || 'General'}
                         </td>
-                        <td className="py-3 px-4 text-[#0c1921] font-medium">
-                          {row.recipient || '—'}
+                        <td className="py-3 px-4 font-medium" style={{ color: 'var(--ns-ink)' }}>
+                          {row.recipient || 'None'}
                         </td>
-                        <td className="py-3 px-4 font-mono text-[11px] text-[#71828a]">
-                          {row.receiptRef || '—'}
+                        <td className="py-3 px-4 font-mono text-[11px]" style={{ color: 'var(--ns-muted)' }}>
+                          {row.receiptRef || 'None'}
                         </td>
                         <td className="py-3 px-4 text-right font-mono text-sm font-bold">
                           <span
                             className={
                               isHandover
-                                ? 'text-[#b88738]'
+                                ? 'text-[#c59a58]'
                                 : isOutflow
-                                ? 'text-rose-600'
-                                : 'text-emerald-600'
+                                ? 'text-rose-500'
+                                : 'text-emerald-500'
                             }
                           >
-                            {isOutflow ? '−' : '+'}
+                            {isOutflow ? '-' : '+'}
                             {formatCurrency(Number(row.amount))}
                           </span>
                         </td>
@@ -831,8 +830,8 @@ export const CashRegisterPage: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handlePrintHandoverSlip(row)}
-                                className="h-7 w-7 p-0 text-[#b88738] hover:bg-[#c59a58]/10"
-                                title="Print Handover Slip"
+                                className="h-7 w-7 p-0 text-[#c59a58] hover:bg-[#c59a58]/10"
+                                title="Print Slip"
                               >
                                 <Printer size={13} />
                               </Button>
@@ -841,7 +840,8 @@ export const CashRegisterPage: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handlePrintIndividualSlip(row)}
-                                className="h-7 w-7 p-0 text-[#5a6b75] hover:bg-slate-100"
+                                className="h-7 w-7 p-0 hover:bg-[var(--ns-surface-2)]"
+                                style={{ color: 'var(--ns-muted)' }}
                                 title="Print Slip"
                               >
                                 <Printer size={13} />

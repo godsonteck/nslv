@@ -225,7 +225,7 @@ export const FrontDeskPage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c59a58]/50 bg-[#c59a58]/15 px-3 py-1 text-[10px] font-black tracking-widest text-[#f0d49f] uppercase">
-                <Sparkles size={11} className="text-[#c59a58]" /> Reception &bull; Front Desk Terminal
+                <Sparkles size={11} className="text-[#c59a58]" /> Reception Terminal
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-[10px] font-bold text-sky-300">
                 <Clock size={11} /> Standard Checkout: {checkoutPolicy.checkoutTime}
@@ -235,7 +235,7 @@ export const FrontDeskPage: React.FC = () => {
               {greeting}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300/85 max-w-xl font-medium leading-relaxed">
-              Real-time arrival processing, room key dispatch, and payment-safe departures &bull; {nowFormatted}
+              {nowFormatted}
             </p>
           </div>
 
@@ -271,7 +271,7 @@ export const FrontDeskPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <DoorOpen size={16} className="text-[#c59a58]" />
             <span className="text-xs font-black uppercase tracking-wider text-[#c59a58]">
-              Front Desk Live Room Rack &bull; Today's Inventory Status
+              Room Rack Inventory
             </span>
           </div>
           <span className="text-xs text-[#6e7a8a] font-medium">
@@ -407,7 +407,7 @@ export const FrontDeskPage: React.FC = () => {
                           </div>
                           <div className="mt-0.5 text-[11px] text-[#6e7a8a] flex items-center gap-2 flex-wrap">
                             <span>Checkout: {new Date(reservation.checkOutDate).toLocaleDateString()} 12:00 PM</span>
-                            <span>&bull;</span>
+                            <span className="text-slate-400">|</span>
                             <span>Ref: {reservation.confirmationNo || reservation.id.slice(0, 8).toUpperCase()}</span>
                           </div>
                         </div>
@@ -438,7 +438,7 @@ export const FrontDeskPage: React.FC = () => {
               <div>
                 <h2 className="text-sm font-extrabold text-[#e8e6e0] flex items-center gap-2">
                   <LogOut size={16} className="text-amber-700" />
-                  In-House Guests &bull; Checkout Desk ({stays.length})
+                  In-House Stays and Checkout ({stays.length})
                 </h2>
                 <p className="text-[11px] text-[#6e7a8a] mt-0.5">
                   Standard checkout deadline: 12:00 PM &bull; Late departures: +GHS {checkoutPolicy.hourlyRate}/hr
@@ -479,7 +479,7 @@ export const FrontDeskPage: React.FC = () => {
                           <span>
                             Departs {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : '—'} 12:00 PM
                           </span>
-                          <span>&bull;</span>
+                          <span className="text-slate-400">|</span>
                           <span>Checked in by {stay.checkedInByUser?.name || 'Reception Staff'}</span>
                         </div>
                       </div>

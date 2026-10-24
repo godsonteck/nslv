@@ -106,7 +106,7 @@ export const AdminConsolePage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="SYSTEM LEVEL SECURITY • ADMIN CONSOLE"
+      eyebrow="Administration"
       title="System Administration"
       subtitle="Staff accounts, roles, access permissions, room configurations, menu catalogs, and immutable security audit logs."
       actions={

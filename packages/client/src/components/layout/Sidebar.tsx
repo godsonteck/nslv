@@ -67,42 +67,49 @@ export const Sidebar: React.FC = () => {
     .filter(section => section.items.length > 0);
 
   return (
-    <aside className="flex h-full w-[246px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e8e5] bg-[#fbfcfa]">
-      <div className="flex min-h-full flex-col px-3.5 py-5">
+    <aside
+      className="flex h-full w-[246px] shrink-0 flex-col overflow-y-auto border-r border-[var(--ns-line)]"
+      style={{ backgroundColor: 'var(--ns-surface)' }}
+    >
+      <div className="flex min-h-full flex-col px-3.5 py-4">
         {/* Brand */}
-        <div className="mb-6 flex items-center gap-3 px-1">
-          <img src={villaLogo} alt="NS Luxury Villa" className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-[#c59a58]/40 shadow-sm" />
+        <div className="mb-5 flex items-center gap-3 px-1">
+          <img src={villaLogo} alt="NS Luxury Villa" className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-[#c59a58]/30 shadow-xs" />
           <div className="min-w-0">
-            <div className="truncate font-['Manrope'] text-[14px] font-black leading-tight text-[#0f172a]">NS Luxury Villa</div>
-            <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#c59a58]">
+            <div className="truncate font-['Manrope'] text-[13px] font-black leading-tight" style={{ color: 'var(--ns-ink)' }}>
+              NS Luxury Villa
+            </div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-[#c59a58]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,.2)]" />
-              Lokoe, Ho &bull; {roleName}
+              <span>Lokoe, Ho ({roleName})</span>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
         {sections.map(section => (
-          <div key={section.title} className="mb-6">
-            <div className="px-3 pb-2 text-[9px] font-extrabold uppercase tracking-[.19em] text-[#8a9598]">{section.title}</div>
+          <div key={section.title} className="mb-5">
+            <div className="px-3 pb-1.5 text-[9px] font-black uppercase tracking-wider text-[#c59a58] opacity-80">{section.title}</div>
             <div className="space-y-0.5">
               {section.items.map(({ label, to, icon: Icon }) => (
                 <NavLink
                   key={to}
                   to={to}
                   className={({ isActive }) =>
-                    `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold transition-all ${
+                    `group relative flex items-center gap-2.5 rounded-xl px-3 py-2 text-[11px] font-bold transition-all ${
                       isActive
                         ? 'bg-gradient-to-r from-[#173c4d] to-[#0f2834] text-white shadow-sm border border-[#c59a58]/35'
-                        : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-2xs'
+                        : 'hover:bg-[var(--ns-surface-2)] text-slate-500 hover:text-[var(--ns-ink)]'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <span className={`absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full transition-all ${isActive ? 'bg-[#c59a58]' : 'bg-transparent'}`} />
-                      <Icon size={15} className={`shrink-0 transition-all ${isActive ? 'text-[#f0d49f]' : 'text-slate-400 group-hover:text-slate-700'}`} />
-                      <span className={isActive ? 'font-extrabold text-white' : ''}>{label}</span>
+                      <span className={`absolute left-0 top-1/2 h-3.5 w-[2.5px] -translate-y-1/2 rounded-full transition-all ${isActive ? 'bg-[#c59a58]' : 'bg-transparent'}`} />
+                      <Icon size={14} className={`shrink-0 transition-all ${isActive ? 'text-[#f0d49f]' : 'text-slate-400 group-hover:text-[#c59a58]'}`} />
+                      <span className={isActive ? 'font-extrabold text-white' : ''} style={{ color: isActive ? '#ffffff' : 'var(--ns-ink)' }}>
+                        {label}
+                      </span>
                     </>
                   )}
                 </NavLink>

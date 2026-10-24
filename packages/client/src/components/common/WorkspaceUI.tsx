@@ -4,13 +4,13 @@ import { Button, SearchInput, EmptyState, Spinner } from '../ui';
 
 export const ShellPage: React.FC<{
   eyebrow?: string; title: string; subtitle?: string; actions?: React.ReactNode; children: React.ReactNode;
-}> = ({eyebrow='NS LUXURY VILLA • LOKOE, HO',title,subtitle,actions,children}) => (
+}> = ({eyebrow,title,subtitle,actions,children}) => (
   <div className="ns-page space-y-6 pb-12">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <div className="text-[10px] font-extrabold uppercase tracking-[.22em] text-[#c59a58]">{eyebrow}</div>
+        {eyebrow && <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#c59a58]">{eyebrow}</div>}
         <h1
-          className="mt-1 text-[28px] sm:text-[32px] font-black tracking-tight font-serif"
+          className="mt-1 text-[26px] sm:text-[30px] font-black tracking-tight font-serif"
           style={{ color: 'var(--ns-ink)' }}
         >
           {title}
