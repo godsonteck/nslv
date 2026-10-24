@@ -454,14 +454,17 @@ export const CashRegisterPage: React.FC = () => {
       }
     >
       {/* ── Business Date Navigator ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5ebeb] bg-white p-3.5 shadow-sm">
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-line)] p-3.5 shadow-sm"
+        style={{ backgroundColor: 'var(--ns-surface)' }}
+      >
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => shiftDate(-1)}
             aria-label="Previous Day"
-            className="h-9 w-9 p-0 border-[#e5ebeb]"
+            className="h-9 w-9 p-0 border-[var(--ns-line)]"
           >
             <ChevronLeft size={16} />
           </Button>
@@ -469,7 +472,8 @@ export const CashRegisterPage: React.FC = () => {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="h-9 rounded-xl border border-[#cbd5e1] px-3 text-sm font-semibold text-[#0c1921] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
+            className="h-9 rounded-xl border border-[var(--ns-line)] px-3 text-sm font-semibold focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
+            style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)' }}
           />
           <Button
             variant="outline"
@@ -597,17 +601,23 @@ export const CashRegisterPage: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="relative overflow-hidden rounded-2xl border border-[#e5ebeb] bg-[#fbfcfb] p-4.5 shadow-sm">
+        <div
+          className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] p-4.5 shadow-sm"
+          style={{ backgroundColor: 'var(--ns-surface)' }}
+        >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#173c4d]/10 text-[#173c4d]">
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-xl"
+                style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-teal)' }}
+              >
                 <Clock size={16} />
               </div>
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#71828a]">
+                <span className="text-[10px] font-extrabold uppercase tracking-[.18em]" style={{ color: 'var(--ns-muted)' }}>
                   DRAWER STATUS • ZERO BALANCE
                 </span>
-                <p className="text-xs font-semibold text-[#0c1921]">
+                <p className="text-xs font-semibold" style={{ color: 'var(--ns-ink)' }}>
                   Current drawer balance is GH₵ 0.00. Ready for daily cash receipts or morning change float.
                 </p>
               </div>
@@ -644,51 +654,41 @@ export const CashRegisterPage: React.FC = () => {
           icon={UserCheck}
           accent={isHandedOver}
         />
-        <div
-          className={`relative overflow-hidden rounded-2xl border p-5 transition-all duration-200 ${
-            cashAtHand > 0
-              ? 'border-[#c59a58] bg-gradient-to-br from-[#fcf9f2] to-white shadow-[0_8px_24px_rgba(197,154,88,0.12)]'
-              : 'border-[#e5ebeb] bg-[#fbfdfd]'
-          }`}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <span className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#c59a58]">
-              5. Cash at Hand Now
-            </span>
-            <span
-              className={`flex h-9 w-9 items-center justify-center rounded-xl ${
-                cashAtHand > 0 ? 'bg-[#c59a58]/15 text-[#b88738]' : 'bg-[#173c4d]/5 text-[#71828a]'
-              }`}
-            >
-              <Wallet size={16} />
-            </span>
-          </div>
-          <div className="mt-3.5 text-[28px] font-black tracking-tight text-[#0c1921]">
-            {formatCurrency(cashAtHand)}
-          </div>
-          <div className="mt-1 text-[11px] font-semibold text-[#7a8a92]">
-            {cashAtHand === 0 && isHandedOver
+        <StatTile
+          label="5. Cash at Hand Now"
+          value={formatCurrency(cashAtHand)}
+          note={
+            cashAtHand === 0 && isHandedOver
               ? '✓ Balanced to 0.00 after handover'
               : cashAtHand > 0
               ? 'Physical cash currently in reception till'
-              : 'Drawer empty (0.00 GHS)'}
-          </div>
-        </div>
+              : 'Drawer empty (0.00 GHS)'
+          }
+          icon={Wallet}
+          accent={cashAtHand > 0}
+        />
       </div>
 
       {/* ── Tabs Navigation ── */}
-      <div className="flex border-b border-[#e5ebeb] bg-white rounded-t-2xl px-5 pt-3">
+      <div
+        className="flex border-b border-[var(--ns-line)] rounded-t-2xl px-5 pt-3"
+        style={{ backgroundColor: 'var(--ns-surface)' }}
+      >
         <button
           onClick={() => setActiveTab('ENTRIES')}
           className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'ENTRIES'
-              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
-              : 'text-[#71828a] hover:text-[#0c1921]'
+              ? 'border-b-2 border-[#c59a58]'
+              : 'opacity-70 hover:opacity-100'
           }`}
+          style={{ color: activeTab === 'ENTRIES' ? 'var(--ns-ink)' : 'var(--ns-muted)' }}
         >
           <Banknote size={15} />
           <span>Drawer Cash Ledger</span>
-          <span className="rounded-full bg-[#173c4d]/10 px-2 py-0.5 text-[10px]">
+          <span
+            className="rounded-full px-2 py-0.5 text-[10px]"
+            style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)' }}
+          >
             {displayEntries.length}
           </span>
         </button>
@@ -697,13 +697,17 @@ export const CashRegisterPage: React.FC = () => {
           onClick={() => setActiveTab('PAYMENTS')}
           className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'PAYMENTS'
-              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
-              : 'text-[#71828a] hover:text-[#0c1921]'
+              ? 'border-b-2 border-[#c59a58]'
+              : 'opacity-70 hover:opacity-100'
           }`}
+          style={{ color: activeTab === 'PAYMENTS' ? 'var(--ns-ink)' : 'var(--ns-muted)' }}
         >
           <Receipt size={15} />
           <span>Front Desk & POS Cash Sales</span>
-          <span className="rounded-full bg-[#173c4d]/10 px-2 py-0.5 text-[10px]">
+          <span
+            className="rounded-full px-2 py-0.5 text-[10px]"
+            style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)' }}
+          >
             {summary?.cashPayments?.length ?? 0}
           </span>
         </button>
@@ -712,9 +716,10 @@ export const CashRegisterPage: React.FC = () => {
           onClick={() => setActiveTab('CATEGORIES')}
           className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'CATEGORIES'
-              ? 'text-[#0c1921] border-b-2 border-[#c59a58]'
-              : 'text-[#71828a] hover:text-[#0c1921]'
+              ? 'border-b-2 border-[#c59a58]'
+              : 'opacity-70 hover:opacity-100'
           }`}
+          style={{ color: activeTab === 'CATEGORIES' ? 'var(--ns-ink)' : 'var(--ns-muted)' }}
         >
           <FileText size={15} />
           <span>Expenses by Category</span>

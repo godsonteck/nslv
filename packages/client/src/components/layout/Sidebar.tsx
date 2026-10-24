@@ -113,18 +113,21 @@ export const Sidebar: React.FC = () => {
 
         {/* Footer */}
         <div className="mt-auto space-y-4">
-          <div className="flex items-center gap-2.5 rounded-2xl border border-[#cbd5e1]/70 bg-white p-3 shadow-xs">
+          <div
+            className="flex items-center gap-2.5 rounded-2xl border border-[var(--ns-line)] p-3 shadow-xs"
+            style={{ backgroundColor: 'var(--ns-surface)' }}
+          >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-[10px] font-black text-white shadow-2xs">
               {initials}
             </div>
             <div className="min-w-0">
-              <div className="truncate text-[11px] font-bold text-[#0f172a]">{fullName}</div>
+              <div className="truncate text-[11px] font-bold" style={{ color: 'var(--ns-ink)' }}>{fullName}</div>
               <div className="truncate text-[9px] font-semibold uppercase tracking-wider text-[#c59a58]">{roleName}</div>
             </div>
           </div>
-          <div className="border-t border-slate-200/80 pt-3 text-[9px] leading-5 text-slate-500">
-            <div className="font-black uppercase tracking-[.14em] text-[#0f172a]">NS Luxury Villa</div>
-            <div className="italic text-[#8c6b38]">&ldquo;Arrive as a guest, stay as family&rdquo;</div>
+          <div className="border-t border-[var(--ns-line)] pt-3 text-[9px] leading-5" style={{ color: 'var(--ns-muted)' }}>
+            <div className="font-black uppercase tracking-[.14em]" style={{ color: 'var(--ns-ink)' }}>NS Luxury Villa</div>
+            <div className="italic text-[#c59a58]">&ldquo;Arrive as a guest, stay as family&rdquo;</div>
             <div className="mt-0.5">Lokoe, Ho, Volta Region &bull; Ghana</div>
           </div>
         </div>

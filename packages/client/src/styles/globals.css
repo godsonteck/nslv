@@ -137,7 +137,19 @@ html[data-theme='dark'] [class~="bg-[#f2f4f2]" i],
 html[data-theme='dark'] [class~="bg-[#f0f2f0]" i],
 html[data-theme='dark'] [class~="bg-[#f9faf8]" i],
 html[data-theme='dark'] [class~="bg-[#f4f6f4]" i],
-html[data-theme='dark'] [class~="bg-[#e9ece9]" i] {
+html[data-theme='dark'] [class~="bg-[#e9ece9]" i],
+html[data-theme='dark'] [class~="bg-[#fbfcfb]" i],
+html[data-theme='dark'] [class~="bg-[#fbfdfd]" i],
+html[data-theme='dark'] [class~="bg-[#fcfaf5]" i],
+html[data-theme='dark'] [class~="bg-[#fcf9f2]" i],
+html[data-theme='dark'] [class~="bg-[#faf6ed]" i],
+html[data-theme='dark'] [class~="bg-[#f7f0e0]" i],
+html[data-theme='dark'] [class~="bg-[#fbf9f5]" i],
+html[data-theme='dark'] [class~="bg-[#fcf8f0]" i],
+html[data-theme='dark'] [class~="bg-[#fdfbf7]" i],
+html[data-theme='dark'] [class~="bg-[#f0f3f2]" i],
+html[data-theme='dark'] [class~="bg-[#f0f4f7]" i],
+html[data-theme='dark'] [class~="bg-[#f8fafc]" i] {
   background-color: var(--ns-surface) !important;
 }
 
@@ -157,26 +169,45 @@ html[data-theme='dark'] [class~="hover:bg-white" i]:hover,
 html[data-theme='dark'] [class~="hover:bg-slate-50" i]:hover,
 html[data-theme='dark'] [class~="hover:bg-slate-100" i]:hover,
 html[data-theme='dark'] [class~="hover:bg-gray-50" i]:hover,
-html[data-theme='dark'] [class~="hover:bg-gray-100" i]:hover {
+html[data-theme='dark'] [class~="hover:bg-gray-100" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#fbfcfb]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#fbfdfd]" i]:hover {
   background-color: var(--ns-surface-2) !important;
 }
 
+/* Primary dark-ink text flips to bright ink in dark mode */
+html[data-theme='dark'] [class~="text-[#0c1921]" i],
+html[data-theme='dark'] [class~="text-[#0f172a]" i],
+html[data-theme='dark'] [class~="text-[#0e1015]" i],
+html[data-theme='dark'] [class~="text-[#0f141d]" i],
+html[data-theme='dark'] [class~="text-[#111827]" i],
 html[data-theme='dark'] [class~="text-[#14232b]" i],
-html[data-theme='dark'] [class~="text-[#26363e]" i],
-html[data-theme='dark'] [class~="text-[#20343e]" i],
-html[data-theme='dark'] [class~="text-[#1a2b3c]" i],
-html[data-theme='dark'] [class~="text-[#101a2b]" i],
 html[data-theme='dark'] [class~="text-[#17232b]" i],
+html[data-theme='dark'] [class~="text-[#173c4d]" i],
+html[data-theme='dark'] [class~="text-[#0e3440]" i],
 html[data-theme='dark'] [class~="text-[#10131a]" i],
-html[data-theme='dark'] [class~="text-[#27383f]" i],
+html[data-theme='dark'] [class~="text-[#101a2b]" i],
 html[data-theme='dark'] [class~="text-[#1a202c]" i],
+html[data-theme='dark'] [class~="text-[#1a2b3c]" i],
 html[data-theme='dark'] [class~="text-[#1b4965]" i],
+html[data-theme='dark'] [class~="text-[#1e293b]" i],
+html[data-theme='dark'] [class~="text-[#20343e]" i],
+html[data-theme='dark'] [class~="text-[#26363e]" i],
+html[data-theme='dark'] [class~="text-[#27383f]" i],
+html[data-theme='dark'] [class~="text-[#334155]" i],
 html[data-theme='dark'] [class~="text-slate-700" i],
 html[data-theme='dark'] [class~="text-slate-800" i],
 html[data-theme='dark'] [class~="text-slate-900" i],
 html[data-theme='dark'] [class~="text-gray-700" i],
 html[data-theme='dark'] [class~="text-gray-800" i],
 html[data-theme='dark'] [class~="text-gray-900" i],
+html[data-theme='dark'] [class~="text-zinc-700" i],
+html[data-theme='dark'] [class~="text-zinc-800" i],
+html[data-theme='dark'] [class~="text-zinc-900" i],
+html[data-theme='dark'] [class~="hover:text-[#0c1921]" i]:hover,
+html[data-theme='dark'] [class~="hover:text-[#0f172a]" i]:hover,
+html[data-theme='dark'] [class~="hover:text-[#173c4d]" i]:hover,
+html[data-theme='dark'] [class~="hover:text-[#14232b]" i]:hover,
 html[data-theme='dark'] [class~="hover:text-slate-900" i]:hover,
 html[data-theme='dark'] [class~="hover:text-slate-800" i]:hover,
 html[data-theme='dark'] [class~="hover:text-gray-800" i]:hover {
@@ -190,9 +221,7 @@ html[data-theme='dark'] [class~="text-gray-600" i] {
   color: var(--ns-ink-2) !important;
 }
 
-/* Gold accent text (used on surfaces that flip dark) stays readable in dark mode.
-   Dark-gold tones that are otherwise only legible on light cards are lifted to the
-   light gold accent. Near-black text on gold buttons must stay dark for contrast. */
+/* Gold accent text */
 html[data-theme='dark'] [class~="text-[#C5A880]" i],
 html[data-theme='dark'] [class~="text-[#a8761e]" i],
 html[data-theme='dark'] [class~="text-[#8a6420]" i],
@@ -207,6 +236,13 @@ html[data-theme='dark'] [class~="text-[#10131a]" i][class~="bg-[#f1a83f]" i] {
   color: #10131a !important;
 }
 
+/* Muted / secondary text flips to legible muted in dark mode */
+html[data-theme='dark'] [class~="text-[#5a6b75]" i],
+html[data-theme='dark'] [class~="text-[#566870]" i],
+html[data-theme='dark'] [class~="text-[#6e7a8a]" i],
+html[data-theme='dark'] [class~="text-[#71828a]" i],
+html[data-theme='dark'] [class~="text-[#7a8a92]" i],
+html[data-theme='dark'] [class~="text-[#8c6b38]" i],
 html[data-theme='dark'] [class~="text-[#667278]" i],
 html[data-theme='dark'] [class~="text-[#657278]" i],
 html[data-theme='dark'] [class~="text-[#59676d]" i],
@@ -244,6 +280,7 @@ html[data-theme='dark'] [class~="text-gray-400" i] {
   color: var(--ns-muted) !important;
 }
 
+/* Borders in dark mode */
 html[data-theme='dark'] [class~="border-[#e8ebe8]" i],
 html[data-theme='dark'] [class~="border-[#dfe4e0]" i],
 html[data-theme='dark'] [class~="border-[#f0f2f0]" i],
@@ -266,11 +303,44 @@ html[data-theme='dark'] [class~="border-[#dfe4df]" i],
 html[data-theme='dark'] [class~="border-[#dce5e0]" i],
 html[data-theme='dark'] [class~="border-[#e4e9e5]" i],
 html[data-theme='dark'] [class~="border-[#e8ece9]" i],
+html[data-theme='dark'] [class~="border-[#e5ebeb]" i],
+html[data-theme='dark'] [class~="border-[#edf2f2]" i],
+html[data-theme='dark'] [class~="border-[#dfe5e5]" i],
+html[data-theme='dark'] [class~="border-[#cbd5e1]" i],
+html[data-theme='dark'] [class~="border-[#1e2535]" i],
+html[data-theme='dark'] [class~="border-[#2a3040]" i],
 html[data-theme='dark'] [class~="border-slate-100" i],
 html[data-theme='dark'] [class~="border-slate-200" i],
 html[data-theme='dark'] [class~="border-slate-300" i],
 html[data-theme='dark'] [class~="border-gray-200" i],
 html[data-theme='dark'] [class~="border-gray-300" i] {
+  border-color: var(--ns-line) !important;
+}
+
+/* Compatibility: Cards & containers with dark background classes */
+html:not([data-theme='dark']) [class~="bg-[#0c1921]" i]:not(button):not([role="button"]):not(.btn),
+html[data-theme='light'] [class~="bg-[#0c1921]" i]:not(button):not([role="button"]):not(.btn) {
+  background-color: #ffffff !important;
+  color: #14232b !important;
+}
+html:not([data-theme='dark']) [class~="bg-[#0f141d]" i]:not(button):not([role="button"]):not(.btn),
+html[data-theme='light'] [class~="bg-[#0f141d]" i]:not(button):not([role="button"]):not(.btn) {
+  background-color: #fbfcfa !important;
+  color: #14232b !important;
+}
+html:not([data-theme='dark']) [class~="border-[#1e2535]" i],
+html[data-theme='light'] [class~="border-[#1e2535]" i] {
+  border-color: #e5ebeb !important;
+}
+
+html[data-theme='dark'] [class~="bg-[#0c1921]" i]:not(button):not([role="button"]):not(.btn) {
+  background-color: var(--ns-surface) !important;
+  color: var(--ns-ink) !important;
+  border-color: var(--ns-line) !important;
+}
+html[data-theme='dark'] [class~="bg-[#0f141d]" i]:not(button):not([role="button"]):not(.btn) {
+  background-color: var(--ns-surface-2) !important;
+  color: var(--ns-ink) !important;
   border-color: var(--ns-line) !important;
 }
 
