@@ -201,18 +201,18 @@ interface BadgeProps {
 
 export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral' }) => {
   const cls = {
-    available: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    reserved: 'bg-blue-100 text-blue-800 border-blue-300',
-    occupied: 'bg-rose-100 text-rose-800 border-rose-300',
-    dirty: 'bg-amber-100 text-amber-800 border-amber-300',
-    cleaning: 'bg-purple-100 text-purple-800 border-purple-300',
-    ready: 'bg-teal-100 text-teal-800 border-teal-300',
-    maintenance: 'bg-gray-100 text-gray-800 border-gray-300',
-    success: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    warning: 'bg-amber-100 text-amber-800 border-amber-300',
-    danger: 'bg-red-100 text-red-800 border-red-300',
-    info: 'bg-blue-100 text-blue-800 border-blue-300',
-    neutral: 'bg-slate-100 text-slate-700 border-slate-300',
+    available: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/80',
+    reserved: 'bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800/80',
+    occupied: 'bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800/80',
+    dirty: 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800/80',
+    cleaning: 'bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-800/80',
+    ready: 'bg-teal-100 dark:bg-teal-950/70 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-800/80',
+    maintenance: 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-300 border-gray-300 dark:border-slate-700',
+    success: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/80',
+    warning: 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800/80',
+    danger: 'bg-red-100 dark:bg-red-950/70 text-red-800 dark:text-red-300 border-red-300 dark:border-red-800/80',
+    info: 'bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800/80',
+    neutral: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
   };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wide border ${cls[variant]}`}>

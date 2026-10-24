@@ -149,6 +149,18 @@ html[data-theme='dark'] [class~="bg-[#fcf8f0]" i],
 html[data-theme='dark'] [class~="bg-[#fdfbf7]" i],
 html[data-theme='dark'] [class~="bg-[#f0f3f2]" i],
 html[data-theme='dark'] [class~="bg-[#f0f4f7]" i],
+html[data-theme='dark'] [class~="bg-[#fbfdfc]" i],
+html[data-theme='dark'] [class~="bg-[#fbfbf9]" i],
+html[data-theme='dark'] [class~="bg-[#f6f4ee]" i],
+html[data-theme='dark'] [class~="bg-[#f3f8f9]" i],
+html[data-theme='dark'] [class~="bg-[#f8fbf9]" i],
+html[data-theme='dark'] [class~="bg-[#f7faf9]" i],
+html[data-theme='dark'] [class~="bg-[#f8fbfb]" i],
+html[data-theme='dark'] [class~="bg-[#fbf8f2]" i],
+html[data-theme='dark'] [class~="bg-[#f9faf9]" i],
+html[data-theme='dark'] [class~="bg-[#f0f8fa]" i],
+html[data-theme='dark'] [class~="bg-[#fff8f4]" i],
+html[data-theme='dark'] [class~="bg-[#f0f4f2]" i],
 html[data-theme='dark'] [class~="bg-[#f8fafc]" i] {
   background-color: var(--ns-surface) !important;
 }
@@ -171,7 +183,13 @@ html[data-theme='dark'] [class~="hover:bg-slate-100" i]:hover,
 html[data-theme='dark'] [class~="hover:bg-gray-50" i]:hover,
 html[data-theme='dark'] [class~="hover:bg-gray-100" i]:hover,
 html[data-theme='dark'] [class~="hover:bg-[#fbfcfb]" i]:hover,
-html[data-theme='dark'] [class~="hover:bg-[#fbfdfd]" i]:hover {
+html[data-theme='dark'] [class~="hover:bg-[#fbfdfd]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#f3f8f9]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#f6f4ee]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#fbfbf9]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#f8fbf9]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#f8faf9]" i]:hover,
+html[data-theme='dark'] [class~="hover:bg-[#fcf8f0]" i]:hover {
   background-color: var(--ns-surface-2) !important;
 }
 
@@ -227,8 +245,20 @@ html[data-theme='dark'] [class~="text-[#a8761e]" i],
 html[data-theme='dark'] [class~="text-[#8a6420]" i],
 html[data-theme='dark'] [class~="text-[#a06010]" i],
 html[data-theme='dark'] [class~="text-[#a05d20]" i],
+html[data-theme='dark'] [class~="text-[#b05a20]" i],
+html[data-theme='dark'] [class~="text-[#b88738]" i],
 html[data-theme='dark'] [class~="text-[#b0743a]" i] {
   color: var(--ns-gold) !important;
+}
+
+/* Emerald payment / paid badges in dark mode */
+html[data-theme='dark'] [class~="text-[#1b4332]" i] {
+  color: #34d399 !important;
+}
+html[data-theme='dark'] [class*="bg-[#1b4332]"] {
+  background-color: rgba(52, 211, 153, 0.18) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
 }
 
 html[data-theme='dark'] [class~="text-[#10131a]" i][class~="bg-[#C5A880]" i],

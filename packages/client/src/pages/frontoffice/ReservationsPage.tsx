@@ -320,7 +320,7 @@ export const ReservationsPage: React.FC = () => {
           rooms: roomsPayload,
         });
         const count = res.data?.reservations?.length ?? roomsPayload.length;
-        showToast('success', `Group booking created — ${count} room${count === 1 ? '' : 's'} under group ${res.data?.bookingId ?? ''}`);
+        showToast('success', `Group booking created for ${count} room${count === 1 ? '' : 's'} under group ${res.data?.bookingId ?? ''}`);
       } else {
         let guestId = form.guestId;
         if (guestMode === 'new') {
@@ -489,7 +489,7 @@ export const ReservationsPage: React.FC = () => {
           remainingBalance: remainingAfter,
         });
 
-        showToast('success', settlesInFull ? 'Group payment recorded — group booking paid in full.' : 'Group partial payment recorded.');
+        showToast('success', settlesInFull ? 'Group payment recorded. Group booking paid in full.' : 'Group partial payment recorded.');
         setDepositOpen(false);
         setDepositTargetGroup(null);
         load();
@@ -561,7 +561,7 @@ export const ReservationsPage: React.FC = () => {
         remainingBalance: remainingAfter,
       });
 
-      showToast('success', settlesInFull ? 'Payment recorded — reservation paid in full.' : 'Partial payment recorded.');
+      showToast('success', settlesInFull ? 'Payment recorded. Reservation paid in full.' : 'Partial payment recorded.');
       setDepositOpen(false);
       load();
     } catch (e) {
@@ -978,7 +978,7 @@ export const ReservationsPage: React.FC = () => {
                     day: 'numeric',
                   })}
                 </strong>
-                {' '}— <span className="font-semibold">{displayItems.length} booking{displayItems.length === 1 ? '' : 's'}</span> found
+                {' '}(<span className="font-semibold">{displayItems.length} booking{displayItems.length === 1 ? '' : 's'}</span> found)
               </span>
             </div>
             <button
@@ -1012,7 +1012,7 @@ export const ReservationsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-[#fbfdfd] text-[10px] uppercase tracking-[.14em] text-[#71828a] border-b border-[#edf2f2]">
+              <thead className="bg-[#fbfdfd] dark:bg-slate-900/80 text-[10px] uppercase tracking-[.14em] text-[#71828a] dark:text-slate-400 border-b border-[#edf2f2] dark:border-slate-800">
                 <tr>
                   <th className="px-5 py-3">Reservation / Group</th>
                   <th className="px-5 py-3">Guests</th>
@@ -1042,7 +1042,7 @@ export const ReservationsPage: React.FC = () => {
                   <th />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ed]">
+              <tbody className="divide-y divide-[#edf0ed] dark:divide-slate-800/80">
                 {displayItems.map((item) => {
                   if (item.isGroup) {
                     const isExpanded = expandedGroups.has(item.bookingId);
@@ -1050,7 +1050,7 @@ export const ReservationsPage: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <tr
                           onClick={() => setSelectedGroupId(item.bookingId)}
-                          className="cursor-pointer hover:bg-[#f3f8f9] transition-colors bg-[#fbfdfc]"
+                          className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors bg-slate-50/70 dark:bg-slate-900/40"
                         >
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-1.5 flex-wrap">
@@ -1065,72 +1065,72 @@ export const ReservationsPage: React.FC = () => {
                                     return next;
                                   });
                                 }}
-                                className="mr-0.5 rounded p-1 text-[#b88738] hover:bg-[#c59a58]/10 transition"
+                                className="mr-0.5 rounded p-1 text-[#b88738] dark:text-amber-400 hover:bg-[#c59a58]/10 transition"
                                 title={isExpanded ? 'Collapse rooms' : 'Expand rooms'}
                               >
                                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                               </button>
-                              <span className="font-mono text-[11px] font-bold text-[#b88738]">{item.bookingId}</span>
-                              <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[9px] font-extrabold text-[#173c4d] border border-[#173c4d]/15">
+                              <span className="font-mono text-[11px] font-bold text-[#b88738] dark:text-amber-400">{item.bookingId}</span>
+                              <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/5 dark:bg-[#c59a58]/20 px-2 py-0.5 text-[9px] font-extrabold text-[#173c4d] dark:text-amber-300 border border-[#173c4d]/15 dark:border-[#c59a58]/40">
                                 <Users size={10} className="text-[#c59a58]" /> GROUP · {item.reservations.length} ROOMS
                               </span>
                             </div>
-                            <div className="mt-1 text-[10px] text-[#71828a]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}</div>
-                            {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a]">Booked by: {item.bookedBy?.name || '—'}</div>}
+                            <div className="mt-1 text-[10px] text-[#71828a] dark:text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</div>
+                            {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a] dark:text-slate-400">Booked by: {item.bookedBy?.name || '-'}</div>}
                           </td>
-                          <td className="px-5 py-4 text-xs text-[#0c1921]">
-                            <div className="font-extrabold">{formatGuestName(item.leadGuest)} <span className="text-[10px] font-bold text-[#b88738]">(Lead)</span></div>
+                          <td className="px-5 py-4 text-xs text-[#0c1921] dark:text-slate-100">
+                            <div className="font-extrabold">{formatGuestName(item.leadGuest)} <span className="text-[10px] font-bold text-[#b88738] dark:text-amber-400">(Lead)</span></div>
                             {item.allGuests.length > 1 && (
-                              <div className="text-[10px] text-[#71828a] mt-0.5">
+                              <div className="text-[10px] text-[#71828a] dark:text-slate-400 mt-0.5">
                                 +{item.allGuests.length - 1} other guest{item.allGuests.length - 1 !== 1 ? 's' : ''} in party
                               </div>
                             )}
                           </td>
-                          <td className="px-5 py-4 text-xs text-[#6e7a8a]">
-                            <div className="font-bold text-[#0c1921]">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
-                            <div className="text-[10px] text-[#71828a]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
+                          <td className="px-5 py-4 text-xs text-[#6e7a8a] dark:text-slate-300">
+                            <div className="font-bold text-[#0c1921] dark:text-slate-100">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
+                            <div className="text-[10px] text-[#71828a] dark:text-slate-400">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
                           </td>
-                          <td className="px-5 py-4 text-[11px] text-[#6e7a8a]">
+                          <td className="px-5 py-4 text-[11px] text-[#6e7a8a] dark:text-slate-300">
                             <div>{new Date(item.checkInDate).toLocaleDateString()} → {new Date(item.checkOutDate).toLocaleDateString()}</div>
-                            <div className="text-[10px] text-[#71828a]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
+                            <div className="text-[10px] text-[#71828a] dark:text-slate-400">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
                           </td>
-                          <td className="px-5 py-4 text-xs font-extrabold text-[#0c1921]">
+                          <td className="px-5 py-4 text-xs font-extrabold text-[#0c1921] dark:text-slate-100">
                             <div>{formatCurrency(item.totalAmount)}</div>
-                            <div className="text-[9px] font-bold uppercase tracking-wider text-[#b88738]">Group total</div>
-                            {item.discountAmount > 0 && <div className="mt-0.5 text-[10px] text-[#a05d20]">Discount −{formatCurrency(item.discountAmount)}</div>}
+                            <div className="text-[9px] font-bold uppercase tracking-wider text-[#b88738] dark:text-amber-400">Group total</div>
+                            {item.discountAmount > 0 && <div className="mt-0.5 text-[10px] text-[#a05d20] dark:text-amber-400">Discount -{formatCurrency(item.discountAmount)}</div>}
                           </td>
                           <td className="px-5 py-4 text-xs">
                             {item.recordedTotal > 0 ? (
                               <>
-                                <div className={`font-extrabold ${item.isFullyPaid ? 'text-[#1b4332]' : 'text-[#b88738]'}`}>
+                                <div className={`font-extrabold ${item.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738] dark:text-amber-400'}`}>
                                   {formatCurrency(item.recordedTotal)} paid
                                 </div>
                                 {item.isFullyPaid ? (
-                                  <span className="mt-1 inline-block rounded-full bg-[#1b4332]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#1b4332]">
+                                  <span className="mt-1 inline-block rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
                                     Paid in full (Group)
                                   </span>
                                 ) : (
-                                  <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
+                                  <div className="mt-0.5 text-[10px] font-bold text-[#b0743a] dark:text-amber-400">
                                     Balance due {formatCurrency(item.balance)}
                                   </div>
                                 )}
-                                <div className="text-[9px] text-[#71828a] font-semibold mt-0.5">Group Payment ({item.payments.length})</div>
+                                <div className="text-[9px] text-[#71828a] dark:text-slate-400 font-semibold mt-0.5">Group Payment ({item.payments.length})</div>
                               </>
                             ) : (
                               <div>
-                                <span className="text-[#a0aaad] font-semibold">Unpaid</span>
-                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">Due {formatCurrency(item.totalAmount)}</div>
+                                <span className="text-[#a0aaad] dark:text-slate-400 font-semibold">Unpaid</span>
+                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a] dark:text-amber-400">Due {formatCurrency(item.totalAmount)}</div>
                               </div>
                             )}
                           </td>
                           <td className="px-5 py-4">{statusBadge(item.status)}</td>
                           <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => setSelectedGroupId(item.bookingId)} className="rounded-lg p-2 text-[#71828a] hover:bg-[#c59a58]/10 hover:text-[#b88738]" title="View group booking details">
+                              <button onClick={() => setSelectedGroupId(item.bookingId)} className="rounded-lg p-2 text-[#71828a] dark:text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="View group booking details">
                                 <Eye size={16} />
                               </button>
                               {canProcessPayment && !item.isFullyPaid && (
-                                <button onClick={() => openGroupDeposit(item)} className="rounded-lg p-2 text-[#b88738] hover:bg-[#c59a58]/10" title="Record group payment">
+                                <button onClick={() => openGroupDeposit(item)} className="rounded-lg p-2 text-[#b88738] dark:text-amber-400 hover:bg-[#c59a58]/10" title="Record group payment">
                                   <CreditCard size={16} />
                                 </button>
                               )}
@@ -1143,13 +1143,13 @@ export const ReservationsPage: React.FC = () => {
                                     return next;
                                   });
                                 }}
-                                className="rounded-lg p-2 text-[#71828a] hover:bg-[#c59a58]/10 hover:text-[#b88738]"
+                                className="rounded-lg p-2 text-[#71828a] dark:text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400"
                                 title={isExpanded ? 'Hide rooms' : 'Show rooms in this group'}
                               >
                                 <BedDouble size={16} />
                               </button>
                               {canCancel && (
-                                <button onClick={() => cancelGroup(item.bookingId)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel entire group booking">
+                                <button onClick={() => cancelGroup(item.bookingId)} className="rounded-lg p-2 text-[#899397] dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400" title="Cancel entire group booking">
                                   <MoreHorizontal size={16} />
                                 </button>
                               )}
@@ -1162,35 +1162,35 @@ export const ReservationsPage: React.FC = () => {
                           <tr
                             key={subRes.id}
                             onClick={() => openDetails(subRes)}
-                            className="bg-[#fbfbf9] border-l-4 border-l-[#c59a58] text-xs hover:bg-[#f6f4ee] transition-colors cursor-pointer"
+                            className="bg-amber-50/25 dark:bg-slate-950/60 border-l-4 border-l-[#c59a58] text-xs hover:bg-amber-100/40 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                           >
-                            <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[#6e7a8a]">
+                            <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[#6e7a8a] dark:text-slate-400">
                               <span className="text-[#c59a58] font-bold mr-1.5">↳</span>
                               {subRes.confirmationNo}
                             </td>
-                            <td className="px-5 py-2.5 text-[#0c1921]">
+                            <td className="px-5 py-2.5 text-[#0c1921] dark:text-slate-100">
                               <span className="font-semibold">{guestName(subRes.guests?.[0]?.guest)}</span>
                             </td>
-                            <td className="px-5 py-2.5 font-bold text-[#0c1921]">
-                              Room {subRes.room?.number || '—'} <span className="text-[10px] font-normal text-[#71828a]">({subRes.room?.roomType?.name || 'Room'})</span>
+                            <td className="px-5 py-2.5 font-bold text-[#0c1921] dark:text-slate-100">
+                              Room {subRes.room?.number || '-'} <span className="text-[10px] font-normal text-[#71828a] dark:text-slate-400">({subRes.room?.roomType?.name || 'Room'})</span>
                             </td>
-                            <td className="px-5 py-2.5 text-[11px] text-[#6e7a8a]">
+                            <td className="px-5 py-2.5 text-[11px] text-[#6e7a8a] dark:text-slate-300">
                               {new Date(subRes.checkInDate).toLocaleDateString()} → {new Date(subRes.checkOutDate).toLocaleDateString()}
                             </td>
-                            <td className="px-5 py-2.5 font-bold text-[#0c1921]">
+                            <td className="px-5 py-2.5 font-bold text-[#0c1921] dark:text-slate-100">
                               {formatCurrency(subRes.totalAmount)}
                             </td>
-                            <td className="px-5 py-2.5 text-[10px] text-[#71828a]">
+                            <td className="px-5 py-2.5 text-[10px] text-[#71828a] dark:text-slate-400">
                               Covered by group payment
                             </td>
                             <td className="px-5 py-2.5">{statusBadge(subRes.status || 'PENDING')}</td>
                             <td className="px-5 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-1">
-                                <button onClick={() => openDetails(subRes)} className="p-1 text-[#71828a] hover:text-[#b88738]" title="View room details"><Eye size={14} /></button>
+                                <button onClick={() => openDetails(subRes)} className="p-1 text-[#71828a] dark:text-slate-400 hover:text-[#b88738] dark:hover:text-amber-400" title="View room details"><Eye size={14} /></button>
                                 {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(subRes.status).toUpperCase()) && (
-                                  <button onClick={() => openEdit(subRes)} className="p-1 text-[#71828a] hover:text-[#b88738]" title="Edit room stay"><Pencil size={14} /></button>
+                                  <button onClick={() => openEdit(subRes)} className="p-1 text-[#71828a] dark:text-slate-400 hover:text-[#b88738] dark:hover:text-amber-400" title="Edit room stay"><Pencil size={14} /></button>
                                 )}
-                                <button onClick={() => openManageGuests(subRes)} className="p-1 text-[#71828a] hover:text-[#b88738]" title="Manage guests on room"><Users size={14} /></button>
+                                <button onClick={() => openManageGuests(subRes)} className="p-1 text-[#71828a] dark:text-slate-400 hover:text-[#b88738] dark:hover:text-amber-400" title="Manage guests on room"><Users size={14} /></button>
                               </div>
                             </td>
                           </tr>
@@ -1206,90 +1206,90 @@ export const ReservationsPage: React.FC = () => {
                     <tr
                       key={r.id}
                       onClick={() => openDetails(r)}
-                      className="cursor-pointer hover:bg-[#fbfbf9] transition-colors"
+                      className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                     >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-[11px] font-bold text-[#b88738]">{r.confirmationNo || r.id.slice(0, 8)}</span>
+                          <span className="font-mono text-[11px] font-bold text-[#b88738] dark:text-amber-400">{r.confirmationNo || r.id.slice(0, 8)}</span>
                         </div>
-                        <div className="mt-1 text-[10px] text-[#71828a]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</div>
-                        {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a]">Booked by: {r.bookedBy?.name || '—'}</div>}
+                        <div className="mt-1 text-[10px] text-[#71828a] dark:text-slate-400">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</div>
+                        {isAdmin && <div className="mt-1 text-[10px] text-[#6e7a8a] dark:text-slate-400">Booked by: {r.bookedBy?.name || '-'}</div>}
                       </td>
-                      <td className="px-5 py-4 text-xs text-[#0c1921]">
+                      <td className="px-5 py-4 text-xs text-[#0c1921] dark:text-slate-100">
                         {allGuests.length ? (
                           <>
                             <span className="font-extrabold">{guestName(allGuests[0])}</span>
-                            {extra > 0 && <span className="ml-1.5 text-[10px] text-[#71828a]">+{extra} more</span>}
+                            {extra > 0 && <span className="ml-1.5 text-[10px] text-[#71828a] dark:text-slate-400">+{extra} more</span>}
                             {allGuests.slice(1).map((g: any, gi: number) => (
-                              <div key={gi} className="text-[11px] text-[#6e7a8a]">{guestName(g)}</div>
+                              <div key={gi} className="text-[11px] text-[#6e7a8a] dark:text-slate-300">{guestName(g)}</div>
                             ))}
                           </>
                         ) : (
-                          '—'
+                          '-'
                         )}
                       </td>
-                      <td className="px-5 py-4 text-xs text-[#6e7a8a]">
+                      <td className="px-5 py-4 text-xs text-[#6e7a8a] dark:text-slate-300">
                         {r.room ? `Room ${r.room.number}` : 'Unassigned'}
-                        <div className="text-[10px] text-[#71828a]">{r.room?.roomType?.name || '—'}</div>
+                        <div className="text-[10px] text-[#71828a] dark:text-slate-400">{r.room?.roomType?.name || '-'}</div>
                       </td>
-                      <td className="px-5 py-4 text-[11px] text-[#6e7a8a]">
+                      <td className="px-5 py-4 text-[11px] text-[#6e7a8a] dark:text-slate-300">
                         {new Date(r.checkInDate).toLocaleDateString()} → {new Date(r.checkOutDate).toLocaleDateString()}
                       </td>
-                      <td className="px-5 py-4 text-xs font-extrabold text-[#0c1921]">
+                      <td className="px-5 py-4 text-xs font-extrabold text-[#0c1921] dark:text-slate-100">
                         {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
-                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20]" title={r.discountReason || 'Approved reservation discount'}>Discount −{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
+                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20] dark:text-amber-400" title={r.discountReason || 'Approved reservation discount'}>Discount -{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                       </td>
                       <td className="px-5 py-4 text-xs">
                         {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
                           <>
-                            <div className={`font-extrabold ${isFullyPaid(r) ? 'text-[#1b4332]' : 'text-[#b88738]'}`}>
+                            <div className={`font-extrabold ${isFullyPaid(r) ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738] dark:text-amber-400'}`}>
                               {formatCurrency(recordedDepositTotal(r))} paid
                             </div>
                             {isFullyPaid(r) ? (
-                              <span className="mt-1 inline-block rounded-full bg-[#1b4332]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#1b4332]">
+                              <span className="mt-1 inline-block rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
                                 Paid in full
                               </span>
                             ) : (
                               <>
                                 {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
-                                  <div className="mt-0.5 text-[10px] text-[#71828a]">{formatCurrency(r.depositAmount)} expected</div>
+                                  <div className="mt-0.5 text-[10px] text-[#71828a] dark:text-slate-400">{formatCurrency(r.depositAmount)} expected</div>
                                 )}
-                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a]">
+                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a] dark:text-amber-400">
                                   Balance due {formatCurrency(reservationBalance(r))}
                                 </div>
                               </>
                             )}
                           </>
                         ) : (
-                          <span className="text-[#a0aaad]">—</span>
+                          <span className="text-[#a0aaad] dark:text-slate-400">-</span>
                         )}
                       </td>
-                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#6e7a8a]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#6e7a8a]">Out: {r.checkedOutBy.name}</div>}</td>
+                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[#6e7a8a] dark:text-slate-400">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[#6e7a8a] dark:text-slate-400">Out: {r.checkedOutBy.name}</div>}</td>
                       <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[#71828a] hover:bg-[#c59a58]/10 hover:text-[#b88738]" title="View booking details">
+                          <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[#71828a] dark:text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="View booking details">
                             <Eye size={16} />
                           </button>
                           {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (
-                            <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[#71828a] hover:bg-[#c59a58]/10 hover:text-[#b88738]" title="Edit reservation details">
+                            <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[#71828a] dark:text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="Edit reservation details">
                               <Pencil size={16} />
                             </button>
                           )}
-                          <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[#71828a] hover:bg-[#c59a58]/10 hover:text-[#b88738]" title="Manage guests on this reservation">
+                          <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[#71828a] dark:text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="Manage guests on this reservation">
                             <Users size={16} />
                           </button>
                           {canCancel && ['PENDING', 'CONFIRMED'].includes(String(r.status).toUpperCase()) && (
-                            <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[#71828a] hover:bg-amber-50 hover:text-amber-700" title="Mark reservation as NO-SHOW">
+                            <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[#71828a] dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-700 dark:hover:text-amber-300" title="Mark reservation as NO-SHOW">
                               <UserX size={16} />
                             </button>
                           )}
                           {!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(r.status).toUpperCase()) && (
-                            <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Cancel reservation">
+                            <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[#899397] dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400" title="Cancel reservation">
                               <MoreHorizontal size={16} />
                             </button>
                           )}
                           {canDeleteCancelled && String(r.status).toUpperCase() === 'CANCELLED' && (
-                            <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[#899397] hover:bg-red-50 hover:text-red-600" title="Permanently delete cancelled reservation">
+                            <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[#899397] dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400" title="Permanently delete cancelled reservation">
                               <Trash2 size={16} />
                             </button>
                           )}
@@ -1452,7 +1452,7 @@ export const ReservationsPage: React.FC = () => {
                               <option value="">Default to Lead Guest (Person 1)</option>
                               {people.map((p, pi) => (
                                 <option key={p.key} value={p.key}>
-                                  Person {pi + 1} — {p.mode === 'existing' ? guests.find((g) => g.id === p.guestId) ? `${guests.find((g) => g.id === p.guestId).firstName} ${guests.find((g) => g.id === p.guestId).lastName}` : 'guest not chosen' : p.firstName && p.lastName ? `${p.firstName} ${p.lastName}` : 'new guest'}
+                                  Person {pi + 1} ({p.mode === 'existing' ? guests.find((g) => g.id === p.guestId) ? `${guests.find((g) => g.id === p.guestId).firstName} ${guests.find((g) => g.id === p.guestId).lastName}` : 'guest not chosen' : p.firstName && p.lastName ? `${p.firstName} ${p.lastName}` : 'new guest'})
                                 </option>
                               ))}
                             </SelectInput>
@@ -1859,8 +1859,8 @@ export const ReservationsPage: React.FC = () => {
                             {groupRooms.length} Room{groupRooms.length !== 1 ? 's' : ''} in Party
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#6e7a8a]">
-                          Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[#0c1921]">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-[#1b4332]">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[#b0743a]">{formatCurrency(groupBalance)}</strong>
+                        <div className="mt-0.5 text-[11px] text-[#6e7a8a] dark:text-slate-400">
+                          Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[#0c1921] dark:text-slate-100">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-emerald-600 dark:text-emerald-400">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[#b0743a] dark:text-amber-400">{formatCurrency(groupBalance)}</strong>
                         </div>
                       </div>
                     </div>
@@ -2104,7 +2104,7 @@ export const ReservationsPage: React.FC = () => {
                       ))
                     ) : (
                       <div className="text-[11px] text-[#b0743a] pt-1 border-t border-[#edf0ed]">
-                        No payment recorded yet — collect partial payment or full amount at check-in.
+                        No payment recorded yet. Collect partial payment or full amount at check-in.
                       </div>
                     )}
                     {!isFullyPaid(detailsRes) && (
@@ -2355,45 +2355,45 @@ export const ReservationsPage: React.FC = () => {
                   <CreditCard size={14} className="text-[#c59a58]" /> Group Payment &amp; Financial Summary
                 </div>
                 {selectedGroup.isFullyPaid ? (
-                  <span className="rounded-full bg-[#1b4332]/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#1b4332]">
+                  <span className="rounded-full bg-[#1b4332]/10 dark:bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-transparent dark:border-emerald-500/30">
                     Paid in full (Group)
                   </span>
                 ) : (
-                  <span className="rounded-full bg-[#fdf3e7] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#b0743a]">
+                  <span className="rounded-full bg-[#fdf3e7] dark:bg-amber-950/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#b0743a] dark:text-amber-400 border border-transparent dark:border-amber-700/40">
                     Balance due {formatCurrency(selectedGroup.balance)}
                   </span>
                 )}
               </div>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-[#f0f2f0]">
-                  <span className="text-[#71828a]">Combined Group Total</span>
-                  <span className="font-extrabold text-[#0c1921] text-sm">{formatCurrency(selectedGroup.totalAmount)}</span>
+                  <span className="text-[#71828a] dark:text-slate-400">Combined Group Total</span>
+                  <span className="font-extrabold text-[#0c1921] dark:text-slate-100 text-sm">{formatCurrency(selectedGroup.totalAmount)}</span>
                 </div>
                 {selectedGroup.discountAmount > 0 && (
-                  <div className="flex justify-between py-1 border-b border-[#f0f2f0] text-[#a05d20]">
+                  <div className="flex justify-between py-1 border-b border-[#f0f2f0] text-[#a05d20] dark:text-amber-400">
                     <span>Group Discounts</span>
                     <span className="font-bold">−{formatCurrency(selectedGroup.discountAmount)}</span>
                   </div>
                 )}
-                <div className="space-y-1.5 bg-[#fbfdfd] p-3 rounded-xl border border-[#edf2f2]">
+                <div className="space-y-1.5 bg-[#fbfdfd] dark:bg-slate-900/60 p-3 rounded-xl border border-[#edf2f2] dark:border-slate-800">
                   <div className="flex justify-between items-center">
-                    <span className={`font-bold ${selectedGroup.isFullyPaid ? 'text-[#1b4332]' : 'text-[#b88738]'}`}>
+                    <span className={`font-bold ${selectedGroup.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738] dark:text-amber-400'}`}>
                       Single Group Payment
                     </span>
-                    <span className={`font-extrabold ${selectedGroup.isFullyPaid ? 'text-[#1b4332]' : 'text-[#b88738]'}`}>
+                    <span className={`font-extrabold ${selectedGroup.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738] dark:text-amber-400'}`}>
                       {formatCurrency(selectedGroup.recordedTotal)} paid
                     </span>
                   </div>
                   {selectedGroup.payments.length > 0 ? (
                     selectedGroup.payments.map((p: any) => (
-                      <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-[#edf0ed]">
-                        <span className="text-[#5f6b6f]">
+                      <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-[#edf0ed] dark:border-slate-800">
+                        <span className="text-[#5f6b6f] dark:text-slate-400">
                           Group Deposit · {p.method}
                           {p.reference ? ` · ${p.reference}` : ''}
                           {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <span className="text-[#1b4332] font-bold">{formatCurrency(p.amount)}</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{formatCurrency(p.amount)}</span>
                           <button
                             type="button"
                             title="Print payment receipt"
@@ -2417,7 +2417,7 @@ export const ReservationsPage: React.FC = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-[11px] text-[#b0743a]">No group payment recorded yet — collect partial payment below.</div>
+                    <div className="text-[11px] text-[#b0743a]">No group payment recorded yet. Collect partial payment below.</div>
                   )}
                   {!selectedGroup.isFullyPaid && (
                     <div className="flex justify-between border-t border-[#e4e9e5] pt-2 mt-1">
@@ -2488,7 +2488,7 @@ export const ReservationsPage: React.FC = () => {
                     <span className="text-[#b0743a] font-bold">Group balance due {formatCurrency(depositTargetGroup.balance)}</span>
                   </>
                 ) : (
-                  <span>No payment logged yet for this group — record the group deposit.</span>
+                  <span>No payment logged yet for this group. Record the group deposit.</span>
                 )}
                 <div className="mt-1 text-[10px] text-[#899397]">
                   Outstanding group balance: <strong className="text-[#20343e]">{formatCurrency(depositTargetGroup.balance)}</strong> (Group total: {formatCurrency(depositTargetGroup.totalAmount)})
@@ -2629,7 +2629,7 @@ export const ReservationsPage: React.FC = () => {
                     <span className="text-[#b0743a] font-bold">Balance due {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
                   </>
                 ) : (
-                  <span>No payment was logged on this reservation — record the amount the guest paid.</span>
+                  <span>No payment was logged on this reservation. Record the amount the guest paid.</span>
                 )}
                 <div className="mt-1 text-[10px] text-[#899397]">
                   Amount cannot exceed {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}
