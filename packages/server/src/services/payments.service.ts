@@ -781,7 +781,7 @@ export class PaymentService {
     });
     if (!payment) throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
 
-    if (payment.type === 'REFUND') return this.deleteRefundPair(payment, deletedBy);
+    if (payment.type === 'REFUND') return this.deleteRefundPayment(payment, deletedBy);
 
     if (payment.refunds.length > 0) {
       throw new AppError('Cannot delete this payment — a refund references it. Delete the refund instead, which removes both records together.', 409, 'PAYMENT_HAS_REFUNDS');
@@ -846,99 +846,111 @@ export class PaymentService {
   }
 
   /**
-   * Paired delete of a refund record together with the payment it reversed.
-   * Both rows are removed in one transaction, so the ledger net effect is
-   * exactly "the mistaken payment never happened". Only allowed when the
-   * original payment is itself clean to remove: no folio posting, no POS link,
-   * no other refunds, and an open business day.
+   * Admin-only deletion of a refund payment record regardless of folio posting,
+   * business day status, or POS linkages.
+   * Cleans up any associated refund folio items, reconciles the folio balance,
+   * restores the original payment's status on the ledger, and permanently removes the refund.
    */
-  private static async deleteRefundPair(refund: any, deletedBy: string) {
-    if (refund.refunds.length > 0) {
-      throw new AppError('Cannot delete this refund — another record references it.', 409, 'PAYMENT_HAS_REFUNDS');
-    }
-    const original = refund.originalPayment;
-    if (!original) {
-      throw new AppError('Cannot delete this refund — its original payment could not be resolved.', 409, 'REFUND_ORIGINAL_MISSING');
-    }
-    if (original.type === 'REFUND') {
-      throw new AppError('Cannot delete this refund — it reverses another refund record.', 409, 'REFUND_ORIGINAL_IS_REFUND');
-    }
-    if (original.refunds.length > 1) {
-      throw new AppError('Cannot delete this refund — the original payment has other refunds. Keep it so the ledger stays consistent.', 409, 'REFUND_ORIGINAL_MULTI_REFUND');
-    }
-    if (original.source && original.sourceId) {
-      throw new AppError('Cannot delete this refund — its original payment settles a POS order.', 409, 'REFUND_ORIGINAL_POS_LINKED');
-    }
-    const postedItem = await prisma.folioItem.findFirst({
-      where: { referenceId: original.id, referenceType: 'PAYMENT' },
-      select: { folioId: true },
-    });
-    if (original.folioId || postedItem) {
-      throw new AppError('Cannot delete this refund — its original payment has been posted to a guest folio.', 409, 'REFUND_ORIGINAL_POSTED');
-    }
-
+  private static async deleteRefundPayment(refund: any, deletedBy: string) {
     try {
       return await prisma.$transaction(async (tx) => {
-        await lockBusinessDay(tx, original.processedAt);
-        await DailyCloseService.assertBusinessDayOpen(original.processedAt);
-        // Re-check inside the serialized lock: the records may have changed while we waited.
-        const latest = await tx.payment.findUnique({
+        // 1. Fetch latest refund record with relations inside transaction
+        const latestRefund = await tx.payment.findUnique({
           where: { id: refund.id },
-          include: { originalPayment: { include: { refunds: { select: { id: true } } } } },
-        });
-        if (!latest || !latest.originalPayment) throw new AppError('Refund record not found.', 404, 'PAYMENT_NOT_FOUND');
-        const o = latest.originalPayment;
-        if (o.type === 'REFUND') {
-          throw new AppError('Cannot delete this refund — it reverses another refund record.', 409, 'REFUND_ORIGINAL_IS_REFUND');
-        }
-        if (o.refunds.length > 1) {
-          throw new AppError('Cannot delete this refund — the original payment has other refunds. Keep it so the ledger stays consistent.', 409, 'REFUND_ORIGINAL_MULTI_REFUND');
-        }
-        if (o.source && o.sourceId) {
-          throw new AppError('Cannot delete this refund — its original payment settles a POS order.', 409, 'REFUND_ORIGINAL_POS_LINKED');
-        }
-        if (o.folioId) {
-          throw new AppError('Cannot delete this refund — its original payment has been posted to a guest folio.', 409, 'REFUND_ORIGINAL_POSTED');
-        }
-        const postedItemInside = await tx.folioItem.findFirst({
-          where: { referenceId: o.id, referenceType: 'PAYMENT' },
-          select: { folioId: true },
-        });
-        if (postedItemInside) {
-          throw new AppError('Cannot delete this refund — its original payment has been posted to a guest folio.', 409, 'REFUND_ORIGINAL_POSTED');
-        }
-
-        await tx.payment.delete({ where: { id: refund.id } });
-        await tx.payment.delete({ where: { id: o.id } });
-
-        await AuditService.logInTransaction(tx, {
-          userId: deletedBy,
-          action: 'payment.refund_deleted',
-          resource: 'payment',
-          resourceId: refund.id,
-          beforeData: {
-            refund: {
-              amount: refund.amount.toString(),
-              method: refund.method,
-              status: refund.status,
-              description: refund.description || null,
-            },
+          include: {
             originalPayment: {
-              id: o.id,
-              amount: original.amount.toString(),
-              method: original.method,
-              type: original.type,
-              reservationId: original.reservationId,
-              guestId: original.guestId,
+              include: {
+                refunds: { where: { id: { not: refund.id }, status: 'COMPLETED', voidedAt: null } },
+              },
             },
           },
         });
+        if (!latestRefund) throw new AppError('Refund record not found.', 404, 'PAYMENT_NOT_FOUND');
 
-        return { id: refund.id, type: 'REFUND', amount: refund.amount, method: refund.method, deletedOriginalPaymentId: o.id };
+        const original = latestRefund.originalPayment;
+
+        // 2. Remove or void any FolioItem associated with this refund
+        const targetFolioId = latestRefund.folioId || original?.folioId;
+        if (targetFolioId) {
+          // Delete any folio item referencing this refund
+          await tx.folioItem.deleteMany({
+            where: {
+              folioId: targetFolioId,
+              OR: [
+                { referenceId: latestRefund.id },
+                { id: latestRefund.id },
+                { description: { contains: latestRefund.id } },
+              ],
+            },
+          });
+
+          // Live recalculation of the folio balance from remaining ledger items
+          const itemsSum = await tx.folioItem.aggregate({
+            where: { folioId: targetFolioId, voidedAt: null },
+            _sum: { amount: true },
+          });
+          const recalculatedBalance = new Prisma.Decimal(itemsSum._sum.amount || 0);
+          await tx.folio.update({
+            where: { id: targetFolioId },
+            data: { balance: recalculatedBalance },
+          });
+        }
+
+        // 3. Restore original payment status
+        if (original) {
+          const otherCompletedRefunds = original.refunds || [];
+          const totalOtherRefunded = otherCompletedRefunds.reduce(
+            (sum, r) => sum.plus(new Prisma.Decimal(r.amount)),
+            new Prisma.Decimal(0),
+          );
+
+          let newStatus: PaymentStatus = PaymentStatus.COMPLETED;
+          if (totalOtherRefunded.gte(new Prisma.Decimal(original.amount))) {
+            newStatus = PaymentStatus.REFUNDED;
+          } else if (totalOtherRefunded.gt(0)) {
+            newStatus = PaymentStatus.PARTIALLY_REFUNDED;
+          }
+
+          await tx.payment.update({
+            where: { id: original.id },
+            data: { status: newStatus },
+          });
+        }
+
+        // 4. Audit Log
+        await AuditService.logInTransaction(tx, {
+          userId: deletedBy,
+          action: 'payment.refund_deleted_by_admin',
+          resource: 'payment',
+          resourceId: latestRefund.id,
+          beforeData: {
+            id: latestRefund.id,
+            amount: latestRefund.amount.toString(),
+            method: latestRefund.method,
+            status: latestRefund.status,
+            type: latestRefund.type,
+            reference: latestRefund.reference || null,
+            originalPaymentId: latestRefund.originalPaymentId || null,
+            folioId: latestRefund.folioId || null,
+            description: latestRefund.description || null,
+            processedAt: latestRefund.processedAt.toISOString(),
+          },
+        });
+
+        // 5. Delete the refund record
+        await tx.payment.delete({ where: { id: latestRefund.id } });
+
+        return {
+          id: latestRefund.id,
+          type: 'REFUND',
+          amount: latestRefund.amount,
+          method: latestRefund.method,
+          restoredOriginalPaymentId: original?.id || null,
+        };
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } catch (error) {
       if ((error as { code?: string }).code === 'P2003') {
-        throw new AppError('Cannot delete this refund — it is still referenced by other records.', 409, 'PAYMENT_IN_USE');
+        throw new AppError('Cannot delete this refund — it is still referenced by other database records.', 409, 'PAYMENT_IN_USE');
       }
       throw error;
     }

@@ -357,83 +357,84 @@ html[data-theme="dark"] [class~="bg-[#f0f7f2]" i] { background-color: #15241b !i
 html[data-theme="dark"] [class~="bg-[#1e2535]"]:not([class*="from-"]):not([class*="border-"]) { background-color: var(--ns-surface-2) !important; }
 
 /* =================================================================
-   GLASS MORPHISM — translucent frosted surfaces + logo watermark
+   GLASS MORPHISM — very transparent frosted surfaces + logo watermark
+   Everything except text is glass; text stays fully visible.
    ================================================================= */
 :root {
-  --ns-glass-bg: rgba(255, 255, 255, 0.42);
-  --ns-glass-border: rgba(255, 255, 255, 0.50);
-  --ns-glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --ns-glass-bg: rgba(255, 255, 255, 0.16);
+  --ns-glass-border: rgba(255, 255, 255, 0.45);
+  --ns-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 html[data-theme="dark"] {
-  --ns-glass-bg: rgba(14, 20, 30, 0.42);
-  --ns-glass-border: rgba(255, 255, 255, 0.14);
-  --ns-glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --ns-glass-bg: rgba(14, 20, 30, 0.22);
+  --ns-glass-border: rgba(255, 255, 255, 0.18);
+  --ns-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.30);
 }
 .glass {
   position: relative;
   background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(34px) saturate(180%);
-  -webkit-backdrop-filter: blur(34px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
   border: 1px solid var(--ns-glass-border) !important;
   box-shadow: var(--ns-glass-shadow);
 }
 .glass-strong {
-  background: rgba(255, 255, 255, 0.52) !important;
-  border-color: rgba(255, 255, 255, 0.60) !important;
-  backdrop-filter: blur(38px) saturate(190%);
-  -webkit-backdrop-filter: blur(38px) saturate(190%);
+  background: rgba(255, 255, 255, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(44px) saturate(200%);
+  -webkit-backdrop-filter: blur(44px) saturate(200%);
   box-shadow: var(--ns-glass-shadow);
 }
 html[data-theme="dark"] .glass-strong {
-  background: rgba(14, 20, 30, 0.52) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(14, 20, 30, 0.30) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
 }
 .glass-input {
   background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--ns-glass-border) !important;
 }
 
-/* Catch-all: every opaque inline surface → frosted glass */
+/* Catch-all: every opaque inline surface → very transparent glass */
 [style*="background-color: var(--ns-surface)"] { background-color: var(--ns-glass-bg) !important; }
 html[data-theme="dark"] [style*="background-color: var(--ns-surface)"] { background-color: var(--ns-glass-bg) !important; }
-[style*="background-color: var(--ns-surface-2)"] { background-color: rgba(255, 255, 255, 0.34) !important; }
-html[data-theme="dark"] [style*="background-color: var(--ns-surface-2)"] { background-color: rgba(14, 20, 30, 0.34) !important; }
-/* Inline hex backgrounds → glass (catches dynamic style props like ac.color) */
+[style*="background-color: var(--ns-surface-2)"] { background-color: rgba(255, 255, 255, 0.14) !important; }
+html[data-theme="dark"] [style*="background-color: var(--ns-surface-2)"] { background-color: rgba(14, 20, 30, 0.18) !important; }
+/* Inline hex backgrounds → very transparent glass */
 [style*="background-color:#"], [style*="background-color: #"], [style*="background:#"], [style*="background: #"],
 [style*="backgroundColor:#"], [style*="backgroundColor: #"] {
   background: var(--ns-glass-bg) !important;
   background-image: none !important;
-  backdrop-filter: blur(30px) saturate(170%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(170%) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
   border-color: var(--ns-glass-border) !important;
 }
 
-/* ALL hex-color backgrounds → glass (covers every bg-[#....] surface) */
-[class*="bg-[#"] { background: var(--ns-glass-bg) !important; backdrop-filter: blur(30px) saturate(170%); -webkit-backdrop-filter: blur(30px) saturate(170%); border-color: var(--ns-glass-border) !important; }
+/* ALL hex-color backgrounds → very transparent glass */
+[class*="bg-[#"] { background: var(--ns-glass-bg) !important; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-color: var(--ns-glass-border) !important; }
 
-/* ALL gradient backgrounds → glass */
-[class*="bg-gradient-to-"] { background: var(--ns-glass-bg) !important; background-image: none !important; backdrop-filter: blur(30px) saturate(170%); -webkit-backdrop-filter: blur(30px) saturate(170%); border-color: var(--ns-glass-border) !important; }
+/* ALL gradient backgrounds → very transparent glass */
+[class*="bg-gradient-to-"] { background: var(--ns-glass-bg) !important; background-image: none !important; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-color: var(--ns-glass-border) !important; }
 
 /* ALL Tailwind semantic color backgrounds → glass-tinted */
 [class*="bg-slate-"],[class*="bg-gray-"],[class*="bg-zinc-"],[class*="bg-stone-"],
 [class*="bg-red-"],[class*="bg-emerald-"],[class*="bg-amber-"],[class*="bg-blue-"],[class*="bg-rose-"],[class*="bg-sky-"],[class*="bg-purple-"],[class*="bg-orange-"],[class*="bg-fuchsia-"] {
   background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(36px) saturate(170%);
+  -webkit-backdrop-filter: blur(36px) saturate(170%);
   border-color: var(--ns-glass-border) !important;
 }
 
-/* bg-white and semi-transparent overlays → glass */
-[class~="bg-white"]:not(button):not([role="button"]):not(.btn) { background: var(--ns-glass-bg) !important; backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%); border-color: var(--ns-glass-border) !important; }
+/* bg-white and semi-transparent overlays → very transparent glass */
+[class~="bg-white"]:not(button):not([role="button"]):not(.btn) { background: var(--ns-glass-bg) !important; backdrop-filter: blur(36px) saturate(170%); -webkit-backdrop-filter: blur(36px) saturate(170%); border-color: var(--ns-glass-border) !important; }
 html[data-theme="dark"] [class~="bg-white"]:not(button):not([role="button"]):not(.btn) { background: var(--ns-glass-bg) !important; }
-[class*="bg-white/"] { background: rgba(255, 255, 255, 0.42) !important; backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%); }
+[class*="bg-white/"] { background: rgba(255, 255, 255, 0.16) !important; backdrop-filter: blur(36px) saturate(170%); -webkit-backdrop-filter: blur(36px) saturate(170%); }
 html[data-theme="dark"] [class*="bg-white/"] { background: var(--ns-glass-bg) !important; }
-[class*="bg-black/"] { background: rgba(14, 20, 30, 0.35) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+[class*="bg-black/"] { background: rgba(14, 20, 30, 0.22) !important; backdrop-filter: blur(36px); -webkit-backdrop-filter: blur(36px); }
 
-/* Solid dark container classes → glass (redundant safety net) */
-[class*="bg-[#151C28]"],[class*="bg-[#1C1F28]"],[class*="bg-[#1C2536]"],[class*="bg-[#0F141C]"],[class*="bg-[#0c1921]"],[class*="bg-[#0f141d]"],[class*="bg-[#111827]"],[class*="bg-[#1e2535]"],[class*="bg-[#0c1a24]"],[class*="bg-[#102433]"],[class*="bg-[#08121a]"],[class*="bg-[#0c151c]"],[class*="bg-[#111e28]"],[class*="bg-[#0a1218]"],[class*="bg-[#1e293b]"],[class*="bg-[#334155]"],[class*="bg-[#475569]"] { background: var(--ns-glass-bg) !important; backdrop-filter: blur(30px) saturate(160%); -webkit-backdrop-filter: blur(30px) saturate(160%); border-color: var(--ns-glass-border) !important; }
+/* Solid dark container classes → very transparent glass */
+[class*="bg-[#151C28]"],[class*="bg-[#1C1F28]"],[class*="bg-[#1C2536]"],[class*="bg-[#0F141C]"],[class*="bg-[#0c1921]"],[class*="bg-[#0f141d]"],[class*="bg-[#111827]"],[class*="bg-[#1e2535]"],[class*="bg-[#0c1a24]"],[class*="bg-[#102433]"],[class*="bg-[#08121a]"],[class*="bg-[#0c151c]"],[class*="bg-[#111e28]"],[class*="bg-[#0a1218]"],[class*="bg-[#1e293b]"],[class*="bg-[#334155]"],[class*="bg-[#475569]"] { background: var(--ns-glass-bg) !important; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-color: var(--ns-glass-border) !important; }
 
 /* Logo watermark behind the whole workstation */
 .ns-watermark {
@@ -455,7 +456,44 @@ html[data-theme="dark"] [class*="bg-white/"] { background: var(--ns-glass-bg) !i
   opacity: 0.065;
   user-select: none;
 }
-html[data-theme="dark"] .ns-watermark img { opacity: 0.10; }
+html[data-theme="dark"] .ns-watermark img { opacity: 0.12; }
+
+/* Text inside glass containers — always fully visible, never transparent */
+.glass *,
+.glass-strong *,
+[class*="bg-[#"] *,
+[class*="bg-gradient-to-"] *,
+[class*="bg-slate-"] *,
+[class*="bg-gray-"] *,
+[class*="bg-red-"] *,
+[class*="bg-emerald-"] *,
+[class*="bg-amber-"] *,
+[class*="bg-blue-"] *,
+[class*="bg-rose-"] *,
+[class*="bg-sky-"] *,
+[class*="bg-purple-"] *,
+[class*="bg-orange-"] *,
+[class*="bg-fuchsia-"] *,
+[class~="bg-white"] *,
+[class*="bg-white/"] * {
+  opacity: 1 !important;
+}
+
+/* Preserve original text colors on glass — do not force text to inherit background transparency */
+.glass [class*="text-"],
+.glass-strong [class*="text-"],
+[class*="bg-[#"] [class*="text-"],
+[class*="bg-gradient-to-"] [class*="text-"],
+[class~="bg-white"] [class*="text-"],
+[class*="bg-white/"] [class*="text-"] {
+  opacity: 1 !important;
+}
+
+/* Ensure placeholder text on glass inputs is readable */
+.glass-input::placeholder,
+.glass [class*="glass-input"]::placeholder {
+  opacity: 0.65 !important;
+}
 
 /* Glass morphism text contrast — light text on glass must read as dark ink (light theme) */
 html:not([data-theme="dark"]) .glass [class*="text-white"],

@@ -8,22 +8,22 @@ const GLASS_CSS = `
   position: relative !important;
   background: var(--ns-glass-bg) !important;
   background-image: none !important;
-  backdrop-filter: blur(34px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(34px) saturate(180%) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
   border: 1px solid var(--ns-glass-border) !important;
   box-shadow: var(--ns-glass-shadow) !important;
 `;
 
 const GLASS_INPUT_CSS = `
   background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(18px) !important;
-  -webkit-backdrop-filter: blur(18px) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
   border: 1px solid var(--ns-glass-border) !important;
 `;
 
-// Elements that should stay transparent (no fill) but keep glass border
-const TRANSPARENT_TAGS = new Set(['button', 'input', 'select', 'textarea']);
-const GLASS_TAGS = new Set(['div', 'section', 'main', 'aside', 'header', 'footer', 'article', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'table', 'tbody', 'thead', 'tr', 'td', 'th', 'dl', 'dt', 'dd']);
+// Container elements that should be glass (text elements excluded — text stays fully visible)
+const GLASS_TAGS = new Set(['div', 'section', 'main', 'aside', 'header', 'footer', 'article', 'li', 'ul', 'ol', 'table', 'tbody', 'thead', 'tr', 'td', 'th', 'dl', 'dt', 'dd']);
+const TRANSPARENT_TAGS = new Set(['span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'strong', 'em', 'b', 'i', 'label', 'small', 'code']);
 
 function hasOwnBackground(el: Element): boolean {
   const style = window.getComputedStyle(el);
@@ -54,11 +54,15 @@ function applyGlass(el: Element) {
   // Skip lucide icons and similar icon wrappers
   if (el.classList.contains('lucide-icon') || el.getAttribute('data-lucide')) return;
 
-  // Skip form controls that are already glass-input
-  if (TRANSPARENT_TAGS.has(tag) && !hasOwnBackground(el)) return;
+  // Skip form controls (they keep their own styling, just get glass input treatment)
+  if (['button', 'input', 'select', 'textarea'].includes(tag)) {
+    el.style.cssText += `;${GLASS_INPUT_CSS}`;
+    el.classList.add('ns-glass-forced');
+    return;
+  }
 
   if (hasOwnBackground(el) || GLASS_TAGS.has(tag)) {
-    el.style.cssText += `;${tag === 'input' || tag === 'select' || tag === 'textarea' ? GLASS_INPUT_CSS : GLASS_CSS}`;
+    el.style.cssText += `;${GLASS_CSS}`;
     el.classList.add('ns-glass-forced');
   }
 }

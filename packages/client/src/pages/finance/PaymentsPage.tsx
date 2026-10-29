@@ -411,13 +411,13 @@ export const PaymentsPage: React.FC = () => {
     const isRefund = payment.type === 'REFUND';
     const label = `${isRefund ? 'refund' : payment.type === 'DEPOSIT' ? 'deposit' : 'payment'} of ${formatCurrency(money(payment.amount))}`;
     const note = isRefund
-      ? 'Deleting a refund also deletes the payment it reversed — both must be unposted and unlinked for this to work.'
+      ? 'Deleting this refund will permanently remove the refund entry and restore the original payment status.'
       : 'Only records not yet posted to a folio and without linked refunds can be deleted.';
     if (!window.confirm(`Permanently delete this ${label} (${payment.method || '—'})? This cannot be undone. ${note}`)) return;
     try {
       setBusyId(payment.id);
       await paymentsApi.remove(payment.id);
-      showToast('success', 'Payment record deleted.');
+      showToast('success', `${isRefund ? 'Refund' : 'Payment'} record deleted successfully.`);
       void load();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to delete payment record');
@@ -891,9 +891,33 @@ export const PaymentsPage: React.FC = () => {
                               >
                                 <XCircle size={13} /> Reject
                               </Button>
+                              {isAdmin && (
+                                <button
+                                  type="button"
+                                  title="Delete refund request (Admin)"
+                                  onClick={() => handleDeletePayment(p)}
+                                  disabled={busyId === p.id}
+                                  className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors border border-rose-200"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
                             </div>
                           ) : (
-                            <span className="text-[11px] font-medium text-amber-700">Awaiting Manager</span>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <span className="text-[11px] font-medium text-amber-700">Awaiting Manager</span>
+                              {isAdmin && (
+                                <button
+                                  type="button"
+                                  title="Delete refund request (Admin)"
+                                  onClick={() => handleDeletePayment(p)}
+                                  disabled={busyId === p.id}
+                                  className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors border border-rose-200"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
                           )
                         ) : (
                           <div className="flex items-center justify-end gap-1.5">
@@ -938,10 +962,14 @@ export const PaymentsPage: React.FC = () => {
                             {isAdmin && (
                               <button
                                 type="button"
-                                title="Delete payment record (Admin)"
+                                title={isRefund ? "Delete refund record (Admin)" : "Delete payment record (Admin)"}
                                 onClick={() => handleDeletePayment(p)}
                                 disabled={busyId === p.id}
-                                className="rounded-lg p-1.5 text-[#94a3b8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                                className={`rounded-lg p-1.5 transition-colors disabled:opacity-50 ${
+                                  isRefund
+                                    ? 'text-rose-600 hover:bg-rose-50 hover:text-rose-800 border border-rose-200'
+                                    : 'text-[#94a3b8] hover:bg-red-50 hover:text-red-600'
+                                }`}
                               >
                                 {busyId === p.id ? <Clock size={15} className="animate-spin" /> : <Trash2 size={15} />}
                               </button>
