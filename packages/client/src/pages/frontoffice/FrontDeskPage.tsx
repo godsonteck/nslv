@@ -66,6 +66,8 @@ export const FrontDeskPage: React.FC = () => {
   const [splitOpen, setSplitOpen] = useState(false);
   const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(true);
   const [lateFeeReason, setLateFeeReason] = useState('');
+  const [allowOwing, setAllowOwing] = useState(false);
+  const [owingReason, setOwingReason] = useState('');
   const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
   const nowFormatted = new Date().toLocaleDateString('en-GB', {
@@ -162,10 +164,11 @@ export const FrontDeskPage: React.FC = () => {
           roomCondition: form.roomCondition,
           chargeLateCheckoutFee,
           ...(activeLateInfo && !chargeLateCheckoutFee ? { lateCheckoutFeeReason: lateFeeReason.trim() || undefined } : {}),
-          ...(splitTenders ? { tenders: splitTenders } : { paymentMethod: form.paymentMethod }),
+          ...(allowOwing ? { allowOwing: true, owingReason: owingReason.trim() || undefined } : {}),
+          ...(splitTenders ? { tenders: splitTenders } : (allowOwing && !form.paymentMethod ? {} : { paymentMethod: form.paymentMethod })),
         });
       }
-      showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : 'Payment recorded & guest checked out.');
+      showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : allowOwing ? 'Guest checked out with outstanding balance.' : 'Payment recorded & guest checked out.');
       setAction(null);
       void load();
     } catch (e) {
@@ -207,6 +210,8 @@ export const FrontDeskPage: React.FC = () => {
     setSplitOpen(false);
     setChargeLateCheckoutFee(true);
     setLateFeeReason('');
+    setAllowOwing(false);
+    setOwingReason('');
     setTenders([makeTenderRow()]);
     setAction({ type: 'out', row: stay });
     void staysApi
@@ -611,6 +616,31 @@ export const FrontDeskPage: React.FC = () => {
                 </SelectInput>
               </FormField>
 
+              {checkoutTotal > 0 && (
+                <div className="rounded-xl border border-amber-300/70 dark:border-amber-700/60 bg-amber-50/70 dark:bg-amber-950/20 p-3 space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-bold text-amber-900 dark:text-amber-200 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={allowOwing}
+                      onChange={(e) => setAllowOwing(e.target.checked)}
+                      className="h-3.5 w-3.5 accent-[#c59a58]"
+                    />
+                    <span>Allow check-out with outstanding balance (Guest owes / Pay later)</span>
+                  </label>
+                  {allowOwing && (
+                    <div className="pt-1">
+                      <FormField label="Reason or promise to pay (optional audit note)">
+                        <TextInput
+                          value={owingReason}
+                          onChange={(e) => setOwingReason(e.target.value)}
+                          placeholder="e.g., Guest will send via Mobile Money this evening"
+                        />
+                      </FormField>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
@@ -639,10 +669,14 @@ export const FrontDeskPage: React.FC = () => {
             <Button
               type="submit"
               loading={busy}
-              disabled={splitOpen && !tendersCoverTotal(tenders, checkoutTotal)}
+              disabled={splitOpen && !allowOwing && !tendersCoverTotal(tenders, checkoutTotal)}
               className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white"
             >
-              {action?.type === 'in' ? 'Confirm Check-In' : 'Settle & Complete Check-Out'}
+              {action?.type === 'in'
+                ? 'Confirm Check-In'
+                : allowOwing && (!splitOpen || !tendersCoverTotal(tenders, checkoutTotal))
+                ? 'Complete Check-Out (Owing Balance)'
+                : 'Settle & Complete Check-Out'}
             </Button>
           </div>
         </form>

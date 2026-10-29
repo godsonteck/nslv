@@ -43,6 +43,8 @@ export interface CheckOutDTO {
   // Split settlement: each tender becomes its own Payment row summing to the
   // outstanding folio balance.  Mutually exclusive with paymentMethod.
   tenders?: { method: string; amount: number; reference?: string }[];
+  allowOwing?: boolean;
+  owingReason?: string;
   idempotencyKey?: string;
   notes?: string;
 }
@@ -95,6 +97,104 @@ export class StayService {
     const staff = staffIds.length ? await prisma.user.findMany({ where: { id: { in: staffIds } }, select: { id: true, firstName: true, lastName: true, username: true } }) : [];
     const staffById = new Map(staff.map((user) => [user.id, { id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.username, username: user.username }]));
     return stays.map((stay) => ({ ...stay, checkedInByUser: staffById.get(stay.checkedInBy) || { id: stay.checkedInBy, name: 'Former staff account' } }));
+  }
+
+  /**
+   * Get checked-out stays with an outstanding balance (unsettled folios / debt).
+   */
+  static async getUnsettledStays() {
+    const reservations = await prisma.reservation.findMany({
+      where: {
+        status: 'CHECKED_OUT',
+        folios: {
+          some: {
+            balance: { gt: 0.005 },
+          },
+        },
+      },
+      include: {
+        guests: { where: { isPrimary: true }, include: { guest: true } },
+        room: { include: { roomType: true } },
+        checkIns: true,
+        checkOuts: true,
+        folios: {
+          include: {
+            items: true,
+            payments: true,
+          },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    const staffIds = [
+      ...new Set([
+        ...reservations.map((r) => r.checkIns[0]?.checkedInBy).filter(Boolean),
+        ...reservations.map((r) => r.checkOuts[0]?.checkedOutBy).filter(Boolean),
+      ]),
+    ] as string[];
+
+    const staff = staffIds.length
+      ? await prisma.user.findMany({
+          where: { id: { in: staffIds } },
+          select: { id: true, firstName: true, lastName: true, username: true },
+        })
+      : [];
+    const staffById = new Map(
+      staff.map((u) => [u.id, { id: u.id, name: `${u.firstName} ${u.lastName}`.trim() || u.username, username: u.username }]),
+    );
+
+    return reservations.map((res) => {
+      const checkIn = res.checkIns[0];
+      const checkOut = res.checkOuts[0];
+      const primaryGuest = res.guests[0]?.guest;
+      const folio = res.folios.find((f) => Number(f.balance) > 0.005) || res.folios[0];
+      return {
+        id: checkIn?.id || res.id,
+        reservationId: res.id,
+        guestId: primaryGuest?.id,
+        guest: primaryGuest ? { firstName: primaryGuest.firstName, lastName: primaryGuest.lastName } : null,
+        room: res.room ? { number: res.room.number, name: res.room.name, roomType: res.room.roomType } : null,
+        actualCheckIn: checkIn?.actualCheckIn || res.checkInDate,
+        actualCheckOut: checkOut?.actualCheckOut || res.checkOutDate,
+        checkedInBy: checkIn?.checkedInBy,
+        checkedInByUser: checkIn?.checkedInBy ? staffById.get(checkIn.checkedInBy) : undefined,
+        checkedOutBy: checkOut?.checkedOutBy,
+        checkedOutByUser: checkOut?.checkedOutBy ? staffById.get(checkOut.checkedOutBy) : undefined,
+        isCheckedOut: true,
+        finalBalance: checkOut ? Number(checkOut.finalBalance) : Number(folio?.balance || 0),
+        reservation: {
+          id: res.id,
+          confirmationNo: res.confirmationNo,
+          bookingId: res.bookingId,
+          status: res.status,
+          checkInDate: res.checkInDate,
+          checkOutDate: res.checkOutDate,
+          totalAmount: Number(res.totalAmount || 0),
+          folios: res.folios.map((f) => ({
+            id: f.id,
+            status: f.status,
+            balance: Number(f.balance),
+            items: f.items.map((i) => ({
+              id: i.id,
+              description: i.description,
+              amount: Number(i.amount),
+              type: i.type,
+              postedAt: i.postedAt,
+              voidedAt: i.voidedAt,
+            })),
+            payments: f.payments.map((p) => ({
+              id: p.id,
+              amount: Number(p.amount),
+              method: p.method,
+              status: p.status,
+              type: p.type,
+              processedAt: p.processedAt,
+            })),
+          })),
+        },
+      };
+    });
   }
 
   /** Execute Check-In workflow */
@@ -551,31 +651,47 @@ export class StayService {
         // through PaymentService.processPaymentInTx to enforce daily-close locking,
         // payment method validation, idempotency, and audit logging.
         if (finalBalance > 0) {
-          const tenders = data.tenders?.length ? data.tenders : data.paymentMethod?.trim() ? [{ method: data.paymentMethod, amount: finalBalance }] : [];
-          if (!tenders.length) throw new AppError('Select a payment method to settle the outstanding balance.', 422, 'PAYMENT_METHOD_REQUIRED');
-          if (!folio) throw new AppError('An open folio is required to settle this stay.', 409, 'OPEN_FOLIO_REQUIRED');
+          const tenders = data.tenders?.length
+            ? data.tenders
+            : data.paymentMethod?.trim() && data.paymentMethod !== 'PAY_LATER'
+            ? [{ method: data.paymentMethod, amount: finalBalance }]
+            : [];
           const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));
-          if (!tendersTotal.eq(new Prisma.Decimal(finalBalance))) {
-            throw new AppError(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the outstanding balance (${finalBalance.toFixed(2)}).`, 422, 'TENDER_MISMATCH');
+
+          if (tendersTotal.gt(new Prisma.Decimal(finalBalance))) {
+            throw new AppError(`Tender amounts (${tendersTotal.toFixed(2)}) cannot exceed the outstanding balance (${finalBalance.toFixed(2)}).`, 422, 'TENDER_EXCEEDS_BALANCE');
           }
 
-          const checkoutPaymentIdempotencyKey = data.idempotencyKey || `checkout-payment-${reservation.id}`;
-          await PaymentService.processPaymentInTx(tx, {
-            folioId: folio.id,
-            reservationId: reservation.id,
-            guestId: primaryGuestId,
-            amount: finalBalance,
-            method: tenders[0].method,
-            tenders,
-            idempotencyKey: checkoutPaymentIdempotencyKey,
-            description: 'Final settlement at check-out',
-            processedBy: data.checkedOutBy,
-            paymentType: 'PAYMENT',
-          });
-          finalBalance = 0;
+          if (tenders.length > 0) {
+            if (!tendersTotal.eq(new Prisma.Decimal(finalBalance)) && !data.allowOwing) {
+              throw new AppError(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the outstanding balance (${finalBalance.toFixed(2)}). Check "Guest owes balance" to proceed with partial settlement.`, 422, 'TENDER_MISMATCH');
+            }
+            if (!folio) throw new AppError('An open folio is required to settle this stay.', 409, 'OPEN_FOLIO_REQUIRED');
+            const checkoutPaymentIdempotencyKey = data.idempotencyKey || `checkout-payment-${reservation.id}`;
+            await PaymentService.processPaymentInTx(tx, {
+              folioId: folio.id,
+              reservationId: reservation.id,
+              guestId: primaryGuestId,
+              amount: tendersTotal.toNumber(),
+              method: tenders[0].method,
+              tenders,
+              idempotencyKey: checkoutPaymentIdempotencyKey,
+              description: tendersTotal.eq(new Prisma.Decimal(finalBalance)) ? 'Final settlement at check-out' : 'Partial payment at check-out',
+              processedBy: data.checkedOutBy,
+              paymentType: tendersTotal.eq(new Prisma.Decimal(finalBalance)) ? 'PAYMENT' : 'DEPOSIT',
+            });
+            finalBalance = new Prisma.Decimal(finalBalance).minus(tendersTotal).toNumber();
+          } else if (!data.allowOwing && data.paymentMethod !== 'PAY_LATER') {
+            throw new AppError('Select a payment method to settle the outstanding balance, or select "Guest owes balance" to complete check-out.', 422, 'PAYMENT_METHOD_REQUIRED');
+          }
         } else if (finalBalance < 0) {
           throw new AppError(`Folio has a guest credit of GHS ${Math.abs(finalBalance).toFixed(2)}. Process the refund before check-out.`, 409, 'GUEST_CREDIT_UNSETTLED');
         }
+
+        const isSettled = finalBalance <= 0.005;
+        const owingNote = finalBalance > 0.005
+          ? `Guest checked out owing GHS ${finalBalance.toFixed(2)}${data.owingReason ? ` (Note: ${data.owingReason})` : ''}`
+          : null;
 
         // Create CheckOut record
         const checkOut = await tx.checkOut.create({
@@ -587,7 +703,7 @@ export class StayService {
             roomCondition: (data.roomCondition as RoomCondition) || RoomCondition.DIRTY,
             finalBalance,
             paymentMethod: (data.paymentMethod as PaymentMethod) || (data.tenders?.[0]?.method as PaymentMethod) || null,
-            notes: [data.notes, lateFeeWaivedNote].filter(Boolean).join(' | ') || null,
+            notes: [data.notes, lateFeeWaivedNote, owingNote].filter(Boolean).join(' | ') || null,
           },
         });
 
@@ -603,11 +719,15 @@ export class StayService {
           data: { status: data.roomCondition === 'DAMAGED' ? RoomStatus.MAINTENANCE : data.roomCondition === 'DIRTY' ? RoomStatus.DIRTY : RoomStatus.AVAILABLE },
         });
 
-        // Close Folio
+        // Close Folio if fully settled; keep OPEN if guest owes money!
         if (folio) {
           await tx.folio.update({
             where: { id: folio.id },
-            data: { status: FolioStatus.CLOSED, closedAt: new Date(), balance: new Prisma.Decimal(finalBalance) },
+            data: {
+              status: isSettled ? FolioStatus.CLOSED : FolioStatus.OPEN,
+              closedAt: isSettled ? new Date() : null,
+              balance: new Prisma.Decimal(finalBalance),
+            },
           });
         }
 

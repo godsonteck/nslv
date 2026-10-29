@@ -19,21 +19,25 @@ import {
   Building,
   ShieldCheck,
   ChevronRight,
+  AlertCircle,
 } from 'lucide-react';
-import { Button, Modal, LoadingState, showToast, statusBadge } from '../../components/ui';
+import { Button, Modal, LoadingState, showToast, statusBadge, FormField, TextInput, SelectInput } from '../../components/ui';
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
-import { staysApi, foliosApi } from '../../services/apiService';
+import { staysApi, foliosApi, paymentsApi } from '../../services/apiService';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { villaAssets } from '../../assets';
 import { receiptCompanyBlock } from '../../lib/company';
 
 interface BillStay {
   id: string;
-  guest: { firstName: string; lastName?: string | null; id: string } | null;
+  isCheckedOut?: boolean;
+  finalBalance?: number;
+  guest: { firstName: string; lastName?: string | null; id?: string } | null;
   room: { number: string | number; roomType?: { name?: string } } | null;
   actualCheckIn: string;
   reservation: {
     id: string;
+    confirmationNo?: string;
     status: string;
     folios: Array<{
       id: string;
@@ -64,6 +68,8 @@ const money = (v: number | string | undefined | null) => Number(v ?? 0);
 
 export const GuestBillsPage: React.FC = () => {
   const [stays, setStays] = useState<BillStay[]>([]);
+  const [unsettledStays, setUnsettledStays] = useState<BillStay[]>([]);
+  const [filterTab, setFilterTab] = useState<'ALL' | 'IN_HOUSE' | 'CHECKED_OUT'>('ALL');
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
 
@@ -71,11 +77,22 @@ export const GuestBillsPage: React.FC = () => {
   const [selectedBill, setSelectedBill] = useState<{ stay: BillStay; folio: any } | null>(null);
   const [loadingFolio, setLoadingFolio] = useState(false);
 
+  // Quick Payment Modal from Bill
+  const [payModalOpen, setPayModalOpen] = useState(false);
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState<'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'>('CASH');
+  const [payRef, setPayRef] = useState('');
+  const [paySubmitting, setPaySubmitting] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await staysApi.getActiveStays();
+      const [res, unsettledRes] = await Promise.all([
+        staysApi.getActiveStays(),
+        staysApi.getUnsettledStays().catch(() => ({ success: true, data: [] })),
+      ]);
       setStays(res.data || []);
+      setUnsettledStays(unsettledRes.data || []);
     } catch (e: any) {
       showToast('error', e?.message ?? 'Unable to load guest bills.');
     } finally {
@@ -87,16 +104,20 @@ export const GuestBillsPage: React.FC = () => {
     void load();
   }, [load]);
 
-  const openFolios = useMemo(
-    () =>
-      stays
-        .map((s) => ({
-          stay: s,
-          folio: s.reservation.folios.find((f) => f.status === 'OPEN') ?? s.reservation.folios[0],
-        }))
-        .filter((x) => !!x.folio),
-    [stays],
-  );
+  const openFolios = useMemo(() => {
+    const active = stays.map((s) => ({
+      stay: s,
+      folio: s.reservation.folios.find((f) => f.status === 'OPEN') ?? s.reservation.folios[0],
+      isCheckedOut: false,
+    }));
+    const unsettled = unsettledStays.map((s) => ({
+      stay: s,
+      folio: s.reservation.folios.find((f) => Number(f.balance) > 0.005) ?? s.reservation.folios[0],
+      isCheckedOut: true,
+    }));
+    const combined = filterTab === 'IN_HOUSE' ? active : filterTab === 'CHECKED_OUT' ? unsettled : [...active, ...unsettled];
+    return combined.filter((x) => !!x.folio);
+  }, [stays, unsettledStays, filterTab]);
 
   const outstandingTotal = useMemo(
     () => openFolios.reduce((sum, x) => sum + money(x.folio.balance), 0),
@@ -123,6 +144,59 @@ export const GuestBillsPage: React.FC = () => {
       // Retain existing folio data if live reload fails
     } finally {
       setLoadingFolio(false);
+    }
+  };
+
+  const openPaymentModal = () => {
+    if (!selectedBill) return;
+    const bal = money(selectedBill.folio.balance);
+    setPayAmount(bal > 0 ? bal.toFixed(2) : '');
+    setPayMethod('CASH');
+    setPayRef('');
+    setPayModalOpen(true);
+  };
+
+  const handleRecordPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBill) return;
+    const amount = Number(payAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast('error', 'Enter a valid payment amount.');
+      return;
+    }
+    const bal = money(selectedBill.folio.balance);
+    if (amount > bal + 0.01) {
+      showToast('error', `Payment cannot exceed the outstanding balance of ${formatCurrency(bal)}.`);
+      return;
+    }
+    try {
+      setPaySubmitting(true);
+      const guestName = formatGuestName(selectedBill.stay.guest, 'Guest');
+      const isSettled = amount >= bal - 0.005;
+      const desc = isSettled
+        ? `Payment received in full (${payMethod}) for ${guestName}${selectedBill.stay.isCheckedOut ? ' [Post-checkout settlement]' : ''}`
+        : `Partial payment (${payMethod}) for ${guestName}. Remaining: GHS ${(bal - amount).toFixed(2)}${selectedBill.stay.isCheckedOut ? ' [Post-checkout settlement]' : ''}`;
+
+      await paymentsApi.processPayment({
+        folioId: selectedBill.folio.id,
+        reservationId: selectedBill.stay.reservation.id,
+        amount,
+        method: payMethod,
+        reference: payRef.trim() || undefined,
+        idempotencyKey: crypto.randomUUID(),
+        description: desc,
+      });
+
+      showToast('success', 'Payment successfully recorded!');
+      setPayModalOpen(false);
+      // Reload folio data
+      const updatedFolio = await foliosApi.getFolio(selectedBill.folio.id);
+      setSelectedBill({ ...selectedBill, folio: updatedFolio.data || updatedFolio });
+      void load();
+    } catch (err: any) {
+      showToast('error', err?.message ?? 'Failed to process payment.');
+    } finally {
+      setPaySubmitting(false);
     }
   };
 
@@ -267,9 +341,36 @@ export const GuestBillsPage: React.FC = () => {
 
       {/* ── Table Section ── */}
       <Section
-        title="Active Guest Room Folios"
-        subtitle="Click any row or 'View Bill' to inspect breakdown, posted items, payments, or print official slips."
+        title="Guest Room Folios & Billing Ledger"
+        subtitle="Click any row or 'View Bill' to inspect breakdown, posted items, payments, settle balances, or print official slips."
       >
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4">
+          <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-1">
+            <button
+              type="button"
+              onClick={() => setFilterTab('ALL')}
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'ALL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+            >
+              All Folios ({stays.length + unsettledStays.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterTab('IN_HOUSE')}
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'IN_HOUSE' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+            >
+              In-House ({stays.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterTab('CHECKED_OUT')}
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${filterTab === 'CHECKED_OUT' ? 'bg-[#c59a58] text-[#14232b] shadow-sm font-black' : unsettledStays.length > 0 ? 'text-amber-700 dark:text-amber-400 font-extrabold bg-amber-500/20' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+            >
+              Checked Out (Owing: {unsettledStays.length})
+            </button>
+          </div>
+        </div>
+
         <Toolbar search={q} onSearch={setQ} placeholder="Search by guest name or room number…" />
 
         {loading ? (
@@ -313,11 +414,16 @@ export const GuestBillsPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-5">
-                        <div className="font-bold text-[var(--ns-ink)] text-xs">
-                          {formatGuestName(stay.guest, 'Guest')}
+                        <div className="font-bold text-[var(--ns-ink)] text-xs flex items-center gap-1.5 flex-wrap">
+                          <span>{formatGuestName(stay.guest, 'Guest')}</span>
+                          {stay.isCheckedOut && (
+                            <span className="rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 text-[10px] font-extrabold px-1.5 py-0.2">
+                              Checked Out
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-[var(--ns-muted)]">
-                          Checked in: {new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}
+                          {stay.isCheckedOut ? 'Departure recorded' : `Checked in: ${new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}`}
                         </div>
                       </td>
                       <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[#b88738]">
@@ -486,16 +592,93 @@ export const GuestBillsPage: React.FC = () => {
               <Button variant="ghost" size="sm" onClick={() => setSelectedBill(null)}>
                 Close
               </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={printBill}
-                className="gap-1.5 bg-[#173c4d] hover:bg-[#133240] text-white font-semibold"
-              >
-                <Printer size={14} className="text-[#c59a58]" /> Print Guest Folio
-              </Button>
+              <div className="flex items-center gap-2">
+                {money(selectedBill.folio.balance) > 0.005 && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={openPaymentModal}
+                    className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold"
+                  >
+                    <CreditCard size={14} /> Record Payment
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={printBill}
+                  className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] font-semibold"
+                >
+                  <Printer size={14} className="text-[#c59a58]" /> Print Folio
+                </Button>
+              </div>
             </div>
           </div>
+        )}
+      </Modal>
+
+      {/* Quick Payment Settlement Modal */}
+      <Modal open={payModalOpen} onClose={() => setPayModalOpen(false)} title="Record Payment Against Folio" size="md">
+        {selectedBill && (
+          <form onSubmit={handleRecordPayment} className="space-y-4 p-5">
+            <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/30 p-3 text-xs">
+              <div className="font-bold text-amber-900 dark:text-amber-200">
+                {formatGuestName(selectedBill.stay.guest, 'Guest')} · Room {selectedBill.stay.room?.number || '—'}
+                {selectedBill.stay.isCheckedOut && (
+                  <span className="ml-2 rounded bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 px-1.5 py-0.5 text-[10px]">
+                    CHECKED OUT
+                  </span>
+                )}
+              </div>
+              <div className="mt-1 flex items-center justify-between text-slate-700 dark:text-slate-300">
+                <span>Current Folio Balance:</span>
+                <span className="font-black text-amber-700 dark:text-amber-400 text-sm">
+                  {formatCurrency(money(selectedBill.folio.balance))}
+                </span>
+              </div>
+            </div>
+
+            <FormField label="Payment Amount (GHS)" required>
+              <TextInput
+                type="number"
+                step="0.01"
+                min="0.01"
+                required
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                placeholder="0.00"
+              />
+            </FormField>
+
+            <FormField label="Payment Method" required>
+              <SelectInput
+                value={payMethod}
+                onChange={(e) => setPayMethod(e.target.value as any)}
+              >
+                <option value="CASH">Cash</option>
+                <option value="CARD">Credit / Debit Card</option>
+                <option value="MOBILE_MONEY">Mobile Money (MTN / Telecel)</option>
+                <option value="BANK_TRANSFER">Bank Transfer</option>
+              </SelectInput>
+            </FormField>
+
+            <FormField label="Transaction Reference (Optional)">
+              <TextInput
+                value={payRef}
+                onChange={(e) => setPayRef(e.target.value)}
+                placeholder="e.g. MoMo Transaction ID / POS Slip #"
+              />
+            </FormField>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[var(--ns-line)]">
+              <Button type="button" variant="ghost" onClick={() => setPayModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" loading={paySubmitting} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold">
+                Confirm & Record Payment
+              </Button>
+            </div>
+          </form>
         )}
       </Modal>
     </ShellPage>

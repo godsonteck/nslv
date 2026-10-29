@@ -237,6 +237,8 @@ export const checkOutSchema = z.object({
   lateCheckoutFeeReason: z.string().max(300).trim().optional().nullable(),
   paymentMethod: paymentMethodSchema.optional(),
   tenders: tendersSchema,
+  allowOwing: z.boolean().optional(),
+  owingReason: z.string().max(300).trim().optional().nullable(),
   idempotencyKey: uuidSchema.optional(),
   notes: optionalString,
 });

@@ -76,10 +76,14 @@ interface PaymentRecord {
 interface BillStay {
   id: string;
   reservationId?: string;
+  isCheckedOut?: boolean;
+  finalBalance?: number;
   guest: { firstName: string; lastName?: string | null } | null;
   room: { number: string | number; name?: string; roomType?: { name?: string } } | null;
   reservation: {
     id: string;
+    confirmationNo?: string;
+    status?: string;
     folios: Array<{
       id: string;
       status: string;
@@ -132,6 +136,7 @@ const methodLabel = (m: string) => {
 export const PaymentsPage: React.FC = () => {
   const [data, setData] = useState<PaymentRecord[]>([]);
   const [stays, setStays] = useState<BillStay[]>([]);
+  const [unsettledStays, setUnsettledStays] = useState<BillStay[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -162,9 +167,14 @@ export const PaymentsPage: React.FC = () => {
   const load = async () => {
     try {
       setLoading(true);
-      const [a, b] = await Promise.all([paymentsApi.list(), staysApi.getActiveStays()]);
+      const [a, b, c] = await Promise.all([
+        paymentsApi.list(),
+        staysApi.getActiveStays(),
+        staysApi.getUnsettledStays().catch(() => ({ success: true, data: [] })),
+      ]);
       setData(a.data || []);
       setStays(b.data || []);
+      setUnsettledStays(c.data || []);
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to load payments');
     } finally {
@@ -176,13 +186,22 @@ export const PaymentsPage: React.FC = () => {
     void load();
   }, []);
 
-  const selectedStay = stays.find((s) => s.id === form.stayId) || null;
-  const folio = selectedStay?.reservation.folios.find((f) => f.status === 'OPEN') ?? selectedStay?.reservation.folios[0] ?? null;
+  const allSelectableStays = [...stays, ...unsettledStays];
+  const selectedStay = allSelectableStays.find((s) => s.id === form.stayId || s.reservationId === form.stayId) || null;
+  const folio =
+    selectedStay?.reservation.folios.find((f) => Number(f.balance) > 0.005) ??
+    selectedStay?.reservation.folios.find((f) => f.status === 'OPEN') ??
+    selectedStay?.reservation.folios[0] ??
+    null;
   const balance = folio ? money(folio.balance) : 0;
 
   const handleStayChange = (stayId: string) => {
-    const stay = stays.find((s) => s.id === stayId) || null;
-    const f = stay?.reservation.folios.find((x) => x.status === 'OPEN') ?? stay?.reservation.folios[0] ?? null;
+    const stay = allSelectableStays.find((s) => s.id === stayId || s.reservationId === stayId) || null;
+    const f =
+      stay?.reservation.folios.find((x) => Number(x.balance) > 0.005) ??
+      stay?.reservation.folios.find((x) => x.status === 'OPEN') ??
+      stay?.reservation.folios[0] ??
+      null;
     const bal = f ? money(f.balance) : 0;
     setForm({
       ...form,
@@ -204,7 +223,7 @@ export const PaymentsPage: React.FC = () => {
     e.preventDefault();
     const amount = Number(form.amount);
     if (!selectedStay || !folio) {
-      showToast('error', 'Select an in-house guest with an open bill.');
+      showToast('error', 'Select an in-house guest or checked-out guest with an outstanding bill.');
       return;
     }
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -232,14 +251,17 @@ export const PaymentsPage: React.FC = () => {
 
     try {
       setBusy(true);
+      const isPostCheckout = selectedStay.isCheckedOut || selectedStay.reservation.status === 'CHECKED_OUT';
+      const postCheckoutTag = isPostCheckout ? ' [Post-checkout settlement]' : '';
       const desc = form.description?.trim()
         ? form.description.trim()
         : settlesInFull
-        ? `Payment received in full.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''} Balance remaining: GHS 0.00`
-        : `Partial payment recorded. Remaining balance: GHS ${remainingAfter.toFixed(2)}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''}`;
+        ? `Payment received in full${postCheckoutTag}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''} Balance remaining: GHS 0.00`
+        : `Partial payment recorded${postCheckoutTag}. Remaining balance: GHS ${remainingAfter.toFixed(2)}.${changeDue > 0 ? ` Cash tendered: GHS ${cashTendered.toFixed(2)}, Change given: GHS ${changeDue.toFixed(2)}.` : ''}`;
 
       const res = await paymentsApi.processPayment({
         folioId: folio.id,
+        reservationId: selectedStay.reservation.id,
         amount,
         method: splitTenders?.[0]?.method ?? form.method,
         ...(splitTenders ? { tenders: splitTenders } : {}),
@@ -471,6 +493,38 @@ export const PaymentsPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Checked-Out Guests Outstanding Debt Alert */}
+      {unsettledStays.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-amber-500/20 p-2 text-amber-700 dark:text-amber-400">
+              <AlertCircle size={20} />
+            </div>
+            <div>
+              <p className="font-extrabold text-amber-900 dark:text-amber-200">
+                {unsettledStays.length} Checked-Out Guest{unsettledStays.length === 1 ? '' : 's'} with Outstanding Balance
+              </p>
+              <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80">
+                Total unpaid debt: {formatCurrency(unsettledStays.reduce((s, u) => s + (u.finalBalance || Number(u.reservation.folios[0]?.balance || 0)), 0))}. You can record payments for checked-out guests here anytime.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              openModal();
+              if (unsettledStays[0]) {
+                handleStayChange(unsettledStays[0].id);
+              }
+            }}
+            className="border-amber-400 text-amber-900 hover:bg-amber-100 font-bold dark:border-amber-600 dark:text-amber-200"
+          >
+            Record Post-Checkout Payment
+          </Button>
+        </div>
+      )}
 
       {/* Main Section */}
       <Section
@@ -779,24 +833,47 @@ export const PaymentsPage: React.FC = () => {
       {/* Record Payment Modal */}
       <Modal open={open} onClose={() => setOpen(false)} title="Record guest payment" size="lg">
         <form onSubmit={save} className="space-y-4 p-6">
-          <FormField label="Select in-house guest & room" required>
+          <FormField label="Select guest & room (In-house or checked-out owing)" required>
             <SelectInput value={form.stayId} onChange={(e) => handleStayChange(e.target.value)}>
-              <option value="">Select guest…</option>
-              {stays.map((s) => {
-                const f = s.reservation.folios.find((x) => x.status === 'OPEN') ?? s.reservation.folios[0];
-                const bal = f ? money(f.balance) : 0;
-                return (
-                  <option key={s.id} value={s.id}>
-                    Room {s.room?.number || '—'} · {formatGuestName(s.guest)} (Outstanding: {formatCurrency(bal)})
-                  </option>
-                );
-              })}
+              <option value="">Select guest with outstanding bill…</option>
+              {stays.length > 0 && (
+                <optgroup label="In-House Guests">
+                  {stays.map((s) => {
+                    const f = s.reservation.folios.find((x) => x.status === 'OPEN') ?? s.reservation.folios[0];
+                    const bal = f ? money(f.balance) : 0;
+                    return (
+                      <option key={s.id} value={s.id}>
+                        Room {s.room?.number || '—'} · {formatGuestName(s.guest)} (Outstanding: {formatCurrency(bal)})
+                      </option>
+                    );
+                  })}
+                </optgroup>
+              )}
+              {unsettledStays.length > 0 && (
+                <optgroup label="Checked-Out Guests (Owing Balance)">
+                  {unsettledStays.map((s) => {
+                    const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
+                    const bal = f ? money(f.balance) : 0;
+                    return (
+                      <option key={s.id} value={s.id}>
+                        Room {s.room?.number || '—'} · {formatGuestName(s.guest)} [CHECKED OUT] (Owing: {formatCurrency(bal)})
+                      </option>
+                    );
+                  })}
+                </optgroup>
+              )}
             </SelectInput>
           </FormField>
 
           {/* Outstanding Bill Details Banner */}
           {selectedStay && folio && (
-            <div className="rounded-2xl border border-[#dfe4df] bg-gradient-to-br from-[#f8faf8] to-[#edf6f4] p-4 text-xs">
+            <div className={`rounded-2xl border p-4 text-xs ${selectedStay.isCheckedOut || selectedStay.reservation.status === 'CHECKED_OUT' ? 'border-amber-300 bg-amber-50/80 text-amber-950 dark:bg-amber-950/30 dark:border-amber-700/60 dark:text-amber-200' : 'border-[#dfe4df] bg-gradient-to-br from-[#f8faf8] to-[#edf6f4]'}`}>
+              {(selectedStay.isCheckedOut || selectedStay.reservation.status === 'CHECKED_OUT') && (
+                <div className="mb-2.5 flex items-center gap-2 rounded-lg bg-amber-100/90 dark:bg-amber-900/50 px-3 py-1.5 text-xs font-bold text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                  <AlertCircle size={15} className="text-amber-600 shrink-0" />
+                  <span>Post-Checkout Debt Settlement · Room {selectedStay.room?.number || '—'} · Conf: {selectedStay.reservation.confirmationNo || '—'}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Outstanding Bill Balance</span>

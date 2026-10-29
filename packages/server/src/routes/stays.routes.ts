@@ -21,6 +21,16 @@ router.get('/active', requirePermission('dashboard.view'), async (_req, res, nex
   }
 });
 
+// Get checked-out stays with an outstanding balance (unsettled debt)
+router.get('/unsettled', requirePermission('dashboard.view'), async (_req, res, next) => {
+  try {
+    const data = await StayService.getUnsettledStays();
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get checkout policy (hourly rate + checkout time) — used by front desk to display accurate late fees
 router.get('/checkout-policy', requirePermission('dashboard.view'), async (_req, res, next) => {
   try {

@@ -1274,6 +1274,22 @@ export const ReservationsPage: React.FC = () => {
                           <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="View booking details">
                             <Eye size={16} />
                           </button>
+                          {canProcessPayment && !isFullyPaid(r) && String(r.status).toUpperCase() !== 'CANCELLED' && (
+                            <button
+                              onClick={() => {
+                                setDetailsRes(r);
+                                const bal = reservationBalance(r);
+                                setDepositForm({ amount: bal > 0 ? bal.toFixed(2) : '', method: 'CASH', tendered: '', reference: '' });
+                                setDepositSplitOpen(false);
+                                setDepositTenders([makeTenderRow()]);
+                                setDepositOpen(true);
+                              }}
+                              className="rounded-lg p-2 text-[#b88738] dark:text-amber-400 hover:bg-[#c59a58]/10"
+                              title={String(r.status).toUpperCase() === 'CHECKED_OUT' ? 'Record post-checkout payment' : 'Record payment'}
+                            >
+                              <CreditCard size={16} />
+                            </button>
+                          )}
                           {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (
                             <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="Edit reservation details">
                               <Pencil size={16} />
@@ -2145,7 +2161,7 @@ export const ReservationsPage: React.FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#edf0ed]">
                 <div className="flex items-center gap-2">
-                  {canProcessPayment && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(detailsRes.status).toUpperCase()) && !isFullyPaid(detailsRes) && (
+                  {canProcessPayment && ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT'].includes(String(detailsRes.status).toUpperCase()) && !isFullyPaid(detailsRes) && (
                     <Button
                       variant="outline"
                       size="sm"

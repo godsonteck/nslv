@@ -2,7 +2,7 @@
 // Payments are persistent, transactional and never trusted from client totals alone.
 
 import { prisma } from '../config';
-import { Prisma, PaymentMethod, PaymentStatus, PaymentType, OrderPaymentStatus } from '@prisma/client';
+import { Prisma, PaymentMethod, PaymentStatus, PaymentType, OrderPaymentStatus, FolioStatus } from '@prisma/client';
 import { CashRegisterService } from './cash-register.service';
 import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
@@ -189,7 +189,10 @@ export class PaymentService {
 
     const targetFolio = data.folioId
       ? (tx.folio?.findUnique ? await tx.folio.findUnique({ where: { id: data.folioId } }) : { id: data.folioId, reservationId: data.reservationId, status: 'OPEN', balance: data.amount, guestId: data.guestId })
-      : (tx.folio?.findFirst ? await tx.folio.findFirst({ where: { reservationId: data.reservationId, status: 'OPEN' } }) : null);
+      : (tx.folio?.findFirst ? await tx.folio.findFirst({
+          where: { reservationId: data.reservationId },
+          orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+        }) : null);
     const reservationId = data.reservationId || targetFolio?.reservationId;
     const reservation = reservationId
       ? (tx.reservation?.findUnique ? await tx.reservation.findUnique({
@@ -200,7 +203,12 @@ export class PaymentService {
     if (data.folioId && targetFolio?.reservationId && targetFolio.reservationId !== reservation.id) throw new Error('The folio does not belong to the supplied reservation.');
     const expectedGuestId = targetFolio?.guestId || reservation.guests[0]?.guestId;
     if (data.guestId && expectedGuestId && data.guestId !== expectedGuestId) throw new Error('The supplied guest does not belong to this reservation.');
-    if (targetFolio && targetFolio.status && targetFolio.status !== 'OPEN') throw new Error('This folio is already closed.');
+    if (targetFolio && targetFolio.status && targetFolio.status !== 'OPEN') {
+      const folioBal = new Prisma.Decimal(targetFolio.balance || 0);
+      if (folioBal.lte(0)) {
+        throw new AppError('This folio is closed and has no outstanding balance.', 400, 'FOLIO_ALREADY_CLOSED');
+      }
+    }
     if (paymentType === 'PAYMENT' && !targetFolio) throw new Error('Open folio not found.');
 
     const amount = new Prisma.Decimal(data.amount);
@@ -209,15 +217,14 @@ export class PaymentService {
     // amount is less than the outstanding folio balance, treat it as a partial
     // payment (DEPOSIT). Only a payment that exactly clears the balance keeps
     // the PAYMENT type.
-    if (paymentType === 'PAYMENT' && targetFolio) {
-      const balance = new Prisma.Decimal(targetFolio.balance);
-      if (amount.lt(balance)) {
+    if (targetFolio) {
+      const balance = new Prisma.Decimal(targetFolio.balance || 0);
+      if (amount.gt(balance)) {
+        throw new AppError(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`, 400, 'PAYMENT_EXCEEDS_BALANCE');
+      }
+      if (paymentType === 'PAYMENT' && amount.lt(balance)) {
         paymentType = 'DEPOSIT';
       }
-    }
-    if (paymentType === 'PAYMENT') {
-      const balance = new Prisma.Decimal(targetFolio!.balance);
-      if (amount.gt(balance)) throw new Error(`Payment exceeds the outstanding folio balance of ${balance.toFixed(2)}.`);
     } else {
       const groupBookingId = (reservation as any).bookingId;
       if (groupBookingId) {
@@ -278,24 +285,6 @@ export class PaymentService {
         processedBy: data.processedBy,
       } });
       createdPayments.push(p);
-
-      // Auto-record cash payment in cash register (fire-and-forget after transaction)
-      const cashTenders = tenders.filter(t => t.method === 'CASH');
-      if (cashTenders.length > 0) {
-        const businessDate = new Date().toISOString().slice(0, 10);
-        for (const t of cashTenders) {
-          const p = createdPayments.find(p => p.idempotencyKey === (t === cashTenders[0] ? data.idempotencyKey : `${data.idempotencyKey}#${tenders.indexOf(t)}`)) || createdPayments[0];
-          CashRegisterService.recordCashPayment({
-            businessDate,
-            amount: t.amount,
-            description: `Cash payment${paymentType === 'DEPOSIT' ? ' (deposit)' : ''} - ${reservation.id}`,
-            source: 'FRONT_DESK',
-            sourceId: p.id,
-            reference: t.reference,
-            processedBy: data.processedBy,
-          }).catch((err) => console.error('Failed to record cash payment in cash register:', err));
-        }
-      }
     }
     const payment = createdPayments[0];
 
@@ -319,14 +308,35 @@ export class PaymentService {
     }
 
     if (targetFolio) {
+      const reservationStatus = (reservation as { status?: string }).status;
+      const isCheckedOutGuest = reservationStatus === 'CHECKED_OUT';
       const tenderLabel = tenders.map(t => `${t.method} ${new Prisma.Decimal(t.amount).toFixed(2)}${t.reference ? ` · ${t.reference}` : ''}`).join(', ');
       await tx.folioItem.create({ data: {
         folioId: targetFolio.id, type: paymentType === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
-        description: `${paymentType === 'DEPOSIT' ? 'Deposit collected' : 'Payment received'} (${tenderLabel})`,
+        description: `${paymentType === 'DEPOSIT' ? 'Deposit / Part payment collected' : 'Payment received'} (${tenderLabel})${isCheckedOutGuest ? ' — Post-checkout settlement' : ''}`,
         amount: amount.negated(), quantity: 1, unitPrice: amount.negated(), department: 'FRONT_DESK',
         referenceId: payment.id, referenceType: 'PAYMENT', postedBy: data.processedBy,
       } });
-      await tx.folio.update({ where: { id: targetFolio.id }, data: { balance: { decrement: amount } } });
+      const currentBal = new Prisma.Decimal(targetFolio.balance || 0);
+      const newBal = currentBal.minus(amount);
+      const isSettled = newBal.lte(0.005);
+      const folioClosedAt = (targetFolio as { closedAt?: Date | null }).closedAt;
+      await tx.folio.update({
+        where: { id: targetFolio.id },
+        data: {
+          balance: { decrement: amount },
+          ...(isCheckedOutGuest && isSettled ? { status: FolioStatus.CLOSED, closedAt: folioClosedAt || new Date() } : {}),
+        },
+      });
+      if (isCheckedOutGuest && tx.checkOut?.findUnique) {
+        const existingCheckOut = await tx.checkOut.findUnique({ where: { reservationId: reservation.id } });
+        if (existingCheckOut) {
+          await tx.checkOut.update({
+            where: { id: existingCheckOut.id },
+            data: { finalBalance: Prisma.Decimal.max(new Prisma.Decimal(0), newBal) },
+          });
+        }
+      }
     }
     await AuditService.logInTransaction(tx, {
       userId: data.processedBy, action: 'payment.created', resource: 'payment', resourceId: payment.id,
