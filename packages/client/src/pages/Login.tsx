@@ -78,7 +78,7 @@ export default function Login() {
   const villaTagline = theme?.villaTagline || 'Property operations';
 
   const fieldClass =
-    'glass-input w-full rounded-xl px-4 py-2.5 text-sm transition-all';
+    'ns-input glass-input w-full rounded-xl px-4 py-2.5 text-sm font-bold transition-all';
 
   return (
     <div className="relative min-h-screen lg:grid lg:grid-cols-[1.05fr_.95fr]">
@@ -93,7 +93,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="glass-subtle max-w-xl rounded-3xl p-8">
+          <div className="glass-subtle skeuo-card max-w-xl rounded-3xl p-8 border border-[var(--ns-glass-line)]">
             <div className="text-[10px] font-extrabold uppercase tracking-[.22em] text-[var(--ns-gold)]">
               Arrive as a Guest, Stay as Family
             </div>
@@ -124,7 +124,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="glass-strong rounded-3xl p-6 sm:p-8">
+          <div className="glass-strong skeuo-card rounded-3xl p-6 sm:p-8 border border-[var(--ns-glass-line)] shadow-2xl">
             <div className="mb-6">
               <div className="ns-eyebrow">{two ? 'SECURITY CHECK' : 'STAFF ACCESS'}</div>
               <h2 className="mt-2 text-3xl font-extrabold tracking-[-.045em]" style={{ color: 'var(--ns-ink)' }}>
@@ -209,7 +209,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={busy}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--ns-gold)]/40 glass ns-glass-hover px-4 py-2.5 text-sm font-bold text-[var(--ns-ink)] transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl skeuo-btn skeuo-btn-primary px-4 py-3 text-sm font-black text-white shadow-lg transition-all disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {two ? 'Verify' : 'Sign in'}
                 <ArrowRight size={16} />
@@ -217,7 +217,7 @@ export default function Login() {
             </form>
           </div>
 
-          <div className="glass-subtle mt-4 rounded-2xl p-4 text-center">
+          <div className="glass-subtle skeuo-card mt-4 rounded-2xl p-4 text-center border border-[var(--ns-glass-line)]">
             <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[.10em]" style={{ color: 'var(--ns-muted)' }}>
               Security Notice
             </div>

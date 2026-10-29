@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
@@ -125,7 +125,7 @@ export const Sidebar: React.FC = () => {
           <img
             src={villaLogo}
             alt="NS Luxury Villa"
-            className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-[#c59a58]/30 shadow-xs"
+            className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-[#c59a58]/40 shadow-xs"
             title="NS Luxury Villa"
           />
           {sidebarOpen && (
@@ -136,7 +136,7 @@ export const Sidebar: React.FC = () => {
               >
                 NS Luxury Villa
               </div>
-              <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--ns-gold)]">
+              <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,.2)]" />
                 <span className="truncate">Lokoe, Ho ({roleName})</span>
               </div>
@@ -148,7 +148,7 @@ export const Sidebar: React.FC = () => {
         {sections.map((section, sIdx) => (
           <div key={section.title} className={sidebarOpen ? 'mb-4' : 'mb-2.5'}>
             {sidebarOpen ? (
-              <div className="px-3 pb-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--ns-gold)] opacity-80">
+              <div className="px-3 pb-1.5 text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)] opacity-95">
                 {section.title}
               </div>
             ) : sIdx > 0 ? (
@@ -168,7 +168,7 @@ export const Sidebar: React.FC = () => {
                         : 'justify-center h-10 w-10 mx-auto'
                     } ${
                       isActive
-                        ? 'glass-subtle ns-glass-selected'
+                        ? 'ns-glass-selected'
                         : 'border border-transparent ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
                     }`
                   }
@@ -186,14 +186,14 @@ export const Sidebar: React.FC = () => {
                         size={sidebarOpen ? 15 : 18}
                         className={`shrink-0 transition-all ${
                           isActive
-                            ? 'text-[var(--ns-gold)]'
+                            ? 'text-[var(--ns-gold)] drop-shadow-xs'
                             : 'text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)]'
                         }`}
                       />
                       {sidebarOpen && (
                         <span
-                          className={`truncate ${isActive ? 'font-extrabold' : ''}`}
-                          style={{ color: isActive ? 'var(--ns-ink)' : 'var(--ns-ink)' }}
+                          className={`truncate ${isActive ? 'font-black' : 'font-bold'}`}
+                          style={{ color: 'var(--ns-ink)' }}
                         >
                           {label}
                         </span>
@@ -211,16 +211,16 @@ export const Sidebar: React.FC = () => {
           {sidebarOpen ? (
             <div className="space-y-3">
               <div
-                className="glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5"
+                className="skeuo-card glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl glass-subtle text-[10px] font-black text-[var(--ns-teal)]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl skeuo-badge bg-[var(--ns-teal)] text-white text-[10px] font-black border border-white/40">
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-[11px] font-bold" style={{ color: 'var(--ns-ink)' }}>
+                  <div className="truncate text-[11px] font-black" style={{ color: 'var(--ns-ink)' }}>
                     {fullName}
                   </div>
-                  <div className="truncate text-[9px] font-semibold uppercase tracking-wider text-[var(--ns-gold)]">
+                  <div className="truncate text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
                     {roleName}
                   </div>
                 </div>
@@ -232,14 +232,14 @@ export const Sidebar: React.FC = () => {
                 <div className="font-black uppercase tracking-[.14em]" style={{ color: 'var(--ns-ink)' }}>
                   NS Luxury Villa
                 </div>
-                <div className="italic text-[var(--ns-gold)]">
+                <div className="italic font-semibold text-[var(--ns-gold)]">
                   &ldquo;Arrive as guest, stay as family&rdquo;
                 </div>
               </div>
             </div>
           ) : (
             <div
-              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl glass-subtle text-[10px] font-black text-[var(--ns-teal)] cursor-pointer hover:opacity-90 transition"
+              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl skeuo-badge bg-[var(--ns-teal)] text-white text-[10px] font-black cursor-pointer hover:opacity-90 transition border border-white/40"
               title={`${fullName} (${roleName})`}
             >
               {initials}

@@ -68,7 +68,7 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
   return (
     <div
       onClick={onClick}
-      className="glass ns-glass-hover relative rounded-xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none"
+      className="glass skeuo-card relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none border"
       style={{ borderColor: accent }}
     >
       {/* Tile Body */}
@@ -101,7 +101,7 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
 };
 
 // ──────────────────────────────────────────
-// Button (Clear Glass)
+// Button (Tactile Skeuomorphic Clear Glass)
 // ──────────────────────────────────────────
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'accent';
@@ -120,12 +120,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'glass ns-glass-hover border border-[var(--ns-teal)] text-[var(--ns-teal)] font-semibold shadow-sm',
-    secondary: 'glass ns-glass-hover border border-[var(--ns-glass-line)] text-[var(--ns-ink)] hover:border-[var(--ns-gold)]',
-    accent: 'glass ns-glass-hover border border-[var(--ns-gold)] text-[var(--ns-gold)] font-semibold shadow-sm',
-    danger: 'glass ns-glass-hover border border-[var(--ns-danger)] text-[var(--ns-danger)] font-semibold shadow-sm',
-    ghost: 'glass ns-glass-hover text-[var(--ns-ink)]',
-    outline: 'glass ns-glass-hover border border-[var(--ns-glass-line)] text-[var(--ns-ink)]',
+    primary: 'skeuo-btn skeuo-btn-primary',
+    secondary: 'skeuo-btn skeuo-btn-secondary',
+    accent: 'skeuo-btn skeuo-btn-accent',
+    danger: 'skeuo-btn skeuo-btn-danger',
+    ghost: 'skeuo-btn skeuo-btn-ghost',
+    outline: 'skeuo-btn skeuo-btn-outline',
   };
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-xs rounded-md gap-1.5',
@@ -155,21 +155,21 @@ interface BadgeProps {
 
 export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral' }) => {
   const cls = {
-    available: 'text-[var(--ns-success)] border-[var(--ns-success)]',
-    reserved: 'text-[var(--ns-info)] border-[var(--ns-info)]',
-    occupied: 'text-[var(--ns-danger)] border-[var(--ns-danger)]',
-    dirty: 'text-[var(--ns-warning)] border-[var(--ns-warning)]',
-    cleaning: 'text-[var(--ns-purple)] border-[var(--ns-purple)]',
-    ready: 'text-[var(--ns-teal)] border-[var(--ns-teal)]',
-    maintenance: 'text-[var(--ns-muted)] border-[var(--ns-glass-line)]',
-    success: 'text-[var(--ns-success)] border-[var(--ns-success)]',
-    warning: 'text-[var(--ns-warning)] border-[var(--ns-warning)]',
-    danger: 'text-[var(--ns-danger)] border-[var(--ns-danger)]',
-    info: 'text-[var(--ns-info)] border-[var(--ns-info)]',
-    neutral: 'text-[var(--ns-muted)] border-[var(--ns-glass-line)]',
+    available: 'bg-emerald-500/15 text-[var(--ns-success)] border-emerald-500/40',
+    reserved: 'bg-amber-500/15 text-[var(--ns-warning)] border-amber-500/40',
+    occupied: 'bg-rose-500/15 text-[var(--ns-danger)] border-rose-500/40',
+    dirty: 'bg-amber-600/15 text-[var(--ns-warning)] border-amber-600/40',
+    cleaning: 'bg-purple-500/15 text-[var(--ns-purple)] border-purple-500/40',
+    ready: 'bg-teal-500/15 text-[var(--ns-teal)] border-teal-500/40',
+    maintenance: 'bg-slate-500/15 text-[var(--ns-muted)] border-slate-500/40',
+    success: 'bg-emerald-500/15 text-[var(--ns-success)] border-emerald-500/40',
+    warning: 'bg-amber-500/15 text-[var(--ns-warning)] border-amber-500/40',
+    danger: 'bg-rose-500/15 text-[var(--ns-danger)] border-rose-500/40',
+    info: 'bg-sky-500/15 text-[var(--ns-info)] border-sky-500/40',
+    neutral: 'bg-slate-500/15 text-[var(--ns-muted)] border-slate-400/40',
   };
   return (
-    <span className={`glass inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wide border ${cls[variant]}`}>
+    <span className={`skeuo-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wide border ${cls[variant]}`}>
       {label}
     </span>
   );
@@ -313,11 +313,11 @@ export function DataTable<T>({
   onRowClick,
 }: DataTableProps<T>) {
   return (
-    <div className="glass border border-[var(--ns-glass-line)] rounded-xl overflow-hidden shadow-sm">
+    <div className="glass ns-table border border-[var(--ns-glass-line)] rounded-2xl overflow-hidden shadow-md">
       <div className="overflow-x-auto">
         <table className="w-full text-xs text-left">
           <thead>
-            <tr className="ns-glass-band border-b border-[var(--ns-glass-line)] text-[var(--ns-muted)]">
+            <tr className="border-b border-[var(--ns-glass-line)]">
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -390,7 +390,7 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
       <button
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="glass ns-glass-hover p-1.5 rounded-md border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="skeuo-btn skeuo-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft size={16} />
       </button>
@@ -400,7 +400,7 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
       <button
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="glass ns-glass-hover p-1.5 rounded-md border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="skeuo-btn skeuo-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight size={16} />
       </button>
@@ -474,7 +474,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         onChange={(e) => handleChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="ns-input w-full pl-9 pr-8 py-2.5 text-xs text-[var(--ns-ink)] placeholder:text-[var(--ns-muted)]"
+        className="ns-input w-full pl-9 pr-8 py-2.5 text-xs font-bold text-[var(--ns-ink)] placeholder:text-[var(--ns-muted)]"
       />
       {localValue && (
         <button
@@ -525,11 +525,11 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`glass-strong my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-2xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all`}
+        className={`glass-strong my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-3xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all shadow-2xl border border-[var(--ns-glass-line)]`}
         style={{ color: 'var(--ns-ink)' }}
       >
         <div
-          className="flex items-center justify-between px-6 py-4 border-b border-[var(--ns-glass-line)] shrink-0"
+          className="flex items-center justify-between px-6 py-4.5 border-b border-[var(--ns-glass-line)] shrink-0 ns-glass-band"
         >
           <div>
             <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
@@ -547,7 +547,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
         {footer && (
           <div
-            className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-[var(--ns-glass-line)] text-[var(--ns-ink)] shrink-0"
+            className="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-[var(--ns-glass-line)] text-[var(--ns-ink)] shrink-0 ns-glass-band"
           >
             {footer}
           </div>
@@ -607,7 +607,7 @@ interface FormFieldProps {
 
 export const FormField: React.FC<FormFieldProps> = ({ label, error, required, children }) => (
   <div className="mb-3.5">
-    <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
+    <label className="block text-xs font-extrabold mb-1.5 tracking-tight" style={{ color: 'var(--ns-ink)' }}>
       {label} {required && <span className="text-[var(--ns-danger)]">*</span>}
     </label>
     {children}

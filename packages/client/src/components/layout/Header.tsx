@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
@@ -65,18 +65,18 @@ export const Header: React.FC = () => {
           onClick={toggleSidebar}
           aria-label={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           title={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
-          className="flex h-9 w-9 items-center justify-center glass-subtle rounded-xl text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-all shrink-0"
+          className="flex h-9 w-9 items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] hover:text-[var(--ns-ink)] transition-all shrink-0"
         >
           {sidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeft size={17} />}
         </button>
 
         <button onClick={() => navigate('/dashboard')} className="flex shrink-0 items-center gap-3 text-left">
-          <img src={villaLogo} alt={villaName} className="h-10 w-10 rounded-xl object-cover ring-1 ring-[#c59a58]/30 shadow-xs" />
+          <img src={villaLogo} alt={villaName} className="h-10 w-10 rounded-xl object-cover ring-1 ring-[#c59a58]/40 shadow-sm" />
           <div className="hidden sm:block">
             <div className="font-['Manrope'] text-[15px] font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {villaName}
             </div>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-gold)]">
+            <div className="text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
               {villaTagline}
             </div>
           </div>
@@ -90,8 +90,8 @@ export const Header: React.FC = () => {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search guests, reservations, rooms…"
-                className="ns-input h-9 w-full pl-9 pr-3 text-xs"
-                style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', borderColor: 'var(--ns-line)' }}
+                className="ns-input h-9 w-full pl-9 pr-3 text-xs font-bold"
+                style={{ color: 'var(--ns-ink)' }}
               />
             </div>
           </form>
@@ -102,7 +102,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => { setShowThemeMenu(v => !v); setShowNotifications(false); }}
-              className="flex h-9 w-9 items-center justify-center glass-subtle rounded-xl text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors"
+              className="flex h-9 w-9 items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
               aria-label="Theme"
               title={`Theme: ${themePreference}`}
             >
@@ -110,14 +110,14 @@ export const Header: React.FC = () => {
             </button>
             {showThemeMenu && (
               <div
-                className="glass-strong absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5"
+                className="glass-strong skeuo-card absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
               >
-                <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
+                <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
                 {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
                   <button
                     key={value}
                     onClick={() => { setThemePreference(value); setShowThemeMenu(false); }}
-                    className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                    className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold transition-colors ${
                       themePreference === value ? 'ns-glass-selected text-[var(--ns-gold)]' : 'ns-glass-hover'
                     }`}
                     style={{ color: themePreference === value ? 'var(--ns-gold)' : 'var(--ns-ink)' }}
@@ -135,13 +135,13 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative h-9 w-9 flex items-center justify-center glass-subtle rounded-xl text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors"
+              className="relative h-9 w-9 flex items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
               aria-label="Notifications"
               title="Notifications"
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass-subtle border border-[var(--ns-danger)] text-[var(--ns-danger)] text-[9px] font-black">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full skeuo-badge bg-rose-500 text-white text-[9px] font-black border border-white/60">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -151,7 +151,7 @@ export const Header: React.FC = () => {
 
           {canSettings && (
             <button
-              className="hidden h-9 w-9 items-center justify-center glass-subtle rounded-xl text-[var(--ns-muted)] hover:text-[var(--ns-ink)] sm:flex transition-colors"
+              className="hidden h-9 w-9 items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] sm:flex transition-colors"
               onClick={() => navigate('/admin/settings')}
               aria-label="Settings"
             >
@@ -163,16 +163,16 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setOpenDropdown(v => !v)}
-              className="flex items-center gap-2 rounded-xl p-1 hover:bg-[var(--ns-surface-2)] transition-colors"
+              className="flex items-center gap-2 rounded-xl p-1 skeuo-btn skeuo-btn-secondary transition-colors"
             >
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full glass-subtle text-[11px] font-black text-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full skeuo-badge text-[11px] font-black text-white bg-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}
               </span>
               <span className="hidden text-left lg:block">
-                <span className="block max-w-[120px] truncate text-[11px] font-bold" style={{ color: 'var(--ns-ink)' }}>
+                <span className="block max-w-[120px] truncate text-[11px] font-extrabold" style={{ color: 'var(--ns-ink)' }}>
                   {user ? `${user.firstName} ${user.lastName}` : 'Staff'}
                 </span>
-                <span className="block text-[9px] font-semibold uppercase tracking-wider text-[var(--ns-gold)]">
+                <span className="block text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                   {user?.roles?.[0]?.name ?? 'User'}
                 </span>
               </span>
@@ -180,26 +180,26 @@ export const Header: React.FC = () => {
             </button>
             {openDropdown && (
               <div
-                className="glass-strong absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5"
+                className="glass-strong skeuo-card absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
               >
                 <div className="border-b border-[var(--ns-glass-line)] px-3 py-2.5">
-                  <div className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
+                  <div className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>
                     {user ? `${user.firstName} ${user.lastName}` : 'Staff'}
                   </div>
-                  <div className="mt-0.5 text-[10px]" style={{ color: 'var(--ns-muted)' }}>
+                  <div className="mt-0.5 text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
                     {user?.roles?.[0]?.name ?? 'User'} access
                   </div>
                 </div>
                 <button
                   onClick={() => { setOpenDropdown(false); navigate('/account'); }}
-                  className="mt-1 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold hover:bg-[var(--ns-surface-2)] transition-colors"
+                  className="mt-1 w-full rounded-xl px-3 py-2 text-left text-xs font-bold hover:bg-[var(--ns-surface-2)] transition-colors"
                   style={{ color: 'var(--ns-ink)' }}
                 >
                   Account & Profile
                 </button>
                 <button
                   onClick={() => void logout()}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-semibold text-[var(--ns-danger)] ns-glass-hover transition-colors"
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-[var(--ns-danger)] ns-glass-hover transition-colors"
                 >
                   <LogOut size={14} /> Sign out
                 </button>
