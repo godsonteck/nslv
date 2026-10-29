@@ -85,49 +85,49 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-[#14232b]">{title}</h3>
+        <h3 className="text-sm font-bold text-[var(--ns-ink)]">{title}</h3>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="primary" onClick={handleOpenAdd}><Plus size={14} /> Add</Button>
-          {onClose && <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#718086] hover:bg-[#f0f2ef]" title="Close category manager"><X size={15} /></button>}
+          {onClose && <button type="button" onClick={onClose} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover" title="Close category manager"><X size={15} /></button>}
         </div>
       </div>
 
       {isLoading ? (
-        <div className="py-4 text-center text-xs text-[#7a858a]">Loading categories...</div>
+        <div className="py-4 text-center text-xs text-[var(--ns-muted)]">Loading categories...</div>
       ) : categories.length === 0 ? (
-        <div className="py-4 text-center text-xs text-[#7a858a]">No categories yet</div>
+        <div className="py-4 text-center text-xs text-[var(--ns-muted)]">No categories yet</div>
       ) : (
         <div className="space-y-1">
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="flex items-center justify-between gap-2 rounded-lg border border-[#e6e8e5] bg-white px-3 py-2.5 hover:bg-[#f9faf8]"
+              className="glass ns-glass-hover flex items-center justify-between gap-2 rounded-lg border border-[var(--ns-glass-line)] px-3 py-2.5"
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <GripVertical size={14} className="shrink-0 text-[#a0a5ad] cursor-grab" />
+                <GripVertical size={14} className="shrink-0 text-[var(--ns-muted)] cursor-grab" />
                 <div
                   className="shrink-0 w-4 h-4 rounded"
                   style={{ backgroundColor: cat.color || '#16a4d4' }}
                   title={cat.color}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-xs text-[#14232b]">{cat.name}</div>
+                  <div className="font-medium text-xs text-[var(--ns-ink)]">{cat.name}</div>
                   {cat.description && (
-                    <div className="text-[10px] text-[#7a858a] line-clamp-1">{cat.description}</div>
+                    <div className="text-[10px] text-[var(--ns-muted)] line-clamp-1">{cat.description}</div>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => handleOpenEdit(cat)}
-                  className="p-1.5 hover:bg-[#f0f2ef] rounded-lg transition text-[#718086]"
+                  className="p-1.5 ns-glass-hover rounded-lg transition text-[var(--ns-muted)]"
                   title="Edit"
                 >
                   <Pencil size={14} />
                 </button>
                 <button
                   onClick={() => handleDelete(cat)}
-                  className="p-1.5 hover:bg-[#fef2f2] rounded-lg transition text-[#b84b4b]"
+                  className="p-1.5 ns-glass-hover rounded-lg transition text-[var(--ns-danger)]"
                   title="Delete"
                 >
                   <Trash2 size={14} />
@@ -163,9 +163,9 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
                 type="color"
                 value={formData.color}
                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                className="h-10 w-16 rounded cursor-pointer border border-[#2B303E]"
+                className="glass-input h-10 w-16 rounded cursor-pointer border border-[var(--ns-glass-line)]"
               />
-              <span className="text-xs font-mono text-[#7a858a]">{formData.color}</span>
+              <span className="text-xs font-mono text-[var(--ns-muted)]">{formData.color}</span>
             </div>
           </FormField>
 

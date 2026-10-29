@@ -13,27 +13,31 @@ export const ConnectionBadge: React.FC = () => {
     switch (mode) {
       case 'ONLINE':
         return {
-          dotClass: 'bg-emerald-400',
+          dotClass: 'bg-[var(--ns-success)]',
           label: 'Online',
-          textClass: 'text-[#A0A5AD]',
+          textClass: 'text-[var(--ns-success)]',
+          borderClass: 'border-[var(--ns-success)]',
         };
       case 'OFFLINE':
         return {
-          dotClass: 'bg-amber-400',
+          dotClass: 'bg-[var(--ns-warning)]',
           label: pendingSyncCount > 0 ? `Offline (${pendingSyncCount} queued)` : 'Offline',
-          textClass: 'text-amber-300',
+          textClass: 'text-[var(--ns-warning)]',
+          borderClass: 'border-[var(--ns-warning)]',
         };
       case 'SYNCING':
         return {
-          dotClass: 'bg-blue-400 animate-pulse',
+          dotClass: 'bg-[var(--ns-info)] animate-pulse',
           label: `Syncing ${pendingSyncCount}...`,
-          textClass: 'text-blue-300',
+          textClass: 'text-[var(--ns-info)]',
+          borderClass: 'border-[var(--ns-info)]',
         };
       case 'SYNC_ERROR':
         return {
-          dotClass: 'bg-red-400',
+          dotClass: 'bg-[var(--ns-danger)]',
           label: 'Sync Error',
-          textClass: 'text-red-300',
+          textClass: 'text-[var(--ns-danger)]',
+          borderClass: 'border-[var(--ns-danger)]',
         };
     }
   };
@@ -42,7 +46,7 @@ export const ConnectionBadge: React.FC = () => {
 
   return (
     <div
-      className="flex items-center gap-2 text-xs select-none"
+      className={`glass flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs select-none ${status.borderClass}`}
       title="NS Villa System Connection Status"
     >
       <span className={`w-2 h-2 rounded-full ${status.dotClass}`} />

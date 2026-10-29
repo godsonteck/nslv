@@ -236,7 +236,7 @@ export const GuestsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={load}
-            className="gap-1.5"
+            className="gap-1.5 glass-subtle ns-glass-hover"
             title="Refresh guest records"
           >
             <RefreshCw size={14} /> Refresh
@@ -246,7 +246,7 @@ export const GuestsPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => setCreateOpen(true)}
-              className="gap-1.5 font-bold"
+              className="gap-1.5 font-bold glass-subtle ns-glass-hover"
             >
               <Plus size={14} /> Register Guest
             </Button>
@@ -299,7 +299,7 @@ export const GuestsPage: React.FC = () => {
           <select
             value={vipFilter}
             onChange={(e) => setVipFilter(e.target.value as any)}
-            className="ns-input h-10 px-3 text-xs font-semibold"
+            className="ns-input glass-input h-10 px-3 text-xs font-semibold"
             title="Filter by guest tier"
           >
             <option value="ALL">All Guests</option>
@@ -311,7 +311,7 @@ export const GuestsPage: React.FC = () => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="ns-input h-10 px-3 text-xs font-semibold"
+            className="ns-input glass-input h-10 px-3 text-xs font-semibold"
             title="Sort guest directory"
           >
             <option value="name_asc">Sort: Name (A to Z)</option>
@@ -323,7 +323,7 @@ export const GuestsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setQ('')}
-              className="inline-flex items-center gap-1 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              className="inline-flex items-center gap-1 rounded-xl px-2.5 py-2 text-xs font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-ink)] glass-subtle ns-glass-hover"
               title="Clear search"
             >
               <X size={14} /> Clear
@@ -335,9 +335,9 @@ export const GuestsPage: React.FC = () => {
           <LoadingState />
         ) : filteredGuests.length === 0 ? (
           <div className="py-14 text-center">
-            <Users className="mx-auto text-slate-400" size={36} />
-            <div className="mt-3 text-sm font-bold text-slate-700 dark:text-slate-300">No guests match your criteria</div>
-            <div className="mt-1 text-xs text-slate-400">
+            <Users className="mx-auto text-[var(--ns-muted)]" size={36} />
+            <div className="mt-3 text-sm font-bold text-[var(--ns-ink)]">No guests match your criteria</div>
+            <div className="mt-1 text-xs text-[var(--ns-muted)]">
               {q ? 'Try clearing your search query or adjusting the filters.' : 'Register the first guest profile when a new guest arrives.'}
             </div>
             {canCreate && (
@@ -345,7 +345,7 @@ export const GuestsPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={() => setCreateOpen(true)}
-                className="mt-4 gap-1.5"
+                className="mt-4 gap-1.5 glass-subtle ns-glass-hover"
               >
                 <Plus size={14} /> Register Guest
               </Button>
@@ -354,7 +354,7 @@ export const GuestsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-[var(--ns-surface-2)] text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-line)]">
+              <thead className="ns-glass-band text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="px-5 py-3">Guest Name</th>
                   <th className="px-5 py-3">Contact</th>
@@ -364,7 +364,7 @@ export const GuestsPage: React.FC = () => {
                   <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {filteredGuests.map((g) => {
                   const initials = ((g.firstName?.[0] || 'G') + (g.lastName?.[0] || '')).toUpperCase();
                   const stays = g._count?.reservations ?? 0;
@@ -372,7 +372,7 @@ export const GuestsPage: React.FC = () => {
                     <tr
                       key={g.id}
                       onClick={() => openGuestDetails(g)}
-                      className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                      className="cursor-pointer ns-glass-hover transition-colors"
                     >
                       {/* Name & Initials */}
                       <td className="px-5 py-3.5">
@@ -380,8 +380,8 @@ export const GuestsPage: React.FC = () => {
                           <div
                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
                               g.isVip
-                                ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-xs'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                ? 'glass text-[var(--ns-gold)] shadow-xs'
+                                : 'glass-subtle text-[var(--ns-ink)]'
                             }`}
                           >
                             {initials}
@@ -392,7 +392,7 @@ export const GuestsPage: React.FC = () => {
                                 {formatGuestName(g)}
                               </span>
                               {g.isVip && (
-                                <span className="inline-flex items-center gap-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-700 dark:text-amber-400">
+                                <span className="inline-flex items-center gap-0.5 rounded-md glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[9px] font-extrabold text-[var(--ns-warning)]">
                                   <Sparkles size={8} /> VIP
                                 </span>
                               )}
@@ -411,34 +411,34 @@ export const GuestsPage: React.FC = () => {
                             <a
                               href={`tel:${g.phone}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="hover:underline hover:text-[#b88738]"
+                              className="hover:underline hover:text-[var(--ns-gold)]"
                             >
                               {g.phone}
                             </a>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-[var(--ns-muted)]">-</span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="text-[11px] text-[var(--ns-muted)] mt-0.5">
                           {g.email ? (
                             <a
                               href={`mailto:${g.email}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="hover:underline hover:text-[#b88738]"
+                              className="hover:underline hover:text-[var(--ns-gold)]"
                             >
                               {g.email}
                             </a>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-[var(--ns-muted)]">-</span>
                           )}
                         </div>
                       </td>
 
                       {/* Location & Nationality */}
-                      <td className="px-5 py-3.5 text-xs text-slate-600 dark:text-slate-300">
+                      <td className="px-5 py-3.5 text-xs text-[var(--ns-muted)]">
                         <div>{[g.city, g.country].filter(Boolean).join(', ') || '-'}</div>
                         {g.nationality && (
-                          <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                          <div className="text-[11px] text-[var(--ns-muted)] mt-0.5">
                             {g.nationality}
                           </div>
                         )}
@@ -448,15 +448,15 @@ export const GuestsPage: React.FC = () => {
                       <td className="px-5 py-3.5 text-center">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
                           stays > 0
-                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                            ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]'
+                            : 'glass-subtle text-[var(--ns-muted)]'
                         }`}>
                           {stays} stay{stays === 1 ? '' : 's'}
                         </span>
                       </td>
 
                       {/* Registered Date */}
-                      <td className="px-5 py-3.5 text-xs text-slate-500 dark:text-slate-400">
+                      <td className="px-5 py-3.5 text-xs text-[var(--ns-muted)]">
                         {g.createdAt ? new Date(g.createdAt).toLocaleDateString() : '-'}
                       </td>
 
@@ -465,7 +465,7 @@ export const GuestsPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => openGuestDetails(g)}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400 transition"
+                            className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] transition bg-[var(--ns-glass-1)]"
                             title="View guest profile"
                           >
                             <Eye size={16} />
@@ -473,7 +473,7 @@ export const GuestsPage: React.FC = () => {
                           {canEdit && (
                             <button
                               onClick={() => startEditGuest(g)}
-                              className="rounded-lg p-2 text-slate-400 hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400 transition"
+                              className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] transition bg-[var(--ns-glass-1)]"
                               title="Edit guest profile"
                             >
                               <Pencil size={16} />
@@ -508,24 +508,24 @@ export const GuestsPage: React.FC = () => {
                 <div
                   className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-sm font-black ${
                     selectedGuest.isVip
-                      ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200'
+                      ? 'glass text-[var(--ns-gold)] shadow-sm'
+                      : 'glass-subtle text-[var(--ns-ink)]'
                   }`}
                 >
                   {((selectedGuest.firstName?.[0] || 'G') + (selectedGuest.lastName?.[0] || '')).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    <h3 className="text-base font-bold text-[var(--ns-ink)]">
                       {formatGuestName(selectedGuest)}
                     </h3>
                     {selectedGuest.isVip && (
-                      <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                      <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-2 py-0.5 text-[10px] font-bold text-[var(--ns-warning)]">
                         VIP
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <div className="text-xs text-[var(--ns-muted)] mt-0.5">
                     Guest ID: <span className="font-mono">{selectedGuest.id.slice(0, 8).toUpperCase()}</span>
                     {selectedGuest.createdAt && ` · Joined ${new Date(selectedGuest.createdAt).toLocaleDateString()}`}
                   </div>
@@ -537,7 +537,7 @@ export const GuestsPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => startEditGuest(selectedGuest)}
-                  className="gap-1 text-xs"
+                  className="gap-1 text-xs glass-subtle ns-glass-hover"
                 >
                   <Pencil size={12} /> Edit
                 </Button>
@@ -549,12 +549,12 @@ export const GuestsPage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {/* Contact & Location List */}
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-3.5 space-y-2 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
-                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Phone size={13} /> Phone</span>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3.5 space-y-2 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-[var(--ns-glass-line)]">
+                    <span className="text-[var(--ns-muted)] flex items-center gap-1.5"><Phone size={13} /> Phone</span>
+                    <span className="font-semibold text-[var(--ns-ink)]">
                       {selectedGuest.phone ? (
-                        <a href={`tel:${selectedGuest.phone}`} className="hover:underline hover:text-[#b88738]">
+                        <a href={`tel:${selectedGuest.phone}`} className="hover:underline hover:text-[var(--ns-gold)]">
                           {selectedGuest.phone}
                         </a>
                       ) : (
@@ -562,11 +562,11 @@ export const GuestsPage: React.FC = () => {
                       )}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
-                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Mail size={13} /> Email</span>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                  <div className="flex justify-between items-center py-1 border-b border-[var(--ns-glass-line)]">
+                    <span className="text-[var(--ns-muted)] flex items-center gap-1.5"><Mail size={13} /> Email</span>
+                    <span className="font-semibold text-[var(--ns-ink)]">
                       {selectedGuest.email ? (
-                        <a href={`mailto:${selectedGuest.email}`} className="hover:underline hover:text-[#b88738]">
+                        <a href={`mailto:${selectedGuest.email}`} className="hover:underline hover:text-[var(--ns-gold)]">
                           {selectedGuest.email}
                         </a>
                       ) : (
@@ -574,22 +574,22 @@ export const GuestsPage: React.FC = () => {
                       )}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
-                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><MapPin size={13} /> Location</span>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                  <div className="flex justify-between items-center py-1 border-b border-[var(--ns-glass-line)]">
+                    <span className="text-[var(--ns-muted)] flex items-center gap-1.5"><MapPin size={13} /> Location</span>
+                    <span className="font-semibold text-[var(--ns-ink)]">
                       {[selectedGuest.city, selectedGuest.country].filter(Boolean).join(', ') || '-'}
                     </span>
                   </div>
                   {selectedGuest.nationality && (
-                    <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800">
-                      <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Building size={13} /> Nationality</span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedGuest.nationality}</span>
+                    <div className="flex justify-between items-center py-1 border-b border-[var(--ns-glass-line)]">
+                      <span className="text-[var(--ns-muted)] flex items-center gap-1.5"><Building size={13} /> Nationality</span>
+                      <span className="font-semibold text-[var(--ns-ink)]">{selectedGuest.nationality}</span>
                     </div>
                   )}
                   {selectedGuest.idDocumentNumber && (
                     <div className="flex justify-between items-center py-1">
-                      <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Shield size={13} /> ID Document</span>
-                      <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
+                      <span className="text-[var(--ns-muted)] flex items-center gap-1.5"><Shield size={13} /> ID Document</span>
+                      <span className="font-mono font-semibold text-[var(--ns-ink)]">
                         {canViewSensitive
                           ? `${selectedGuest.idDocumentType ? selectedGuest.idDocumentType + ' ' : ''}${selectedGuest.idDocumentNumber}`
                           : '••••••••'}
@@ -600,47 +600,47 @@ export const GuestsPage: React.FC = () => {
 
                 {/* Notes or Preferences if any */}
                 {(selectedGuest.preferences || selectedGuest.notes) && (
-                  <div className="rounded-xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 p-3 text-xs space-y-1">
+                  <div className="rounded-xl border border-[var(--ns-warning)] glass-subtle p-3 text-xs space-y-1">
                     {selectedGuest.preferences && (
                       <div>
-                        <span className="font-bold text-amber-800 dark:text-amber-400">Preferences: </span>
-                        <span className="text-slate-700 dark:text-slate-300">{selectedGuest.preferences}</span>
+                        <span className="font-bold text-[var(--ns-warning)]">Preferences: </span>
+                        <span className="text-[var(--ns-ink)]">{selectedGuest.preferences}</span>
                       </div>
                     )}
                     {selectedGuest.notes && (
                       <div>
-                        <span className="font-bold text-amber-800 dark:text-amber-400">Staff Notes: </span>
-                        <span className="text-slate-700 dark:text-slate-300">{selectedGuest.notes}</span>
+                        <span className="font-bold text-[var(--ns-warning)]">Staff Notes: </span>
+                        <span className="text-[var(--ns-ink)]">{selectedGuest.notes}</span>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Stay History Summary */}
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-3.5 space-y-2 text-xs">
-                  <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3.5 space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">
                     <span className="flex items-center gap-1.5"><BedDouble size={13} /> Stay History</span>
                     <span>{selectedGuest.reservations?.length ?? 0} booking{(selectedGuest.reservations?.length ?? 0) === 1 ? '' : 's'}</span>
                   </div>
 
                   {!selectedGuest.reservations || selectedGuest.reservations.length === 0 ? (
-                    <p className="text-slate-400 dark:text-slate-500 text-center py-2">No previous bookings recorded.</p>
+                    <p className="text-[var(--ns-muted)] text-center py-2">No previous bookings recorded.</p>
                   ) : (
-                    <div className="space-y-1.5 max-h-48 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800">
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto divide-y divide-[var(--ns-glass-line)]">
                       {selectedGuest.reservations.map((item: any) => {
                         const res = item.reservation || item;
                         return (
                           <div key={res.id} className="pt-1.5 first:pt-0 flex items-center justify-between text-xs">
                             <div>
-                              <div className="font-bold text-slate-900 dark:text-slate-100">
+                              <div className="font-bold text-[var(--ns-ink)]">
                                 {res.room ? `Room ${res.room.number}` : 'Unassigned'}
                               </div>
-                              <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                              <div className="text-[11px] text-[var(--ns-muted)]">
                                 {new Date(res.checkInDate).toLocaleDateString()} → {new Date(res.checkOutDate).toLocaleDateString()}
                               </div>
                             </div>
                             <div className="text-right flex items-center gap-2">
-                              <span className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(res.totalAmount)}</span>
+                              <span className="font-semibold text-[var(--ns-ink)]">{formatCurrency(res.totalAmount)}</span>
                               {statusBadge(res.status)}
                             </div>
                           </div>
@@ -678,7 +678,7 @@ export const GuestsPage: React.FC = () => {
               type="submit"
               form="create-guest-form"
               loading={saving}
-              className="font-bold bg-gradient-to-r from-[#174b59] to-[#0e3440] hover:from-[#133f4b] hover:to-[#0a2730] text-white px-5 shadow-xs"
+              className="font-bold glass text-[var(--ns-teal)] px-5 shadow-xs ns-glass-hover"
             >
               Save Guest Profile
             </Button>
@@ -728,17 +728,17 @@ export const GuestsPage: React.FC = () => {
             onClick={() => setForm({ ...form, isVip: !form.isVip })}
             className={`cursor-pointer rounded-xl border p-3.5 transition-all flex items-center justify-between gap-3 ${
               form.isVip
-                ? 'border-[#c59a58]/60 bg-[#c59a58]/10 ring-1 ring-[#c59a58]/30 shadow-xs'
-                : 'border-[var(--ns-line)] hover:border-slate-300 dark:hover:border-slate-700'
+                ? 'border-[var(--ns-gold)] glass-subtle ring-1 ring-[var(--ns-gold)] shadow-xs ns-glass-selected'
+                : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-glass-line)]'
             }`}
-            style={{ backgroundColor: form.isVip ? undefined : 'var(--ns-surface-2)' }}
+            style={{ backgroundColor: form.isVip ? undefined : 'var(--ns-glass-1)' }}
           >
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
                   form.isVip
-                    ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-xs'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    ? 'glass text-[var(--ns-gold)] shadow-xs'
+                    : 'glass-subtle text-[var(--ns-muted)]'
                 }`}
               >
                 <Sparkles size={16} />
@@ -749,7 +749,7 @@ export const GuestsPage: React.FC = () => {
                     VIP Guest Recognition
                   </span>
                   {form.isVip && (
-                    <span className="rounded bg-[#c59a58]/20 px-1.5 py-0.5 text-[9px] font-black uppercase text-[#c59a58]">
+                    <span className="rounded glass-subtle px-1.5 py-0.5 text-[9px] font-black uppercase text-[var(--ns-gold)]">
                       Active
                     </span>
                   )}
@@ -761,13 +761,13 @@ export const GuestsPage: React.FC = () => {
             </div>
             <button
               type="button"
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                form.isVip ? 'bg-[#c59a58]' : 'bg-slate-300 dark:bg-slate-700'
+              className={`glass-subtle ns-glass-hover relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                form.isVip ? 'glass ns-glass-selected' : 'glass'
               }`}
               aria-label="Toggle VIP Status"
             >
               <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full glass-subtle shadow-md ring-0 transition duration-200 ease-in-out ${
                   form.isVip ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
@@ -853,7 +853,7 @@ export const GuestsPage: React.FC = () => {
               type="submit"
               form="edit-guest-form"
               loading={saving}
-              className="font-bold bg-gradient-to-r from-[#174b59] to-[#0e3440] hover:from-[#133f4b] hover:to-[#0a2730] text-white px-5 shadow-xs"
+              className="font-bold glass text-[var(--ns-teal)] px-5 shadow-xs ns-glass-hover"
             >
               Save Changes
             </Button>
@@ -901,17 +901,17 @@ export const GuestsPage: React.FC = () => {
             onClick={() => setEditForm({ ...editForm, isVip: !editForm.isVip })}
             className={`cursor-pointer rounded-xl border p-3.5 transition-all flex items-center justify-between gap-3 ${
               editForm.isVip
-                ? 'border-[#c59a58]/60 bg-[#c59a58]/10 ring-1 ring-[#c59a58]/30 shadow-xs'
-                : 'border-[var(--ns-line)] hover:border-slate-300 dark:hover:border-slate-700'
+                ? 'border-[var(--ns-gold)] glass-subtle ring-1 ring-[var(--ns-gold)] shadow-xs ns-glass-selected'
+                : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-glass-line)]'
             }`}
-            style={{ backgroundColor: editForm.isVip ? undefined : 'var(--ns-surface-2)' }}
+            style={{ backgroundColor: editForm.isVip ? undefined : 'var(--ns-glass-1)' }}
           >
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
                   editForm.isVip
-                    ? 'bg-gradient-to-br from-[#c59a58] to-[#9b6e2e] text-white shadow-xs'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    ? 'glass text-[var(--ns-gold)] shadow-xs'
+                    : 'glass-subtle text-[var(--ns-muted)]'
                 }`}
               >
                 <Sparkles size={16} />
@@ -922,7 +922,7 @@ export const GuestsPage: React.FC = () => {
                     VIP Guest Recognition
                   </span>
                   {editForm.isVip && (
-                    <span className="rounded bg-[#c59a58]/20 px-1.5 py-0.5 text-[9px] font-black uppercase text-[#c59a58]">
+                    <span className="rounded glass-subtle px-1.5 py-0.5 text-[9px] font-black uppercase text-[var(--ns-gold)]">
                       Active
                     </span>
                   )}
@@ -934,13 +934,13 @@ export const GuestsPage: React.FC = () => {
             </div>
             <button
               type="button"
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                editForm.isVip ? 'bg-[#c59a58]' : 'bg-slate-300 dark:bg-slate-700'
+              className={`glass-subtle ns-glass-hover relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                editForm.isVip ? 'glass ns-glass-selected' : 'glass'
               }`}
               aria-label="Toggle VIP Status"
             >
               <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full glass-subtle shadow-md ring-0 transition duration-200 ease-in-out ${
                   editForm.isVip ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />

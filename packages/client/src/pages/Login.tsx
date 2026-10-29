@@ -73,48 +73,40 @@ export default function Login() {
     }
   };
 
-  // Use theme's background image if available, otherwise fallback to default asset
-  const backgroundImage = theme?.loginBgUrl || villaAssets.villaExterior;
   const logo = theme?.logoUrl || villaAssets.logo;
   const villaName = theme?.villaName || 'NSVilla';
   const villaTagline = theme?.villaTagline || 'Property operations';
 
   const fieldClass =
-    'glass-input w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all placeholder:opacity-70';
+    'glass-input w-full rounded-xl px-4 py-2.5 text-sm transition-all';
 
   return (
     <div className="relative min-h-screen lg:grid lg:grid-cols-[1.05fr_.95fr]">
-      {/* ── Left: editorial photo panel ── */}
+      {/* ── Left: editorial branding over the shared canvas ── */}
       <div className="relative hidden overflow-hidden lg:block">
-        <img src={backgroundImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(158deg, rgba(9,14,20,.74) 0%, rgba(10,20,28,.86) 55%, rgba(8,14,20,.92) 100%)' }}
-        />
-
-        <div className="relative flex h-full flex-col justify-between p-10 text-white xl:p-14">
+        <div className="relative flex h-full flex-col justify-between p-10 text-[var(--ns-ink)] xl:p-14">
           <div className="flex items-center gap-3">
-            <img src={logo} alt={villaName} className="h-12 w-12 rounded-2xl object-cover ring-1 ring-white/25" />
+            <img src={logo} alt={villaName} className="h-12 w-12 rounded-2xl object-cover ring-1 ring-[var(--ns-glass-line)]" />
             <div>
               <div className="text-lg font-extrabold">{villaName}</div>
-              <div className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f0d49f]">{villaTagline}</div>
+              <div className="text-[9px] font-bold uppercase tracking-[.2em] text-[var(--ns-gold)]">{villaTagline}</div>
             </div>
           </div>
 
-          <div className="glass-dark max-w-xl rounded-3xl p-8">
-            <div className="text-[10px] font-extrabold uppercase tracking-[.22em] text-[#f0d49f]">
+          <div className="glass-subtle max-w-xl rounded-3xl p-8">
+            <div className="text-[10px] font-extrabold uppercase tracking-[.22em] text-[var(--ns-gold)]">
               Arrive as a Guest, Stay as Family
             </div>
             <h1 className="mt-4 text-5xl font-extrabold leading-[1.05] tracking-[-.055em]">
               A calmer way to run the villa.
             </h1>
-            <p className="mt-5 max-w-lg text-sm leading-7 text-white/70">
+            <p className="mt-5 max-w-lg text-sm leading-7 text-[var(--ns-muted)]">
               Reservations, rooms, guest stays, folios and department service stay connected from
               arrival to departure.
             </p>
           </div>
 
-          <div className="text-[10px] text-white/45">
+          <div className="text-[10px] text-[var(--ns-muted)]">
             Ho, Volta Region · Ghana · Authorized personnel only
           </div>
         </div>
@@ -125,10 +117,10 @@ export default function Login() {
         <div className="w-full max-w-[440px]">
           {/* Mobile header */}
           <div className="mb-6 flex items-center gap-3 lg:hidden">
-            <img src={logo} alt={villaName} className="h-11 w-11 rounded-xl object-cover ring-1 ring-[#c59a58]/30" />
+            <img src={logo} alt={villaName} className="h-11 w-11 rounded-xl object-cover ring-1 ring-[var(--ns-gold)]/30" />
             <div>
               <div className="text-base font-extrabold" style={{ color: 'var(--ns-ink)' }}>{villaName}</div>
-              <div className="text-[9px] font-extrabold uppercase tracking-[.18em] text-[#b88738]">{villaTagline}</div>
+              <div className="text-[9px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-gold)]">{villaTagline}</div>
             </div>
           </div>
 
@@ -146,7 +138,7 @@ export default function Login() {
             </div>
 
             {err && (
-              <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-600">
+              <div className="mb-4 rounded-xl border border-[var(--ns-danger)] glass-subtle p-3 text-sm text-[var(--ns-danger)]">
                 {err}
               </div>
             )}
@@ -217,7 +209,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={busy}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d7b37a]/40 bg-gradient-to-b from-[#c59a58] to-[#a87c3f] px-4 py-2.5 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.28),0_10px_24px_rgba(177,138,85,.28)] transition-all hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--ns-gold)]/40 glass ns-glass-hover px-4 py-2.5 text-sm font-bold text-[var(--ns-ink)] transition-all disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {two ? 'Verify' : 'Sign in'}
                 <ArrowRight size={16} />

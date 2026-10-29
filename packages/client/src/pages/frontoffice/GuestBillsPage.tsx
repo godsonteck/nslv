@@ -461,7 +461,7 @@ export const GuestBillsPage: React.FC = () => {
       title="Guest Bills & Folios"
       subtitle="Live room accounts for checked-in guests. Room charges from the restaurant, bar, pool, and front desk accumulate automatically."
       actions={
-        <Button variant="outline" size="sm" onClick={load} className="gap-1.5 border-[#e5ebeb]">
+        <Button variant="outline" size="sm" onClick={load} className="gap-1.5 border-[var(--ns-glass-line)] ns-glass-hover">
           <RefreshCw size={13} /> Refresh
         </Button>
       }
@@ -495,26 +495,26 @@ export const GuestBillsPage: React.FC = () => {
         subtitle="Click any row or 'View Bill' to inspect breakdown, posted items, payments, settle balances, or print official slips."
       >
         {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4">
-          <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-1">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] ns-glass-band p-4">
+          <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-1">
             <button
               type="button"
               onClick={() => setFilterTab('ALL')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'ALL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+              className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'ALL' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
             >
               All Folios ({stays.length + unsettledStays.length})
             </button>
             <button
               type="button"
               onClick={() => setFilterTab('IN_HOUSE')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'IN_HOUSE' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+              className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'IN_HOUSE' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
             >
               In-House ({stays.length})
             </button>
             <button
               type="button"
               onClick={() => setFilterTab('CHECKED_OUT')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${filterTab === 'CHECKED_OUT' ? 'bg-[#c59a58] text-[#14232b] shadow-sm font-black' : unsettledStays.length > 0 ? 'text-amber-700 dark:text-amber-400 font-extrabold bg-amber-500/20' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+              className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${filterTab === 'CHECKED_OUT' ? 'glass text-[var(--ns-ink)] shadow-sm font-black ns-glass-selected' : unsettledStays.length > 0 ? 'text-[var(--ns-warning)] font-extrabold glass' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
             >
               Checked Out (Owing: {unsettledStays.length})
             </button>
@@ -533,7 +533,7 @@ export const GuestBillsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-4">Room &amp; Guest</th>
                   <th className="py-3 px-4">Checkout / Status</th>
                   <th className="py-3 px-4 text-right">Supposed to Pay</th>
@@ -543,7 +543,7 @@ export const GuestBillsPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {visible.map(({ stay, folio }) => {
                   const summary = computeBillSummary(stay, folio);
 
@@ -551,12 +551,12 @@ export const GuestBillsPage: React.FC = () => {
                     <tr
                       key={stay.id}
                       onClick={() => openBillModal(stay, folio)}
-                      className="cursor-pointer hover:bg-[var(--ns-surface-2)] transition-colors"
+                      className="cursor-pointer ns-glass-hover transition-colors"
                     >
                       {/* Room & Guest */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#173c4d] font-mono text-xs font-black text-[#c59a58]">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg glass-subtle font-mono text-xs font-black text-[var(--ns-gold)]">
                             {stay.room?.number ?? '—'}
                           </span>
                           <div>
@@ -566,7 +566,7 @@ export const GuestBillsPage: React.FC = () => {
                                 ({stay.room?.roomType?.name || 'Room'})
                               </span>
                             </div>
-                            <div className="text-[10px] font-mono text-[#b88738]">
+                            <div className="text-[10px] font-mono text-[var(--ns-gold)]">
                               Folio #{folio.id.slice(0, 8).toUpperCase()}
                             </div>
                           </div>
@@ -577,19 +577,19 @@ export const GuestBillsPage: React.FC = () => {
                       <td className="py-3.5 px-4">
                         {summary.isCheckedOut ? (
                           <div className="space-y-0.5">
-                            <span className="inline-flex items-center gap-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 text-[10px] font-black uppercase px-2 py-0.2">
+                            <span className="inline-flex items-center gap-1 rounded glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)] text-[10px] font-black uppercase px-2 py-0.2">
                               Checked Out
                             </span>
-                            <div className="text-[10.5px] font-semibold text-slate-700 dark:text-slate-300">
+                            <div className="text-[10.5px] font-semibold text-[var(--ns-ink)]">
                               {summary.actualCheckOut ? new Date(summary.actualCheckOut).toLocaleDateString('en-GH', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Date recorded'}
                             </div>
-                            <div className="text-[9.5px] text-slate-400">
+                            <div className="text-[9.5px] text-[var(--ns-muted)]">
                               {summary.actualCheckOut ? new Date(summary.actualCheckOut).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' }) : ''}
                             </div>
                           </div>
                         ) : (
                           <div className="space-y-0.5">
-                            <span className="inline-flex items-center gap-1 rounded bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 text-[10px] font-black uppercase px-2 py-0.2">
+                            <span className="inline-flex items-center gap-1 rounded glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)] text-[10px] font-black uppercase px-2 py-0.2">
                               In-House Stay
                             </span>
                             <div className="text-[10px] text-[var(--ns-muted)]">
@@ -601,7 +601,7 @@ export const GuestBillsPage: React.FC = () => {
 
                       {/* Supposed to Pay (Total Bill) */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="font-mono text-xs font-black text-slate-900 dark:text-slate-100">
+                        <div className="font-mono text-xs font-black text-[var(--ns-ink)]">
                           {formatCurrency(summary.totalBilled)}
                         </div>
                         <div className="text-[9.5px] text-[var(--ns-muted)]">Total folio bill</div>
@@ -611,49 +611,49 @@ export const GuestBillsPage: React.FC = () => {
                       <td className="py-3.5 px-4 text-right">
                         {summary.isCheckedOut ? (
                           <>
-                            <div className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                            <div className="font-mono text-xs font-bold text-[var(--ns-ink)]">
                               {formatCurrency(summary.paidAtCheckout)}
                             </div>
-                            <div className="text-[9.5px] text-slate-400">At departure</div>
+                            <div className="text-[9.5px] text-[var(--ns-muted)]">At departure</div>
                           </>
                         ) : (
                           <>
-                            <div className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                            <div className="font-mono text-xs font-bold text-[var(--ns-ink)]">
                               {formatCurrency(summary.totalPaid)}
                             </div>
-                            <div className="text-[9.5px] text-slate-400">Paid to date</div>
+                            <div className="text-[9.5px] text-[var(--ns-muted)]">Paid to date</div>
                           </>
                         )}
                       </td>
 
                       {/* Paid & Method (Cash / MoMo) */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
-                          {formatCurrency(summary.totalPaid)} <span className="text-[9.5px] text-slate-400 font-normal">total</span>
+                        <div className="font-mono text-xs font-bold text-[var(--ns-success)] mb-1">
+                          {formatCurrency(summary.totalPaid)} <span className="text-[9.5px] text-[var(--ns-muted)] font-normal">total</span>
                         </div>
                         <div className="flex flex-wrap items-center gap-1">
                           {summary.cashPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                               💵 Cash {formatCurrency(summary.cashPaid)}
                             </span>
                           )}
                           {summary.momoPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                               📱 MoMo {formatCurrency(summary.momoPaid)}
                             </span>
                           )}
                           {summary.cardPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded bg-blue-100 dark:bg-blue-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-info)] border border-[var(--ns-info)]">
                               💳 Card {formatCurrency(summary.cardPaid)}
                             </span>
                           )}
                           {summary.bankPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-purple)] border border-[var(--ns-purple)]">
                               🏦 Bank {formatCurrency(summary.bankPaid)}
                             </span>
                           )}
                           {summary.totalPaid === 0 && (
-                            <span className="text-[10px] text-slate-400 italic">No payments yet</span>
+                            <span className="text-[10px] text-[var(--ns-muted)] italic">No payments yet</span>
                           )}
                         </div>
                       </td>
@@ -662,15 +662,15 @@ export const GuestBillsPage: React.FC = () => {
                       <td className="py-3.5 px-4 text-right">
                         {summary.balance > 0.005 ? (
                           <>
-                            <div className="font-mono text-sm font-black text-rose-600 dark:text-rose-400">
+                            <div className="font-mono text-sm font-black text-[var(--ns-danger)]">
                               {formatCurrency(summary.balance)}
                             </div>
-                            <div className="text-[9.5px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                            <div className="text-[9.5px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">
                               Owes balance
                             </div>
                           </>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
                             <CheckCircle2 size={10} /> Fully Settled
                           </span>
                         )}
@@ -690,7 +690,7 @@ export const GuestBillsPage: React.FC = () => {
                                 setPayDesc(`Payment for outstanding balance (Room ${stay.room?.number || '—'})`);
                                 setPayModalOpen(true);
                               }}
-                              className="h-8 gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold"
+                              className="h-8 gap-1 glass ns-glass-hover text-[var(--ns-success)] text-xs font-bold"
                             >
                               <CreditCard size={12} /> Pay
                             </Button>
@@ -699,9 +699,9 @@ export const GuestBillsPage: React.FC = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => openBillModal(stay, folio)}
-                            className="h-8 gap-1 border-[var(--ns-line)] text-xs font-semibold text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+                            className="h-8 gap-1 border-[var(--ns-glass-line)] text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover"
                           >
-                            <ReceiptText size={13} className="text-[#c59a58]" /> View
+                            <ReceiptText size={13} className="text-[var(--ns-gold)]" /> View
                           </Button>
                         </div>
                       </td>
@@ -729,10 +729,10 @@ export const GuestBillsPage: React.FC = () => {
           return (
           <div className="space-y-4">
             {/* Header info & Departure Audit */}
-            <div className="rounded-2xl border border-[var(--ns-line)] bg-gradient-to-br from-[var(--ns-surface)] to-[var(--ns-surface-2)] p-4 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-line)] pb-3">
+            <div className="rounded-2xl border border-[var(--ns-glass-line)] glass p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-glass-line)] pb-3">
                 <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                     Folio #{selectedBill.folio.id.slice(0, 8).toUpperCase()}
                   </span>
                   <div className="text-base font-black text-[var(--ns-ink)]">
@@ -745,17 +745,17 @@ export const GuestBillsPage: React.FC = () => {
                 <div className="text-right">
                   {summary.isCheckedOut ? (
                     <div className="inline-flex flex-col items-end">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-950/70 px-2.5 py-1 text-xs font-black text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                      <span className="inline-flex items-center gap-1 rounded-full glass-subtle px-2.5 py-1 text-xs font-black text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                         <AlertCircle size={13} /> Checked Out
                       </span>
                       {summary.actualCheckOut && (
-                        <span className="text-[10.5px] font-semibold text-amber-800 dark:text-amber-300 mt-1">
+                        <span className="text-[10.5px] font-semibold text-[var(--ns-warning)] mt-1">
                           {new Date(summary.actualCheckOut).toLocaleString('en-GH', { dateStyle: 'medium', timeStyle: 'short' })}
                         </span>
                       )}
                     </div>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/70 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700">
+                    <span className="inline-flex items-center gap-1 rounded-full glass-subtle px-2.5 py-1 text-xs font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
                       <CheckCircle2 size={13} /> In-House
                     </span>
                   )}
@@ -764,7 +764,7 @@ export const GuestBillsPage: React.FC = () => {
 
               {/* 4 Financial Audit Tiles */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
                   <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     Supposed to Pay
                   </span>
@@ -774,11 +774,11 @@ export const GuestBillsPage: React.FC = () => {
                   <span className="text-[9px] text-[var(--ns-muted)]">Total bill charges</span>
                 </div>
 
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
                   <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     {summary.isCheckedOut ? 'Paid by Checkout' : 'Paid at Check-in'}
                   </span>
-                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                  <div className="font-mono text-sm font-black text-[var(--ns-success)] mt-0.5">
                     {formatCurrency(summary.paidAtCheckout)}
                   </div>
                   <span className="text-[9px] text-[var(--ns-muted)]">
@@ -786,55 +786,55 @@ export const GuestBillsPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
                   <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     Total Paid to Date
                   </span>
-                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                  <div className="font-mono text-sm font-black text-[var(--ns-success)] mt-0.5">
                     {formatCurrency(summary.totalPaid)}
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {summary.cashPaid > 0 && (
-                      <span className="rounded bg-emerald-100 dark:bg-emerald-950 px-1 py-0.2 text-[9px] font-extrabold text-emerald-800 dark:text-emerald-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-success)]">
                         💵 Cash {formatCurrency(summary.cashPaid)}
                       </span>
                     )}
                     {summary.momoPaid > 0 && (
-                      <span className="rounded bg-amber-100 dark:bg-amber-950 px-1 py-0.2 text-[9px] font-extrabold text-amber-900 dark:text-amber-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-warning)]">
                         📱 MoMo {formatCurrency(summary.momoPaid)}
                       </span>
                     )}
                     {summary.cardPaid > 0 && (
-                      <span className="rounded bg-blue-100 dark:bg-blue-950 px-1 py-0.2 text-[9px] font-extrabold text-blue-800 dark:text-blue-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-info)]">
                         💳 Card {formatCurrency(summary.cardPaid)}
                       </span>
                     )}
                     {summary.bankPaid > 0 && (
-                      <span className="rounded bg-purple-100 dark:bg-purple-950 px-1 py-0.2 text-[9px] font-extrabold text-purple-800 dark:text-purple-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-purple)]">
                         🏦 Bank {formatCurrency(summary.bankPaid)}
                       </span>
                     )}
                     {summary.totalPaid === 0 && (
-                      <span className="text-[9px] text-slate-400 italic">No payments</span>
+                      <span className="text-[9px] text-[var(--ns-muted)] italic">No payments</span>
                     )}
                   </div>
                 </div>
 
-                <div className={`rounded-xl border p-2.5 ${summary.balance > 0.005 ? 'border-rose-300 bg-rose-50/70 dark:border-rose-800/60 dark:bg-rose-950/30' : 'border-emerald-300 bg-emerald-50/70 dark:border-emerald-800/60 dark:bg-emerald-950/30'}`}>
-                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${summary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                <div className={`rounded-xl border p-2.5 ${summary.balance > 0.005 ? 'border-[var(--ns-danger)] glass-subtle' : 'border-[var(--ns-success)] glass-subtle'}`}>
+                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     Guest Owes
                   </span>
-                  <div className={`font-mono text-sm font-black mt-0.5 ${summary.balance > 0.005 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                  <div className={`font-mono text-sm font-black mt-0.5 ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     {formatCurrency(summary.balance)}
                   </div>
-                  <span className={`text-[9px] font-semibold ${summary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                  <span className={`text-[9px] font-semibold ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     {summary.balance > 0.005 ? 'Outstanding balance' : 'Fully settled'}
                   </span>
                 </div>
               </div>
 
               {selectedBill.stay.checkOutNotes && (
-                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1.5 text-[11px] text-amber-900 dark:text-amber-200">
+                <div className="rounded-lg glass-subtle border border-[var(--ns-warning)] px-3 py-1.5 text-[11px] text-[var(--ns-warning)]">
                   <span className="font-bold">Checkout Remark:</span> {selectedBill.stay.checkOutNotes}
                 </div>
               )}
@@ -850,21 +850,21 @@ export const GuestBillsPage: React.FC = () => {
                   {(selectedBill.folio.items || []).filter((i: any) => !i.voidedAt).length} item(s)
                 </span>
               </div>
-              <div className="max-h-60 overflow-y-auto rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)]">
+              <div className="max-h-60 overflow-y-auto rounded-xl border border-[var(--ns-glass-line)] glass-subtle">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
+                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
                       <th className="py-2 px-3">Item / Description</th>
                       <th className="py-2 px-3">Dept</th>
                       <th className="py-2 px-3 text-center">Qty</th>
                       <th className="py-2 px-3 text-right">Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ns-line)]">
+                  <tbody className="divide-y divide-[var(--ns-glass-line)]">
                     {(selectedBill.folio.items || [])
                       .filter((i: any) => !i.voidedAt)
                       .map((i: any) => (
-                        <tr key={i.id} className="hover:bg-[var(--ns-surface-2)]">
+                        <tr key={i.id} className="ns-glass-hover">
                           <td className="py-2 px-3 font-medium text-[var(--ns-ink)]">{i.description}</td>
                           <td className="py-2 px-3 text-[10px] font-semibold text-[var(--ns-muted)]">{i.department || 'ROOM'}</td>
                           <td className="py-2 px-3 text-center font-mono">{i.quantity ?? 1}</td>
@@ -895,23 +895,23 @@ export const GuestBillsPage: React.FC = () => {
                   {(selectedBill.folio.payments || []).length} payment(s)
                 </span>
               </div>
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)]">
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-[var(--ns-glass-line)] glass-subtle">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
+                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
                       <th className="py-2 px-3">Method</th>
                       <th className="py-2 px-3">Date</th>
                       <th className="py-2 px-3 text-right">Amount Paid</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ns-line)]">
+                  <tbody className="divide-y divide-[var(--ns-glass-line)]">
                     {(selectedBill.folio.payments || []).map((p: any) => (
-                      <tr key={p.id} className="hover:bg-[var(--ns-surface-2)]">
+                      <tr key={p.id} className="ns-glass-hover">
                         <td className="py-2 px-3 font-semibold text-[var(--ns-ink)]">{p.method}</td>
                         <td className="py-2 px-3 text-[var(--ns-muted)] text-[11px]">
                           {new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH')}
                         </td>
-                        <td className="py-2 px-3 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                        <td className="py-2 px-3 text-right font-mono font-bold text-[var(--ns-success)]">
                           -{formatCurrency(money(p.amount))}
                         </td>
                       </tr>
@@ -929,7 +929,7 @@ export const GuestBillsPage: React.FC = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex justify-between items-center pt-3 border-t border-[var(--ns-line)]">
+            <div className="flex justify-between items-center pt-3 border-t border-[var(--ns-glass-line)]">
               <Button variant="ghost" size="sm" onClick={() => setSelectedBill(null)}>
                 Close
               </Button>
@@ -939,7 +939,7 @@ export const GuestBillsPage: React.FC = () => {
                     variant="primary"
                     size="sm"
                     onClick={openPaymentModal}
-                    className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold"
+                    className="gap-1.5 glass ns-glass-hover text-[var(--ns-success)] font-bold"
                   >
                     <CreditCard size={14} /> Record Payment
                   </Button>
@@ -948,9 +948,9 @@ export const GuestBillsPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={printBill}
-                  className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] font-semibold"
+                  className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] font-semibold ns-glass-hover"
                 >
-                  <Printer size={14} className="text-[#c59a58]" /> Print Folio
+                  <Printer size={14} className="text-[var(--ns-gold)]" /> Print Folio
                 </Button>
               </div>
             </div>
@@ -963,18 +963,18 @@ export const GuestBillsPage: React.FC = () => {
       <Modal open={payModalOpen} onClose={() => setPayModalOpen(false)} title="Record Payment Against Folio" size="md">
         {selectedBill && (
           <form onSubmit={handleRecordPayment} className="space-y-4 p-5">
-            <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/30 p-3 text-xs">
-              <div className="font-bold text-amber-900 dark:text-amber-200">
+            <div className="rounded-xl border border-[var(--ns-warning)] glass-subtle p-3 text-xs">
+              <div className="font-bold text-[var(--ns-warning)]">
                 {formatGuestName(selectedBill.stay.guest, 'Guest')} · Room {selectedBill.stay.room?.number || '—'}
                 {selectedBill.stay.isCheckedOut && (
-                  <span className="ml-2 rounded bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 px-1.5 py-0.5 text-[10px]">
+                  <span className="ml-2 rounded glass-subtle text-[var(--ns-warning)] px-1.5 py-0.5 text-[10px]">
                     CHECKED OUT
                   </span>
                 )}
               </div>
-              <div className="mt-1 flex items-center justify-between text-slate-700 dark:text-slate-300">
+              <div className="mt-1 flex items-center justify-between text-[var(--ns-ink)]">
                 <span>Current Folio Balance:</span>
-                <span className="font-black text-amber-700 dark:text-amber-400 text-sm">
+                <span className="font-black text-[var(--ns-warning)] text-sm">
                   {formatCurrency(money(selectedBill.folio.balance))}
                 </span>
               </div>
@@ -982,16 +982,16 @@ export const GuestBillsPage: React.FC = () => {
 
             {/* Folio Charges Allocation Preview */}
             {selectedBill.folio.items && (
-              <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 dark:bg-sky-950/20 p-3 text-xs space-y-1">
-                <div className="font-bold text-sky-900 dark:text-sky-200 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck size={12} className="text-sky-600 dark:text-sky-400" />
+              <div className="rounded-xl border border-[var(--ns-info)] glass-subtle p-3 text-xs space-y-1">
+                <div className="font-bold text-[var(--ns-info)] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck size={12} className="text-[var(--ns-info)]" />
                   What this money settles (Folio items)
                 </div>
-                <div className="text-[11px] text-sky-800 dark:text-sky-300 flex flex-wrap gap-1.5 pt-1">
+                <div className="text-[11px] text-[var(--ns-info)] flex flex-wrap gap-1.5 pt-1">
                   {(selectedBill.folio.items || [])
                     .filter((i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()) && Number(i.amount) > 0)
                     .map((i: any) => (
-                      <span key={i.id} className="rounded bg-white/70 dark:bg-slate-900/70 px-2 py-0.5 border border-sky-500/20 font-medium text-[10.5px]">
+                      <span key={i.id} className="rounded glass-subtle px-2 py-0.5 border border-[var(--ns-info)] font-medium text-[10.5px]">
                         {i.description || i.type} ({formatCurrency(money(i.amount))})
                       </span>
                     ))}
@@ -1006,25 +1006,25 @@ export const GuestBillsPage: React.FC = () => {
                 placeholder="e.g. Payment for: Room Accommodation, Late checkout fee"
               />
               <div className="flex flex-wrap gap-1 mt-1 text-[10px]">
-                <span className="text-[9.5px] text-slate-400 self-center font-bold">Quick set:</span>
+                <span className="text-[9.5px] text-[var(--ns-muted)] self-center font-bold">Quick set:</span>
                 <button
                   type="button"
                   onClick={() => setPayDesc('Payment for Late checkout fee')}
-                  className="rounded bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-1.5 py-0.5 font-bold transition"
+                  className="rounded glass ns-glass-hover text-[var(--ns-warning)] border border-[var(--ns-warning)] px-1.5 py-0.5 font-bold transition"
                 >
                   ⏱ Late Checkout
                 </button>
                 <button
                   type="button"
                   onClick={() => setPayDesc('Payment for Room Accommodation / Stay')}
-                  className="rounded bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 px-1.5 py-0.5 font-bold transition"
+                  className="rounded glass ns-glass-hover text-[var(--ns-info)] border border-[var(--ns-info)] px-1.5 py-0.5 font-bold transition"
                 >
                   🏨 Room Stay
                 </button>
                 <button
                   type="button"
                   onClick={() => setPayDesc('Full post-checkout debt clearance')}
-                  className="rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 font-bold transition"
+                  className="rounded glass ns-glass-hover text-[var(--ns-success)] border border-[var(--ns-success)] px-1.5 py-0.5 font-bold transition"
                 >
                   ✓ Full Clearance
                 </button>
@@ -1063,11 +1063,11 @@ export const GuestBillsPage: React.FC = () => {
               />
             </FormField>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[var(--ns-line)]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[var(--ns-glass-line)]">
               <Button type="button" variant="ghost" onClick={() => setPayModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" loading={paySubmitting} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold">
+              <Button type="submit" loading={paySubmitting} className="glass ns-glass-hover text-[var(--ns-success)] font-bold">
                 Confirm & Record Payment
               </Button>
             </div>

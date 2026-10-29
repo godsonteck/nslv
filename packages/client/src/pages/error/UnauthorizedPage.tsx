@@ -12,7 +12,7 @@ export const UnauthorizedPage: React.FC = () => {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
       <div className="glass-strong w-full max-w-md rounded-3xl p-10">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-500/10 text-rose-500">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--ns-danger)] glass-subtle text-[var(--ns-danger)]">
           <ShieldAlert size={30} />
         </div>
         <h1 className="mt-5 text-xl font-bold" style={{ color: 'var(--ns-ink)' }}>

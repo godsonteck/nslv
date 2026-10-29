@@ -44,27 +44,27 @@ const ROLE_ACCESS_MAP: Record<
   Admin: {
     description: 'Full system oversight — users, roles, settings, financials & audit trail.',
     interfaces: ['All Modules', 'Security & Users', 'Roles & Grants', 'Settings', 'Audit Logs'],
-    badgeBg: 'bg-rose-50 text-rose-800 border-rose-200',
+    badgeBg: 'glass-subtle text-[var(--ns-danger)] border-[var(--ns-danger)]',
   },
   Manager: {
     description: 'Operational manager — oversees reservations, front desk, POS outlets & reports.',
     interfaces: ['Dashboard', 'Reservations', 'Front Desk', 'POS Outlets', 'Ledgers', 'Reports'],
-    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
+    badgeBg: 'glass-subtle text-[var(--ns-warning)] border-[var(--ns-warning)]',
   },
   Reception: {
     description: 'Front office desk — handles bookings, check-in/out, folios, and daily cash.',
     interfaces: ['Front Desk', 'Reservations', 'Guest Folios', 'Cash at Hand', 'Pool Passes'],
-    badgeBg: 'bg-blue-50 text-blue-800 border-blue-200',
+    badgeBg: 'glass-subtle text-[var(--ns-info)] border-[var(--ns-info)]',
   },
   Restaurant: {
     description: 'Dining room & kitchen staff — dining orders, menus & Restaurant POS.',
     interfaces: ['Restaurant POS', 'Kitchen Orders', 'Stock Inventory'],
-    badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    badgeBg: 'glass-subtle text-[var(--ns-success)] border-[var(--ns-success)]',
   },
   Bar: {
     description: 'Bar & lounge staff — beverage orders, drink recipes & Bar POS.',
     interfaces: ['Bar POS', 'Drink Orders', 'Beverage Inventory'],
-    badgeBg: 'bg-purple-50 text-purple-800 border-purple-200',
+    badgeBg: 'glass-subtle text-[var(--ns-purple)] border-[var(--ns-purple)]',
   },
 };
 
@@ -253,7 +253,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
         </div>
 
         {/* Primary Role */}
-        <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+        <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
           <FormField label="Primary Department Role" required>
             <SelectInput
               value={form.primaryRoleId}
@@ -292,14 +292,14 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
                       onClick={() => toggleAdditionalRole(r.id)}
                       className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
                         isChecked
-                          ? 'border-[#c59a58] bg-amber-50 dark:bg-amber-950/40 text-[var(--ns-ink)]'
-                          : 'border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:bg-[var(--ns-surface-2)]'
+                          ? 'border-[var(--ns-gold)] glass-subtle ns-glass-selected text-[var(--ns-ink)]'
+                          : 'border-[var(--ns-glass-line)] glass-subtle text-[var(--ns-muted)] ns-glass-hover'
                       }`}
                     >
                       {isChecked ? (
-                        <CheckSquare size={14} className="text-[#c59a58] shrink-0" />
+                        <CheckSquare size={14} className="text-[var(--ns-gold)] shrink-0" />
                       ) : (
-                        <Square size={14} className="text-[#cbd5e1] shrink-0" />
+                        <Square size={14} className="text-[var(--ns-muted)] shrink-0" />
                       )}
                       <span className="text-xs font-semibold">{r.name} Access</span>
                     </button>
@@ -311,14 +311,14 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
 
         {/* Selected Capabilities Badge */}
         {selectedRoleObjs.length > 0 && (
-          <div className="rounded-xl border border-[#c59a58]/30 bg-amber-50 dark:bg-amber-950/40 p-3 text-xs flex flex-wrap items-center gap-1.5">
+          <div className="rounded-xl border border-[var(--ns-gold)]/30 glass-subtle ns-glass-selected p-3 text-xs flex flex-wrap items-center gap-1.5">
             <span className="font-bold text-[var(--ns-ink)] flex items-center gap-1">
-              <Shield size={13} className="text-[#c59a58]" /> Unlocked Access:
+              <Shield size={13} className="text-[var(--ns-gold)]" /> Unlocked Access:
             </span>
             {selectedRoleObjs.map((r) => (
               <span
                 key={r.id}
-                className="rounded-md bg-[#173c4d] px-2 py-0.5 text-[10px] font-bold text-[#fdfbf7]"
+                className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-teal)]"
               >
                 {r.name}
               </span>
@@ -326,7 +326,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
           </div>
         )}
 
-        <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+        <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
@@ -335,7 +335,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
             variant="primary"
             loading={saving}
             onClick={save}
-            className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7] font-semibold"
+            className="glass ns-glass-hover text-[var(--ns-teal)] font-semibold"
           >
             {isEdit ? 'Save Changes' : 'Create Staff User'}
           </Button>
@@ -435,7 +435,7 @@ export const UsersPage: React.FC = () => {
               setEditUser(null);
               setModalOpen(true);
             }}
-            className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+            className="gap-1.5 glass ns-glass-hover !border-[var(--ns-gold)] !text-[var(--ns-gold)] shadow-sm font-semibold"
           >
             <UserPlus size={14} /> Add Staff User
           </Button>
@@ -470,7 +470,7 @@ export const UsersPage: React.FC = () => {
         title="Authorized Personnel Directory"
         subtitle="Staff member details, usernames, department roles, and account security states."
         action={
-          <Button variant="ghost" size="sm" onClick={fetchUsers} className="h-8 gap-1.5 text-xs text-[#5a6b75]">
+          <Button variant="ghost" size="sm" onClick={fetchUsers} className="h-8 gap-1.5 text-xs !text-[var(--ns-muted)]">
             <RefreshCw size={13} /> Refresh
           </Button>
         }
@@ -501,7 +501,7 @@ export const UsersPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Staff Member</th>
                   <th className="py-3 px-5">Email Address</th>
                   <th className="py-3 px-5">Assigned Roles</th>
@@ -509,12 +509,12 @@ export const UsersPage: React.FC = () => {
                   <th className="py-3 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                  <tr key={u.id} className="ns-glass-hover transition-colors">
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] font-mono text-xs font-bold text-[#c59a58] shrink-0">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl glass-subtle border border-[var(--ns-glass-line)] font-mono text-xs font-bold text-[var(--ns-gold)] shrink-0">
                           {u.firstName[0]}{u.lastName[0]}
                         </div>
                         <div>
@@ -535,7 +535,7 @@ export const UsersPage: React.FC = () => {
                           return (
                             <span
                               key={rName}
-                              className="rounded-md bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]"
+                              className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]"
                             >
                               {rName}
                             </span>
@@ -555,20 +555,20 @@ export const UsersPage: React.FC = () => {
                                 setEditUser(u);
                                 setModalOpen(true);
                               }}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-muted)] glass-subtle ns-glass-hover transition-colors"
                               title="Edit Roles & Access"
                             >
                               <Edit2 size={13} />
                             </button>
                             <button
                               onClick={() => handleStatusToggle(u)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-muted)] glass-subtle ns-glass-hover transition-colors"
                               title={u.status === 'ACTIVE' ? 'Suspend Access' : 'Reactivate Access'}
                             >
                               {u.status === 'ACTIVE' ? (
-                                <ShieldOff size={13} className="text-amber-600" />
+                                <ShieldOff size={13} className="text-[var(--ns-warning)]" />
                               ) : (
-                                <ShieldCheck size={13} className="text-emerald-600" />
+                                <ShieldCheck size={13} className="text-[var(--ns-success)]" />
                               )}
                             </button>
                           </>
@@ -576,7 +576,7 @@ export const UsersPage: React.FC = () => {
                         {canDelete && (
                           <button
                             onClick={() => handleDelete(u)}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-danger)] glass-subtle ns-glass-hover transition-colors"
                             title="Delete User"
                           >
                             <Trash2 size={13} />
@@ -592,7 +592,7 @@ export const UsersPage: React.FC = () => {
         )}
 
         {total > pageSize && (
-          <div className="p-4 border-t border-[var(--ns-line)] flex justify-end">
+          <div className="p-4 border-t border-[var(--ns-glass-line)] flex justify-end">
             <Pagination
               page={page}
               totalPages={Math.ceil(total / pageSize)}

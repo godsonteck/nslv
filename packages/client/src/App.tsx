@@ -8,7 +8,6 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useThemeStore } from './stores/themeStore';
 import { MainLayout } from './components/layout/MainLayout';
-import { AmbientBackdrop } from './components/layout/AmbientBackdrop';
 import Login from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Spinner } from './components/ui';
@@ -63,7 +62,7 @@ const AppInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const PageLoader: React.FC = () => (
-  <div className="flex items-center justify-center h-full py-24 text-xs text-slate-500">
+  <div className="flex items-center justify-center h-full py-24 text-xs text-[var(--ns-muted)]">
     <Spinner size={24} />
   </div>
 );
@@ -86,7 +85,6 @@ const HomeRedirect: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AppInitializer>
-      <AmbientBackdrop />
       <HashRouter>
         <Routes>
         {/* Public Authentication Route */}

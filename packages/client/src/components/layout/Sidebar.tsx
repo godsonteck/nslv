@@ -136,7 +136,7 @@ export const Sidebar: React.FC = () => {
               >
                 NS Luxury Villa
               </div>
-              <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-[#c59a58]">
+              <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--ns-gold)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,.2)]" />
                 <span className="truncate">Lokoe, Ho ({roleName})</span>
               </div>
@@ -148,7 +148,7 @@ export const Sidebar: React.FC = () => {
         {sections.map((section, sIdx) => (
           <div key={section.title} className={sidebarOpen ? 'mb-4' : 'mb-2.5'}>
             {sidebarOpen ? (
-              <div className="px-3 pb-1.5 text-[9px] font-black uppercase tracking-wider text-[#c59a58] opacity-80">
+              <div className="px-3 pb-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--ns-gold)] opacity-80">
                 {section.title}
               </div>
             ) : sIdx > 0 ? (
@@ -168,8 +168,8 @@ export const Sidebar: React.FC = () => {
                         : 'justify-center h-10 w-10 mx-auto'
                     } ${
                       isActive
-                        ? 'border border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)] shadow-[0_12px_28px_-18px_rgba(15,23,42,0.35)]'
-                        : 'border border-transparent hover:border-[var(--ns-glass-line-soft)] hover:bg-[var(--ns-glass-1)] text-slate-500 hover:text-[var(--ns-ink)]'
+                        ? 'glass-subtle ns-glass-selected'
+                        : 'border border-transparent ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
                     }`
                   }
                 >
@@ -178,7 +178,7 @@ export const Sidebar: React.FC = () => {
                       {sidebarOpen && (
                         <span
                           className={`absolute left-0 top-1/2 h-3.5 w-[2.5px] -translate-y-1/2 rounded-full transition-all ${
-                            isActive ? 'bg-[#c59a58]' : 'bg-transparent'
+                            isActive ? 'bg-[var(--ns-gold)]' : 'bg-transparent'
                           }`}
                         />
                       )}
@@ -186,8 +186,8 @@ export const Sidebar: React.FC = () => {
                         size={sidebarOpen ? 15 : 18}
                         className={`shrink-0 transition-all ${
                           isActive
-                            ? 'text-[#c59a58]'
-                            : 'text-slate-400 group-hover:text-[#c59a58]'
+                            ? 'text-[var(--ns-gold)]'
+                            : 'text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)]'
                         }`}
                       />
                       {sidebarOpen && (
@@ -213,14 +213,14 @@ export const Sidebar: React.FC = () => {
               <div
                 className="glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-[10px] font-black text-white shadow-2xs">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl glass-subtle text-[10px] font-black text-[var(--ns-teal)]">
                   {initials}
                 </div>
                 <div className="min-w-0">
                   <div className="truncate text-[11px] font-bold" style={{ color: 'var(--ns-ink)' }}>
                     {fullName}
                   </div>
-                  <div className="truncate text-[9px] font-semibold uppercase tracking-wider text-[#c59a58]">
+                  <div className="truncate text-[9px] font-semibold uppercase tracking-wider text-[var(--ns-gold)]">
                     {roleName}
                   </div>
                 </div>
@@ -232,14 +232,14 @@ export const Sidebar: React.FC = () => {
                 <div className="font-black uppercase tracking-[.14em]" style={{ color: 'var(--ns-ink)' }}>
                   NS Luxury Villa
                 </div>
-                <div className="italic text-[#c59a58]">
+                <div className="italic text-[var(--ns-gold)]">
                   &ldquo;Arrive as guest, stay as family&rdquo;
                 </div>
               </div>
             </div>
           ) : (
             <div
-              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-[10px] font-black text-white shadow-2xs cursor-pointer hover:opacity-90 transition"
+              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl glass-subtle text-[10px] font-black text-[var(--ns-teal)] cursor-pointer hover:opacity-90 transition"
               title={`${fullName} (${roleName})`}
             >
               {initials}

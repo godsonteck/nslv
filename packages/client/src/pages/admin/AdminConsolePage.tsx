@@ -116,7 +116,7 @@ export const AdminConsolePage: React.FC = () => {
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+            className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
           >
             <RefreshCw size={13} /> Refresh
           </Button>
@@ -124,7 +124,7 @@ export const AdminConsolePage: React.FC = () => {
             variant="primary"
             size="sm"
             onClick={() => navigate('/admin/users')}
-            className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+            className="gap-1.5 glass ns-glass-hover !border-[var(--ns-gold)] !text-[var(--ns-gold)] shadow-sm font-semibold"
           >
             <ShieldCheck size={14} /> Staff Accounts
           </Button>
@@ -132,7 +132,7 @@ export const AdminConsolePage: React.FC = () => {
       }
     >
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
+        <div className="rounded-2xl border border-[var(--ns-danger)] glass-subtle p-4 text-xs font-semibold text-[var(--ns-danger)]">
           {error}
         </div>
       )}
@@ -176,15 +176,15 @@ export const AdminConsolePage: React.FC = () => {
             <button
               key={tile.to}
               onClick={() => navigate(tile.to)}
-              className="group flex items-start gap-4 rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 text-left shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all"
+              className="group flex items-start gap-4 rounded-2xl border border-[var(--ns-glass-line)] glass p-5 text-left shadow-sm ns-glass-hover hover:border-[var(--ns-glass-line)] hover:shadow-md transition-all"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] text-[#c59a58] transition-colors group-hover:bg-[#173c4d] group-hover:text-white">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl glass-subtle border border-[var(--ns-glass-line)] text-[var(--ns-gold)] transition-colors group-hover:bg-[var(--ns-glass-1)] group-hover:text-[var(--ns-teal)]">
                 {tile.icon}
               </span>
               <div className="min-w-0 flex-1">
                 <span className="block text-sm font-bold text-[var(--ns-ink)]">{tile.label}</span>
                 <span className="mt-1 block text-[11px] leading-relaxed text-[var(--ns-muted)]">{tile.desc}</span>
-                <span className="mt-2.5 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
+                <span className="mt-2.5 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                   Open Module <ArrowRight size={11} />
                 </span>
               </div>
@@ -202,7 +202,7 @@ export const AdminConsolePage: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/admin/audit')}
-            className="gap-1 text-xs text-[#b88738] font-bold"
+            className="gap-1 text-xs !text-[var(--ns-gold)] font-bold"
           >
             Full Audit Log <ArrowRight size={12} />
           </Button>
@@ -218,25 +218,25 @@ export const AdminConsolePage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Timestamp</th>
                   <th className="py-3 px-5">Security Action</th>
                   <th className="py-3 px-5">Target Resource</th>
                   <th className="py-3 px-5">User / Actor</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {logs.map((l) => (
                   <tr
                     key={l.id}
                     onClick={() => navigate('/admin/audit')}
-                    className="cursor-pointer hover:bg-[var(--ns-surface-2)] transition-colors"
+                    className="cursor-pointer ns-glass-hover transition-colors"
                   >
                     <td className="py-3 px-5 font-mono text-[11px] text-[var(--ns-muted)]">
                       {new Date(l.createdAt).toLocaleString('en-GH')}
                     </td>
                     <td className="py-3 px-5">
-                      <span className="inline-flex rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
+                      <span className="inline-flex rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
                         {l.action}
                       </span>
                     </td>

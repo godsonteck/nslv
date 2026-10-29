@@ -257,7 +257,7 @@ export const EventsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setSpaceModalOpen(true)}
-                className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+                className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
               >
                 <Building2 size={13} /> Add Venue Space
               </Button>
@@ -265,7 +265,7 @@ export const EventsPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={openCreate}
-                className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+                className="gap-1.5 glass ns-glass-hover text-[var(--ns-ink)] shadow-sm font-semibold"
               >
                 <Plus size={14} /> Book Event
               </Button>
@@ -298,18 +298,18 @@ export const EventsPage: React.FC = () => {
       </div>
 
       {/* ── Segmented Navigation ── */}
-      <div className="flex border-b border-[var(--ns-line)] bg-[var(--ns-surface)] rounded-t-2xl px-5 pt-3">
+      <div className="flex border-b border-[var(--ns-glass-line)] ns-glass-band rounded-t-2xl px-5 pt-3">
         <button
           onClick={() => setActiveTab('EVENTS')}
           className={`flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'EVENTS'
-              ? 'text-[var(--ns-ink)] border-b-2 border-[#c59a58]'
-              : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
+              ? 'ns-glass-selected text-[var(--ns-ink)] border-b-2 border-[var(--ns-gold)]'
+              : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)] ns-glass-hover'
           }`}
         >
           <Calendar size={14} />
           <span>Event Bookings</span>
-          <span className="rounded-full bg-[#173c4d]/10 px-2 py-0.5 text-[10px]">
+          <span className="rounded-full ns-glass-band px-2 py-0.5 text-[10px]">
             {events.length}
           </span>
         </button>
@@ -317,13 +317,13 @@ export const EventsPage: React.FC = () => {
           onClick={() => setActiveTab('SPACES')}
           className={`flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'SPACES'
-              ? 'text-[var(--ns-ink)] border-b-2 border-[#c59a58]'
-              : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
+              ? 'ns-glass-selected text-[var(--ns-ink)] border-b-2 border-[var(--ns-gold)]'
+              : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)] ns-glass-hover'
           }`}
         >
           <Building2 size={14} />
           <span>Villa Function Spaces</span>
-          <span className="rounded-full bg-[#173c4d]/10 px-2 py-0.5 text-[10px]">
+          <span className="rounded-full ns-glass-band px-2 py-0.5 text-[10px]">
             {spaces.length}
           </span>
         </button>
@@ -335,7 +335,7 @@ export const EventsPage: React.FC = () => {
           title="Scheduled Functions"
           subtitle="All confirmed, planned, and past private functions and property events."
           action={
-            <Button variant="ghost" size="sm" onClick={fetchAll} className="h-8 gap-1.5 text-xs text-[#5a6b75]">
+            <Button variant="ghost" size="sm" onClick={fetchAll} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)]">
               <RefreshCw size={13} /> Refresh
             </Button>
           }
@@ -365,7 +365,7 @@ export const EventsPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                  <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                     <th className="py-3 px-5">Event Title & Notes</th>
                     <th className="py-3 px-5">Venue Space</th>
                     <th className="py-3 px-5">Date & Time</th>
@@ -375,9 +375,9 @@ export const EventsPage: React.FC = () => {
                     <th className="py-3 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--ns-line)]">
+                <tbody className="divide-y divide-[var(--ns-glass-line)]">
                   {filtered.map((ev) => (
-                    <tr key={ev.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                    <tr key={ev.id} className="ns-glass-hover transition-colors">
                       <td className="py-3.5 px-5">
                         <div className="font-bold text-[var(--ns-ink)] text-xs">{ev.title}</div>
                         <div className="text-[10px] text-[var(--ns-muted)] max-w-xs truncate">
@@ -385,8 +385,8 @@ export const EventsPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-5">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
-                          <Building2 size={11} className="text-[#c59a58]" />
+                        <span className="inline-flex items-center gap-1 rounded-md ns-glass-band px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
+                          <Building2 size={11} className="text-[var(--ns-gold)]" />
                           {ev.eventSpace?.name ?? 'Villa Grounds'}
                         </span>
                       </td>
@@ -413,7 +413,7 @@ export const EventsPage: React.FC = () => {
                           {canEdit && (
                             <button
                               onClick={() => openEdit(ev)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-muted)] ns-glass-hover transition-colors"
                               title="Edit Event"
                             >
                               <Pencil size={13} />
@@ -422,7 +422,7 @@ export const EventsPage: React.FC = () => {
                           {canEdit && ev.status !== 'CANCELLED' && (
                             <button
                               onClick={() => handleCancel(ev)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-amber-600 hover:bg-amber-50 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-warning)] ns-glass-hover transition-colors"
                               title="Cancel Event"
                             >
                               <XCircle size={13} />
@@ -431,7 +431,7 @@ export const EventsPage: React.FC = () => {
                           {canCancel && (
                             <button
                               onClick={() => handleDelete(ev)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-danger)] ns-glass-hover transition-colors"
                               title="Delete Event"
                             >
                               <Trash2 size={13} />
@@ -458,24 +458,24 @@ export const EventsPage: React.FC = () => {
             {spaces.map((sp) => (
               <div
                 key={sp.id}
-                className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 transition-all space-y-3"
+                className="rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] transition-all space-y-3"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] text-[#c59a58]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl ns-glass-band border border-[var(--ns-glass-line)] text-[var(--ns-gold)]">
                       <Building2 size={18} />
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-[var(--ns-ink)] font-serif">{sp.name}</h4>
                       <p className="text-[11px] text-[var(--ns-muted)] flex items-center gap-1">
-                        <MapPin size={11} className="text-[#c59a58]" /> {sp.location || 'NS Villa Grounds'}
+                        <MapPin size={11} className="text-[var(--ns-gold)]" /> {sp.location || 'NS Villa Grounds'}
                       </p>
                     </div>
                   </div>
                   {canCreate && (
                     <button
                       onClick={() => handleDeleteSpace(sp)}
-                      className="text-[var(--ns-muted)] hover:text-rose-600 p-1"
+                      className="text-[var(--ns-muted)] hover:text-[var(--ns-danger)] p-1"
                       title="Delete Space"
                     >
                       <Trash2 size={14} />
@@ -483,7 +483,7 @@ export const EventsPage: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-[var(--ns-line)] pt-3 text-xs">
+                <div className="flex items-center justify-between border-t border-[var(--ns-glass-line)] pt-3 text-xs">
                   <span className="text-[var(--ns-muted)]">Guest Capacity:</span>
                   <span className="font-mono font-bold text-[var(--ns-ink)]">
                     {sp.capacity > 0 ? `${sp.capacity} Guests` : 'Flexible'}
@@ -593,11 +593,11 @@ export const EventsPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7]">
+            <Button type="submit" variant="primary" loading={saving} className="glass ns-glass-hover text-[var(--ns-ink)]">
               {editing ? 'Save Changes' : 'Confirm Booking'}
             </Button>
           </div>
@@ -638,11 +638,11 @@ export const EventsPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setSpaceModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7]">
+            <Button type="submit" variant="primary" loading={saving} className="glass ns-glass-hover text-[var(--ns-ink)]">
               Add Venue
             </Button>
           </div>

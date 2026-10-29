@@ -642,7 +642,7 @@ export default function PoolPortalPage() {
               variant="outline"
               size="sm"
               onClick={() => setPricingModalOpen(true)}
-              className="border-[#c59a58]/50 text-[#c59a58] hover:bg-[#c59a58]/10 font-bold"
+              className="border-[var(--ns-gold)] text-[var(--ns-gold)] ns-glass-hover font-bold"
             >
               <Settings size={14} /> Adjust Pool Prices
             </Button>
@@ -728,7 +728,7 @@ export default function PoolPortalPage() {
                         <button
                           type="button"
                           onClick={() => setPricingModalOpen(true)}
-                          className="text-[11px] text-[#c59a58] hover:underline font-semibold flex items-center gap-1"
+                          className="text-[11px] text-[var(--ns-gold)] hover:underline font-semibold flex items-center gap-1"
                           title="Adjust prices or add new pool passes"
                         >
                           <Settings size={11} /> Adjust Prices
@@ -792,7 +792,7 @@ export default function PoolPortalPage() {
                       />
                     </FormField>
                     <div className="flex items-end pb-1">
-                      <p className="text-[11px] text-[#4a5568] leading-snug">
+                      <p className="text-[11px] text-[var(--ns-muted)] leading-snug">
                         Not included in the pass. Leave at 0 if no towel is issued.
                       </p>
                     </div>
@@ -806,7 +806,7 @@ export default function PoolPortalPage() {
                     id="complimentaryCheck"
                     checked={isComplimentary}
                     onChange={(e) => setIsComplimentary(e.target.checked)}
-                    className="h-4 w-4 rounded border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[#c59a58] focus:ring-[#c59a58]"
+                    className="h-4 w-4 rounded border-[var(--ns-glass-line)] glass-input text-[var(--ns-gold)] focus:ring-[var(--ns-gold)]"
                   />
                   <label htmlFor="complimentaryCheck" className="text-xs text-[var(--ns-muted)] cursor-pointer">
                     Complimentary / In-House Hotel Resident (Free Access)
@@ -822,7 +822,7 @@ export default function PoolPortalPage() {
                 </FormField>
 
                 {/* Total Summary Box */}
-                <div className="rounded-xl bg-[var(--ns-surface-2)] border border-[var(--ns-line)] p-4 text-xs">
+                <div className="rounded-xl ns-glass-band border border-[var(--ns-glass-line)] p-4 text-xs">
                   <div className="flex items-center justify-between text-[var(--ns-muted)] mb-1">
                     <span>Rate × Headcount:</span>
                     <span>
@@ -837,9 +837,9 @@ export default function PoolPortalPage() {
                       </span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between font-extrabold text-base pt-2 border-t border-[var(--ns-line)]">
+                  <div className="flex items-center justify-between font-extrabold text-base pt-2 border-t border-[var(--ns-glass-line)]">
                     <span className="text-[var(--ns-ink)]">Total Amount Due:</span>
-                    <span className="font-mono text-[#c59a58]">
+                    <span className="font-mono text-[var(--ns-gold)]">
                       {isComplimentary ? 'FREE' : formatCurrency(totalDue)}
                     </span>
                   </div>
@@ -849,7 +849,7 @@ export default function PoolPortalPage() {
                 <div className="flex flex-col sm:flex-row gap-2 pt-2">
                   <Button
                     type="submit"
-                    className="flex-1 bg-[#c59a58] text-[#10131A] hover:bg-[#b59870] font-bold"
+                    className="flex-1 glass text-[var(--ns-ink)] ns-glass-hover font-bold"
                     loading={busy}
                   >
                     <Printer size={15} /> Record &amp; Print Receipt
@@ -871,15 +871,15 @@ export default function PoolPortalPage() {
           {/* Right Column: Attendance & Entries Log + Cashier Transactions Tab */}
           <div className="lg:col-span-7 space-y-4">
             {/* Tab Navigation */}
-            <div className="flex items-center justify-between border-b border-[var(--ns-line)] pb-2">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] pb-2">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab('entries')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                     activeTab === 'entries'
-                      ? 'bg-[#c59a58] text-[#10131A]'
-                      : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]'
+                      ? 'ns-glass-selected text-[var(--ns-ink)]'
+                      : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)] ns-glass-hover'
                   }`}
                 >
                   Swimmer Entries Log ({attendance.length})
@@ -889,8 +889,8 @@ export default function PoolPortalPage() {
                   onClick={() => setActiveTab('transactions')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                     activeTab === 'transactions'
-                      ? 'bg-[#c59a58] text-[#10131A]'
-                      : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]'
+                      ? 'ns-glass-selected text-[var(--ns-ink)]'
+                      : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)] ns-glass-hover'
                   }`}
                 >
                   Paid Transactions &amp; Receipts ({transactions.length})
@@ -909,11 +909,11 @@ export default function PoolPortalPage() {
               >
                 {matchedAttendanceList.length === 0 ? (
                   <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
-                    <Waves size={32} className="mx-auto mb-2 opacity-30 text-[#c59a58]" />
+                    <Waves size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-gold)]" />
                     No pool entries recorded yet.
                   </div>
                 ) : (
-                  <div className="divide-y divide-[var(--ns-line)] max-h-[640px] overflow-y-auto">
+                  <div className="divide-y divide-[var(--ns-glass-line)] max-h-[640px] overflow-y-auto">
                     {matchedAttendanceList.map((entry) => {
                       const amountPaid = entry.amountPaid;
                       const isPaid = entry.isPaid;
@@ -922,23 +922,23 @@ export default function PoolPortalPage() {
                       return (
                         <div
                           key={entry.id}
-                          className="p-4 hover:bg-[var(--ns-surface-2)] transition-colors flex items-start justify-between gap-3 text-xs"
+                          className="p-4 ns-glass-hover transition-colors flex items-start justify-between gap-3 text-xs"
                         >
                           <div className="space-y-1 min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <span className="font-extrabold text-[var(--ns-ink)] text-sm truncate">
                                 {entry.visitorName}
                               </span>
-                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                                 <Users size={11} /> {entry.partySize} {entry.partySize > 1 ? 'Swimmers' : 'Swimmer'}
                               </span>
                               <span
                                 className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                                   isPaid
-                                    ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
+                                    ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]'
                                     : entry.paymentMethod === 'COMPLIMENTARY'
-                                      ? 'bg-blue-950/60 text-blue-300 border border-blue-800/40'
-                                      : 'bg-amber-950/60 text-[#c59a58] border border-amber-800/40'
+                                      ? 'glass-subtle text-[var(--ns-info)] border border-[var(--ns-info)]'
+                                      : 'glass-subtle text-[var(--ns-gold)] border border-[var(--ns-warning)]'
                                 }`}
                               >
                                 {isPaid
@@ -949,7 +949,7 @@ export default function PoolPortalPage() {
                               </span>
                             </div>
 
-                            <div className="text-[11px] text-[#4a5568] flex items-center gap-2">
+                            <div className="text-[11px] text-[var(--ns-muted)] flex items-center gap-2">
                               <span>
                                 {new Date(entry.createdAt).toLocaleString([], {
                                   dateStyle: 'short',
@@ -964,7 +964,7 @@ export default function PoolPortalPage() {
                             </div>
 
                             {entry.notes && (
-                              <div className="text-[10px] text-[var(--ns-muted)] italic bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-2 py-0.5 rounded inline-block">
+                              <div className="text-[10px] text-[var(--ns-muted)] italic ns-glass-band border border-[var(--ns-glass-line)] px-2 py-0.5 rounded inline-block">
                                 Note: {entry.notes}
                               </div>
                             )}
@@ -977,7 +977,7 @@ export default function PoolPortalPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => openChargeEntry(entry)}
-                                className="text-emerald-400 border-emerald-500/40 hover:bg-emerald-950/30 font-bold"
+                                className="text-[var(--ns-success)] border-[var(--ns-success)] ns-glass-hover font-bold"
                                 title="Collect payment and generate receipt"
                               >
                                 <DollarSign size={13} /> Collect GHS
@@ -1004,7 +1004,7 @@ export default function PoolPortalPage() {
                                     notes: entry.notes,
                                   })
                                 }
-                                className="text-[#c59a58] border-[#c59a58]/40 hover:bg-[#c59a58]/10"
+                                className="text-[var(--ns-gold)] border-[var(--ns-gold)] ns-glass-hover"
                                 title="Print Official Receipt"
                               >
                                 <Printer size={13} /> Print
@@ -1031,7 +1031,7 @@ export default function PoolPortalPage() {
                                   name: `${entry.visitorName} (${entry.partySize} pax)`,
                                 })
                               }
-                              className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                              className="text-[var(--ns-danger)] hover:text-[var(--ns-danger)] ns-glass-hover"
                               title="Delete Entry"
                             >
                               <Trash2 size={13} />
@@ -1050,25 +1050,25 @@ export default function PoolPortalPage() {
               >
                 {transactions.length === 0 ? (
                   <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
-                    <ReceiptText size={32} className="mx-auto mb-2 opacity-30 text-[#c59a58]" />
+                    <ReceiptText size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-gold)]" />
                     No paid transactions recorded yet.
                   </div>
                 ) : (
-                  <div className="divide-y divide-[var(--ns-line)] max-h-[640px] overflow-y-auto">
+                  <div className="divide-y divide-[var(--ns-glass-line)] max-h-[640px] overflow-y-auto">
                     {transactions.map((tx) => (
                       <div
                         key={tx.id}
-                        className="p-4 hover:bg-[var(--ns-surface-2)] transition-colors flex items-start justify-between gap-3 text-xs"
+                        className="p-4 ns-glass-hover transition-colors flex items-start justify-between gap-3 text-xs"
                       >
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-extrabold text-[var(--ns-ink)] text-sm">
                               {tx.transactionNo || 'POL-TX'}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-mono">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)] font-mono">
                               {tx.service?.name || 'Pool Pass'} × {tx.quantity}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-mono">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)] font-mono">
                               {formatCurrency(Number(tx.totalAmount || 0))}
                             </span>
                           </div>
@@ -1084,7 +1084,7 @@ export default function PoolPortalPage() {
                           </div>
 
                           {tx.notes && (
-                            <div className="text-[10px] text-[var(--ns-muted)] italic bg-[var(--ns-surface-2)] px-2 py-0.5 rounded inline-block">
+                            <div className="text-[10px] text-[var(--ns-muted)] italic ns-glass-band px-2 py-0.5 rounded inline-block">
                               {tx.notes}
                             </div>
                           )}
@@ -1108,7 +1108,7 @@ export default function PoolPortalPage() {
                                 notes: tx.notes,
                               })
                             }
-                            className="text-[#c59a58] border-[#c59a58]/40 hover:bg-[#c59a58]/10"
+                            className="text-[var(--ns-gold)] border-[var(--ns-gold)] ns-glass-hover"
                             title="Print Official Receipt"
                           >
                             <Printer size={13} /> Print
@@ -1124,7 +1124,7 @@ export default function PoolPortalPage() {
                                 name: `${tx.transactionNo} (${formatCurrency(Number(tx.totalAmount || 0))})`,
                               })
                             }
-                            className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                            className="text-[var(--ns-danger)] hover:text-[var(--ns-danger)] ns-glass-hover"
                             title="Delete Transaction"
                           >
                             <Trash2 size={13} />
@@ -1148,14 +1148,14 @@ export default function PoolPortalPage() {
           title={`Collect Payment · ${chargingEntry.visitorName} (${chargingEntry.partySize} pax)`}
         >
           <form onSubmit={handleSaveChargeEntry} className="space-y-4 text-xs">
-            <div className="p-3 bg-[var(--ns-surface-2)] border border-[var(--ns-line)] rounded-xl text-xs space-y-1">
+            <div className="p-3 ns-glass-band border border-[var(--ns-glass-line)] rounded-xl text-xs space-y-1">
               <div className="flex justify-between text-[var(--ns-muted)]">
                 <span>Visitor Name:</span>
                 <span className="font-bold text-[var(--ns-ink)]">{chargingEntry.visitorName}</span>
               </div>
               <div className="flex justify-between text-[var(--ns-muted)]">
                 <span>Swimmers Count:</span>
-                <span className="font-bold text-[#c59a58]">{chargingEntry.partySize} Swimmers</span>
+                <span className="font-bold text-[var(--ns-gold)]">{chargingEntry.partySize} Swimmers</span>
               </div>
             </div>
 
@@ -1201,9 +1201,9 @@ export default function PoolPortalPage() {
               </FormField>
             </div>
 
-            <div className="p-3 bg-[var(--ns-surface-2)] border border-[#c59a58]/40 rounded-xl flex justify-between items-center text-sm font-bold">
+            <div className="p-3 ns-glass-band border border-[var(--ns-gold)] rounded-xl flex justify-between items-center text-sm font-bold">
               <span className="text-[var(--ns-ink)]">Total To Collect:</span>
-              <span className="text-[#c59a58] font-mono">
+              <span className="text-[var(--ns-gold)] font-mono">
                 {formatCurrency(Number(chargingEntry.partySize || 1) * (Number(chargeUnitPrice) || 0))}
               </span>
             </div>
@@ -1221,7 +1221,7 @@ export default function PoolPortalPage() {
                 type="submit"
                 variant="primary"
                 loading={chargeBusy}
-                className="bg-[#c59a58] text-[#10131A] font-bold"
+                className="glass text-[var(--ns-ink)] font-bold"
               >
                 <Check size={14} /> Collect &amp; Print Receipt
               </Button>
@@ -1284,7 +1284,7 @@ export default function PoolPortalPage() {
                 type="submit"
                 variant="primary"
                 loading={editBusy}
-                className="bg-[#c59a58] text-[#10131A] font-bold"
+                className="glass text-[var(--ns-ink)] font-bold"
               >
                 Save Corrections
               </Button>
@@ -1301,11 +1301,11 @@ export default function PoolPortalPage() {
           title="Delete Pool Record"
         >
           <div className="space-y-4 text-xs">
-            <div className="p-4 rounded-xl bg-red-950/30 border border-red-900/50 flex items-start gap-3">
-              <AlertTriangle className="text-red-400 shrink-0 mt-0.5" size={18} />
+            <div className="p-4 rounded-xl glass-subtle border border-[var(--ns-danger)] flex items-start gap-3">
+              <AlertTriangle className="text-[var(--ns-danger)] shrink-0 mt-0.5" size={18} />
               <div>
-                <div className="font-bold text-red-300">Are you sure you want to delete this pool record?</div>
-                <div className="text-[11px] text-red-200/80 mt-1">
+                <div className="font-bold text-[var(--ns-danger)]">Are you sure you want to delete this pool record?</div>
+                <div className="text-[11px] text-[var(--ns-danger)] mt-1">
                   You are deleting the entry for <strong>{deletingItem.name}</strong>. This cannot be undone.
                 </div>
               </div>
@@ -1325,7 +1325,7 @@ export default function PoolPortalPage() {
                 variant="primary"
                 loading={deleteBusy}
                 onClick={handleConfirmDelete}
-                className="bg-red-600 hover:bg-red-500 text-white font-bold"
+                className="glass ns-glass-hover text-[var(--ns-danger)] font-bold"
               >
                 Confirm Delete
               </Button>
@@ -1355,7 +1355,7 @@ export default function PoolPortalPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setShowAddService(true)}
-                  className="bg-[#c59a58]/10 border-[#c59a58] text-[#c59a58] hover:bg-[#c59a58]/20 font-bold shrink-0"
+                  className="glass border-[var(--ns-gold)] text-[var(--ns-gold)] ns-glass-hover font-bold shrink-0"
                 >
                   <Plus size={13} /> Add Pass Rate
                 </Button>
@@ -1366,9 +1366,9 @@ export default function PoolPortalPage() {
             {showAddService && (
               <form
                 onSubmit={handleCreateNewService}
-                className="p-4 rounded-xl bg-[var(--ns-surface-2)] border border-[#c59a58]/40 space-y-3"
+                className="p-4 rounded-xl ns-glass-band border border-[var(--ns-gold)] space-y-3"
               >
-                <div className="flex items-center justify-between font-bold text-[#c59a58]">
+                <div className="flex items-center justify-between font-bold text-[var(--ns-gold)]">
                   <span>Add New Pool Pass / Service</span>
                   <button
                     type="button"
@@ -1420,7 +1420,7 @@ export default function PoolPortalPage() {
                     variant="primary"
                     size="sm"
                     loading={newServiceSaving}
-                    className="bg-[#c59a58] text-[#10131A] font-bold"
+                    className="glass text-[var(--ns-ink)] font-bold"
                   >
                     <Save size={13} /> Save New Pass
                   </Button>
@@ -1438,8 +1438,8 @@ export default function PoolPortalPage() {
                     key={svc.id}
                     className={`p-4 rounded-xl border transition-all ${
                       svc.isAvailable
-                        ? 'bg-[var(--ns-surface-2)] border-[var(--ns-line)]'
-                        : 'bg-[var(--ns-surface-2)]/50 border-[var(--ns-line)]/40 opacity-70'
+                        ? 'ns-glass-band border-[var(--ns-glass-line)]'
+                        : 'ns-glass-band border-[var(--ns-glass-line)] opacity-70'
                     }`}
                   >
                     {isEditing ? (
@@ -1483,7 +1483,7 @@ export default function PoolPortalPage() {
                             size="sm"
                             loading={priceSaving}
                             onClick={() => handleSaveServicePrice(svc.id)}
-                            className="bg-[#c59a58] text-[#10131A] font-bold"
+                            className="glass text-[var(--ns-ink)] font-bold"
                           >
                             <Save size={13} /> Save Price
                           </Button>
@@ -1497,8 +1497,8 @@ export default function PoolPortalPage() {
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                                 svc.isAvailable
-                                  ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
-                                  : 'bg-zinc-800 text-zinc-400'
+                                  ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]'
+                                  : 'ns-glass-band text-[var(--ns-muted)]'
                               }`}
                             >
                               {svc.isAvailable ? 'Active' : 'Inactive'}
@@ -1507,7 +1507,7 @@ export default function PoolPortalPage() {
                           {svc.description && (
                             <div className="text-[11px] text-[var(--ns-muted)]">{svc.description}</div>
                           )}
-                          <div className="text-base font-extrabold text-[#c59a58] font-mono pt-1">
+                          <div className="text-base font-extrabold text-[var(--ns-gold)] font-mono pt-1">
                             {formatCurrency(Number(svc.price || 0))}
                           </div>
                         </div>
@@ -1518,7 +1518,7 @@ export default function PoolPortalPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => startEditingService(svc)}
-                            className="text-[#c59a58] border-[#c59a58]/40 hover:bg-[#c59a58]/10 font-bold"
+                            className="text-[var(--ns-gold)] border-[var(--ns-gold)] ns-glass-hover font-bold"
                             title="Edit Price and Details"
                           >
                             <Edit2 size={13} /> Change Price
@@ -1528,7 +1528,7 @@ export default function PoolPortalPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleToggleServiceAvailability(svc.id, svc.isAvailable)}
-                            className={svc.isAvailable ? 'text-amber-400 hover:bg-amber-950/40' : 'text-emerald-400 hover:bg-emerald-950/40'}
+                            className={svc.isAvailable ? 'text-[var(--ns-warning)] ns-glass-hover' : 'text-[var(--ns-success)] ns-glass-hover'}
                             title={svc.isAvailable ? 'Deactivate Pass' : 'Activate Pass'}
                           >
                             <Power size={13} />
@@ -1538,7 +1538,7 @@ export default function PoolPortalPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteService(svc.id, svc.name)}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-950/40"
+                            className="text-[var(--ns-danger)] hover:text-[var(--ns-danger)] ns-glass-hover"
                             title="Delete Service"
                           >
                             <Trash2 size={13} />
@@ -1551,12 +1551,12 @@ export default function PoolPortalPage() {
               })}
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-[#1e2535]">
+            <div className="flex justify-end pt-2 border-t border-[var(--ns-glass-line)]">
               <Button
                 type="button"
                 variant="primary"
                 onClick={() => setPricingModalOpen(false)}
-                className="bg-[#c59a58] text-[#10131A] font-bold px-6"
+                className="glass text-[var(--ns-ink)] font-bold px-6"
               >
                 Done
               </Button>

@@ -35,8 +35,8 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 const ACCENT = {
-  restaurant: { color: '#c59a58', light: '#2a1f0e', btn: 'bg-[#c59a58] hover:bg-[#b08848] text-[#0c1921]' },
-  bar: { color: '#9b6de0', light: '#1e1430', btn: 'bg-[#9b6de0] hover:bg-[#8559c8] text-white' },
+  restaurant: { color: 'var(--ns-gold)', btn: 'glass ns-glass-hover text-[var(--ns-gold)]' },
+  bar: { color: 'var(--ns-purple)', btn: 'glass ns-glass-hover text-[var(--ns-purple)]' },
 };
 
 export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
@@ -279,7 +279,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
           {/* ── Menu Panel ──────────────────────────────────── */}
           <div className="flex flex-col gap-4">
             {/* Category filter bar */}
-            <div className="ns-card p-3 flex flex-wrap items-center gap-2">
+            <div className="ns-card glass p-3 flex flex-wrap items-center gap-2">
               <div className="relative flex-1 min-w-[160px]">
                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
                 <input
@@ -294,12 +294,12 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                   <button
                     key={c}
                     onClick={() => setCategory(c)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ns-glass-hover ${
                       category === c
-                        ? 'text-[#0c1921] shadow'
-                        : 'bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:text-[var(--ns-ink)] border border-[var(--ns-line)]'
+                        ? 'ns-glass-selected text-[var(--ns-ink)] shadow'
+                        : 'ns-glass-band text-[var(--ns-muted)] hover:text-[var(--ns-ink)] border border-[var(--ns-glass-line)]'
                     }`}
-                    style={category === c ? { backgroundColor: ac.color } : {}}
+                    style={category === c ? { color: ac.color, borderColor: ac.color } : {}}
                   >
                     {c === 'ALL' ? 'All' : c.replace(/_/g, ' ')}
                   </button>
@@ -309,7 +309,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
             {/* Menu items grid */}
             {visible.length === 0 ? (
-              <div className="ns-card p-14 text-center">
+              <div className="ns-card glass p-14 text-center">
                 <Icon size={28} className="mx-auto mb-3 opacity-20" style={{ color: ac.color }} />
                 <p className="text-xs text-[var(--ns-muted)]">No items match this filter.</p>
               </div>
@@ -322,15 +322,15 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                     <div
                       key={i.id}
                       onClick={() => !off && add(i)}
-                      className={`ns-card relative flex flex-col justify-between p-3 transition-all cursor-pointer group ${
+                      className={`ns-card glass relative flex flex-col justify-between p-3 transition-all cursor-pointer group ${
                         off ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5 hover:shadow-lg'
                       }`}
                       style={inCart > 0 ? { borderColor: ac.color } : {}}
                     >
                       {inCart > 0 && (
                         <span
-                          className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[9px] font-bold text-[#0c1921] shadow"
-                          style={{ backgroundColor: ac.color }}
+                          className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[9px] font-bold text-[var(--ns-ink)] shadow"
+                          style={{ backgroundColor: 'var(--ns-glass-1)' }}
                         >
                           {inCart}
                         </span>
@@ -341,32 +341,32 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                           {catName(i).replace(/_/g, ' ')}
                         </div>
                       </div>
-                      <div className="mt-3 flex items-center justify-between border-t border-[var(--ns-line)] pt-2">
+                      <div className="mt-3 flex items-center justify-between border-t border-[var(--ns-glass-line)] pt-2">
                         <span className="text-[11px] font-extrabold" style={{ color: ac.color }}>
                           {formatCurrency(Number(i.price || 0))}
                         </span>
                         {off ? (
-                          <span className="rounded bg-amber-900/40 px-1.5 py-0.5 text-[8px] font-bold uppercase text-amber-400">
+                          <span className="rounded ns-glass-band px-1.5 py-0.5 text-[8px] font-bold uppercase text-[var(--ns-warning)]">
                             Sold out
                           </span>
                         ) : (
                           <span
-                            className="flex h-5 w-5 items-center justify-center rounded text-[#0c1921] opacity-0 group-hover:opacity-100 transition-opacity"
-                            style={{ backgroundColor: ac.color }}
+                            className="flex h-5 w-5 items-center justify-center rounded text-[var(--ns-ink)] opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ backgroundColor: 'var(--ns-glass-1)' }}
                           >
                             <Plus size={10} />
                           </span>
                         )}
                       </div>
                       {canManage && (
-                        <div className="mt-2 flex items-center gap-1 border-t border-[var(--ns-line)] pt-2" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => toggleItem(i)} title={off ? 'Enable' : 'Disable'} className="rounded p-1 text-[var(--ns-muted)] hover:text-[#c59a58] transition-colors">
+                        <div className="mt-2 flex items-center gap-1 border-t border-[var(--ns-glass-line)] pt-2" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => toggleItem(i)} title={off ? 'Enable' : 'Disable'} className="rounded p-1 text-[var(--ns-muted)] hover:text-[var(--ns-gold)] transition-colors">
                             <Power size={10} />
                           </button>
-                          <button onClick={() => openEditItem(i)} title="Edit" className="rounded p-1 text-[var(--ns-muted)] hover:text-[#c59a58] transition-colors">
+                          <button onClick={() => openEditItem(i)} title="Edit" className="rounded p-1 text-[var(--ns-muted)] hover:text-[var(--ns-gold)] transition-colors">
                             <Pencil size={10} />
                           </button>
-                          <button onClick={() => removeItem(i)} title="Delete" className="rounded p-1 text-[var(--ns-muted)] hover:text-red-400 transition-colors">
+                          <button onClick={() => removeItem(i)} title="Delete" className="rounded p-1 text-[var(--ns-muted)] hover:text-[var(--ns-danger)] transition-colors">
                             <Trash2 size={10} />
                           </button>
                         </div>
@@ -379,9 +379,9 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
           </div>
 
           {/* ── Order Panel ──────────────────────────────────── */}
-          <div className="ns-card flex flex-col gap-0 overflow-hidden sticky top-4">
+          <div className="ns-card glass flex flex-col gap-0 overflow-hidden sticky top-4">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-[var(--ns-line)] flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-[var(--ns-glass-line)] flex items-center justify-between">
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">Current Order</div>
                 <div className="text-xs font-extrabold text-[var(--ns-ink)] mt-0.5">
@@ -391,7 +391,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
               {cart.length > 0 && (
                 <button
                   onClick={() => { setCart([]); setIdempotencyKey(null); }}
-                  className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)] hover:text-red-400 flex items-center gap-1 transition-colors"
+                  className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)] hover:text-[var(--ns-danger)] flex items-center gap-1 transition-colors"
                 >
                   <X size={11} /> Clear
                 </button>
@@ -407,22 +407,22 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                 </div>
               ) : (
                 cart.map((i) => (
-                  <div key={i.id} className="flex items-center gap-2 rounded-lg bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-3 py-2 text-xs">
+                  <div key={i.id} className="flex items-center gap-2 rounded-lg ns-glass-band border border-[var(--ns-glass-line)] px-3 py-2 text-xs">
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-semibold text-[var(--ns-ink)] text-[11px]">{i.name}</div>
                       <div className="text-[9px] text-[var(--ns-muted)]">{formatCurrency(Number(i.price))} each</div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-[var(--ns-line)] text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors">
+                      <button onClick={() => dec(i.id)} className="flex h-5 w-5 items-center justify-center rounded border border-[var(--ns-glass-line)] text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors">
                         <Minus size={9} />
                       </button>
                       <span className="w-5 text-center font-bold text-[var(--ns-ink)] text-[11px]">{i.quantity}</span>
-                      <button onClick={() => add(i)} className="flex h-5 w-5 items-center justify-center rounded text-[#0c1921]" style={{ backgroundColor: ac.color }}>
+                      <button onClick={() => add(i)} className="flex h-5 w-5 items-center justify-center rounded text-[var(--ns-ink)]" style={{ backgroundColor: 'var(--ns-glass-1)' }}>
                         <Plus size={9} />
                       </button>
                     </div>
                     <span className="w-14 text-right font-bold text-[11px]" style={{ color: ac.color }}>{formatCurrency(Number(i.price) * i.quantity)}</span>
-                    <button onClick={() => removeLine(i.id)} className="text-[var(--ns-muted)] hover:text-red-500 transition-colors">
+                    <button onClick={() => removeLine(i.id)} className="text-[var(--ns-muted)] hover:text-[var(--ns-danger)] transition-colors">
                       <X size={11} />
                     </button>
                   </div>
@@ -432,7 +432,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
 
             {/* Totals & payment */}
             {cart.length > 0 && (
-              <div className="border-t border-[var(--ns-line)] px-5 py-4 space-y-3">
+              <div className="border-t border-[var(--ns-glass-line)] px-5 py-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">Order Total</span>
                   <span className="text-lg font-extrabold" style={{ color: ac.color }}>{formatCurrency(total)}</span>
@@ -484,7 +484,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
           ) : (
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--ns-line)]">
+                <tr className="border-b border-[var(--ns-glass-line)]">
                   {['Order No', 'Payment', 'Status', 'Amount', ''].map((h) => (
                     <th key={h} className={`px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)] ${h === 'Amount' || h === '' ? 'text-right' : ''}`}>
                       {h}
@@ -492,9 +492,9 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {orders.slice(0, 12).map((o) => (
-                  <tr key={o.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                  <tr key={o.id} className="ns-glass-hover transition-colors">
                     <td className="px-5 py-3 font-mono text-[11px] font-extrabold text-[var(--ns-ink)]">{o.orderNo}</td>
                     <td className="px-5 py-3 text-[11px] text-[var(--ns-muted)]">{PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod}</td>
                     <td className="px-5 py-3">{statusBadge(o.status || 'COMPLETED')}</td>

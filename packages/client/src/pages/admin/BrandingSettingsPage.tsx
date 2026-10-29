@@ -107,7 +107,7 @@ export const BrandingSettingsPage: React.FC = () => {
   };
 
   if (loading && !theme) {
-    return <div className="py-8 text-center text-xs text-[#A0A5AD]">Loading theme settings...</div>;
+    return <div className="py-8 text-center text-xs text-[var(--ns-muted)]">Loading theme settings...</div>;
   }
 
   const activeTheme = theme ?? ({
@@ -155,10 +155,10 @@ export const BrandingSettingsPage: React.FC = () => {
       />
 
       <div className="space-y-6">
-        <div className="bg-[#1C1F28] border border-[#2B303E] rounded-lg p-6 space-y-5">
+        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-6 space-y-5">
           <div className="flex items-center gap-2 mb-2">
-            <Palette size={18} className="text-[#f1a83f]" />
-            <h2 className="text-base font-bold text-[#F4F4F2]">Brand identity</h2>
+            <Palette size={18} className="text-[var(--ns-gold)]" />
+            <h2 className="text-base font-bold text-[var(--ns-ink)]">Brand identity</h2>
           </div>
 
           <FormField label="Villa Name">
@@ -178,48 +178,51 @@ export const BrandingSettingsPage: React.FC = () => {
           </FormField>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded border border-[#2B303E] bg-[#14161D] p-4">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#A0A5AD]">
+            <div className="rounded border border-[var(--ns-glass-line)] glass-subtle p-4">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--ns-muted)]">
                 Logo image
               </div>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'logoUrl')}
-                className="block w-full text-[11px] text-[#5b6672] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
+                className="block w-full text-[11px] text-[var(--ns-muted)] file:mr-3 file:rounded file:border-0 file:bg-[var(--ns-glass-1)] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[var(--ns-gold)]"
               />
-              <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[#2B303E] bg-[#0E1117]">
+              <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[var(--ns-glass-line)] glass-subtle">
                 {logoValue ? (
                   <img src={logoValue} alt="Logo preview" className="max-h-full max-w-full object-contain" />
                 ) : (
-                  <span className="text-[10px] text-[#7E8692]">No logo uploaded</span>
+                  <span className="text-[10px] text-[var(--ns-muted)]">No logo uploaded</span>
                 )}
               </div>
             </div>
 
-            <div className="rounded border border-[#2B303E] bg-[#14161D] p-4">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#A0A5AD]">
+            <div className="rounded border border-[var(--ns-glass-line)] glass-subtle p-4">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--ns-muted)]">
                 Login background
               </div>
+              <p className="mb-2 text-[11px] text-[var(--ns-muted)]">
+                Saved images are not displayed in the clear-glass login design.
+              </p>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'loginBgUrl')}
-                className="block w-full text-[11px] text-[#5b6672] file:mr-3 file:rounded file:border-0 file:bg-[#f1a83f] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#17232B]"
+                className="block w-full text-[11px] text-[var(--ns-muted)] file:mr-3 file:rounded file:border-0 file:bg-[var(--ns-glass-1)] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[var(--ns-gold)]"
               />
-              <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[#2B303E] bg-[#0E1117]">
+              <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[var(--ns-glass-line)] glass-subtle">
                 {loginBgValue ? (
                   <img src={loginBgValue} alt="Login background preview" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-[10px] text-[#7E8692]">No background uploaded</span>
+                  <span className="text-[10px] text-[var(--ns-muted)]">No background uploaded</span>
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#1C1F28] border border-[#2B303E] rounded-lg p-6 space-y-4">
-          <h2 className="text-base font-bold text-[#F4F4F2]">Typography</h2>
+        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-6 space-y-4">
+          <h2 className="text-base font-bold text-[var(--ns-ink)]">Typography</h2>
 
           <FormField label="Body font">
             <SelectInput
@@ -244,29 +247,29 @@ export const BrandingSettingsPage: React.FC = () => {
           </FormField>
         </div>
 
-        <div className="bg-[#1C1F28] border border-[#2B303E] rounded-lg p-6 space-y-4">
-          <h2 className="text-base font-bold text-[#F4F4F2]">Display</h2>
+        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-6 space-y-4">
+          <h2 className="text-base font-bold text-[var(--ns-ink)]">Display</h2>
 
-          <label className="flex items-center justify-between gap-3 rounded border border-[#2B303E] bg-[#14161D] p-3">
-            <span className="text-sm text-[#F4F4F2]">Enable dark mode</span>
+          <label className="flex items-center justify-between gap-3 rounded border border-[var(--ns-glass-line)] glass-subtle p-3">
+            <span className="text-sm text-[var(--ns-ink)]">Enable dark mode</span>
             <input
               type="checkbox"
               checked={Boolean(getValue('enableDarkMode'))}
               onChange={(e) => handleChange('enableDarkMode', e.target.checked)}
-              className="h-4 w-4 rounded accent-[#f1a83f]"
+              className="h-4 w-4 rounded accent-[var(--ns-gold)]"
             />
           </label>
         </div>
 
-        <div className="bg-[#1C1F28] border border-red-900/40 rounded-lg p-6">
+        <div className="glass border border-[var(--ns-danger)]/40 rounded-lg p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-red-900/20 rounded text-red-400">
+              <div className="p-2 glass-subtle rounded text-[var(--ns-danger)]">
                 <AlertTriangle size={18} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-[#F4F4F2]">Reset to default branding</h3>
-                <p className="text-xs text-[#A0A5AD] mt-1">
+                <h3 className="text-sm font-semibold text-[var(--ns-ink)]">Reset to default branding</h3>
+                <p className="text-xs text-[var(--ns-muted)] mt-1">
                   Restore the original default theme and branding values.
                 </p>
               </div>
@@ -285,9 +288,9 @@ export const BrandingSettingsPage: React.FC = () => {
         size="md"
       >
         <div className="p-6 space-y-4">
-          <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-3">
-            <AlertTriangle size={16} className="text-red-500 mt-0.5 shrink-0" />
-            <div className="text-xs text-red-700 leading-relaxed">
+          <div className="flex items-start gap-3 glass-subtle border border-[var(--ns-danger)] rounded-lg p-3">
+            <AlertTriangle size={16} className="text-[var(--ns-danger)] mt-0.5 shrink-0" />
+            <div className="text-xs text-[var(--ns-danger)] leading-relaxed">
               This will restore the default branding theme. Your custom logo, background, and colors will be removed.
             </div>
           </div>

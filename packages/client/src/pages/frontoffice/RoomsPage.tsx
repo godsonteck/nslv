@@ -309,8 +309,8 @@ export const RoomsPage: React.FC = () => {
       {/* ── Page Header ── */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-amber-500/10 px-3 py-1 text-[11px] font-bold tracking-wider text-[#b88738] uppercase shadow-xs">
-            <Sparkles size={13} className="text-[#c59a58]" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[11px] font-bold tracking-wider text-[var(--ns-gold)] uppercase shadow-xs">
+            <Sparkles size={13} className="text-[var(--ns-gold)]" />
             Room Inventory
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ns-ink)]">
@@ -326,15 +326,15 @@ export const RoomsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate('/reservations')}
-            className="border-[var(--ns-line)] hover:bg-[var(--ns-surface-2)] bg-[var(--ns-surface)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
           >
-            <CalendarDays size={14} className="text-[#174b59] dark:text-[#5ab4d6]" /> Reservations
+            <CalendarDays size={14} className="text-[var(--ns-teal)]" /> Reservations
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => { clearGetCache(); void load(); }}
-            className="border-[var(--ns-line)] hover:bg-[var(--ns-surface-2)] bg-[var(--ns-surface)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
           >
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -344,16 +344,16 @@ export const RoomsPage: React.FC = () => {
               size="sm"
               loading={saving}
               onClick={syncBookingStatuses}
-              className="border-[var(--ns-line)] hover:bg-[var(--ns-surface-2)] bg-[var(--ns-surface)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
+              className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
             >
-              <RefreshCw size={14} className="text-[#c59a58]" /> Sync Statuses
+              <RefreshCw size={14} className="text-[var(--ns-gold)]" /> Sync Statuses
             </Button>
           )}
           {canManage && (
             <Button
               size="sm"
               onClick={() => navigate('/admin/rooms')}
-              className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5"
+              className="glass text-[var(--ns-teal)] shadow-md text-xs font-semibold gap-1.5 ns-glass-hover"
             >
               <Layers size={14} /> Room Config
             </Button>
@@ -365,10 +365,10 @@ export const RoomsPage: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
         <button
           onClick={() => setStatus('ALL')}
-          className={`rounded-xl p-3 text-left border transition-all ${
+          className={`glass-subtle ns-glass-hover rounded-xl p-3 text-left border transition-all ${
             status === 'ALL'
-              ? 'bg-[#0f172a] dark:bg-slate-800 text-white border-[#0f172a] dark:border-slate-700 shadow-xs'
-              : 'bg-[var(--ns-surface)] border-[var(--ns-line)] hover:border-[#174b59]/40 text-[var(--ns-ink)]'
+              ? 'glass text-[var(--ns-ink)] border-[var(--ns-gold)] shadow-xs ns-glass-selected'
+              : 'glass border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
           }`}
         >
           <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">All Rooms</div>
@@ -382,10 +382,10 @@ export const RoomsPage: React.FC = () => {
             <button
               key={s}
               onClick={() => setStatus(s)}
-              className={`rounded-xl p-3 text-left border transition-all ${
+              className={`glass-subtle ns-glass-hover rounded-xl p-3 text-left border transition-all ${
                 isSelected
-                  ? 'bg-[#174b59] text-white border-[#174b59] shadow-xs'
-                  : 'bg-[var(--ns-surface)] border-[var(--ns-line)] hover:border-[#174b59]/40 text-[var(--ns-ink)]'
+                  ? 'glass text-[var(--ns-teal)] border-[var(--ns-gold)] shadow-xs ns-glass-selected'
+                  : 'glass border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
               }`}
             >
               <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)] truncate">
@@ -398,9 +398,9 @@ export const RoomsPage: React.FC = () => {
       </div>
 
       {/* ── Main Room Board Section ── */}
-      <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] shadow-xs overflow-hidden">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle shadow-xs overflow-hidden">
         {/* Controls Toolbar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[var(--ns-line)] p-4 bg-[var(--ns-surface-2)] gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[var(--ns-glass-line)] p-4 ns-glass-band gap-3">
           {/* Search */}
           <div className="relative w-full lg:w-72">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
@@ -409,14 +409,14 @@ export const RoomsPage: React.FC = () => {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search room number..."
-              className="w-full rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] pl-9 pr-3 py-1.5 text-xs text-[var(--ns-ink)] focus:border-[#174b59] focus:outline-none placeholder-[var(--ns-muted)]"
+              className="w-full rounded-xl border border-[var(--ns-glass-line)] glass-input pl-9 pr-3 py-1.5 text-xs text-[var(--ns-ink)] focus:border-[var(--ns-teal)] focus:outline-none placeholder-[var(--ns-muted)]"
             />
           </div>
 
           {/* Date Filter & Fast Action Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] px-3 py-1.5 shadow-xs">
-              <CalendarDays size={14} className="text-[#174b59] dark:text-[#5ab4d6] mr-2 shrink-0" />
+            <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 py-1.5 shadow-xs">
+              <CalendarDays size={14} className="text-[var(--ns-teal)] mr-2 shrink-0" />
               <label htmlFor="roomDateFilter" className="text-[11px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap cursor-pointer">
                 Filter Date:
               </label>
@@ -425,13 +425,13 @@ export const RoomsPage: React.FC = () => {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="border-0 bg-transparent text-xs font-bold text-[var(--ns-ink)] focus:outline-none p-0 cursor-pointer"
+                className="border-0 bg-transparent text-xs font-bold text-[var(--ns-ink)] focus:outline-none p-0 cursor-pointer glass-input"
               />
               {dateFilter && (
                 <button
                   type="button"
                   onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-                  className="ml-2 text-[var(--ns-muted)] hover:text-red-600"
+                  className="ml-2 text-[var(--ns-muted)] hover:text-[var(--ns-danger)] glass-subtle ns-glass-hover"
                   title="Clear date filter"
                 >
                   <X size={13} />
@@ -440,20 +440,20 @@ export const RoomsPage: React.FC = () => {
             </div>
 
             {dateFilter && (
-              <div className="flex items-center rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] px-3 py-1.5 shadow-xs">
+              <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 py-1.5 shadow-xs">
                 <span className="text-[11px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap">To:</span>
                 <input
                   type="date"
                   min={dateFilter}
                   value={endDateFilter}
                   onChange={(e) => setEndDateFilter(e.target.value)}
-                  className="border-0 bg-transparent text-xs font-bold text-[var(--ns-ink)] focus:outline-none p-0 cursor-pointer"
+                  className="border-0 bg-transparent text-xs font-bold text-[var(--ns-ink)] focus:outline-none p-0 cursor-pointer glass-input"
                 />
                 {endDateFilter && (
                   <button
                     type="button"
                     onClick={() => setEndDateFilter('')}
-                    className="ml-2 text-[var(--ns-muted)] hover:text-red-600"
+                    className="ml-2 text-[var(--ns-muted)] hover:text-[var(--ns-danger)] glass-subtle ns-glass-hover"
                   >
                     <X size={12} />
                   </button>
@@ -472,10 +472,10 @@ export const RoomsPage: React.FC = () => {
                   setEndDateFilter('');
                 }
               }}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
+              className={`glass-subtle ns-glass-hover px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
                 dateFilter === new Date().toISOString().slice(0, 10) && !endDateFilter
-                  ? 'border-[#174b59] bg-[#174b59] text-white'
-                  : 'border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-slate-400 hover:text-[var(--ns-ink)]'
+                  ? 'border-[var(--ns-gold)] glass text-[var(--ns-teal)] ns-glass-selected'
+                  : 'border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-glass-line)] hover:text-[var(--ns-ink)]'
               }`}
             >
               Today
@@ -494,10 +494,10 @@ export const RoomsPage: React.FC = () => {
                   setEndDateFilter('');
                 }
               }}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
+              className={`glass-subtle ns-glass-hover px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
                 dateFilter === new Date(Date.now() + 86400000).toISOString().slice(0, 10) && !endDateFilter
-                  ? 'border-[#174b59] bg-[#174b59] text-white'
-                  : 'border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-slate-400 hover:text-[var(--ns-ink)]'
+                  ? 'border-[var(--ns-gold)] glass text-[var(--ns-teal)] ns-glass-selected'
+                  : 'border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-glass-line)] hover:text-[var(--ns-ink)]'
               }`}
             >
               Tomorrow
@@ -507,9 +507,9 @@ export const RoomsPage: React.FC = () => {
 
         {/* Active Date Availability Banner */}
         {dateFilter && (
-          <div className="flex items-center justify-between border-b border-sky-200 bg-sky-50 px-6 py-2.5 text-xs text-sky-950">
+          <div className="flex items-center justify-between border-b border-[var(--ns-info)] ns-glass-band px-6 py-2.5 text-xs text-[var(--ns-info)]">
             <div className="flex items-center gap-2">
-              <CalendarDays size={14} className="text-sky-700" />
+              <CalendarDays size={14} className="text-[var(--ns-info)]" />
               <span>
                 Showing room availability for{' '}
                 <strong>
@@ -526,15 +526,15 @@ export const RoomsPage: React.FC = () => {
                     day: 'numeric',
                   })}` : ''}
                 </strong>
-                {' '}| <span className="font-bold text-emerald-800">{counts.AVAILABLE || 0} Available</span>,{' '}
-                <span className="font-bold text-amber-800">{counts.RESERVED || 0} Reserved</span>
-                {(counts.OCCUPIED || 0) > 0 && <span className="font-bold text-sky-800">, {counts.OCCUPIED} Occupied</span>}
+                {' '}| <span className="font-bold text-[var(--ns-success)]">{counts.AVAILABLE || 0} Available</span>,{' '}
+                <span className="font-bold text-[var(--ns-warning)]">{counts.RESERVED || 0} Reserved</span>
+                {(counts.OCCUPIED || 0) > 0 && <span className="font-bold text-[var(--ns-info)]">, {counts.OCCUPIED} Occupied</span>}
               </span>
             </div>
             <button
               type="button"
               onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-              className="flex items-center gap-1 rounded-md bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 text-[11px] font-bold text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors"
+              className="flex items-center gap-1 rounded-md glass px-2 py-0.5 text-[11px] font-bold text-[var(--ns-info)] border border-[var(--ns-info)] ns-glass-hover transition-colors"
             >
               <X size={12} /> Clear Filter
             </button>
@@ -557,7 +557,7 @@ export const RoomsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => { setDateFilter(''); setEndDateFilter(''); setStatus('ALL'); setQ(''); }}
-                className="mt-4 rounded-xl bg-[#174b59] px-4 py-2 text-xs font-bold text-white hover:bg-[#133e4a]"
+                className="mt-4 rounded-xl glass px-4 py-2 text-xs font-bold text-[var(--ns-teal)] ns-glass-hover"
               >
                 Reset All Filters
               </button>
@@ -574,7 +574,7 @@ export const RoomsPage: React.FC = () => {
               return (
                 <div
                   key={r.id}
-                  className="group rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                  className="group rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-5 shadow-xs hover:border-[var(--ns-teal)] hover:shadow-md transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     {/* Header: Room Number & Status */}
@@ -589,14 +589,14 @@ export const RoomsPage: React.FC = () => {
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1">
                           {activeReservation?.bookingId && (
-                            <span className="rounded-md bg-sky-50 px-1.5 py-0.5 text-[9px] font-black text-sky-800 border border-sky-200">
+                            <span className="rounded-md glass-subtle px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-info)] border border-[var(--ns-info)]">
                               GROUP
                             </span>
                           )}
                           {statusBadge(effectiveStatus)}
                         </div>
                         {dateFilter && effectiveStatus !== r.status && (
-                          <span className="text-[9px] text-[#64748b] font-medium" title="Physical status">
+                          <span className="text-[9px] text-[var(--ns-muted)] font-medium" title="Physical status">
                             DB: {r.status}
                           </span>
                         )}
@@ -605,7 +605,7 @@ export const RoomsPage: React.FC = () => {
 
                     {/* Available Now Next Guest pill */}
                     {effectiveStatus === 'AVAILABLE' && upcomingReservation && !dateFilter && (
-                      <div className="mt-3 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-1.5 text-[11px] text-emerald-800">
+                      <div className="mt-3 flex items-center justify-between rounded-xl border border-[var(--ns-success)] glass-subtle px-3 py-1.5 text-[11px] text-[var(--ns-success)]">
                         <span>Available now | Next arrival:</span>
                         <span className="font-black font-mono">
                           {new Date(upcomingReservation.checkInDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -615,33 +615,33 @@ export const RoomsPage: React.FC = () => {
 
                     {/* Active reservation banner */}
                     {activeReservation && (
-                      <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50/60 p-3 text-xs space-y-1">
-                        <div className="flex items-center justify-between font-bold text-sky-900">
+                      <div className="mt-3 rounded-xl border border-[var(--ns-info)] glass-subtle p-3 text-xs space-y-1">
+                        <div className="flex items-center justify-between font-bold text-[var(--ns-info)]">
                           <span className="flex items-center gap-1 truncate max-w-[150px]">
                             {activeReservation.bookingId ? (
-                              <Users size={13} className="text-sky-700 shrink-0" />
+                              <Users size={13} className="text-[var(--ns-info)] shrink-0" />
                             ) : (
-                              <User size={13} className="text-sky-700 shrink-0" />
+                              <User size={13} className="text-[var(--ns-info)] shrink-0" />
                             )}
                             {guestName(activeReservation.guests?.[0]?.guest)}
                           </span>
-                          <span className="font-mono text-[10px] text-sky-700">
+                          <span className="font-mono text-[10px] text-[var(--ns-info)]">
                             {activeReservation.confirmationNo || activeReservation.id.slice(0, 8).toUpperCase()}
                           </span>
                         </div>
-                        <div className="text-[11px] text-sky-800">
+                        <div className="text-[11px] text-[var(--ns-info)]">
                           Stay: {new Date(activeReservation.checkInDate).toLocaleDateString()} &rarr; {new Date(activeReservation.checkOutDate).toLocaleDateString()}
                         </div>
                         <div className="pt-1 flex items-center justify-between text-[11px]">
                           <button
                             type="button"
                             onClick={() => navigate('/reservations')}
-                            className="font-bold text-[#174b59] hover:underline"
+                            className="font-bold text-[var(--ns-teal)] hover:underline glass-subtle ns-glass-hover"
                           >
                             View Details &rarr;
                           </button>
                           {activeReservation.bookingId && (
-                            <span className="text-[9px] font-mono text-sky-600">
+                            <span className="text-[9px] font-mono text-[var(--ns-info)]">
                               {activeReservation.bookingId}
                             </span>
                           )}
@@ -651,29 +651,29 @@ export const RoomsPage: React.FC = () => {
 
                     {/* Available on selected date */}
                     {dateFilter && !activeReservation && effectiveStatus === 'AVAILABLE' && (
-                      <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
-                        <CheckCircle2 size={13} className="text-emerald-700" />
+                      <div className="mt-3 rounded-xl border border-[var(--ns-success)] glass-subtle px-3 py-1.5 text-xs font-semibold text-[var(--ns-success)] flex items-center gap-1.5">
+                        <CheckCircle2 size={13} className="text-[var(--ns-success)]" />
                         <span>Ready for reservation on this date</span>
                       </div>
                     )}
                   </div>
 
                   {/* Card Footer: Floor & Quick Condition */}
-                  <div className="mt-5 pt-3 border-t border-[#1e2535] flex flex-col gap-2.5">
-                    <div className="flex items-center justify-between text-xs text-[#64748b]">
+                  <div className="mt-5 pt-3 border-t border-[var(--ns-glass-line)] flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between text-xs text-[var(--ns-muted)]">
                       <span>{r.floor != null ? `Floor ${r.floor}` : 'Ground Floor'}</span>
                       {canManage && (
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEdit(r)}
-                            className="text-[#4a5568] hover:text-[#174b59] p-1"
+                            className="text-[var(--ns-muted)] hover:text-[var(--ns-teal)] p-1 glass-subtle ns-glass-hover"
                             title="Edit room details"
                           >
                             <Pencil size={13} />
                           </button>
                           <button
                             onClick={() => remove(r)}
-                            className="text-[#4a5568] hover:text-rose-600 p-1"
+                            className="text-[var(--ns-muted)] hover:text-[var(--ns-danger)] p-1 glass-subtle ns-glass-hover"
                             title="Delete room"
                           >
                             <Trash2 size={13} />
@@ -684,11 +684,11 @@ export const RoomsPage: React.FC = () => {
 
                     {canStatus && (
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-[#4a5568]">Status</span>
+                        <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)]">Status</span>
                         <SelectInput
                           value={r.status || 'AVAILABLE'}
                           onChange={(e) => void setRoomStatus(r, e.target.value)}
-                          className="h-8 flex-1 text-xs"
+                          className="h-8 flex-1 text-xs glass-input"
                         >
                           {statuses.slice(1).map((s) => (
                             <option key={s} value={s} disabled={s === 'RESERVED' || s === 'OCCUPIED'}>
@@ -707,11 +707,11 @@ export const RoomsPage: React.FC = () => {
       </div>
 
       {/* ── Room Types Management ── */}
-      <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[var(--ns-line)] px-6 py-4 bg-[var(--ns-surface-2)]">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
           <div>
             <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-              <Layers size={16} className="text-[#174b59] dark:text-[#5ab4d6]" />
+              <Layers size={16} className="text-[var(--ns-teal)]" />
               Room Types &amp; Pricing Categories
             </h2>
             <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">
@@ -719,7 +719,7 @@ export const RoomsPage: React.FC = () => {
             </p>
           </div>
           {canManage && (
-            <Button size="sm" onClick={openAddType} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white text-xs gap-1">
+            <Button size="sm" onClick={openAddType} className="glass text-[var(--ns-teal)] text-xs gap-1 ns-glass-hover">
               <Plus size={14} /> Add Category
             </Button>
           )}
@@ -734,18 +734,18 @@ export const RoomsPage: React.FC = () => {
               return (
                 <div
                   key={t.id}
-                  className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-xs hover:border-[#174b59]/40 hover:shadow-md transition-all flex flex-col justify-between"
+                  className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-5 shadow-xs hover:border-[var(--ns-teal)] hover:shadow-md transition-all flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-base font-extrabold text-[var(--ns-ink)]">{t.name}</h3>
-                        <div className="text-xs font-bold text-[#c59a58] mt-0.5">
+                        <div className="text-xs font-bold text-[var(--ns-gold)] mt-0.5">
                           {formatCurrency(t.basePrice)} <span className="text-[10px] text-[var(--ns-muted)] font-normal">/ night</span>
                         </div>
                       </div>
                       {!t.isActive && (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black text-amber-800 uppercase">
+                        <span className="rounded-full glass-subtle px-2 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase">
                           Inactive
                         </span>
                       )}
@@ -755,7 +755,7 @@ export const RoomsPage: React.FC = () => {
                     )}
                     <div className="mt-3 flex items-center gap-2 text-[11px] text-[var(--ns-muted)] font-medium">
                       <span>Max {t.maxAdults} Adults</span>
-                      <span className="text-slate-400">|</span>
+                      <span className="text-[var(--ns-muted)]">|</span>
                       <span>{t.maxChildren} Children</span>
                     </div>
 
@@ -764,7 +764,7 @@ export const RoomsPage: React.FC = () => {
                         t.amenities.map((a: any) => (
                           <span
                             key={a.amenityId}
-                            className="rounded-md bg-[var(--ns-surface-2)] border border-[var(--ns-line)] px-2 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)]"
+                            className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)]"
                           >
                             {a.amenity?.name || 'Amenity'}
                           </span>
@@ -775,14 +775,14 @@ export const RoomsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-[#1e2535] flex items-center justify-between text-xs text-[#64748b]">
+                  <div className="mt-4 pt-3 border-t border-[var(--ns-glass-line)] flex items-center justify-between text-xs text-[var(--ns-muted)]">
                     <span>{roomsCount} room{roomsCount === 1 ? '' : 's'} assigned</span>
                     {canManage && (
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openEditType(t)} className="text-[#4a5568] hover:text-[#174b59] p-1">
+                        <button onClick={() => openEditType(t)} className="text-[var(--ns-muted)] hover:text-[var(--ns-teal)] p-1 glass-subtle ns-glass-hover">
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => removeType(t)} className="text-[#4a5568] hover:text-rose-600 p-1">
+                        <button onClick={() => removeType(t)} className="text-[var(--ns-muted)] hover:text-[var(--ns-danger)] p-1 glass-subtle ns-glass-hover">
                           <Trash2 size={13} />
                         </button>
                       </div>
@@ -819,11 +819,11 @@ export const RoomsPage: React.FC = () => {
               <TextInput value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Pool view balcony" />
             </FormField>
           </div>
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#1e2535]">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" loading={saving} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white">
+            <Button type="submit" loading={saving} className="glass text-[var(--ns-teal)] ns-glass-hover">
               {editing ? 'Save Changes' : 'Create Room'}
             </Button>
           </div>
@@ -850,11 +850,11 @@ export const RoomsPage: React.FC = () => {
           <FormField label="Category Description">
             <TextInput value={typeForm.description} onChange={(e) => setTypeForm({ ...typeForm, description: e.target.value })} placeholder="Features, bed size, view..." />
           </FormField>
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#1e2535]">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setTypeOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" loading={typeSaving} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white">
+            <Button type="submit" loading={typeSaving} className="glass text-[var(--ns-teal)] ns-glass-hover">
               {editingType ? 'Save Category' : 'Create Category'}
             </Button>
           </div>

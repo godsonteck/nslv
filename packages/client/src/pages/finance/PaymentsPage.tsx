@@ -542,10 +542,10 @@ export const PaymentsPage: React.FC = () => {
       subtitle="Direct collections, group deposits, part-payment settlement verification, and manager refund approvals."
       actions={
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[var(--ns-line)] hover:bg-[var(--ns-surface-2)] bg-[var(--ns-surface)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => void load()} className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
-          <Button size="sm" onClick={openModal} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
+          <Button size="sm" onClick={openModal} className="glass text-[var(--ns-teal)] shadow-md text-xs font-semibold gap-1.5 ns-glass-hover">
             <Plus size={14} /> Record Payment
           </Button>
         </div>
@@ -553,46 +553,46 @@ export const PaymentsPage: React.FC = () => {
     >
       {/* KPI Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white to-emerald-50/40 p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-success)] glass p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Net Revenue Collected</span>
-            <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Net Revenue Collected</span>
+            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-success)]">
               <CreditCard size={18} />
             </div>
           </div>
-          <div className="mt-2 text-2xl font-black text-emerald-950">{formatCurrency(totalNet)}</div>
-          <p className="mt-1 text-[11px] text-emerald-700 font-medium">Immutable ledger balance</p>
+          <div className="mt-2 text-2xl font-black text-[var(--ns-success)]">{formatCurrency(totalNet)}</div>
+          <p className="mt-1 text-[11px] text-[var(--ns-success)] font-medium">Immutable ledger balance</p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Total Collections</span>
-            <div className="rounded-xl bg-[var(--ns-surface-2)] p-2 text-[var(--ns-teal)]">
+            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-teal)]">
               <WalletCards size={18} />
             </div>
           </div>
           <div className="mt-2 text-2xl font-black text-[var(--ns-ink)]">{completedPayments.length}</div>
           <p className="mt-1 text-[11px] text-[var(--ns-muted)]">
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">{fullPayments.length} Full</span> ·{' '}
-            <span className="font-bold text-amber-600 dark:text-amber-400">{partPayments.length} Part / Deposit</span>
+            <span className="font-bold text-[var(--ns-success)]">{fullPayments.length} Full</span> ·{' '}
+            <span className="font-bold text-[var(--ns-warning)]">{partPayments.length} Part / Deposit</span>
           </p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-rose-200/60 dark:border-rose-900/40 bg-[var(--ns-surface)] p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-danger)] glass-subtle p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">Refunds Issued</span>
-            <div className="rounded-xl bg-rose-500/10 p-2 text-rose-600 dark:text-rose-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Refunds Issued</span>
+            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-danger)]">
               <Undo2 size={18} />
             </div>
           </div>
-          <div className="mt-2 text-2xl font-black text-rose-700 dark:text-rose-400">{formatCurrency(refundedTotal)}</div>
+          <div className="mt-2 text-2xl font-black text-[var(--ns-danger)]">{formatCurrency(refundedTotal)}</div>
           <p className="mt-1 text-[11px] text-[var(--ns-muted)]">{completedRefunds.length} ledger reversal{completedRefunds.length === 1 ? '' : 's'}</p>
         </div>
 
-        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-amber-300 dark:border-amber-700 bg-amber-500/10' : 'border-[var(--ns-line)] bg-[var(--ns-surface)]'}`}>
+        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-[var(--ns-warning)] glass-subtle' : 'border-[var(--ns-glass-line)] glass-subtle'}`}>
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Pending Approvals</span>
-            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 animate-pulse' : 'bg-[var(--ns-surface-2)] text-[var(--ns-muted)]'}`}>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Pending Approvals</span>
+            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'glass-subtle text-[var(--ns-warning)] animate-pulse' : 'glass-subtle text-[var(--ns-muted)]'}`}>
               <Clock size={18} />
             </div>
           </div>
@@ -605,16 +605,16 @@ export const PaymentsPage: React.FC = () => {
 
       {/* Checked-Out Guests Outstanding Debt Alert */}
       {owingUnsettledStays.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-warning)] glass-subtle p-4 text-xs shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-amber-500/20 p-2 text-amber-700 dark:text-amber-400">
+            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-warning)]">
               <AlertCircle size={20} />
             </div>
             <div>
-              <p className="font-extrabold text-amber-900 dark:text-amber-200">
+              <p className="font-extrabold text-[var(--ns-warning)]">
                 {owingUnsettledStays.length} Checked-Out Guest{owingUnsettledStays.length === 1 ? '' : 's'} with Outstanding Balance
               </p>
-              <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80">
+              <p className="text-[11px] text-[var(--ns-warning)]">
                 Total unpaid debt: {formatCurrency(owingUnsettledStays.reduce((sum, s) => {
                   const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
                   return sum + computeBillSummary(s as any, f).balance;
@@ -631,7 +631,7 @@ export const PaymentsPage: React.FC = () => {
                 handleStayChange(owingUnsettledStays[0].id);
               }
             }}
-            className="border-amber-400 text-amber-900 hover:bg-amber-100 font-bold dark:border-amber-600 dark:text-amber-200"
+            className="border-[var(--ns-warning)] text-[var(--ns-warning)] ns-glass-hover font-bold"
           >
             Record Post-Checkout Payment
           </Button>
@@ -644,42 +644,42 @@ export const PaymentsPage: React.FC = () => {
         subtitle="Complete chronological record of receipts, collections, and reversals."
       >
         {/* Filter Bar */}
-        <div className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+        <div className="border-b border-[var(--ns-glass-line)] ns-glass-band p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Type Tabs */}
-            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-1">
+            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-1">
               <button
                 type="button"
                 onClick={() => setTypeFilter('ALL')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'ALL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'ALL' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 All ({data.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('FULL')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'FULL' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'FULL' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Full Payments ({fullPayments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('PART')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'PART' ? 'bg-[#c59a58] text-[#14232b] shadow-sm font-black' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'PART' ? 'glass text-[var(--ns-ink)] shadow-sm font-black ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Part Payments ({partPayments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('REFUND')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'REFUND' ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${typeFilter === 'REFUND' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Refunds ({completedRefunds.length})
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('PENDING')}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${typeFilter === 'PENDING' ? 'bg-amber-600 text-white shadow-sm' : pendingRefunds.length > 0 ? 'text-amber-700 dark:text-amber-400 font-extrabold bg-amber-500/20' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${typeFilter === 'PENDING' ? 'glass text-[var(--ns-warning)] shadow-sm ns-glass-selected' : pendingRefunds.length > 0 ? 'text-[var(--ns-warning)] font-extrabold glass' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
               >
                 Pending ({pendingRefunds.length})
               </button>
@@ -694,7 +694,7 @@ export const PaymentsPage: React.FC = () => {
                     key={m}
                     type="button"
                     onClick={() => setMethodFilter(m)}
-                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition border ${methodFilter === m ? 'border-[#c59a58] bg-[#fbf8f2] text-[#8c672b]' : 'border-transparent text-[#64748b] hover:bg-[#1e2535]'}`}
+                    className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[11px] font-bold transition border ${methodFilter === m ? 'border-[var(--ns-gold)] glass text-[var(--ns-gold)] ns-glass-selected' : 'border-transparent text-[var(--ns-muted)] ns-glass-hover'}`}
                   >
                     {m === 'ALL' ? 'All' : methodLabel(m)}
                   </button>
@@ -711,7 +711,7 @@ export const PaymentsPage: React.FC = () => {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by guest, room, receipt reference, or handled-by staff…"
-              className="w-full rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] py-2 pl-9 pr-4 text-xs font-medium text-[var(--ns-ink)] placeholder-[var(--ns-muted)] focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
+              className="w-full rounded-xl border border-[var(--ns-glass-line)] glass-input py-2 pl-9 pr-4 text-xs font-medium text-[var(--ns-ink)] placeholder-[var(--ns-muted)] focus:border-[var(--ns-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--ns-gold)]"
             />
           </div>
         </div>
@@ -721,9 +721,9 @@ export const PaymentsPage: React.FC = () => {
           <LoadingState message="Loading payment transactions..." />
         ) : visible.length === 0 ? (
           <div className="p-16 text-center">
-            <ReceiptText className="mx-auto text-[#cbd5e1]" size={36} />
-            <h3 className="mt-3 text-sm font-extrabold text-[#334155]">No transactions found</h3>
-            <p className="mt-1 text-xs text-[#94a3b8]">
+            <ReceiptText className="mx-auto text-[var(--ns-muted)]" size={36} />
+            <h3 className="mt-3 text-sm font-extrabold text-[var(--ns-ink)]">No transactions found</h3>
+            <p className="mt-1 text-xs text-[var(--ns-muted)]">
               {q || typeFilter !== 'ALL' || methodFilter !== 'ALL'
                 ? 'Try adjusting your search criteria or resetting filters.'
                 : 'No payments have been recorded yet.'}
@@ -732,7 +732,7 @@ export const PaymentsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-[#f8fafc] text-[10px] uppercase tracking-[.12em] text-[#64748b] border-b border-[#e2e8f0]">
+              <thead className="ns-glass-band text-[10px] uppercase tracking-[.12em] text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="px-5 py-3.5 font-bold">Receipt / Ref</th>
                   <th className="px-5 py-3.5 font-bold">Payer / Guest</th>
@@ -744,7 +744,7 @@ export const PaymentsPage: React.FC = () => {
                   <th className="px-5 py-3.5 font-bold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ed] text-xs">
+              <tbody className="divide-y divide-[var(--ns-glass-line)] text-xs">
                 {visible.map((p) => {
                   const isPendingRefund = p.type === 'REFUND' && p.status === 'PENDING';
                   const isRefund = p.type === 'REFUND';
@@ -763,42 +763,42 @@ export const PaymentsPage: React.FC = () => {
                   return (
                     <tr
                       key={p.id}
-                      className={`hover:bg-[#f8fbfb] transition-colors ${isPendingRefund ? 'bg-amber-500/5' : ''}`}
+                      className={`ns-glass-hover transition-colors ${isPendingRefund ? 'ns-glass-band' : ''}`}
                     >
                       {/* Ref */}
-                      <td className="px-5 py-4 font-mono font-bold text-[#a8761e]">
-                        <span className="rounded bg-amber-50 px-2 py-0.5 border border-amber-200/60 text-[11px]">
+                      <td className="px-5 py-4 font-mono font-bold text-[var(--ns-muted)]">
+                        <span className="rounded glass-subtle px-2 py-0.5 border border-[var(--ns-warning)] text-[11px]">
                           {p.reference || `RCP-${p.id.slice(-8).toUpperCase()}`}
                         </span>
                       </td>
 
                       {/* Guest / Payer */}
-                      <td className="px-5 py-4 font-bold text-[#1e293b]">
+                      <td className="px-5 py-4 font-bold text-[var(--ns-muted)]">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span>{guestDisplayName}</span>
                           {isGroupPayment ? (
-                            <span className="rounded-md bg-[#173c4d]/5 px-2 py-0.5 text-[10px] font-extrabold text-[#173c4d] flex items-center gap-1 border border-[#173c4d]/15">
-                              <BedDouble size={11} className="text-[#c59a58]" /> Group · Rooms {p.groupRooms!.join(', ')}
+                            <span className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-extrabold text-[var(--ns-ink)] flex items-center gap-1 border border-[var(--ns-glass-line)]">
+                              <BedDouble size={11} className="text-[var(--ns-gold)]" /> Group · Rooms {p.groupRooms!.join(', ')}
                             </span>
                           ) : roomNumber ? (
-                            <span className="rounded-md bg-[#1e2535] px-1.5 py-0.5 text-[10px] font-extrabold text-[#475569] flex items-center gap-1 border border-[#1e2535]">
+                            <span className="rounded-md glass-subtle px-1.5 py-0.5 text-[10px] font-extrabold text-[var(--ns-muted)] flex items-center gap-1 border border-[var(--ns-glass-line)]">
                               <BedDouble size={11} /> Room {roomNumber}
                             </span>
                           ) : null}
                         </div>
                         {isGroupPayment && p.groupBookingId && (
-                          <div className="font-mono text-[10px] text-[#a8761e] mt-0.5">
+                          <div className="font-mono text-[10px] text-[var(--ns-muted)] mt-0.5">
                             Group: {p.groupBookingId}
                           </div>
                         )}
                         {!isGroupPayment && p.reservation?.confirmationNo && (
-                          <div className="font-mono text-[10px] text-[#94a3b8] mt-0.5">
+                          <div className="font-mono text-[10px] text-[var(--ns-muted)] mt-0.5">
                             Booking: {p.reservation.confirmationNo}
                           </div>
                         )}
                         {/* Payment description — what the money was for */}
                         {p.description && (
-                          <div className="mt-1 text-[10px] text-[#64748b] max-w-[220px] leading-tight">
+                          <div className="mt-1 text-[10px] text-[var(--ns-muted)] max-w-[220px] leading-tight">
                             {(() => {
                               const desc = p.description;
                               const hasLateFee = /late checkout/i.test(desc);
@@ -806,7 +806,7 @@ export const PaymentsPage: React.FC = () => {
                                 <span className="flex items-start gap-1 flex-wrap">
                                   <span className="italic">{desc}</span>
                                   {hasLateFee && (
-                                    <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[9px] font-black text-amber-800 uppercase shrink-0">
+                                    <span className="inline-flex items-center gap-0.5 rounded-full glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase shrink-0">
                                       ⏱ Late fee incl.
                                     </span>
                                   )}
@@ -818,8 +818,8 @@ export const PaymentsPage: React.FC = () => {
                       </td>
 
                       {/* Method */}
-                      <td className="px-5 py-4 font-semibold text-[#475569]">
-                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-[#1e2535] px-2 py-1 text-[11px] font-bold text-[#334155] border border-[#1e2535]">
+                      <td className="px-5 py-4 font-semibold text-[var(--ns-muted)]">
+                        <div className="inline-flex items-center gap-1.5 rounded-lg glass-subtle px-2 py-1 text-[11px] font-bold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                           <MethodIcon method={p.method} />
                           <span>{methodLabel(p.method)}</span>
                         </div>
@@ -829,25 +829,25 @@ export const PaymentsPage: React.FC = () => {
                       <td className="px-5 py-4">
                         <div className="flex flex-col gap-1">
                         {isRefund ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-rose-800 border border-rose-200">
+                          <span className="inline-flex items-center gap-1 rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-danger)] border border-[var(--ns-danger)]">
                             <ArrowUpRight size={11} /> Refund
                           </span>
                         ) : isDeposit ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-800 border border-amber-200">
+                          <span className="inline-flex items-center gap-1 rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                             Part payment
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-800 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                             <CheckCircle2 size={11} /> Paid in full
                           </span>
                         )}
                         {p.description && /late checkout/i.test(p.description) && (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-50 border border-amber-400 px-2 py-0.5 text-[9px] font-black text-amber-800 uppercase">
+                          <span className="inline-flex items-center gap-0.5 rounded-full glass-subtle border border-[var(--ns-warning)] px-2 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase">
                             ⏱ Incl. late fee
                           </span>
                         )}
                         {p.description && /post.checkout/i.test(p.description) && (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-orange-50 border border-orange-300 px-2 py-0.5 text-[9px] font-black text-orange-800 uppercase">
+                          <span className="inline-flex items-center gap-0.5 rounded-full glass-subtle border border-[var(--ns-warning)] px-2 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase">
                             Post-checkout
                           </span>
                         )}
@@ -856,11 +856,11 @@ export const PaymentsPage: React.FC = () => {
 
                       {/* Staff & Time */}
                       <td className="px-5 py-4 text-[11px]">
-                        <div className="font-bold text-[#334155] flex items-center gap-1">
-                          <UserRound size={12} className="text-[#94a3b8]" />
+                        <div className="font-bold text-[var(--ns-ink)] flex items-center gap-1">
+                          <UserRound size={12} className="text-[var(--ns-muted)]" />
                           <span>{p.processorName || 'Staff'}</span>
                         </div>
-                        <div className="text-[10px] text-[#94a3b8] font-mono mt-0.5">
+                        <div className="text-[10px] text-[var(--ns-muted)] font-mono mt-0.5">
                           {(() => {
                             const ts = p.processedAt || p.createdAt;
                             return ts ? new Date(ts).toLocaleString() : '—';
@@ -869,14 +869,14 @@ export const PaymentsPage: React.FC = () => {
                       </td>
 
                       {/* Amount */}
-                      <td className={`px-5 py-4 text-right text-xs font-black ${isRefund ? 'text-rose-600' : 'text-[#047857]'}`}>
+                      <td className={`px-5 py-4 text-right text-xs font-black ${isRefund ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                         {isRefund ? '− ' : '+ '}{formatCurrency(money(p.amount))}
                       </td>
 
                       {/* Status */}
                       <td className="px-5 py-4">
                         {isPendingRefund ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                             <Clock size={11} /> PENDING APPROVAL
                           </span>
                         ) : (
@@ -902,7 +902,7 @@ export const PaymentsPage: React.FC = () => {
                                 size="sm"
                                 onClick={() => handleRejectRefund(p.id)}
                                 loading={busyId === p.id}
-                                className="text-red-500 hover:text-red-600"
+                                className="text-[var(--ns-danger)] hover:text-[var(--ns-danger)] glass-subtle ns-glass-hover"
                               >
                                 <XCircle size={13} /> Reject
                               </Button>
@@ -912,7 +912,7 @@ export const PaymentsPage: React.FC = () => {
                                   title="Delete refund request (Admin)"
                                   onClick={() => handleDeletePayment(p)}
                                   disabled={busyId === p.id}
-                                  className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors border border-rose-200"
+                                  className="rounded-lg p-1.5 text-[var(--ns-danger)] ns-glass-hover hover:text-[var(--ns-danger)] transition-colors border border-[var(--ns-danger)] bg-[var(--ns-glass-1)]"
                                 >
                                   <Trash2 size={13} />
                                 </button>
@@ -920,14 +920,14 @@ export const PaymentsPage: React.FC = () => {
                             </div>
                           ) : (
                             <div className="flex items-center justify-end gap-1.5">
-                              <span className="text-[11px] font-medium text-amber-700">Awaiting Manager</span>
+                              <span className="text-[11px] font-medium text-[var(--ns-warning)]">Awaiting Manager</span>
                               {isAdmin && (
                                 <button
                                   type="button"
                                   title="Delete refund request (Admin)"
                                   onClick={() => handleDeletePayment(p)}
                                   disabled={busyId === p.id}
-                                  className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors border border-rose-200"
+                                  className="rounded-lg p-1.5 text-[var(--ns-danger)] ns-glass-hover hover:text-[var(--ns-danger)] transition-colors border border-[var(--ns-danger)] bg-[var(--ns-glass-1)]"
                                 >
                                   <Trash2 size={13} />
                                 </button>
@@ -957,7 +957,7 @@ export const PaymentsPage: React.FC = () => {
                                     remainingBalance: isFull ? 0 : (p.remainingBalance !== undefined ? p.remainingBalance : Math.max(0, (p.amountDue ?? Number(p.amount)) - Number(p.amount))),
                                   })
                                 }
-                                className="rounded-lg p-1.5 text-[#64748b] hover:bg-[#c59a58]/10 hover:text-[#b88738] transition-colors border border-transparent hover:border-[#c59a58]/30"
+                                className="rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] transition-colors border border-transparent hover:border-[var(--ns-gold)] bg-[var(--ns-glass-1)]"
                               >
                                 <Printer size={15} />
                               </button>
@@ -968,7 +968,7 @@ export const PaymentsPage: React.FC = () => {
                                 type="button"
                                 title={isPrivileged ? 'Approve & Issue refund' : 'Submit refund request'}
                                 onClick={() => openRefund(p)}
-                                className="rounded-lg p-1.5 text-[#64748b] hover:bg-amber-50 hover:text-amber-800 transition-colors border border-transparent hover:border-amber-200"
+                                className="rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-warning)] transition-colors border border-transparent hover:border-[var(--ns-warning)] bg-[var(--ns-glass-1)]"
                               >
                                 <Undo2 size={15} />
                               </button>
@@ -980,10 +980,10 @@ export const PaymentsPage: React.FC = () => {
                                 title={isRefund ? "Delete refund record (Admin)" : "Delete payment record (Admin)"}
                                 onClick={() => handleDeletePayment(p)}
                                 disabled={busyId === p.id}
-                                className={`rounded-lg p-1.5 transition-colors disabled:opacity-50 ${
+                                className={`glass-subtle ns-glass-hover rounded-lg p-1.5 transition-colors disabled:opacity-50 ${
                                   isRefund
-                                    ? 'text-rose-600 hover:bg-rose-50 hover:text-rose-800 border border-rose-200'
-                                    : 'text-[#94a3b8] hover:bg-red-50 hover:text-red-600'
+                                    ? 'text-[var(--ns-danger)] ns-glass-hover hover:text-[var(--ns-danger)] border border-[var(--ns-danger)]'
+                                    : 'text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)]'
                                 }`}
                               >
                                 {busyId === p.id ? <Clock size={15} className="animate-spin" /> : <Trash2 size={15} />}
@@ -1046,15 +1046,15 @@ export const PaymentsPage: React.FC = () => {
 
           {/* Outstanding Bill Details & Settlement Audit Banner */}
           {selectedStay && folio && selectedSummary && (
-            <div className={`rounded-2xl border p-4 text-xs ${selectedSummary.isCheckedOut ? 'border-amber-300 bg-amber-50/80 text-amber-950 dark:bg-amber-950/30 dark:border-amber-700/60 dark:text-amber-200' : 'border-[#dfe4df] bg-gradient-to-br from-[#f8faf8] to-[#edf6f4]'}`}>
+            <div className={`rounded-2xl border p-4 text-xs ${selectedSummary.isCheckedOut ? 'border-[var(--ns-warning)] glass-subtle text-[var(--ns-warning)]' : 'border-[var(--ns-glass-line)] glass'}`}>
               {selectedSummary.isCheckedOut ? (
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-100/90 dark:bg-amber-900/50 px-3 py-2 text-xs font-bold text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl glass-subtle px-3 py-2 text-xs font-bold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                   <div className="flex items-center gap-2">
-                    <AlertCircle size={16} className="text-amber-600 shrink-0" />
+                    <AlertCircle size={16} className="text-[var(--ns-warning)] shrink-0" />
                     <span>Post-Checkout Debt Settlement · Room {selectedStay.room?.number || '—'} · {formatGuestName(selectedStay.guest)}</span>
                   </div>
                   {selectedSummary.actualCheckOut && (
-                    <span className="text-[11px] font-extrabold text-amber-900 dark:text-amber-100 bg-amber-200/80 dark:bg-amber-800/80 px-2.5 py-0.5 rounded-md">
+                    <span className="text-[11px] font-extrabold text-[var(--ns-warning)] glass-subtle px-2.5 py-0.5 rounded-md">
                       Checked out: {new Date(selectedSummary.actualCheckOut).toLocaleString('en-GH', { dateStyle: 'medium', timeStyle: 'short' })}
                     </span>
                   )}
@@ -1062,14 +1062,14 @@ export const PaymentsPage: React.FC = () => {
               ) : (
                 <div className="mb-3 flex items-center justify-between text-xs text-[var(--ns-muted)]">
                   <span className="font-semibold">Room {selectedStay.room?.number || '—'} · {formatGuestName(selectedStay.guest)}</span>
-                  <span className="font-mono text-[11px] text-[#0e7490] dark:text-[#38bdf8]">Folio #{folio.id.slice(0, 8).toUpperCase()}</span>
+                  <span className="font-mono text-[11px] text-[var(--ns-muted)]">Folio #{folio.id.slice(0, 8).toUpperCase()}</span>
                 </div>
               )}
 
               {/* 4 Financial Audit Tiles */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                 {/* 1. What Guest is Supposed to Pay */}
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
                   <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     Supposed to Pay
                   </span>
@@ -1080,11 +1080,11 @@ export const PaymentsPage: React.FC = () => {
                 </div>
 
                 {/* 2. How Much Paid by Checkout / Check-in */}
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
                   <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     {selectedSummary.isCheckedOut ? 'Paid by Checkout' : 'Paid at Check-in'}
                   </span>
-                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                  <div className="font-mono text-sm font-black text-[var(--ns-success)] mt-0.5">
                     {formatCurrency(selectedSummary.paidAtCheckout)}
                   </div>
                   <span className="text-[9px] text-[var(--ns-muted)]">
@@ -1093,77 +1093,77 @@ export const PaymentsPage: React.FC = () => {
                 </div>
 
                 {/* 3. Total Paid with Cash & MoMo breakdown */}
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
                   <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     Total Paid to Date
                   </span>
-                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                  <div className="font-mono text-sm font-black text-[var(--ns-success)] mt-0.5">
                     {formatCurrency(selectedSummary.totalPaid)}
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selectedSummary.cashPaid > 0 && (
-                      <span className="rounded bg-emerald-100 dark:bg-emerald-950 px-1 py-0.2 text-[9px] font-extrabold text-emerald-800 dark:text-emerald-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-success)]">
                         💵 Cash {formatCurrency(selectedSummary.cashPaid)}
                       </span>
                     )}
                     {selectedSummary.momoPaid > 0 && (
-                      <span className="rounded bg-amber-100 dark:bg-amber-950 px-1 py-0.2 text-[9px] font-extrabold text-amber-900 dark:text-amber-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-warning)]">
                         📱 MoMo {formatCurrency(selectedSummary.momoPaid)}
                       </span>
                     )}
                     {selectedSummary.cardPaid > 0 && (
-                      <span className="rounded bg-blue-100 dark:bg-blue-950 px-1 py-0.2 text-[9px] font-extrabold text-blue-800 dark:text-blue-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-info)]">
                         💳 Card {formatCurrency(selectedSummary.cardPaid)}
                       </span>
                     )}
                     {selectedSummary.bankPaid > 0 && (
-                      <span className="rounded bg-purple-100 dark:bg-purple-950 px-1 py-0.2 text-[9px] font-extrabold text-purple-800 dark:text-purple-300">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-purple)]">
                         🏦 Bank {formatCurrency(selectedSummary.bankPaid)}
                       </span>
                     )}
                     {selectedSummary.totalPaid === 0 && (
-                      <span className="text-[9px] text-slate-400 italic">No payments yet</span>
+                      <span className="text-[9px] text-[var(--ns-muted)] italic">No payments yet</span>
                     )}
                   </div>
                 </div>
 
                 {/* 4. What Guest Currently Owes */}
-                <div className={`rounded-xl border p-2.5 ${selectedSummary.balance > 0.005 ? 'border-rose-300 bg-rose-50/70 dark:border-rose-800/60 dark:bg-rose-950/30' : 'border-emerald-300 bg-emerald-50/70 dark:border-emerald-800/60 dark:bg-emerald-950/30'}`}>
-                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${selectedSummary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                <div className={`rounded-xl border p-2.5 ${selectedSummary.balance > 0.005 ? 'border-[var(--ns-danger)] glass-subtle' : 'border-[var(--ns-success)] glass-subtle'}`}>
+                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${selectedSummary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     Guest Owes
                   </span>
-                  <div className={`font-mono text-sm font-black mt-0.5 ${selectedSummary.balance > 0.005 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                  <div className={`font-mono text-sm font-black mt-0.5 ${selectedSummary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     {formatCurrency(selectedSummary.balance)}
                   </div>
-                  <span className={`text-[9px] font-semibold ${selectedSummary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                  <span className={`text-[9px] font-semibold ${selectedSummary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     {selectedSummary.balance > 0.005 ? 'Outstanding balance' : 'Fully settled'}
                   </span>
                 </div>
               </div>
 
               {selectedStay.checkOutNotes && (
-                <div className="mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1.5 text-[11px] text-amber-900 dark:text-amber-200">
+                <div className="mb-3 rounded-lg glass-subtle border border-[var(--ns-warning)] px-3 py-1.5 text-[11px] text-[var(--ns-warning)]">
                   <span className="font-bold">Checkout Remark:</span> {selectedStay.checkOutNotes}
                 </div>
               )}
 
               {/* Itemized Folio Breakdown Card (Clearly shows Late Checkout vs Room vs Other) */}
               {selectedBillBreakdown && selectedBillBreakdown.lineDetails.length > 0 && (
-                <div className="mb-3 rounded-xl border border-[#c59a58]/40 bg-white/70 dark:bg-slate-900/70 overflow-hidden shadow-xs">
-                  <div className="px-3 py-2 bg-[#c59a58]/10 border-b border-[#c59a58]/30 flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#c59a58] flex items-center gap-1.5">
-                      <Receipt size={13} className="text-[#c59a58]" />
+                <div className="mb-3 rounded-xl border border-[var(--ns-gold)] glass-subtle overflow-hidden shadow-xs">
+                  <div className="px-3 py-2 ns-glass-band border-b border-[var(--ns-gold)] flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ns-gold)] flex items-center gap-1.5">
+                      <Receipt size={13} className="text-[var(--ns-gold)]" />
                       Folio Charges Itemization — What is in this bill
                     </span>
                     {selectedBillBreakdown.hasLateCheckout && (
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9.5px] font-black text-amber-800 dark:text-amber-300 uppercase">
+                        <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-2 py-0.5 text-[9.5px] font-black text-[var(--ns-warning)] uppercase">
                           ⏱ Late checkout fee included
                         </span>
                         <button
                           type="button"
                           onClick={() => handleWaiveLateFee(selectedStay.reservationId || selectedStay.id, selectedBillBreakdown.lateFeeCharges)}
-                          className="rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 dark:bg-rose-950/60 dark:hover:bg-rose-900 dark:text-rose-300 px-2.5 py-0.5 text-[10px] font-extrabold border border-rose-300 dark:border-rose-700 transition flex items-center gap-1 shadow-xs"
+                          className="rounded-lg glass ns-glass-hover text-[var(--ns-danger)] px-2.5 py-0.5 text-[10px] font-extrabold border border-[var(--ns-danger)] transition flex items-center gap-1 shadow-xs"
                           title="Void and remove this late checkout charge from the folio"
                         >
                           <Trash2 size={11} /> Remove / Waive Late Fee
@@ -1171,37 +1171,37 @@ export const PaymentsPage: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <div className="divide-y divide-[var(--ns-line)] text-xs">
+                  <div className="divide-y divide-[var(--ns-glass-line)] text-xs">
                     {selectedBillBreakdown.lineDetails.map((line) => (
                       <div
                         key={line.id}
                         className={`flex items-center justify-between px-3.5 py-2 ${
                           line.isLateFee
-                            ? 'bg-amber-50/90 dark:bg-amber-950/30 border-l-3 border-l-amber-500 text-amber-950 dark:text-amber-200'
-                            : 'text-slate-800 dark:text-slate-200'
+                            ? 'glass-subtle border-l-3 border-l-[var(--ns-warning)] text-[var(--ns-warning)]'
+                            : 'text-[var(--ns-ink)]'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           {line.isLateFee ? (
-                            <span className="rounded bg-amber-200/90 dark:bg-amber-800/90 text-amber-950 dark:text-amber-100 font-black text-[9px] px-1.5 py-0.5 uppercase tracking-wide">
+                            <span className="rounded glass-subtle text-[var(--ns-warning)] font-black text-[9px] px-1.5 py-0.5 uppercase tracking-wide">
                               Late Checkout
                             </span>
                           ) : (
-                            <span className="rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[9px] px-1.5 py-0.5 uppercase">
+                            <span className="rounded glass-subtle text-[var(--ns-ink)] font-extrabold text-[9px] px-1.5 py-0.5 uppercase">
                               {line.category}
                             </span>
                           )}
-                          <span className={`text-[11.5px] ${line.isLateFee ? 'font-semibold text-amber-900 dark:text-amber-200' : ''}`}>
+                          <span className={`text-[11.5px] ${line.isLateFee ? 'font-semibold text-[var(--ns-warning)]' : ''}`}>
                             {line.label}
                           </span>
                         </div>
-                        <span className={`font-mono font-bold text-xs ${line.isLateFee ? 'text-amber-900 dark:text-amber-300' : 'text-slate-900 dark:text-slate-100'}`}>
+                        <span className={`font-mono font-bold text-xs ${line.isLateFee ? 'text-[var(--ns-warning)]' : 'text-[var(--ns-ink)]'}`}>
                           {formatCurrency(line.amount)}
                         </span>
                       </div>
                     ))}
                     {selectedBillBreakdown.totalPaidSoFar > 0 && (
-                      <div className="flex items-center justify-between px-3.5 py-2 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 text-xs">
+                      <div className="flex items-center justify-between px-3.5 py-2 glass-subtle text-[var(--ns-success)] text-xs">
                         <span className="font-semibold flex items-center gap-1.5">
                           <CheckCircle2 size={12} /> Total payments already applied
                         </span>
@@ -1214,12 +1214,12 @@ export const PaymentsPage: React.FC = () => {
 
               {/* Quick Fill & Allocation Buttons */}
               {balance > 0 && (
-                <div className="space-y-2 pt-2 border-t border-[var(--ns-line)]">
+                <div className="space-y-2 pt-2 border-t border-[var(--ns-glass-line)]">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)]">
                       Quick Allocate &amp; Fill:
                     </span>
-                    <span className="text-[10px] text-slate-500">Click to fill amount &amp; set purpose</span>
+                    <span className="text-[10px] text-[var(--ns-muted)]">Click to fill amount &amp; set purpose</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -1234,7 +1234,7 @@ export const PaymentsPage: React.FC = () => {
                             : `Full settlement of outstanding room balance`,
                         })
                       }
-                      className="rounded-lg bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 transition border border-emerald-300 dark:border-emerald-700"
+                      className="rounded-lg glass px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-success)] ns-glass-hover transition border border-[var(--ns-success)]"
                     >
                       ✓ Pay Full Balance ({formatCurrency(balance)})
                     </button>
@@ -1250,7 +1250,7 @@ export const PaymentsPage: React.FC = () => {
                             description: `Payment for Late checkout fee (${formatCurrency(selectedBillBreakdown.lateFeeCharges)})`,
                           })
                         }
-                        className="rounded-lg bg-amber-100 dark:bg-amber-950 px-2.5 py-1 text-[11px] font-extrabold text-amber-900 dark:text-amber-200 hover:bg-amber-200 transition border border-amber-300 dark:border-amber-700 flex items-center gap-1"
+                        className="rounded-lg glass px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-warning)] ns-glass-hover transition border border-[var(--ns-warning)] flex items-center gap-1"
                       >
                         ⏱ Pay Late Checkout Fee ({formatCurrency(Math.min(balance, selectedBillBreakdown.lateFeeCharges))})
                       </button>
@@ -1269,7 +1269,7 @@ export const PaymentsPage: React.FC = () => {
                             description: `Payment for Accommodation / Room balance`,
                           });
                         }}
-                        className="rounded-lg bg-sky-100 dark:bg-sky-950 px-2.5 py-1 text-[11px] font-extrabold text-sky-900 dark:text-sky-200 hover:bg-sky-200 transition border border-sky-300 dark:border-sky-700"
+                        className="rounded-lg glass px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-info)] ns-glass-hover transition border border-[var(--ns-info)]"
                       >
                         🏨 Pay Room Balance
                       </button>
@@ -1285,7 +1285,7 @@ export const PaymentsPage: React.FC = () => {
                           description: 'Part payment / 50% deposit towards outstanding balance',
                         })
                       }
-                      className="rounded-lg bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-extrabold text-slate-800 dark:text-slate-200 hover:bg-slate-200 transition border border-slate-300 dark:border-slate-700"
+                      className="rounded-lg glass px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-ink)] ns-glass-hover transition border border-[var(--ns-glass-line)]"
                     >
                       50% Deposit ({formatCurrency(balance / 2)})
                     </button>
@@ -1339,7 +1339,7 @@ export const PaymentsPage: React.FC = () => {
 
           {/* Real-time Settlement Check Card */}
           {selectedStay && folio && Number(form.amount) > 0 && (
-            <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 text-xs space-y-2.5 shadow-sm">
+            <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 text-xs space-y-2.5 shadow-sm">
               <div className="flex justify-between items-center text-[var(--ns-muted)]">
                 <span className="font-medium">Money supposed to be paid (Bill Balance):</span>
                 <span className="font-extrabold text-[var(--ns-ink)]">{formatCurrency(balance)}</span>
@@ -1349,12 +1349,12 @@ export const PaymentsPage: React.FC = () => {
                 <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(form.amount))}</span>
               </div>
               {form.description && (
-                <div className="flex justify-between items-center text-[var(--ns-muted)] pt-1 border-t border-[var(--ns-line)]">
+                <div className="flex justify-between items-center text-[var(--ns-muted)] pt-1 border-t border-[var(--ns-glass-line)]">
                   <span className="font-medium">Paying for:</span>
                   <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                    <span className="font-semibold text-slate-800 dark:text-slate-100">{form.description}</span>
+                    <span className="font-semibold text-[var(--ns-ink)]">{form.description}</span>
                     {/late checkout/i.test(form.description) && (
-                      <span className="rounded bg-amber-100 border border-amber-300 px-1.5 py-0.2 text-[9px] font-black text-amber-800 uppercase">
+                      <span className="rounded glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.2 text-[9px] font-black text-[var(--ns-warning)] uppercase">
                         ⏱ Late fee
                       </span>
                     )}
@@ -1368,14 +1368,14 @@ export const PaymentsPage: React.FC = () => {
                 </div>
               )}
               
-              <div className="border-t border-[var(--ns-line)] pt-2 flex justify-between items-center">
+              <div className="border-t border-[var(--ns-glass-line)] pt-2 flex justify-between items-center">
                 <span className="font-bold text-[var(--ns-ink)]">Payment Classification:</span>
                 {Number(form.amount) >= balance - 0.005 ? (
-                  <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-300">
+                  <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                     ✓ Full Payment (Paid in full)
                   </span>
                 ) : (
-                  <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-extrabold text-amber-800 border border-amber-300">
+                  <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                     Part Payment / Deposit
                   </span>
                 )}
@@ -1383,7 +1383,7 @@ export const PaymentsPage: React.FC = () => {
 
               {/* Change calculation */}
               {form.method === 'CASH' && Number(form.tendered) > Number(form.amount) && (
-                <div className="flex justify-between items-center rounded-xl bg-emerald-50 px-3 py-2 text-emerald-800 border border-emerald-200">
+                <div className="flex justify-between items-center rounded-xl glass-subtle px-3 py-2 text-[var(--ns-success)] border border-[var(--ns-success)]">
                   <span className="font-extrabold">→ Change due to guest:</span>
                   <span className="font-black text-sm">{formatCurrency(Number(form.tendered) - Number(form.amount))}</span>
                 </div>
@@ -1391,14 +1391,14 @@ export const PaymentsPage: React.FC = () => {
 
               {/* Remaining balance */}
               {Number(form.amount) < balance - 0.005 && (
-                <div className="flex justify-between items-center rounded-xl bg-amber-50 px-3 py-2 text-amber-800 border border-amber-200">
+                <div className="flex justify-between items-center rounded-xl glass-subtle px-3 py-2 text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                   <span className="font-extrabold">→ Remaining balance to be paid:</span>
                   <span className="font-black text-sm">{formatCurrency(balance - Number(form.amount))}</span>
                 </div>
               )}
 
               {Number(form.amount) >= balance - 0.005 && (
-                <div className="text-[11px] text-emerald-800 font-semibold text-center pt-1">
+                <div className="text-[11px] text-[var(--ns-success)] font-semibold text-center pt-1">
                   ✓ This payment completely clears the guest's folio balance.
                 </div>
               )}
@@ -1406,7 +1406,7 @@ export const PaymentsPage: React.FC = () => {
           )}
 
           {/* Split Payment Option */}
-          <label className="flex items-center gap-2 text-xs font-bold text-[#475569]">
+          <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-muted)]">
             <input
               type="checkbox"
               checked={splitOpen}
@@ -1414,13 +1414,13 @@ export const PaymentsPage: React.FC = () => {
                 setSplitOpen(e.target.checked);
                 setTenders([makeTenderRow()]);
               }}
-              className="h-3.5 w-3.5 accent-[#c59a58]"
+              className="h-3.5 w-3.5 accent-[var(--ns-gold)]"
             />
             Split payment across methods (e.g. cash + mobile money)
           </label>
 
           {splitOpen && (
-            <div className="rounded-xl border border-[var(--ns-line)] p-3 bg-[var(--ns-surface-2)]">
+            <div className="rounded-xl border border-[var(--ns-glass-line)] p-3 glass-subtle">
               <TenderSplit total={Number(form.amount) || 0} rows={tenders} onChange={setTenders} />
             </div>
           )}
@@ -1443,12 +1443,12 @@ export const PaymentsPage: React.FC = () => {
               </FormField>
               {/* Quick Purpose Selection Chips */}
               <div className="flex flex-wrap gap-1 text-[10px]">
-                <span className="text-[9.5px] text-slate-400 self-center font-bold">Quick set:</span>
+                <span className="text-[9.5px] text-[var(--ns-muted)] self-center font-bold">Quick set:</span>
                 {selectedBillBreakdown?.hasLateCheckout && (
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, description: `Payment for Late checkout fee (${formatCurrency(selectedBillBreakdown.lateFeeCharges)})` })}
-                    className="rounded bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-1.5 py-0.5 font-bold transition"
+                    className="rounded glass ns-glass-hover text-[var(--ns-warning)] border border-[var(--ns-warning)] px-1.5 py-0.5 font-bold transition"
                   >
                     ⏱ Late Checkout
                   </button>
@@ -1456,14 +1456,14 @@ export const PaymentsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, description: 'Payment for Room Accommodation / Stay' })}
-                  className="rounded bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 px-1.5 py-0.5 font-bold transition"
+                  className="rounded glass ns-glass-hover text-[var(--ns-info)] border border-[var(--ns-info)] px-1.5 py-0.5 font-bold transition"
                 >
                   🏨 Room Stay
                 </button>
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, description: 'Full post-checkout debt clearance' })}
-                  className="rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 font-bold transition"
+                  className="rounded glass ns-glass-hover text-[var(--ns-success)] border border-[var(--ns-success)] px-1.5 py-0.5 font-bold transition"
                 >
                   ✓ Full Clearance
                 </button>
@@ -1471,7 +1471,7 @@ export const PaymentsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -1479,9 +1479,9 @@ export const PaymentsPage: React.FC = () => {
               type="submit"
               loading={busy}
               disabled={splitOpen && !tendersCoverTotal(tenders, Number(form.amount) || 0)}
-              className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#133240] font-bold"
+              className="glass text-[var(--ns-teal)] ns-glass-hover font-bold"
             >
-              <ReceiptText size={14} className="text-[#c59a58]" /> Record & Print Receipt
+              <ReceiptText size={14} className="text-[var(--ns-gold)]" /> Record & Print Receipt
             </Button>
           </div>
         </form>
@@ -1494,13 +1494,13 @@ export const PaymentsPage: React.FC = () => {
         title={isPrivileged ? 'Approve & Issue Ledger Reversal' : 'Submit Refund Request'}
       >
         <form onSubmit={submitRefund} className="space-y-4 p-6">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
+          <div className="rounded-xl border border-[var(--ns-warning)] glass-subtle p-4 text-xs text-[var(--ns-warning)]">
             <p className="font-extrabold">
               {isPrivileged
                 ? 'Manager / Admin approval creates an immediate immutable ledger reversal.'
                 : 'Receptionist Refund Request: Submitted with PENDING status for Manager/Admin review.'}
             </p>
-            <p className="mt-1.5 text-[11px] text-amber-800">
+            <p className="mt-1.5 text-[11px] text-[var(--ns-warning)]">
               Original Payment: <strong>{refundTarget ? formatCurrency(money(refundTarget.amount)) : ''}</strong> ({refundTarget?.method || 'N/A'})
             </p>
           </div>
@@ -1548,7 +1548,7 @@ export const PaymentsPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#edf0ed]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setRefundTarget(null)}>
               Cancel
             </Button>

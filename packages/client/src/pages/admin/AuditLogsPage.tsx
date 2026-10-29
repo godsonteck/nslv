@@ -45,7 +45,7 @@ const AuditDetailModal: React.FC<{ log: AuditLogEntry | null; onClose: () => voi
   if (!log) return null;
 
   const renderJson = (data: unknown) => (
-    <pre className="bg-[#14161D] border border-[#2B303E] rounded p-3 text-[10px] text-[#A0A5AD] overflow-auto max-h-40 font-mono">
+    <pre className="glass-subtle border border-[var(--ns-glass-line)] rounded p-3 text-[10px] text-[var(--ns-muted)] overflow-auto max-h-40 font-mono">
       {JSON.stringify(data, null, 2)}
     </pre>
   );
@@ -62,34 +62,34 @@ const AuditDetailModal: React.FC<{ log: AuditLogEntry | null; onClose: () => voi
             { label: 'IP Address', value: log.ipAddress ?? '—' },
             { label: 'Timestamp', value: new Date(log.createdAt).toLocaleString() },
           ].map((item) => (
-            <div key={item.label} className="bg-[#14161D] border border-[#2B303E] rounded p-2.5">
-              <div className="text-[10px] text-[#6E737B] uppercase tracking-wide mb-0.5">{item.label}</div>
-              <div className="text-xs text-[#F4F4F2] font-medium break-all">{item.value}</div>
+            <div key={item.label} className="glass-subtle border border-[var(--ns-glass-line)] rounded p-2.5">
+              <div className="text-[10px] text-[var(--ns-muted)] uppercase tracking-wide mb-0.5">{item.label}</div>
+              <div className="text-xs text-[var(--ns-ink)] font-medium break-all">{item.value}</div>
             </div>
           ))}
         </div>
 
         {log.userName && (
-          <div className="bg-[#14161D] border border-[#2B303E] rounded p-3 flex items-center gap-3">
-            <div className="w-7 h-7 rounded bg-[#252836] border border-[#2B303E] flex items-center justify-center text-xs font-bold text-[#f1a83f]">
+          <div className="glass-subtle border border-[var(--ns-glass-line)] rounded p-3 flex items-center gap-3">
+            <div className="w-7 h-7 rounded glass-subtle border border-[var(--ns-glass-line)] flex items-center justify-center text-xs font-bold text-[var(--ns-gold)]">
               {(log.userName ?? 'S')[0]}
             </div>
             <div>
-              <div className="text-xs text-[#F4F4F2] font-medium">{log.userName}</div>
-              {log.userEmail && <div className="text-[10px] text-[#6E737B]">{log.userEmail}</div>}
+              <div className="text-xs text-[var(--ns-ink)] font-medium">{log.userName}</div>
+              {log.userEmail && <div className="text-[10px] text-[var(--ns-muted)]">{log.userEmail}</div>}
             </div>
           </div>
         )}
 
         {log.beforeData && (
           <div>
-            <div className="text-[10px] text-[#A0A5AD] uppercase tracking-wide mb-1">State Before</div>
+            <div className="text-[10px] text-[var(--ns-muted)] uppercase tracking-wide mb-1">State Before</div>
             {renderJson(log.beforeData)}
           </div>
         )}
         {log.afterData && (
           <div>
-            <div className="text-[10px] text-[#A0A5AD] uppercase tracking-wide mb-1">State After</div>
+            <div className="text-[10px] text-[var(--ns-muted)] uppercase tracking-wide mb-1">State After</div>
             {renderJson(log.afterData)}
           </div>
         )}
@@ -139,9 +139,9 @@ export const AuditLogsPage: React.FC = () => {
       header: 'Timestamp',
       width: '160px',
       render: (log: AuditLogEntry) => (
-        <div className="text-xs text-[#A0A5AD]">
+        <div className="text-xs text-[var(--ns-muted)]">
           <div>{new Date(log.createdAt).toLocaleDateString()}</div>
-          <div className="text-[10px] font-mono text-[#6E737B]">{new Date(log.createdAt).toLocaleTimeString()}</div>
+          <div className="text-[10px] font-mono text-[var(--ns-muted)]">{new Date(log.createdAt).toLocaleTimeString()}</div>
         </div>
       ),
     },
@@ -151,11 +151,11 @@ export const AuditLogsPage: React.FC = () => {
       render: (log: AuditLogEntry) =>
         log.userName ? (
           <div>
-            <div className="text-[#F4F4F2] font-medium">{log.userName}</div>
-            <div className="text-[10px] text-[#6E737B]">{log.userEmail || 'Staff'}</div>
+            <div className="text-[var(--ns-ink)] font-medium">{log.userName}</div>
+            <div className="text-[10px] text-[var(--ns-muted)]">{log.userEmail || 'Staff'}</div>
           </div>
         ) : (
-          <span className="text-[#6E737B]">System</span>
+          <span className="text-[var(--ns-muted)]">System</span>
         ),
     },
     {
@@ -168,22 +168,22 @@ export const AuditLogsPage: React.FC = () => {
       header: 'Target Entity',
       render: (log: AuditLogEntry) => (
         <div>
-          <span className="text-[#F4F4F2] uppercase text-[11px] font-mono">{log.resource}</span>
-          {log.resourceId && <div className="text-[10px] text-[#6E737B] font-mono">{log.resourceId.slice(0, 14)}…</div>}
+          <span className="text-[var(--ns-ink)] uppercase text-[11px] font-mono">{log.resource}</span>
+          {log.resourceId && <div className="text-[10px] text-[var(--ns-muted)] font-mono">{log.resourceId.slice(0, 14)}…</div>}
         </div>
       ),
     },
     {
       key: 'ip',
       header: 'IP Address',
-      render: (log: AuditLogEntry) => <span className="font-mono text-[11px] text-[#6E737B]">{log.ipAddress ?? '—'}</span>,
+      render: (log: AuditLogEntry) => <span className="font-mono text-[11px] text-[var(--ns-muted)]">{log.ipAddress ?? '—'}</span>,
     },
     {
       key: 'actions',
       header: '',
       align: 'right' as const,
       render: (log: AuditLogEntry) => (
-        <button onClick={() => setDetailLog(log)} className="p-1 hover:bg-[#232733] rounded text-[#f1a83f]" title="Inspect Event">
+        <button onClick={() => setDetailLog(log)} className="p-1 glass-subtle ns-glass-hover rounded text-[var(--ns-gold)]" title="Inspect Event">
           <Eye size={15} />
         </button>
       ),
@@ -199,12 +199,12 @@ export const AuditLogsPage: React.FC = () => {
         subtitle="Immutable, timestamped audit trail of all security, operational and user actions"
       />
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-[#1C1F28] border border-[#2B303E] rounded-md">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 glass border border-[var(--ns-glass-line)] rounded-md">
         <div className="flex items-center gap-2">
           <SearchInput value={actionFilter} onChange={(v) => { setActionFilter(v); setPage(1); }} placeholder="Filter by action (e.g. user.created)..." className="w-64" />
           <TextInput value={resourceFilter} onChange={(e) => { setResourceFilter(e.target.value); setPage(1); }} placeholder="Filter entity..." className="w-40" />
         </div>
-        <span className="text-xs text-[#A0A5AD] font-mono">{total} total audit records</span>
+        <span className="text-xs text-[var(--ns-muted)] font-mono">{total} total audit records</span>
       </div>
 
       <DataTable columns={columns} data={logs} loading={loading} keyFn={(l) => l.id} emptyTitle="No audit logs recorded" />

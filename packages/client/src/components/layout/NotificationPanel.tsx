@@ -21,13 +21,13 @@ const notificationTarget = (notification: NotificationRecord): string => {
 const priorityColor = (priority: string): string => {
   switch (priority) {
     case 'URGENT':
-      return 'text-red-500 bg-red-500/10 border-red-500/25';
+      return 'glass-subtle text-[var(--ns-danger)] border-[var(--ns-danger)]';
     case 'HIGH':
-      return 'text-orange-500 bg-orange-500/10 border-orange-500/25';
+      return 'glass-subtle text-[var(--ns-warning)] border-[var(--ns-warning)]';
     case 'MEDIUM':
-      return 'text-blue-500 bg-blue-500/10 border-blue-500/25';
+      return 'glass-subtle text-[var(--ns-info)] border-[var(--ns-info)]';
     default:
-      return 'text-slate-400 bg-slate-500/10 border-slate-400/20';
+      return 'glass-subtle text-[var(--ns-muted)] border-[var(--ns-glass-line)]';
   }
 };
 
@@ -109,8 +109,8 @@ const NotificationItem: React.FC<{
             }
           }}
           disabled={deleting}
-          className="ml-auto flex items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-red-500/10 disabled:opacity-50"
-          style={{ color: '#f87171' }}
+          className="ml-auto flex items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors ns-glass-hover disabled:opacity-50"
+          style={{ color: 'var(--ns-danger)' }}
           title="Delete notification"
         >
           <Trash2 size={12} /> {deleting ? 'Deleting...' : 'Delete'}
@@ -145,9 +145,9 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="glass-strong absolute right-0 top-12 w-96 max-h-[600px] rounded-2xl flex flex-col overflow-hidden">
+    <div className="glass-strong absolute right-0 top-12 z-50 w-96 max-w-[calc(100vw-2rem)] max-h-[min(600px,calc(100dvh-6rem))] rounded-2xl flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] p-4" style={{ backgroundColor: 'var(--ns-glass-1)' }}>
+      <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] p-4">
         <div>
           <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Notifications</h2>
           {unreadCount > 0 && (

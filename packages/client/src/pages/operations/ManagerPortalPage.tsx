@@ -115,15 +115,15 @@ export const ManagerPortalPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate('/reports')}
-            className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+            className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
           >
-            <FileBarChart size={13} className="text-[#c59a58]" /> Full Reports
+            <FileBarChart size={13} className="text-[var(--ns-gold)]" /> Full Reports
           </Button>
           <Button
             variant="primary"
             size="sm"
             onClick={() => navigate('/reservations')}
-            className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+            className="gap-1.5 glass ns-glass-hover text-[var(--ns-ink)] shadow-sm font-semibold"
           >
             <CalendarDays size={13} /> Manage Bookings
           </Button>
@@ -167,13 +167,13 @@ export const ManagerPortalPage: React.FC = () => {
         <div className="p-5 grid gap-4 sm:grid-cols-3">
           <div
             onClick={() => navigate('/restaurant/pos')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
-                <UtensilsCrossed size={13} className="text-amber-600" /> Restaurant Dining
+                <UtensilsCrossed size={13} className="text-[var(--ns-warning)]" /> Restaurant Dining
               </span>
-              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[#c59a58] transition-colors" />
+              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)] transition-colors" />
             </div>
             <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.restaurantSales)}
@@ -183,13 +183,13 @@ export const ManagerPortalPage: React.FC = () => {
 
           <div
             onClick={() => navigate('/bar/pos')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
-                <Wine size={13} className="text-purple-600" /> Bar & Lounge
+                <Wine size={13} className="text-[var(--ns-purple)]" /> Bar & Lounge
               </span>
-              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[#c59a58] transition-colors" />
+              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)] transition-colors" />
             </div>
             <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.barSales)}
@@ -199,13 +199,13 @@ export const ManagerPortalPage: React.FC = () => {
 
           <div
             onClick={() => navigate('/pool/services')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-sm hover:border-[#c59a58]/40 hover:shadow-md transition-all space-y-3"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
-                <Waves size={13} className="text-teal-600" /> Pool Services
+                <Waves size={13} className="text-[var(--ns-teal)]" /> Pool Services
               </span>
-              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[#c59a58] transition-colors" />
+              <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)] transition-colors" />
             </div>
             <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.poolSales)}
@@ -227,7 +227,7 @@ export const ManagerPortalPage: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/frontdesk')}
-                className="gap-1 text-xs text-[#b88738] font-bold"
+                className="gap-1 text-xs text-[var(--ns-gold)] font-bold"
               >
                 Front Desk Log <ArrowRight size={12} />
               </Button>
@@ -243,7 +243,7 @@ export const ManagerPortalPage: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                       <th className="py-3 px-5">Room</th>
                       <th className="py-3 px-5">Guest Name</th>
                       <th className="py-3 px-5">Stay Dates</th>
@@ -251,9 +251,9 @@ export const ManagerPortalPage: React.FC = () => {
                       <th className="py-3 px-5 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ns-line)]">
+                  <tbody className="divide-y divide-[var(--ns-glass-line)]">
                     {activeStays.map((stay) => (
-                      <tr key={stay.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                      <tr key={stay.id} className="ns-glass-hover transition-colors">
                         <td className="py-3 px-5 font-mono font-bold text-[var(--ns-ink)]">
                           Room {stay.room?.number || '—'}
                         </td>
@@ -274,7 +274,7 @@ export const ManagerPortalPage: React.FC = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => navigate('/guest-bills')}
-                            className="h-7 text-xs font-semibold border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+                            className="h-7 text-xs font-semibold border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
                           >
                             Inspect Folio
                           </Button>
@@ -294,15 +294,15 @@ export const ManagerPortalPage: React.FC = () => {
             title="Operational Alerts"
             subtitle="Housekeeping room status and pending room turns."
             action={
-              <span className="font-mono text-xs font-bold text-amber-700 dark:text-amber-400">
+              <span className="font-mono text-xs font-bold text-[var(--ns-warning)]">
                 {dirtyRooms.length} Dirty
               </span>
             }
           >
             <div className="p-4 space-y-3">
               {dirtyRooms.length === 0 ? (
-                <div className="py-8 text-center text-xs text-emerald-700 dark:text-emerald-300 flex flex-col items-center gap-2">
-                  <CheckCircle2 size={24} className="text-emerald-600 dark:text-emerald-400" />
+                <div className="py-8 text-center text-xs text-[var(--ns-success)] flex flex-col items-center gap-2">
+                  <CheckCircle2 size={24} className="text-[var(--ns-success)]" />
                   <span>All villa rooms are cleaned and ready for guests.</span>
                 </div>
               ) : (
@@ -311,7 +311,7 @@ export const ManagerPortalPage: React.FC = () => {
                     <div
                       key={room.id}
                       onClick={() => navigate('/rooms')}
-                      className="p-3 rounded-xl border border-[var(--ns-line)] hover:border-amber-400 bg-[var(--ns-surface)] flex items-center justify-between cursor-pointer transition-all shadow-sm"
+                      className="p-3 rounded-xl border border-[var(--ns-glass-line)] hover:border-[var(--ns-warning)] glass flex items-center justify-between cursor-pointer transition-all shadow-sm"
                     >
                       <div>
                         <div className="font-bold text-xs text-[var(--ns-ink)]">Room {room.number}</div>
@@ -323,11 +323,11 @@ export const ManagerPortalPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="pt-2 border-t border-[var(--ns-line)] space-y-2">
+              <div className="pt-2 border-t border-[var(--ns-glass-line)] space-y-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs font-semibold border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+                  className="w-full text-xs font-semibold border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
                   onClick={() => navigate('/rooms')}
                 >
                   Inspect Rooms Board &rarr;
@@ -335,7 +335,7 @@ export const ManagerPortalPage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs font-semibold border-[#e5ebeb]"
+                  className="w-full text-xs font-semibold border-[var(--ns-glass-line)]"
                   onClick={() => navigate('/cash-register')}
                 >
                   Inspect Front Desk Cash Drawer &rarr;

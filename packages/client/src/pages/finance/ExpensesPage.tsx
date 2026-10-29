@@ -233,7 +233,7 @@ export const ExpensesPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => setCategoryManagerOpen(true)}
-              className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
             >
               <Settings size={13} /> Categories
             </Button>
@@ -243,7 +243,7 @@ export const ExpensesPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={openCreate}
-              className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+              className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold"
             >
               <Plus size={14} /> New Expense Voucher
             </Button>
@@ -279,7 +279,7 @@ export const ExpensesPage: React.FC = () => {
         title="Expenditure Vouchers"
         subtitle="Review, approve, and track all property operational payments and vendor invoices."
         action={
-          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-xs text-[#5a6b75]">
+          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)] glass-subtle ns-glass-hover">
             <RefreshCw size={13} /> Refresh
           </Button>
         }
@@ -288,7 +288,7 @@ export const ExpensesPage: React.FC = () => {
           <SelectInput
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-40 text-xs"
+            className="w-40 text-xs glass-input"
           >
             <option value="">All Categories</option>
             {categoryOptions.map((c) => (
@@ -300,7 +300,7 @@ export const ExpensesPage: React.FC = () => {
           <SelectInput
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-36 text-xs"
+            className="w-36 text-xs glass-input"
           >
             <option value="">All Statuses</option>
             <option value="PENDING">Pending</option>
@@ -319,7 +319,7 @@ export const ExpensesPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Voucher #</th>
                   <th className="py-3 px-5">Category & Description</th>
                   <th className="py-3 px-5">Vendor / Payee</th>
@@ -330,10 +330,10 @@ export const ExpensesPage: React.FC = () => {
                   <th className="py-3 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {filteredExpenses.map((exp) => (
-                  <tr key={exp.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
-                    <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[#b88738]">
+                  <tr key={exp.id} className="ns-glass-hover transition-colors">
+                    <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[var(--ns-gold)]">
                       {exp.expenseNo || exp.id.slice(0, 8).toUpperCase()}
                     </td>
                     <td className="py-3.5 px-5">
@@ -347,11 +347,11 @@ export const ExpensesPage: React.FC = () => {
                       {new Date(exp.incurredOn).toLocaleDateString('en-GH')}
                     </td>
                     <td className="py-3.5 px-5">
-                      <span className="inline-flex rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[#173c4d] dark:text-[#7dd3fc]">
+                      <span className="inline-flex rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
                         {exp.paymentMethod || 'CASH'}
                       </span>
                     </td>
-                    <td className="py-3.5 px-5 text-right font-mono text-sm font-black text-rose-600">
+                    <td className="py-3.5 px-5 text-right font-mono text-sm font-black text-[var(--ns-danger)]">
                       −{formatCurrency(Number(exp.amount))}
                     </td>
                     <td className="py-3.5 px-5 text-center">
@@ -363,14 +363,14 @@ export const ExpensesPage: React.FC = () => {
                           <>
                             <button
                               onClick={() => handleApprove(exp, 'APPROVED')}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg glass text-[var(--ns-success)] ns-glass-hover transition-colors"
                               title="Approve Voucher"
                             >
                               <Check size={13} />
                             </button>
                             <button
                               onClick={() => handleApprove(exp, 'REJECTED')}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg glass text-[var(--ns-danger)] ns-glass-hover transition-colors"
                               title="Reject Voucher"
                             >
                               <X size={13} />
@@ -380,7 +380,7 @@ export const ExpensesPage: React.FC = () => {
                         {canCreate && exp.status !== 'APPROVED' && (
                           <button
                             onClick={() => openEdit(exp)}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#5a6b75] hover:bg-slate-100 transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-muted)] ns-glass-hover transition-colors bg-[var(--ns-glass-1)]"
                             title="Edit"
                           >
                             <Pencil size={13} />
@@ -389,7 +389,7 @@ export const ExpensesPage: React.FC = () => {
                         {canDelete && (
                           <button
                             onClick={() => handleDelete(exp)}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-danger)] ns-glass-hover transition-colors bg-[var(--ns-glass-1)]"
                             title="Delete"
                           >
                             <Trash2 size={13} />
@@ -469,7 +469,7 @@ export const ExpensesPage: React.FC = () => {
             <TextInput value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Invoice # or receipt details" />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button
               type="button"
               variant="ghost"
@@ -480,7 +480,7 @@ export const ExpensesPage: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#133240] text-white">
+            <Button type="submit" variant="primary" loading={saving} className="glass ns-glass-hover text-[var(--ns-teal)]">
               {editingExpense ? 'Save Changes' : 'Submit Voucher'}
             </Button>
           </div>

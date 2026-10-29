@@ -86,19 +86,6 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
 
   root.style.setProperty('--font-family', theme.fontFamily);
   root.style.setProperty('--font-heading', theme.headingFont);
-  root.style.setProperty('--ns-bg', dark ? '#0b1220' : '#f5f6f4');
-  root.style.setProperty('--ns-surface', dark ? '#121a27' : '#ffffff');
-  root.style.setProperty('--ns-surface-2', dark ? '#1a2433' : '#fafaf8');
-  root.style.setProperty('--ns-line', dark ? '#2a3747' : '#e6e8e5');
-  root.style.setProperty('--ns-ink', dark ? '#edf4f9' : '#14232b');
-  root.style.setProperty('--ns-ink-2', dark ? '#dfeaf3' : '#20343e');
-  root.style.setProperty('--ns-muted', dark ? '#9ab0c0' : '#7a858a');
-
-  const body = document.body;
-  if (body) {
-    body.style.background = dark ? 'var(--ns-bg)' : 'var(--ns-bg)';
-    body.style.color = dark ? 'var(--ns-ink)' : 'var(--ns-ink)';
-  }
 }
 
 // Immediately apply cached theme on startup (0ms FOUC)

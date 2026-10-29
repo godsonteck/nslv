@@ -128,17 +128,17 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
 
   if (typeof setting.value === 'boolean') {
     return (
-      <div className="flex items-center justify-between p-3 bg-[#14161D] border border-[#2B303E] rounded">
+      <div className="flex items-center justify-between p-3 glass-subtle border border-[var(--ns-glass-line)] rounded">
         <div>
-          <div className="text-xs font-medium text-[#F4F4F2]">{label}</div>
-          {description && <div className="text-[10px] text-[#6E737B] mt-0.5">{description}</div>}
+          <div className="text-xs font-medium text-[var(--ns-ink)]">{label}</div>
+          {description && <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">{description}</div>}
         </div>
         <button
           type="button"
           onClick={() => onChange(setting.key, !val)}
-          className={`relative w-10 h-5 rounded-full transition-colors ${val ? 'bg-[#f1a83f]' : 'bg-[#2B303E]'}`}
+          className={`relative w-10 h-5 glass-input ns-glass-hover rounded-full transition-colors ${val ? 'ns-glass-selected' : ''}`}
         >
-          <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${val ? 'translate-x-5' : 'translate-x-0.5'}`} />
+          <div className={`absolute top-0.5 w-4 h-4 bg-[var(--ns-ink)] rounded-full transition-transform ${val ? 'translate-x-5' : 'translate-x-0.5'}`} />
         </button>
       </div>
     );
@@ -147,7 +147,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
   return (
     <FormField label={label}>
       {description && (
-        <p className="text-[10px] text-[#6E737B] mb-1">{description}</p>
+        <p className="text-[10px] text-[var(--ns-muted)] mb-1">{description}</p>
       )}
       <TextInput
         value={String(val ?? '')}
@@ -684,8 +684,8 @@ export const SettingsPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition text-left ${
                   active
-                    ? 'bg-[#1C1F28] text-[#f1a83f] border border-[#f1a83f]/30'
-                    : 'text-[#8A9598] hover:bg-[#14161D] hover:text-[#F4F4F2]'
+                    ? 'glass-subtle ns-glass-selected text-[var(--ns-gold)] border border-[var(--ns-gold)]/30'
+                    : 'text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-ink)]'
                 }`}
               >
                 <Icon size={16} />
@@ -696,17 +696,17 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 bg-[#1C1F28] border border-[#2B303E] rounded-xl p-6">
+        <div className="flex-1 glass border border-[var(--ns-glass-line)] rounded-xl p-6">
           {activeTab === 'backups' ? (
             /* ─── DATA RECOVERY & SNAPSHOTS TAB ───────────────────────── */
             <div className="space-y-6">
-              <div className="border-b border-[#2B303E] pb-4 flex items-center justify-between">
+              <div className="border-b border-[var(--ns-glass-line)] pb-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-bold text-[#F4F4F2] flex items-center gap-2">
-                    <History size={16} className="text-[#16a4d4]" />
+                  <h2 className="text-sm font-bold text-[var(--ns-ink)] flex items-center gap-2">
+                    <History size={16} className="text-[var(--ns-teal)]" />
                     Data Recovery, Snapshots & Rollbacks
                   </h2>
-                  <p className="text-xs text-[#8A9598] mt-0.5">
+                  <p className="text-xs text-[var(--ns-muted)] mt-0.5">
                     Reverse deleted data from point-in-time snapshots or create manual system backups
                   </p>
                 </div>
@@ -722,10 +722,10 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               {/* Informational Banner */}
-              <div className="flex items-start gap-3.5 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-blue-200">
-                <Shield size={20} className="text-blue-400 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-3.5 glass-subtle border border-[var(--ns-info)]/30 rounded-xl p-4 text-[var(--ns-info)]">
+                <Shield size={20} className="text-[var(--ns-info)] mt-0.5 shrink-0" />
                 <div className="text-xs leading-relaxed">
-                  <strong className="text-blue-300 font-bold">Automatic Pre-Reset Safety Net:</strong> Before any system or modular reset is performed, an automatic safety snapshot is saved here. If you or another administrator ever clear data and need to reverse it, click <strong className="text-emerald-300">Reverse / Restore</strong> on the snapshot below to instantly restore all deleted records.
+                  <strong className="text-[var(--ns-info)] font-bold">Automatic Pre-Reset Safety Net:</strong> Before any system or modular reset is performed, an automatic safety snapshot is saved here. If you or another administrator ever clear data and need to reverse it, click <strong className="text-[var(--ns-success)]">Reverse / Restore</strong> on the snapshot below to instantly restore all deleted records.
                 </div>
               </div>
 
@@ -735,10 +735,10 @@ export const SettingsPage: React.FC = () => {
                   <Spinner size={24} />
                 </div>
               ) : backups.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-[#2B303E] rounded-xl">
-                  <Database size={32} className="mx-auto text-slate-600 mb-2" />
-                  <h4 className="text-xs font-bold text-slate-300">No snapshots recorded yet</h4>
-                  <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">
+                <div className="text-center py-12 border border-dashed border-[var(--ns-glass-line)] rounded-xl">
+                  <Database size={32} className="mx-auto text-[var(--ns-muted)] mb-2" />
+                  <h4 className="text-xs font-bold text-[var(--ns-ink)]">No snapshots recorded yet</h4>
+                  <p className="text-[11px] text-[var(--ns-muted)] mt-1 max-w-sm mx-auto">
                     Click "Create System Snapshot" above to create an instant manual backup point, or perform a reset to generate an automatic pre-reset snapshot.
                   </p>
                 </div>
@@ -752,27 +752,27 @@ export const SettingsPage: React.FC = () => {
                     return (
                       <div
                         key={b.id}
-                        className="bg-[#14161D] border border-[#2B303E] rounded-xl p-4 hover:border-slate-600 transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                        className="glass-subtle border border-[var(--ns-glass-line)] rounded-xl p-4 ns-glass-hover hover:border-[var(--ns-glass-line)] transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                       >
                         <div className="space-y-1.5 min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span
                               className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${
                                 isPreReset
-                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                  ? 'glass-subtle text-[var(--ns-warning)] border-[var(--ns-warning)]/30'
+                                  : 'glass-subtle text-[var(--ns-success)] border-[var(--ns-success)]/30'
                               }`}
                             >
                               {isPreReset ? '🛡️ Pre-Reset Safety Snapshot' : '💾 Manual Snapshot'}
                             </span>
-                            <span className="text-xs font-bold text-[#F4F4F2]">{dateStr}</span>
-                            <span className="text-[11px] text-slate-500 font-mono">
+                            <span className="text-xs font-bold text-[var(--ns-ink)]">{dateStr}</span>
+                            <span className="text-[11px] text-[var(--ns-muted)] font-mono">
                               ({b.totalRecords} records · {sizeKb} KB)
                             </span>
                           </div>
 
                           {b.description && (
-                            <p className="text-xs text-slate-400">{b.description}</p>
+                            <p className="text-xs text-[var(--ns-muted)]">{b.description}</p>
                           )}
 
                           <div className="flex items-center gap-1.5 flex-wrap pt-1">
@@ -782,24 +782,24 @@ export const SettingsPage: React.FC = () => {
                               .map(([model, count]) => (
                                 <span
                                   key={model}
-                                  className="text-[9px] font-mono bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700"
+                                  className="text-[9px] font-mono glass-subtle text-[var(--ns-ink)] px-1.5 py-0.5 rounded border border-[var(--ns-glass-line)]"
                                 >
                                   {model}: {count}
                                 </span>
                               ))}
                             {Object.keys(b.modelsCount || {}).filter((k) => (b.modelsCount as any)[k] > 0).length > 7 && (
-                              <span className="text-[9px] font-mono text-slate-500">+more</span>
+                              <span className="text-[9px] font-mono text-[var(--ns-muted)]">+more</span>
                             )}
                           </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2B303E]">
+                        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-[var(--ns-glass-line)]">
                           <Button
                             variant="primary"
                             size="sm"
                             onClick={() => handleOpenRestoreModal(b)}
-                            className="gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white"
+                            className="gap-1.5 glass ns-glass-hover !border-[var(--ns-success)] !text-[var(--ns-success)]"
                           >
                             <RotateCcw size={13} /> Reverse / Restore
                           </Button>
@@ -809,7 +809,7 @@ export const SettingsPage: React.FC = () => {
                             size="sm"
                             onClick={() => handleDownloadBackup(b)}
                             title="Download JSON file to your computer"
-                            className="gap-1 text-slate-300"
+                            className="gap-1 text-[var(--ns-ink)]"
                           >
                             <Download size={13} />
                           </Button>
@@ -819,7 +819,7 @@ export const SettingsPage: React.FC = () => {
                             size="sm"
                             onClick={() => handleOpenDeleteModal(b)}
                             title="Delete snapshot"
-                            className="text-red-400 hover:text-red-300 hover:bg-red-950/30"
+                            className="glass-subtle ns-glass-hover !text-[var(--ns-danger)] hover:text-[var(--ns-danger)]"
                           >
                             <Trash2 size={13} />
                           </Button>
@@ -838,19 +838,19 @@ export const SettingsPage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-5">
-                <div className="border-b border-[#2B303E] pb-3 mb-4 flex items-center justify-between">
+                <div className="border-b border-[var(--ns-glass-line)] pb-3 mb-4 flex items-center justify-between">
                   <div>
-                    <h2 className="text-sm font-bold text-[#F4F4F2]">
+                    <h2 className="text-sm font-bold text-[var(--ns-ink)]">
                       {TABS.find((t) => t.id === activeTab)?.label}
                     </h2>
-                    <p className="text-xs text-[#8A9598] mt-0.5">
+                    <p className="text-xs text-[var(--ns-muted)] mt-0.5">
                       Configure live operational parameters and system policies
                     </p>
                   </div>
                 </div>
 
                 {displaySettings.length === 0 && (
-                  <div className="text-xs text-[#8A9598] py-6 text-center">
+                  <div className="text-xs text-[var(--ns-muted)] py-6 text-center">
                     No configurable keys found for this category.
                   </div>
                 )}
@@ -870,18 +870,18 @@ export const SettingsPage: React.FC = () => {
 
       {/* ─── DANGER ZONE: SELECTIVE & FULL SYSTEM RESET ─────────────────────── */}
       {canReset && (
-        <div className="bg-[#1C1F28] border border-red-900/40 rounded-xl p-6 shadow-sm">
+        <div className="glass border border-[var(--ns-danger)]/40 rounded-xl p-6 shadow-sm">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
             <div className="flex items-start gap-3.5">
-              <div className="p-2.5 bg-red-900/20 rounded-lg text-red-400 shrink-0">
+              <div className="p-2.5 glass-subtle rounded-lg text-[var(--ns-danger)] shrink-0">
                 <AlertTriangle size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-extrabold text-[#F4F4F2]">Danger Zone — Selective or Full System Reset</h3>
-                  <span className="bg-red-900/30 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-800/40">Admin Only</span>
+                  <h3 className="text-sm font-extrabold text-[var(--ns-ink)]">Danger Zone — Selective or Full System Reset</h3>
+                  <span className="glass-subtle text-[var(--ns-danger)] text-[10px] font-bold px-2 py-0.5 rounded border border-[var(--ns-danger)]/40">Admin Only</span>
                 </div>
-                <p className="text-xs text-[#A0A5AD] mt-1 max-w-2xl leading-relaxed">
+                <p className="text-xs text-[var(--ns-muted)] mt-1 max-w-2xl leading-relaxed">
                   Choose exactly which data modules you want to clear (Reservations, POS Orders, Expenses, Cash Ledger, Menus, Rooms, etc.) or wipe the entire database clean. A safety snapshot is automatically created before any wipe so you can reverse/restore at any time.
                 </p>
               </div>
@@ -908,31 +908,31 @@ export const SettingsPage: React.FC = () => {
         size="md"
       >
         <div className="p-6 space-y-5">
-          <div className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-emerald-200">
-            <RotateCcw size={18} className="text-emerald-400 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 glass-subtle border border-[var(--ns-success)]/30 rounded-xl p-4 text-[var(--ns-success)]">
+            <RotateCcw size={18} className="text-[var(--ns-success)] mt-0.5 shrink-0" />
             <div className="text-xs leading-relaxed">
-              <strong className="text-emerald-300 font-bold">Data Restoration:</strong> This will restore all{' '}
-              <strong className="text-white">{selectedBackupForRestore?.totalRecords} records</strong> from snapshot{' '}
-              <code className="bg-emerald-950 px-1 py-0.5 rounded font-mono text-[11px]">{selectedBackupForRestore?.id}</code> back into the live database.
+              <strong className="text-[var(--ns-success)] font-bold">Data Restoration:</strong> This will restore all{' '}
+              <strong className="text-[var(--ns-ink)]">{selectedBackupForRestore?.totalRecords} records</strong> from snapshot{' '}
+              <code className="glass-subtle text-[var(--ns-success)] px-1 py-0.5 rounded font-mono text-[11px]">{selectedBackupForRestore?.id}</code> back into the live database.
             </div>
           </div>
 
-          <div className="bg-[#14161D] border border-[#2B303E] rounded-xl p-4 space-y-2 text-xs">
-            <div className="flex justify-between text-slate-400">
+          <div className="glass-subtle border border-[var(--ns-glass-line)] rounded-xl p-4 space-y-2 text-xs">
+            <div className="flex justify-between text-[var(--ns-muted)]">
               <span>Snapshot Created:</span>
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-[var(--ns-ink)]">
                 {selectedBackupForRestore ? new Date(selectedBackupForRestore.createdAt).toLocaleString() : ''}
               </span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-[var(--ns-muted)]">
               <span>Type:</span>
-              <span className="font-semibold text-[#16a4d4]">
+              <span className="font-semibold text-[var(--ns-teal)]">
                 {selectedBackupForRestore?.trigger === 'PRE_RESET_SNAPSHOT' ? 'Pre-Reset Safety Snapshot' : 'Manual Snapshot'}
               </span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-[var(--ns-muted)]">
               <span>Total Records:</span>
-              <span className="font-semibold text-emerald-400">{selectedBackupForRestore?.totalRecords} records</span>
+              <span className="font-semibold text-[var(--ns-success)]">{selectedBackupForRestore?.totalRecords} records</span>
             </div>
           </div>
 
@@ -950,7 +950,7 @@ export const SettingsPage: React.FC = () => {
               size="sm"
               loading={restoring}
               onClick={handleConfirmRestore}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5"
+              className="glass ns-glass-hover !border-[var(--ns-success)] !text-[var(--ns-success)] gap-1.5"
             >
               <RotateCcw size={14} /> Confirm & Reverse Data
             </Button>
@@ -968,14 +968,14 @@ export const SettingsPage: React.FC = () => {
         size="sm"
       >
         <div className="p-6 space-y-4">
-          <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-200">
-            <AlertTriangle size={18} className="text-red-400 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 glass-subtle border border-[var(--ns-danger)]/30 rounded-xl p-4 text-[var(--ns-danger)]">
+            <AlertTriangle size={18} className="text-[var(--ns-danger)] mt-0.5 shrink-0" />
             <div className="text-xs leading-relaxed">
-              Are you sure you want to permanently delete snapshot <code className="bg-red-950 px-1 py-0.5 rounded font-mono text-[11px] text-white">{selectedBackupForDelete?.id}</code>?
+              Are you sure you want to permanently delete snapshot <code className="glass-subtle px-1 py-0.5 rounded font-mono text-[11px] text-[var(--ns-danger)]">{selectedBackupForDelete?.id}</code>?
             </div>
           </div>
 
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-[var(--ns-muted)] leading-relaxed">
             This snapshot contains <strong>{selectedBackupForDelete?.totalRecords} records</strong> from {selectedBackupForDelete ? new Date(selectedBackupForDelete.createdAt).toLocaleString() : ''}. Once deleted from disk, it cannot be restored.
           </p>
 
@@ -1012,20 +1012,20 @@ export const SettingsPage: React.FC = () => {
       >
         <div className="p-6 space-y-6 max-h-[85vh] overflow-y-auto">
           {/* Warning Banner */}
-          <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-200">
-            <Lock size={18} className="text-red-400 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 glass-subtle border border-[var(--ns-danger)]/30 rounded-xl p-4 text-[var(--ns-danger)]">
+            <Lock size={18} className="text-[var(--ns-danger)] mt-0.5 shrink-0" />
             <div className="text-xs leading-relaxed">
-              <strong className="text-red-300 font-bold">Safety Snapshot Created Automatically:</strong> An automatic pre-reset snapshot of all selected records will be saved to your <strong className="text-white">Data Recovery & Snapshots</strong> center before deletion. You can reverse/restore at any time.
+              <strong className="text-[var(--ns-danger)] font-bold">Safety Snapshot Created Automatically:</strong> An automatic pre-reset snapshot of all selected records will be saved to your <strong className="text-[var(--ns-ink)]">Data Recovery & Snapshots</strong> center before deletion. You can reverse/restore at any time.
             </div>
           </div>
 
           {/* Quick Preset Buttons */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <label className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <Sliders size={13} /> Quick Selection Presets
               </label>
-              <span className="text-[11px] font-bold text-[#16a4d4]">
+              <span className="text-[11px] font-bold text-[var(--ns-teal)]">
                 {selectedCount} of {RESET_MODULES_LIST.length} modules selected ({totalAffectedRecords} total records)
               </span>
             </div>
@@ -1034,28 +1034,28 @@ export const SettingsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => applyPreset('all')}
-                className="px-3 py-2 text-xs font-bold rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition text-center"
+                className="px-3 py-2 text-xs font-bold rounded-lg border border-[var(--ns-danger)]/30 glass-subtle text-[var(--ns-danger)] ns-glass-hover transition text-center"
               >
                 🔴 Wipe Everything
               </button>
               <button
                 type="button"
                 onClick={() => applyPreset('ops')}
-                className="px-3 py-2 text-xs font-bold rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition text-center"
+                className="px-3 py-2 text-xs font-bold rounded-lg border border-[var(--ns-warning)]/30 glass-subtle text-[var(--ns-warning)] ns-glass-hover transition text-center"
               >
                 🟡 Operational Data Only
               </button>
               <button
                 type="button"
                 onClick={() => applyPreset('finance')}
-                className="px-3 py-2 text-xs font-bold rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 transition text-center"
+                className="px-3 py-2 text-xs font-bold rounded-lg border border-[var(--ns-success)]/30 glass-subtle text-[var(--ns-success)] ns-glass-hover transition text-center"
               >
                 🟢 Financials & Orders
               </button>
               <button
                 type="button"
                 onClick={() => applyPreset('none')}
-                className="px-3 py-2 text-xs font-bold rounded-lg border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-center"
+                className="px-3 py-2 text-xs font-bold rounded-lg border border-[var(--ns-glass-line)] glass-subtle text-[var(--ns-ink)] ns-glass-hover transition text-center"
               >
                 ⚪ Deselect All
               </button>
@@ -1064,7 +1064,7 @@ export const SettingsPage: React.FC = () => {
 
           {/* Modules Selection Checklist */}
           <div className="space-y-2">
-            <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+            <label className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
               Select Data Modules to Clear
             </label>
 
@@ -1080,38 +1080,38 @@ export const SettingsPage: React.FC = () => {
                     onClick={() => toggleModule(item.key)}
                     className={`cursor-pointer rounded-xl border p-3.5 transition flex items-start gap-3 select-none ${
                       isSelected
-                        ? 'border-red-500/50 bg-red-950/20 text-white shadow-sm'
-                        : 'border-[#2B303E] bg-[#14161D] text-slate-400 hover:border-slate-600'
+                        ? 'border-[var(--ns-danger)]/50 glass-subtle ns-glass-selected text-[var(--ns-ink)] shadow-sm'
+                        : 'border-[var(--ns-glass-line)] glass-subtle text-[var(--ns-muted)] ns-glass-hover hover:border-[var(--ns-glass-line)]'
                     }`}
                   >
-                    <div className="mt-0.5 shrink-0 text-red-400">
-                      {isSelected ? <CheckSquare size={17} className="text-red-400" /> : <Square size={17} className="text-slate-600" />}
+                    <div className="mt-0.5 shrink-0 text-[var(--ns-danger)]">
+                      {isSelected ? <CheckSquare size={17} className="text-[var(--ns-danger)]" /> : <Square size={17} className="text-[var(--ns-muted)]" />}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
-                        <span className={`text-xs font-extrabold flex items-center gap-1.5 ${isSelected ? 'text-[#F4F4F2]' : 'text-slate-300'}`}>
-                          <Icon size={14} className={isSelected ? 'text-red-400' : 'text-slate-500'} />
+                        <span className={`text-xs font-extrabold flex items-center gap-1.5 ${isSelected ? 'text-[var(--ns-ink)]' : 'text-[var(--ns-ink)]'}`}>
+                          <Icon size={14} className={isSelected ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-muted)]'} />
                           {item.label}
                         </span>
                         <span
                           className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
                             totalCount > 0
                               ? isSelected
-                                ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                                : 'bg-slate-800 text-slate-400'
-                              : 'bg-slate-800/50 text-slate-600'
+                                ? 'glass-subtle text-[var(--ns-danger)] border border-[var(--ns-danger)]/30'
+                                : 'glass-subtle text-[var(--ns-muted)]'
+                              : 'glass-subtle text-[var(--ns-muted)]'
                           }`}
                         >
                           {totalCount} {totalCount === 1 ? 'item' : 'items'}
                         </span>
                       </div>
 
-                      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                      <p className="text-[10px] text-[var(--ns-muted)] mt-1 leading-relaxed line-clamp-2">
                         {item.description}
                       </p>
 
-                      <div className="text-[9px] font-mono text-slate-500 mt-1.5 truncate">
+                      <div className="text-[9px] font-mono text-[var(--ns-muted)] mt-1.5 truncate">
                         {countsLoading ? 'Loading records...' : item.getCountsText(moduleCounts)}
                       </div>
                     </div>
@@ -1122,7 +1122,7 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Security Inputs */}
-          <div className="space-y-4 pt-2 border-t border-[#2B303E]">
+          <div className="space-y-4 pt-2 border-t border-[var(--ns-glass-line)]">
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField label="Type RESET to confirm" required>
                 <TextInput
@@ -1147,7 +1147,7 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             {resetError && (
-              <div className="text-xs text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg p-3 flex items-center gap-2">
+              <div className="text-xs text-[var(--ns-danger)] glass-subtle border border-[var(--ns-danger)]/50 rounded-lg p-3 flex items-center gap-2">
                 <AlertTriangle size={14} className="shrink-0" />
                 <span>{resetError}</span>
               </div>
@@ -1156,11 +1156,11 @@ export const SettingsPage: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-            <div className="text-[11px] text-slate-400">
+            <div className="text-[11px] text-[var(--ns-muted)]">
               {selectedCount === 0 ? (
-                <span className="text-amber-400 font-semibold">Please select at least 1 module to clear.</span>
+                <span className="text-[var(--ns-warning)] font-semibold">Please select at least 1 module to clear.</span>
               ) : selectedCount === RESET_MODULES_LIST.length ? (
-                <span className="text-red-400 font-bold">Wiping entire database ({totalAffectedRecords} total records).</span>
+                <span className="text-[var(--ns-danger)] font-bold">Wiping entire database ({totalAffectedRecords} total records).</span>
               ) : (
                 <span>Wiping {selectedCount} selected modules ({totalAffectedRecords} records).</span>
               )}

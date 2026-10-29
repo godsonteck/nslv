@@ -8,7 +8,7 @@ export const ShellPage: React.FC<{
   <div className="ns-page relative space-y-6 pb-12">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        {eyebrow && <div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#b88738]">{eyebrow}</div>}
+        {eyebrow && <div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-gold)]">{eyebrow}</div>}
         <h1
           className="mt-1 text-[26px] sm:text-[30px] font-black tracking-tight font-serif"
           style={{ color: 'var(--ns-ink)' }}
@@ -33,7 +33,7 @@ export const ShellPage: React.FC<{
 export const StatTile: React.FC<{label:string; value:string|number; note?:string; icon?:LucideIcon; accent?:boolean; onClick?:()=>void}> = ({label,value,note,icon:Icon,accent,onClick}) => (
   <div
     className={`glass group relative overflow-hidden rounded-2xl p-5 transition-all duration-200 ${
-      accent ? 'glass-warm' : ''
+      accent ? 'border-[var(--ns-gold)]' : ''
     } ${onClick ? 'cursor-pointer select-none hover:-translate-y-0.5' : ''}`}
     onClick={onClick}
     role={onClick ? 'button' : undefined}
@@ -49,7 +49,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
       </span>
       {Icon && (
         <span
-          className="glass-subtle flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[#b88738]"
+          className="glass-subtle flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-gold)]"
           style={{ color: 'var(--ns-teal)' }}
         >
           <Icon size={16} />
@@ -71,7 +71,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
       </div>
     )}
     {onClick && (
-      <div className="mt-2.5 flex items-center gap-1 text-[10px] font-bold text-[#b88738] opacity-80 transition-opacity group-hover:opacity-100">
+      <div className="mt-2.5 flex items-center gap-1 text-[10px] font-bold text-[var(--ns-gold)] opacity-80 transition-opacity group-hover:opacity-100">
         <ArrowUpRight size={11} /> View in table
       </div>
     )}
@@ -81,8 +81,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
 export const Section: React.FC<{title:string; subtitle?:string; action?:React.ReactNode; children:React.ReactNode; className?:string}> = ({title,subtitle,action,children,className=''}) => (
   <section className={`glass overflow-hidden rounded-2xl ${className}`}>
     <div
-      className="flex flex-col gap-2 border-b border-[var(--ns-glass-line-soft)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-      style={{ backgroundColor: 'var(--ns-glass-1)', backdropFilter: 'blur(12px)' }}
+      className="ns-glass-band flex flex-col gap-2 border-b border-[var(--ns-glass-line)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
         <h2 className="text-[14px] font-bold tracking-tight" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
@@ -96,8 +95,7 @@ export const Section: React.FC<{title:string; subtitle?:string; action?:React.Re
 
 export const Toolbar: React.FC<{search?:string; onSearch?:(v:string)=>void; placeholder?:string; children?:React.ReactNode}> = ({search,onSearch,placeholder='Search…',children}) => (
   <div
-    className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line-soft)] p-4 sm:flex-row sm:items-center"
-    style={{ backgroundColor: 'var(--ns-glass-1)' }}
+    className="ns-glass-band flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center"
   >
     {onSearch !== undefined && <SearchInput value={search||''} onChange={onSearch} placeholder={placeholder} className="w-full sm:w-80" />}
     <div className="flex flex-wrap gap-2 sm:ml-auto">{children}</div>
@@ -113,7 +111,7 @@ export const EmptyTable: React.FC<{title:string; subtitle:string; action?:React.
 export const IconButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({className='',children,...props}) => (
   <button
     {...props}
-    className={`glass flex h-9 w-9 items-center justify-center rounded-xl transition hover:border-[#c59a58]/50 ${className}`}
+    className={`glass flex h-9 w-9 items-center justify-center rounded-xl transition ns-glass-hover hover:border-[var(--ns-gold)] ${className}`}
     style={{ color: 'var(--ns-ink)' }}
   >
     {children}

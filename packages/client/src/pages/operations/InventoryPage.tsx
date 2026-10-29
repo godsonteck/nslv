@@ -186,7 +186,7 @@ export const InventoryPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => setCategoryManagerOpen(true)}
-              className="gap-1.5 border-[var(--ns-line)] text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
             >
               <Settings size={13} /> Categories
             </Button>
@@ -199,7 +199,7 @@ export const InventoryPage: React.FC = () => {
                 setCategory(categoryOptions[0] ?? 'HOUSEKEEPING');
                 setCreateModalOpen(true);
               }}
-              className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+              className="gap-1.5 glass ns-glass-hover text-[var(--ns-ink)] shadow-sm font-semibold"
             >
               <Plus size={14} /> Add Stock Item
             </Button>
@@ -235,7 +235,7 @@ export const InventoryPage: React.FC = () => {
         title="Stock Catalog & Inventory Movements"
         subtitle="Live quantities, reorder thresholds, unit pricing, and quick level adjustments."
         action={
-          <Button variant="ghost" size="sm" onClick={fetchInventory} className="h-8 gap-1.5 text-xs text-[#5a6b75]">
+          <Button variant="ghost" size="sm" onClick={fetchInventory} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)]">
             <RefreshCw size={13} /> Refresh
           </Button>
         }
@@ -258,7 +258,7 @@ export const InventoryPage: React.FC = () => {
             size="sm"
             onClick={() => setLowStockOnly((v) => !v)}
             className={`h-9 gap-1.5 text-xs font-semibold ${
-              lowStockOnly ? 'bg-amber-600 hover:bg-amber-700 text-white border-transparent' : 'border-[#e5ebeb]'
+              lowStockOnly ? 'ns-glass-selected ns-glass-hover text-[var(--ns-warning)] border-[var(--ns-warning)]' : 'border-[var(--ns-glass-line)]'
             }`}
           >
             <AlertTriangle size={13} /> Low Stock Only
@@ -275,7 +275,7 @@ export const InventoryPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">SKU Code</th>
                   <th className="py-3 px-5">Item Description & Category</th>
                   <th className="py-3 px-5 text-center">In Stock</th>
@@ -285,13 +285,13 @@ export const InventoryPage: React.FC = () => {
                   <th className="py-3 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {inventory.map((item) => {
                   const isLow = item.lowStock;
 
                   return (
-                    <tr key={item.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
-                      <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[#b88738]">
+                    <tr key={item.id} className="ns-glass-hover transition-colors">
+                      <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[var(--ns-gold)]">
                         {item.sku || '—'}
                       </td>
                       <td className="py-3.5 px-5">
@@ -299,7 +299,7 @@ export const InventoryPage: React.FC = () => {
                         <div className="text-[10px] font-semibold text-[var(--ns-muted)]">{item.category}</div>
                       </td>
                       <td className="py-3.5 px-5 text-center font-mono font-bold text-xs">
-                        <span className={isLow ? 'text-amber-600 dark:text-amber-400 font-extrabold' : 'text-[var(--ns-ink)]'}>
+                        <span className={isLow ? 'text-[var(--ns-warning)] font-extrabold' : 'text-[var(--ns-ink)]'}>
                           {item.quantity} {item.unit}
                         </span>
                       </td>
@@ -311,11 +311,11 @@ export const InventoryPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-5 text-center">
                         {isLow ? (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                             <AlertTriangle size={10} /> Reorder Needed
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
                             <CheckCircle2 size={10} /> Sufficient
                           </span>
                         )}
@@ -329,16 +329,16 @@ export const InventoryPage: React.FC = () => {
                                 setAdjustQty('');
                                 setAdjustReason('');
                               }}
-                              className="flex h-7 px-2 items-center gap-1 rounded-lg text-xs font-semibold text-[#173c4d] hover:bg-[#173c4d]/5 transition-colors"
+                              className="flex h-7 px-2 items-center gap-1 rounded-lg text-xs font-semibold text-[var(--ns-teal)] ns-glass-hover transition-colors"
                               title="Adjust Stock Level"
                             >
-                              <ArrowUpDown size={12} className="text-[#c59a58]" /> Adjust
+                              <ArrowUpDown size={12} className="text-[var(--ns-gold)]" /> Adjust
                             </button>
                           )}
                           {canManage && (
                             <button
                               onClick={() => handleDelete(item)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ns-danger)] ns-glass-hover transition-colors"
                               title="Delete Item"
                             >
                               <Trash2 size={13} />
@@ -433,11 +433,11 @@ export const InventoryPage: React.FC = () => {
             <TextInput value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Supplied by West African Amenities" />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setCreateModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7]">
+            <Button type="submit" variant="primary" loading={saving} className="glass ns-glass-hover text-[var(--ns-ink)]">
               Save Item
             </Button>
           </div>
@@ -452,9 +452,9 @@ export const InventoryPage: React.FC = () => {
       >
         {adjustModal && (
           <form onSubmit={handleAdjust} className="space-y-4">
-            <div className="rounded-xl border border-[#c59a58]/30 bg-amber-500/10 p-4 flex justify-between items-center text-xs">
+            <div className="rounded-xl border border-[var(--ns-gold)] glass-subtle p-4 flex justify-between items-center text-xs">
               <div>
-                <span className="text-[10px] font-extrabold uppercase text-[#b88738]">Current Balance</span>
+                <span className="text-[10px] font-extrabold uppercase text-[var(--ns-gold)]">Current Balance</span>
                 <div className="text-base font-bold text-[var(--ns-ink)]">
                   {adjustModal.quantity} {adjustModal.unit}
                 </div>
@@ -486,11 +486,11 @@ export const InventoryPage: React.FC = () => {
               />
             </FormField>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
               <Button type="button" variant="ghost" onClick={() => setAdjustModal(null)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" loading={saving} className="bg-[#173c4d] hover:bg-[#122834] text-[#fdfbf7]">
+              <Button type="submit" variant="primary" loading={saving} className="glass ns-glass-hover text-[var(--ns-ink)]">
                 Update Stock
               </Button>
             </div>

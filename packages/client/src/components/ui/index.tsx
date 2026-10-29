@@ -1,6 +1,6 @@
 // ============================================
 // NS LUXURY VILLA — UI Component Library
-// PMS Workstation Primitives (Light Theme + Solid Vibrant Quick Link Tiles)
+// PMS Workstation Primitives (Theme-Aware Clear Glass)
 // ============================================
 
 import React, { useEffect, useRef } from 'react';
@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 import { X, Search, ChevronLeft, ChevronRight, ArrowRightCircle } from 'lucide-react';
 
 // ──────────────────────────────────────────
-// Department Solid Tile Color Definition
+// Department Semantic Accent Definition
 // ──────────────────────────────────────────
 export type QuickLinkCategory =
   | 'booking'
@@ -26,73 +26,25 @@ export type QuickLinkCategory =
   | 'expenses'
   | 'inventory';
 
-const quickLinkStyles: Record<
-  QuickLinkCategory,
-  {
-    bg: string;
-    actionBg: string;
-  }
-> = {
-  booking: {
-    bg: 'bg-gradient-to-br from-[#F39C12] to-[#E67E22]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  food: {
-    bg: 'bg-gradient-to-br from-[#00B4D8] to-[#0096C7]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  pool: {
-    bg: 'bg-gradient-to-br from-[#10B981] to-[#059669]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  party: {
-    bg: 'bg-gradient-to-br from-[#0077B6] to-[#023E8A]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  checkout: {
-    bg: 'bg-gradient-to-br from-[#10B981] to-[#047857]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  settlement: {
-    bg: 'bg-gradient-to-br from-[#E74C3C] to-[#C0392B]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  bookingReport: {
-    bg: 'bg-gradient-to-br from-[#34495E] to-[#2C3E50]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  foodReport: {
-    bg: 'bg-gradient-to-br from-[#00B4D8] to-[#0077B6]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  poolReport: {
-    bg: 'bg-gradient-to-br from-[#2980B9] to-[#1F618D]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  partyReport: {
-    bg: 'bg-gradient-to-br from-[#27AE60] to-[#1E8449]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  servicesReport: {
-    bg: 'bg-gradient-to-br from-[#16A085] to-[#117A65]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  laundryReport: {
-    bg: 'bg-gradient-to-br from-[#8E44AD] to-[#71368A]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  expenses: {
-    bg: 'bg-gradient-to-br from-[#5D6D7E] to-[#34495E]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
-  inventory: {
-    bg: 'bg-gradient-to-br from-[#D35400] to-[#A04000]',
-    actionBg: 'bg-black/15 hover:bg-black/25',
-  },
+const quickLinkAccents: Record<QuickLinkCategory, string> = {
+  booking: 'var(--ns-gold)',
+  food: 'var(--ns-teal)',
+  pool: 'var(--ns-success)',
+  party: 'var(--ns-info)',
+  checkout: 'var(--ns-success)',
+  settlement: 'var(--ns-danger)',
+  bookingReport: 'var(--ns-ink)',
+  foodReport: 'var(--ns-teal)',
+  poolReport: 'var(--ns-info)',
+  partyReport: 'var(--ns-success)',
+  servicesReport: 'var(--ns-teal)',
+  laundryReport: 'var(--ns-purple)',
+  expenses: 'var(--ns-muted)',
+  inventory: 'var(--ns-warning)',
 };
 
 // ──────────────────────────────────────────
-// Vibrant Solid Quick Link Tile (Matching Reference Image)
+// Clear Glass Quick Link Tile
 // ──────────────────────────────────────────
 interface QuickLinkTileProps {
   category: QuickLinkCategory;
@@ -111,33 +63,35 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
   watermarkIcon,
   onClick,
 }) => {
-  const style = quickLinkStyles[category] || quickLinkStyles.booking;
+  const accent = quickLinkAccents[category] || quickLinkAccents.booking;
 
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-white select-none ${style.bg}`}
+      className="glass ns-glass-hover relative rounded-xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none"
+      style={{ borderColor: accent }}
     >
       {/* Tile Body */}
       <div className="relative p-5 min-h-[120px] flex flex-col justify-between z-10">
         <div>
-          <h3 className="text-2xl font-bold tracking-tight text-white font-['Outfit'] drop-shadow-sm">
+          <h3 className="text-2xl font-bold tracking-tight text-[var(--ns-ink)] font-['Outfit'] drop-shadow-sm">
             {title}
           </h3>
-          <p className="text-xs font-medium text-white/90 mt-1 leading-snug">
+          <p className="text-xs font-medium text-[var(--ns-muted)] mt-1 leading-snug">
             {subtitle}
           </p>
         </div>
 
         {/* Large Iconic Watermark Graphic on Right */}
-        <div className="absolute right-3 top-3 opacity-25 pointer-events-none transform scale-125 text-white">
+        <div className="absolute right-3 top-3 opacity-25 pointer-events-none transform scale-125" style={{ color: accent }}>
           {watermarkIcon}
         </div>
       </div>
 
       {/* Bottom Action Strip */}
       <div
-        className={`px-4 py-2.5 flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white border-t border-white/10 transition-colors ${style.actionBg}`}
+        className="ns-glass-band ns-glass-hover px-4 py-2.5 flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider border-t border-[var(--ns-glass-line)] transition-colors"
+        style={{ color: accent }}
       >
         <span>{actionText}</span>
         <ArrowRightCircle size={15} />
@@ -147,7 +101,7 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
 };
 
 // ──────────────────────────────────────────
-// Button (Light Theme)
+// Button (Clear Glass)
 // ──────────────────────────────────────────
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'accent';
@@ -166,12 +120,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'bg-[#174B59]/85 hover:bg-[#0E3440]/85 text-white font-semibold shadow-[0_6px_16px_rgba(23,75,89,.14)]',
-    secondary: 'border border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)] backdrop-blur-md text-[var(--ns-ink)] hover:border-[#c59a58]/55',
-    accent: 'bg-[#B18A55]/80 hover:bg-[#9B7648]/85 text-white font-semibold shadow-[0_6px_16px_rgba(177,138,85,.16)]',
-    danger: 'bg-red-600/80 hover:bg-red-700/80 text-white font-semibold shadow-sm',
-    ghost: 'bg-transparent hover:bg-[var(--ns-glass-1)] text-[var(--ns-ink)]',
-    outline: 'border border-[var(--ns-glass-line)] bg-transparent backdrop-blur-md text-[var(--ns-ink)] hover:bg-[var(--ns-glass-1)]',
+    primary: 'glass ns-glass-hover border border-[var(--ns-teal)] text-[var(--ns-teal)] font-semibold shadow-sm',
+    secondary: 'glass ns-glass-hover border border-[var(--ns-glass-line)] text-[var(--ns-ink)] hover:border-[var(--ns-gold)]',
+    accent: 'glass ns-glass-hover border border-[var(--ns-gold)] text-[var(--ns-gold)] font-semibold shadow-sm',
+    danger: 'glass ns-glass-hover border border-[var(--ns-danger)] text-[var(--ns-danger)] font-semibold shadow-sm',
+    ghost: 'glass ns-glass-hover text-[var(--ns-ink)]',
+    outline: 'glass ns-glass-hover border border-[var(--ns-glass-line)] text-[var(--ns-ink)]',
   };
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-xs rounded-md gap-1.5',
@@ -183,7 +137,7 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       {...props}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-medium transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
     >
       {loading && <div className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />}
       {children}
@@ -201,21 +155,21 @@ interface BadgeProps {
 
 export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral' }) => {
   const cls = {
-    available: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/80',
-    reserved: 'bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800/80',
-    occupied: 'bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800/80',
-    dirty: 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800/80',
-    cleaning: 'bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-800/80',
-    ready: 'bg-teal-100 dark:bg-teal-950/70 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-800/80',
-    maintenance: 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-300 border-gray-300 dark:border-slate-700',
-    success: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/80',
-    warning: 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800/80',
-    danger: 'bg-red-100 dark:bg-red-950/70 text-red-800 dark:text-red-300 border-red-300 dark:border-red-800/80',
-    info: 'bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800/80',
-    neutral: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
+    available: 'text-[var(--ns-success)] border-[var(--ns-success)]',
+    reserved: 'text-[var(--ns-info)] border-[var(--ns-info)]',
+    occupied: 'text-[var(--ns-danger)] border-[var(--ns-danger)]',
+    dirty: 'text-[var(--ns-warning)] border-[var(--ns-warning)]',
+    cleaning: 'text-[var(--ns-purple)] border-[var(--ns-purple)]',
+    ready: 'text-[var(--ns-teal)] border-[var(--ns-teal)]',
+    maintenance: 'text-[var(--ns-muted)] border-[var(--ns-glass-line)]',
+    success: 'text-[var(--ns-success)] border-[var(--ns-success)]',
+    warning: 'text-[var(--ns-warning)] border-[var(--ns-warning)]',
+    danger: 'text-[var(--ns-danger)] border-[var(--ns-danger)]',
+    info: 'text-[var(--ns-info)] border-[var(--ns-info)]',
+    neutral: 'text-[var(--ns-muted)] border-[var(--ns-glass-line)]',
   };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wide border ${cls[variant]}`}>
+    <span className={`glass inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wide border ${cls[variant]}`}>
       {label}
     </span>
   );
@@ -254,14 +208,14 @@ export const statusBadge = (status: string): React.ReactElement => {
 export const Spinner: React.FC<{ size?: number }> = ({ size = 20 }) => (
   <div
     style={{ width: size, height: size }}
-    className="border-2 border-slate-200 border-t-[#1B4965] rounded-full animate-spin"
+    className="border-2 border-[var(--ns-glass-line)] border-t-[var(--ns-teal)] rounded-full animate-spin"
   />
 );
 
 export const LoadingState: React.FC<{ message?: string }> = ({ message = 'Loading workstation data...' }) => (
   <div className="flex flex-col items-center justify-center py-16 text-center">
     <Spinner size={24} />
-    <p className="mt-3 text-xs text-[#718096] font-medium">{message}</p>
+    <p className="mt-3 text-xs text-[var(--ns-muted)] font-medium">{message}</p>
   </div>
 );
 
@@ -281,7 +235,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, badge, 
       <div className="ns-eyebrow">NSVilla operations</div>
       <div className="mt-1 flex items-center gap-3">
         <h1 className="font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em]" style={{ color: 'var(--ns-ink)' }}>{title}</h1>
-        {badge && <span className="rounded-full border border-[#c59a58]/40 bg-[#c59a58]/10 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em]" style={{ color: '#b88738' }}>{badge}</span>}
+        {badge && <span className="glass rounded-full border border-[var(--ns-gold)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em]" style={{ color: 'var(--ns-gold)' }}>{badge}</span>}
       </div>
       {subtitle && <p className="mt-1.5 max-w-2xl text-[12px] leading-5" style={{ color: 'var(--ns-muted)' }}>{subtitle}</p>}
     </div>
@@ -301,10 +255,10 @@ interface MetricCardProps {
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({ label, value, subtext, indicator, accent = false }) => (
-  <div className={`ns-card p-5 ${accent ? 'border-[#f1a83f]/45 ring-1 ring-[#f1a83f]/15' : ''}`}>
-    <div className="flex items-center justify-between"><span className="text-[9px] font-extrabold uppercase tracking-[.15em] text-[#849095]">{label}</span>{indicator && <div className="text-[#a8761e]">{indicator}</div>}</div>
-    <div className={`ns-number mt-3 text-[27px] font-extrabold ${accent ? 'text-[#16a4d4]' : 'text-[#14232b]'}`}>{value}</div>
-    {subtext && <div className="mt-1 text-[10px] leading-4 text-[#8b9599]">{subtext}</div>}
+  <div className={`ns-card glass p-5 ${accent ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]' : ''}`}>
+    <div className="flex items-center justify-between"><span className="text-[9px] font-extrabold uppercase tracking-[.15em] text-[var(--ns-muted)]">{label}</span>{indicator && <div className="text-[var(--ns-gold)]">{indicator}</div>}</div>
+    <div className={`ns-number mt-3 text-[27px] font-extrabold ${accent ? 'text-[var(--ns-teal)]' : 'text-[var(--ns-ink)]'}`}>{value}</div>
+    {subtext && <div className="mt-1 text-[10px] leading-4 text-[var(--ns-muted)]">{subtext}</div>}
   </div>
 );
 
@@ -319,16 +273,16 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, subtitle, action }) => (
-  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#dfe4e0] bg-[#fbfcfa] px-5 py-12 text-center">
-    {icon && <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f2f5f2] text-[#718086]">{icon}</div>}
-    <h3 className="text-sm font-extrabold text-[#26363e]">{title}</h3>
-    {subtitle && <p className="mt-1 max-w-sm text-[11px] leading-5 text-[#899397]">{subtitle}</p>}
+  <div className="glass flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--ns-glass-line)] px-5 py-12 text-center">
+    {icon && <div className="glass-subtle mb-4 flex h-11 w-11 items-center justify-center rounded-2xl text-[var(--ns-muted)]">{icon}</div>}
+    <h3 className="text-sm font-extrabold text-[var(--ns-ink)]">{title}</h3>
+    {subtitle && <p className="mt-1 max-w-sm text-[11px] leading-5 text-[var(--ns-muted)]">{subtitle}</p>}
     {action && <div className="mt-4">{action}</div>}
   </div>
 );
 
 // ──────────────────────────────────────────
-// Data Table (Clean Light Surface)
+// Data Table (Clear Glass Surface)
 // ──────────────────────────────────────────
 interface Column<T> {
   key: string;
@@ -359,11 +313,11 @@ export function DataTable<T>({
   onRowClick,
 }: DataTableProps<T>) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+    <div className="glass border border-[var(--ns-glass-line)] rounded-xl overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full text-xs text-left">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-100 text-[#4A5568]">
+            <tr className="ns-glass-band border-b border-[var(--ns-glass-line)] text-[var(--ns-muted)]">
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -377,7 +331,7 @@ export function DataTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-[var(--ns-glass-line)]">
             {loading ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-12 text-center">
@@ -396,13 +350,13 @@ export function DataTable<T>({
                   key={keyFn(row)}
                   onClick={() => onRowClick?.(row)}
                   className={`transition-colors ${
-                    onRowClick ? 'cursor-pointer hover:bg-blue-50/50' : 'hover:bg-slate-50'
+                    onRowClick ? 'cursor-pointer ns-glass-hover' : 'ns-glass-hover'
                   }`}
                 >
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={`px-4 py-3 text-[#2D3748] ${
+                      className={`px-4 py-3 text-[var(--ns-ink)] ${
                         col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                       }`}
                     >
@@ -430,23 +384,23 @@ interface PaginationProps {
 }
 
 export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total, onPageChange }) => (
-  <div className="flex items-center justify-between mt-4 text-xs text-[#718096]">
+  <div className="flex items-center justify-between mt-4 text-xs text-[var(--ns-muted)]">
     <span>Showing {total.toLocaleString()} total entries</span>
     <div className="flex items-center gap-1.5">
       <button
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="p-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="glass ns-glass-hover p-1.5 rounded-md border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft size={16} />
       </button>
-      <span className="text-[#2D3748] font-bold px-3 text-xs">
+      <span className="text-[var(--ns-ink)] font-bold px-3 text-xs">
         Page {page} of {totalPages || 1}
       </span>
       <button
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="p-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="glass ns-glass-hover p-1.5 rounded-md border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight size={16} />
       </button>
@@ -513,20 +467,20 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)] pointer-events-none" />
       <input
         type="text"
         value={localValue}
         onChange={(e) => handleChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="ns-input w-full pl-9 pr-8 py-2.5 text-xs text-[#2D3748] placeholder-slate-400"
+        className="ns-input w-full pl-9 pr-8 py-2.5 text-xs text-[var(--ns-ink)] placeholder:text-[var(--ns-muted)]"
       />
       {localValue && (
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-[var(--ns-muted)] hover:text-[var(--ns-ink)] rounded-full ns-glass-hover transition-colors"
           title="Clear search"
         >
           <X size={13} />
@@ -575,8 +529,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
         style={{ color: 'var(--ns-ink)' }}
       >
         <div
-          className="flex items-center justify-between px-6 py-4 border-b border-[var(--ns-glass-line-soft)] shrink-0"
-          style={{ backgroundColor: 'var(--ns-glass-1)' }}
+          className="flex items-center justify-between px-6 py-4 border-b border-[var(--ns-glass-line)] shrink-0"
         >
           <div>
             <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
@@ -585,7 +538,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--ns-surface)] text-slate-400 hover:text-[var(--ns-ink)] transition"
+            className="flex h-8 w-8 items-center justify-center rounded-lg ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition"
             aria-label={`Close ${title}`}
           >
             <X size={16} />
@@ -594,8 +547,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
         {footer && (
           <div
-            className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-[var(--ns-line)] shrink-0"
-            style={{ backgroundColor: 'var(--ns-surface-2)' }}
+            className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-[var(--ns-glass-line)] text-[var(--ns-ink)] shrink-0"
           >
             {footer}
           </div>
@@ -623,8 +575,7 @@ export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, 
         style={{ color: 'var(--ns-ink)' }}
       >
         <div
-          className="px-6 py-4 border-b border-[var(--ns-glass-line-soft)] flex items-center justify-between shrink-0"
-          style={{ backgroundColor: 'var(--ns-glass-1)' }}
+          className="px-6 py-4 border-b border-[var(--ns-glass-line)] flex items-center justify-between shrink-0"
         >
           <div>
             <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
@@ -632,7 +583,7 @@ export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, 
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--ns-surface)] text-slate-400 hover:text-[var(--ns-ink)] transition"
+            className="flex h-8 w-8 items-center justify-center rounded-lg ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition"
           >
             <X size={16} />
           </button>
@@ -657,10 +608,10 @@ interface FormFieldProps {
 export const FormField: React.FC<FormFieldProps> = ({ label, error, required, children }) => (
   <div className="mb-3.5">
     <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
-      {label} {required && <span className="text-red-500">*</span>}
+      {label} {required && <span className="text-[var(--ns-danger)]">*</span>}
     </label>
     {children}
-    {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    {error && <p className="text-xs text-[var(--ns-danger)] mt-1">{error}</p>}
   </div>
 );
 
@@ -675,7 +626,7 @@ export const TextInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & {
     style={{ color: 'var(--ns-ink)', ...style }}
     className={`glass-input w-full border ${
       error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
-    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none transition-all ${className}`}
+    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder:text-[var(--ns-muted)] transition-all ${className}`}
   />
 );
 
@@ -691,7 +642,7 @@ export const SelectInput: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
     style={{ color: 'var(--ns-ink)', ...style }}
     className={`glass-input w-full border ${
       error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
-    } rounded-[10px] px-3.5 py-2.5 text-xs focus:outline-none transition-all ${className}`}
+    } rounded-[10px] px-3.5 py-2.5 text-xs transition-all ${className}`}
   >
     {children}
   </select>
@@ -708,7 +659,7 @@ export const TextareaInput: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaEl
     style={{ color: 'var(--ns-ink)', ...style }}
     className={`glass-input w-full border ${
       error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
-    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none transition-all ${className}`}
+    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder:text-[var(--ns-muted)] transition-all ${className}`}
   />
 );
 
@@ -741,18 +692,24 @@ export const ToastContainer: React.FC = () => {
   }, []);
 
   const remove = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
+  const toastClasses: Record<ToastType, string> = {
+    success: 'text-[var(--ns-success)] border-[var(--ns-success)]',
+    error: 'text-[var(--ns-danger)] border-[var(--ns-danger)]',
+    warning: 'text-[var(--ns-warning)] border-[var(--ns-warning)]',
+    info: 'text-[var(--ns-info)] border-[var(--ns-info)]',
+  };
 
   return (
     <div className="fixed bottom-5 right-5 z-[100] space-y-2 max-w-sm">
       {toasts.map((t) => (
         <div
           key={t.id}
-          className="glass-strong flex items-start gap-3 p-3.5 rounded-lg text-xs font-medium"
+          className={`glass-strong flex items-start gap-3 p-3.5 rounded-lg border text-xs font-medium ${toastClasses[t.type]}`}
         >
           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-            t.type === 'success' ? 'bg-emerald-500' : t.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            t.type === 'success' ? 'bg-[var(--ns-success)]' : t.type === 'error' ? 'bg-[var(--ns-danger)]' : t.type === 'warning' ? 'bg-[var(--ns-warning)]' : 'bg-[var(--ns-info)]'
           }`} />
-          <span className="flex-1" style={{ color: 'var(--ns-ink)' }}>{t.message}</span>
+          <span className="flex-1">{t.message}</span>
           <button onClick={() => remove(t.id)} className="shrink-0" style={{ color: 'var(--ns-muted)' }}>
             <X size={14} />
           </button>

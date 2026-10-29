@@ -209,13 +209,13 @@ export const RoomConfigPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]">
-            <Building size={13} className="text-[#a8761e]" /> Administration · Room Configuration
+          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-muted)]">
+            <Building size={13} className="text-[var(--ns-gold)]" /> Administration · Room Configuration
           </div>
-          <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">
+          <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[var(--ns-ink)]">
             Room Configuration
           </h1>
-          <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">
+          <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[var(--ns-muted)]">
             Manage room types, rate defaults, occupancy, and the property room inventory.
           </p>
         </div>
@@ -237,13 +237,13 @@ export const RoomConfigPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-[#e2e7ea]">
+      <div className="flex gap-2 border-b border-[var(--ns-glass-line)]">
         <button
           onClick={() => setActiveTab('types')}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-extrabold transition border-b-2 ${
             activeTab === 'types'
-              ? 'border-[#16a4d4] text-[#16a4d4]'
-              : 'border-transparent text-[#7c8a95] hover:text-[#1a2b3c]'
+              ? 'border-[var(--ns-teal)] glass-subtle ns-glass-selected text-[var(--ns-teal)]'
+              : 'border-transparent glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
           }`}
         >
           <Layers size={15} /> Room Types ({types.length})
@@ -252,8 +252,8 @@ export const RoomConfigPage: React.FC = () => {
           onClick={() => setActiveTab('rooms')}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-extrabold transition border-b-2 ${
             activeTab === 'rooms'
-              ? 'border-[#16a4d4] text-[#16a4d4]'
-              : 'border-transparent text-[#7c8a95] hover:text-[#1a2b3c]'
+              ? 'border-[var(--ns-teal)] glass-subtle ns-glass-selected text-[var(--ns-teal)]'
+              : 'border-transparent glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
           }`}
         >
           <BedDouble size={15} /> Rooms ({rooms.length})
@@ -264,22 +264,22 @@ export const RoomConfigPage: React.FC = () => {
       {activeTab === 'types' && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {types.map((t) => (
-            <div key={t.id} className="rounded-2xl border border-[#e2e7ea] bg-white p-5 shadow-sm space-y-3">
+            <div key={t.id} className="rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-bold text-[#1a2b3c]">{t.name}</h3>
-                  <div className="text-[11px] text-[#7c8a95]">{t._count?.rooms || 0} room(s) assigned</div>
+                  <h3 className="font-bold text-[var(--ns-ink)]">{t.name}</h3>
+                  <div className="text-[11px] text-[var(--ns-muted)]">{t._count?.rooms || 0} room(s) assigned</div>
                 </div>
-                <span className="font-mono text-base font-extrabold text-[#16a4d4]">
+                <span className="font-mono text-base font-extrabold text-[var(--ns-teal)]">
                   {formatCurrency(Number(t.basePrice))}
-                  <span className="text-[10px] font-normal text-[#7c8a95]">/night</span>
+                  <span className="text-[10px] font-normal text-[var(--ns-muted)]">/night</span>
                 </span>
               </div>
-              <p className="text-xs text-[#5b6b7a] line-clamp-2">{t.description || 'No description provided.'}</p>
-              <div className="text-[11px] text-[#7c8a95]">
-                Max Occupancy: <span className="font-semibold text-[#1a2b3c]">{t.maxAdults} Adults, {t.maxChildren} Children</span>
+              <p className="text-xs text-[var(--ns-muted)] line-clamp-2">{t.description || 'No description provided.'}</p>
+              <div className="text-[11px] text-[var(--ns-muted)]">
+                Max Occupancy: <span className="font-semibold text-[var(--ns-ink)]">{t.maxAdults} Adults, {t.maxChildren} Children</span>
               </div>
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f0f4f7]">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[var(--ns-glass-line)]">
                 <Button variant="outline" size="sm" onClick={() => openEditType(t)}>
                   <Pencil size={13} /> Edit
                 </Button>
@@ -296,7 +296,7 @@ export const RoomConfigPage: React.FC = () => {
       {activeTab === 'rooms' && (
         <DataTable
           columns={[
-            { key: 'number', header: 'Room Number', render: (r: any) => <span className="font-bold text-[#1a2b3c]">{r.number}</span> },
+            { key: 'number', header: 'Room Number', render: (r: any) => <span className="font-bold text-[var(--ns-ink)]">{r.number}</span> },
             { key: 'name', header: 'Name', render: (r: any) => <span>{r.name || '—'}</span> },
             { key: 'type', header: 'Room Type', render: (r: any) => <Badge label={r.roomType?.name || 'Unassigned'} variant="info" /> },
             { key: 'floor', header: 'Floor', render: (r: any) => <span>{r.floor != null ? `Floor ${r.floor}` : 'Ground'}</span> },
@@ -307,10 +307,10 @@ export const RoomConfigPage: React.FC = () => {
               align: 'right' as const,
               render: (r: any) => (
                 <div className="flex items-center justify-end gap-1">
-                  <button onClick={() => openEditRoom(r)} className="p-1.5 text-[#5b6b7a] hover:text-[#16a4d4]">
+                  <button onClick={() => openEditRoom(r)} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-teal)]">
                     <Pencil size={14} />
                   </button>
-                  <button onClick={() => removeRoom(r)} className="p-1.5 text-[#5b6b7a] hover:text-red-600">
+                  <button onClick={() => removeRoom(r)} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-danger)]">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -343,7 +343,7 @@ export const RoomConfigPage: React.FC = () => {
           <FormField label="Description">
             <TextInput value={typeForm.description} onChange={(e) => setTypeForm({ ...typeForm, description: e.target.value })} placeholder="Brief details about this room type" />
           </FormField>
-          <div className="flex justify-end gap-2 pt-3 border-t">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setTypeOpen(false)}>Cancel</Button>
             <Button type="submit" loading={typeSaving}>{editingType ? 'Save Changes' : 'Create Room Type'}</Button>
           </div>
@@ -372,7 +372,7 @@ export const RoomConfigPage: React.FC = () => {
           <FormField label="Notes">
             <TextInput value={roomForm.notes} onChange={(e) => setRoomForm({ ...roomForm, notes: e.target.value })} placeholder="Maintenance notes or location hints" />
           </FormField>
-          <div className="flex justify-end gap-2 pt-3 border-t">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setRoomOpen(false)}>Cancel</Button>
             <Button type="submit" loading={roomSaving}>{editingRoom ? 'Save Changes' : 'Add Room'}</Button>
           </div>

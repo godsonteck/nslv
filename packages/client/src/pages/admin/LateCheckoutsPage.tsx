@@ -275,9 +275,9 @@ export const LateCheckoutsPage: React.FC = () => {
 
       {/* Filter Toolbar */}
       <Section title="Late Departures Ledger" subtitle="Filter by date range or search guest name, room, staff, or confirmation code.">
-        <div className="p-4 border-b border-[#2B303E]/50 flex flex-wrap items-center justify-between gap-3 bg-[#14161D]/50">
+        <div className="p-4 border-b border-[var(--ns-glass-line)] flex flex-wrap items-center justify-between gap-3 ns-glass-band">
           {/* Preset Date Filter Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-[#10131A] p-1 rounded-lg border border-[#2B303E]">
+          <div className="flex flex-wrap items-center gap-1.5 glass-subtle p-1 rounded-lg border border-[var(--ns-glass-line)]">
             {[
               { key: 'all', label: 'All Time' },
               { key: 'today', label: 'Today' },
@@ -290,8 +290,8 @@ export const LateCheckoutsPage: React.FC = () => {
                 onClick={() => setDateFilter(tab.key as any)}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
                   dateFilter === tab.key
-                    ? 'bg-[#f1a83f] text-[#10131A] shadow-sm'
-                    : 'text-[#A0A5AD] hover:text-[#F4F4F2] hover:bg-[#232733]'
+                    ? 'glass-subtle ns-glass-selected text-[var(--ns-gold)] shadow-sm'
+                    : 'glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
                 }`}
               >
                 {tab.label}
@@ -306,27 +306,27 @@ export const LateCheckoutsPage: React.FC = () => {
                 type="date"
                 value={customStart}
                 onChange={(e) => setCustomStart(e.target.value)}
-                className="h-8 px-2.5 text-xs bg-[#14161D] border border-[#2B303E] rounded text-[#F4F4F2] font-mono"
+                className="h-8 px-2.5 text-xs glass-input border border-[var(--ns-glass-line)] rounded text-[var(--ns-ink)] font-mono"
               />
-              <span className="text-xs text-[#6E737B]">to</span>
+              <span className="text-xs text-[var(--ns-muted)]">to</span>
               <input
                 type="date"
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
-                className="h-8 px-2.5 text-xs bg-[#14161D] border border-[#2B303E] rounded text-[#F4F4F2] font-mono"
+                className="h-8 px-2.5 text-xs glass-input border border-[var(--ns-glass-line)] rounded text-[var(--ns-ink)] font-mono"
               />
             </div>
           )}
 
           {/* Search Input */}
           <div className="relative min-w-[220px]">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6E737B]" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
             <input
               type="text"
               placeholder="Search guest, room, staff, code…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-8 pl-8 pr-3 text-xs bg-[#14161D] border border-[#2B303E] rounded text-[#F4F4F2] placeholder-[#6E737B] focus:border-[#f1a83f] focus:outline-none"
+              className="w-full h-8 pl-8 pr-3 text-xs glass-input border border-[var(--ns-glass-line)] rounded text-[var(--ns-ink)] placeholder:text-[var(--ns-muted)] focus:border-[var(--ns-gold)] focus:outline-none"
             />
           </div>
         </div>
@@ -335,14 +335,14 @@ export const LateCheckoutsPage: React.FC = () => {
         {loading ? (
           <LoadingState message="Loading late check-out audit records..." />
         ) : records.length === 0 ? (
-          <div className="p-12 text-center text-xs text-[#6E737B]">
-            <Clock size={32} className="mx-auto mb-2 opacity-30 text-[#f1a83f]" />
+          <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
+            <Clock size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-gold)]" />
             No late check-outs found for the selected filter.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left text-[#A0A5AD]">
-              <thead className="text-[10px] uppercase font-bold text-[#6E737B] bg-[#14161D] border-b border-[#2B303E]">
+            <table className="w-full text-xs text-left text-[var(--ns-muted)]">
+              <thead className="text-[10px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="p-3">Guest & Booking</th>
                   <th className="p-3">Room</th>
@@ -355,86 +355,86 @@ export const LateCheckoutsPage: React.FC = () => {
                   <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2B303E]/50">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {records.map((r) => (
-                  <tr key={r.id} className="hover:bg-[#14161D]/60 transition-colors">
+                  <tr key={r.id} className="ns-glass-hover transition-colors">
                     <td className="p-3">
-                      <div className="font-bold text-[#F4F4F2]">{r.guestName}</div>
-                      <div className="text-[10px] font-mono text-[#f1a83f]">{r.confirmationNo}</div>
+                      <div className="font-bold text-[var(--ns-ink)]">{r.guestName}</div>
+                      <div className="text-[10px] font-mono text-[var(--ns-gold)]">{r.confirmationNo}</div>
                       {r.guestPhone && r.guestPhone !== '—' && (
-                        <div className="text-[10px] text-[#6E737B]">{r.guestPhone}</div>
+                        <div className="text-[10px] text-[var(--ns-muted)]">{r.guestPhone}</div>
                       )}
                     </td>
 
                     <td className="p-3">
-                      <div className="font-bold text-[#F4F4F2]">Room {r.roomNumber}</div>
-                      <div className="text-[10px] text-[#6E737B]">{r.roomTypeName}</div>
+                      <div className="font-bold text-[var(--ns-ink)]">Room {r.roomNumber}</div>
+                      <div className="text-[10px] text-[var(--ns-muted)]">{r.roomTypeName}</div>
                     </td>
 
                     <td className="p-3 font-mono text-[11px]">
                       <div>{new Date(r.scheduledCheckOutDate).toLocaleDateString()}</div>
-                      <div className="text-[10px] text-[#6E737B]">{policy.checkoutTime} PM</div>
+                      <div className="text-[10px] text-[var(--ns-muted)]">{policy.checkoutTime} PM</div>
                     </td>
 
                     <td className="p-3 font-mono text-[11px]">
-                      <div className="text-[#F4F4F2]">{new Date(r.actualCheckOut).toLocaleDateString()}</div>
-                      <div className="text-[10px] text-amber-300">
+                      <div className="text-[var(--ns-ink)]">{new Date(r.actualCheckOut).toLocaleDateString()}</div>
+                      <div className="text-[10px] text-[var(--ns-warning)]">
                         {new Date(r.actualCheckOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </td>
 
                     <td className="p-3 text-center">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-900/40 text-amber-300 border border-amber-800/50">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]/50">
                         <Clock size={10} /> +{r.hoursLate}h late
                       </span>
                     </td>
 
                     <td className="p-3 text-right">
-                      <div className="font-extrabold text-amber-300 font-mono text-xs">
+                      <div className="font-extrabold text-[var(--ns-warning)] font-mono text-xs">
                         {r.waived ? (
                           <>
                             <span className="line-through opacity-50">{formatCurrency(r.waivedAmount || 0)}</span>{' '}
-                            <span className="text-[#6E737B]">GHS 0.00</span>
+                            <span className="text-[var(--ns-muted)]">GHS 0.00</span>
                           </>
                         ) : r.refundedAmount > 0 ? (
                           <>
                             <span className="line-through opacity-50">{formatCurrency(r.feeAmount)}</span>{' '}
-                            <span className="text-[#6E737B]">{formatCurrency(Math.max(0, r.feeAmount - r.refundedAmount))}</span>
+                            <span className="text-[var(--ns-muted)]">{formatCurrency(Math.max(0, r.feeAmount - r.refundedAmount))}</span>
                           </>
                         ) : (
                           formatCurrency(r.feeAmount)
                         )}
                       </div>
-                      <div className="text-[9px] text-[#6E737B]">
+                      <div className="text-[9px] text-[var(--ns-muted)]">
                         {r.hoursLate}h @ GHS {policy.hourlyRate}/h
                       </div>
                       {r.waived && (
                         <span
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold bg-slate-800/60 text-slate-300 border border-slate-600/50"
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold glass-subtle text-[var(--ns-muted)] border border-[var(--ns-glass-line)]"
                           title={r.waivedReason || 'Fee waived at checkout'}
                         >
                           Waived at checkout
                         </span>
                       )}
                       {r.refundedAmount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]/50">
                           {formatCurrency(r.refundedAmount)} Refunded
                         </span>
                       )}
                     </td>
 
                     <td className="p-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#232733] text-[#A0A5AD]">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-muted)]">
                         {r.paymentMethod}
                       </span>
-                      <div className="text-[10px] text-[#6E737B] mt-0.5">Condition: {r.roomCondition}</div>
+                      <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">Condition: {r.roomCondition}</div>
                     </td>
 
                     <td className="p-3">
-                      <div className="flex items-center gap-1 font-semibold text-[#F4F4F2]">
+                      <div className="flex items-center gap-1 font-semibold text-[var(--ns-ink)]">
                         👤 {r.checkedOutByName}
                       </div>
-                      <div className="text-[10px] text-[#6E737B]">
+                      <div className="text-[10px] text-[var(--ns-muted)]">
                         Check-in: {r.checkedInByName}
                       </div>
                     </td>
@@ -445,7 +445,7 @@ export const LateCheckoutsPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedRecord(r)}
-                          className="text-[#f1a83f] hover:text-[#8a6420]"
+                          className="!text-[var(--ns-gold)] ns-glass-hover hover:text-[var(--ns-gold)]"
                           title="View Full Stay & Fee Audit"
                         >
                           <Eye size={14} /> Details
@@ -458,7 +458,7 @@ export const LateCheckoutsPage: React.FC = () => {
                             setDeletingRecord(r);
                             setDeleteReason('');
                           }}
-                          className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                          className="glass-subtle ns-glass-hover !text-[var(--ns-danger)] hover:text-[var(--ns-danger)]"
                           title={r.waived ? 'Fee was already waived at checkout' : 'Delete / Waive Late Check-out'}
                         >
                           <Trash2 size={14} />
@@ -483,13 +483,13 @@ export const LateCheckoutsPage: React.FC = () => {
         >
           <div className="p-5 space-y-4 text-xs">
             {/* Alert Header */}
-            <div className="p-4 rounded-xl bg-amber-950/40 border border-amber-800/60 flex items-start gap-3">
-              <AlertTriangle className="text-amber-400 shrink-0 mt-0.5" size={18} />
+            <div className="p-4 rounded-xl glass-subtle border border-[var(--ns-warning)]/60 flex items-start gap-3">
+              <AlertTriangle className="text-[var(--ns-warning)] shrink-0 mt-0.5" size={18} />
               <div>
-                <div className="font-bold text-amber-300">
+                <div className="font-bold text-[var(--ns-warning)]">
                   Late Departure Delay of {selectedRecord.hoursLate} Hour{selectedRecord.hoursLate > 1 ? 's' : ''}
                 </div>
-                <div className="text-[11px] text-amber-200/80 mt-0.5">
+                <div className="text-[11px] text-[var(--ns-warning)] mt-0.5">
                   Guest departed on {new Date(selectedRecord.actualCheckOut).toLocaleString()} (Scheduled cutoff: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()} at {policy.checkoutTime} PM).{' '}
                   {selectedRecord.waived ? (
                     <>
@@ -505,57 +505,57 @@ export const LateCheckoutsPage: React.FC = () => {
 
             {/* Stay & Room Grid */}
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="p-3.5 bg-[#14161D] rounded-xl border border-[#2B303E] space-y-2">
-                <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Guest & Reservation</div>
-                <div className="text-sm font-extrabold text-[#F4F4F2]">{selectedRecord.guestName}</div>
-                <div className="text-xs text-[#6E737B]">Confirmation: <span className="font-mono text-[#f1a83f]">{selectedRecord.confirmationNo}</span></div>
-                <div className="text-xs text-[#6E737B]">Phone: {selectedRecord.guestPhone}</div>
-                <div className="text-xs text-[#6E737B]">Email: {selectedRecord.guestEmail}</div>
+              <div className="p-3.5 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-2">
+                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Guest & Reservation</div>
+                <div className="text-sm font-extrabold text-[var(--ns-ink)]">{selectedRecord.guestName}</div>
+                <div className="text-xs text-[var(--ns-muted)]">Confirmation: <span className="font-mono text-[var(--ns-gold)]">{selectedRecord.confirmationNo}</span></div>
+                <div className="text-xs text-[var(--ns-muted)]">Phone: {selectedRecord.guestPhone}</div>
+                <div className="text-xs text-[var(--ns-muted)]">Email: {selectedRecord.guestEmail}</div>
               </div>
 
-              <div className="p-3.5 bg-[#14161D] rounded-xl border border-[#2B303E] space-y-2">
-                <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Room & Stay Window</div>
-                <div className="text-sm font-extrabold text-[#F4F4F2]">Room {selectedRecord.roomNumber} · {selectedRecord.roomTypeName}</div>
-                <div className="text-xs text-[#6E737B]">Check-in Date: {new Date(selectedRecord.checkInDate).toLocaleDateString()}</div>
-                <div className="text-xs text-[#6E737B]">Scheduled Check-out: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()}</div>
-                <div className="text-xs text-[#6E737B]">Room Condition at Exit: <span className="font-bold text-[#F4F4F2]">{selectedRecord.roomCondition}</span></div>
+              <div className="p-3.5 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-2">
+                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Room & Stay Window</div>
+                <div className="text-sm font-extrabold text-[var(--ns-ink)]">Room {selectedRecord.roomNumber} · {selectedRecord.roomTypeName}</div>
+                <div className="text-xs text-[var(--ns-muted)]">Check-in Date: {new Date(selectedRecord.checkInDate).toLocaleDateString()}</div>
+                <div className="text-xs text-[var(--ns-muted)]">Scheduled Check-out: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()}</div>
+                <div className="text-xs text-[var(--ns-muted)]">Room Condition at Exit: <span className="font-bold text-[var(--ns-ink)]">{selectedRecord.roomCondition}</span></div>
               </div>
             </div>
 
             {/* Financial Settlement & Staff Audit */}
-            <div className="p-3.5 bg-[#14161D] rounded-xl border border-[#2B303E] space-y-3">
-              <div className="text-[10px] uppercase font-bold text-[#A0A5AD]">Settlement & Staff Accountability</div>
+            <div className="p-3.5 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-3">
+              <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Settlement & Staff Accountability</div>
               <div className="grid gap-2 sm:grid-cols-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
-                  <span className="text-[#6E737B]">Late Fee Charge</span>
-                  <span className={`font-extrabold ${selectedRecord.waived ? 'text-slate-400' : 'text-amber-300'}`}>
+                <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                  <span className="text-[var(--ns-muted)]">Late Fee Charge</span>
+                  <span className={`font-extrabold ${selectedRecord.waived ? 'text-[var(--ns-muted)]' : 'text-[var(--ns-warning)]'}`}>
                     {selectedRecord.waived ? `Waived (${formatCurrency(selectedRecord.waivedAmount || 0)})` : formatCurrency(selectedRecord.feeAmount)}
                   </span>
                 </div>
                 {selectedRecord.refundedAmount > 0 && (
-                  <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
-                    <span className="text-[#6E737B]">Late Fee Refunded</span>
-                    <span className="font-bold text-emerald-400">−{formatCurrency(selectedRecord.refundedAmount)}</span>
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                    <span className="text-[var(--ns-muted)]">Late Fee Refunded</span>
+                    <span className="font-bold text-[var(--ns-success)]">−{formatCurrency(selectedRecord.refundedAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
-                  <span className="text-[#6E737B]">Settlement Method</span>
-                  <span className="font-bold text-[#F4F4F2]">{selectedRecord.paymentMethod}</span>
+                <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                  <span className="text-[var(--ns-muted)]">Settlement Method</span>
+                  <span className="font-bold text-[var(--ns-ink)]">{selectedRecord.paymentMethod}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
-                  <span className="text-[#6E737B]">Checked Out By</span>
-                  <span className="font-bold text-[#F4F4F2]">👤 {selectedRecord.checkedOutByName}</span>
+                <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                  <span className="text-[var(--ns-muted)]">Checked Out By</span>
+                  <span className="font-bold text-[var(--ns-ink)]">👤 {selectedRecord.checkedOutByName}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#2B303E]/50">
-                  <span className="text-[#6E737B]">Checked In By</span>
-                  <span className="font-bold text-[#F4F4F2]">👤 {selectedRecord.checkedInByName}</span>
+                <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                  <span className="text-[var(--ns-muted)]">Checked In By</span>
+                  <span className="font-bold text-[var(--ns-ink)]">👤 {selectedRecord.checkedInByName}</span>
                 </div>
               </div>
 
               {selectedRecord.notes && (
-                <div className="pt-2 border-t border-[#2B303E]/50 text-xs">
-                  <span className="font-bold text-[#A0A5AD]">Departure Notes: </span>
-                  <span className="text-[#F4F4F2]">{selectedRecord.notes}</span>
+                <div className="pt-2 border-t border-[var(--ns-glass-line)] text-xs">
+                  <span className="font-bold text-[var(--ns-muted)]">Departure Notes: </span>
+                  <span className="text-[var(--ns-ink)]">{selectedRecord.notes}</span>
                 </div>
               )}
             </div>
@@ -568,7 +568,7 @@ export const LateCheckoutsPage: React.FC = () => {
                   setDeletingRecord(selectedRecord);
                   setDeleteReason('');
                 }}
-                className="text-red-400 border-red-900/50 hover:bg-red-950/40"
+                className="glass-subtle ns-glass-hover !text-[var(--ns-danger)] !border-[var(--ns-danger)]"
               >
                 <Trash2 size={14} /> Delete / Waive Late Fee
               </Button>
@@ -588,30 +588,30 @@ export const LateCheckoutsPage: React.FC = () => {
           title={`Delete Late Departure · ${deletingRecord.confirmationNo}`}
         >
           <form onSubmit={confirmDelete} className="space-y-4 text-xs">
-            <div className="p-4 rounded-xl bg-red-950/30 border border-red-900/50 flex items-start gap-3">
-              <AlertTriangle className="text-red-400 shrink-0 mt-0.5" size={18} />
+            <div className="p-4 rounded-xl glass-subtle border border-[var(--ns-danger)]/50 flex items-start gap-3">
+              <AlertTriangle className="text-[var(--ns-danger)] shrink-0 mt-0.5" size={18} />
               <div className="space-y-1">
-                <div className="font-bold text-red-300">
+                <div className="font-bold text-[var(--ns-danger)]">
                   Remove Late Check-Out Status & Fee
                 </div>
-                <div className="text-[11px] text-red-200/80 leading-relaxed">
+                <div className="text-[11px] text-[var(--ns-danger)] leading-relaxed">
                   This action will void the <strong>{formatCurrency(deletingRecord.feeAmount)}</strong> late check-out charge on the folio, reset the departure timestamp to on-time cutoff, and record this deletion in the immutable audit log.
                 </div>
               </div>
             </div>
 
-            <div className="p-3 bg-[#14161D] rounded-xl border border-[#2B303E] space-y-1 text-xs">
+            <div className="p-3 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-1 text-xs">
               <div className="flex justify-between">
-                <span className="text-[#6E737B]">Guest:</span>
-                <span className="font-bold text-[#F4F4F2]">{deletingRecord.guestName}</span>
+                <span className="text-[var(--ns-muted)]">Guest:</span>
+                <span className="font-bold text-[var(--ns-ink)]">{deletingRecord.guestName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#6E737B]">Room:</span>
-                <span className="font-bold text-[#F4F4F2]">Room {deletingRecord.roomNumber} ({deletingRecord.roomTypeName})</span>
+                <span className="text-[var(--ns-muted)]">Room:</span>
+                <span className="font-bold text-[var(--ns-ink)]">Room {deletingRecord.roomNumber} ({deletingRecord.roomTypeName})</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#6E737B]">Fee to be Voided:</span>
-                <span className="font-bold text-amber-300">{formatCurrency(deletingRecord.feeAmount)} ({deletingRecord.hoursLate}h late)</span>
+                <span className="text-[var(--ns-muted)]">Fee to be Voided:</span>
+                <span className="font-bold text-[var(--ns-warning)]">{formatCurrency(deletingRecord.feeAmount)} ({deletingRecord.hoursLate}h late)</span>
               </div>
             </div>
 
@@ -637,7 +637,7 @@ export const LateCheckoutsPage: React.FC = () => {
                 type="submit"
                 variant="primary"
                 loading={deletingBusy}
-                className="bg-red-600 hover:bg-red-500 text-white"
+                className="glass ns-glass-hover !border-[var(--ns-danger)] !text-[var(--ns-danger)]"
               >
                 Confirm & Remove Late Fee
               </Button>

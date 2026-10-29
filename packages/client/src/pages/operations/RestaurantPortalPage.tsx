@@ -64,7 +64,7 @@ export const RestaurantPortalPage: React.FC = () => {
             variant="primary"
             size="sm"
             onClick={() => navigate('/restaurant/pos')}
-            className="bg-[#C5A880] hover:bg-[#b59870] text-[#10131A] font-bold"
+            className="glass ns-glass-hover text-[var(--ns-ink)] font-bold"
           >
             <UtensilsCrossed size={14} /> Open Restaurant POS <ArrowRight size={14} />
           </Button>
@@ -107,36 +107,36 @@ export const RestaurantPortalPage: React.FC = () => {
           subtitle="Live feed from kitchen and dining."
         >
           {orders.length === 0 ? (
-            <div className="p-12 text-center text-xs text-[#6E737B]">
-              <UtensilsCrossed size={32} className="mx-auto mb-2 opacity-30 text-[#C5A880]" />
+            <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
+              <UtensilsCrossed size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-gold)]" />
               No restaurant orders recorded yet today.
             </div>
           ) : (
-            <div className="divide-y divide-[#2B303E]/50">
+            <div className="divide-y divide-[var(--ns-glass-line)]">
               {orders.map((order) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-[#14161D]/60 transition-colors text-xs"
+                  className="flex items-center justify-between px-5 py-3.5 ns-glass-hover transition-colors text-xs"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-[#F4F4F2]">
+                      <span className="font-extrabold text-[var(--ns-ink)]">
                         #{order.orderNumber || order.id?.slice(-6).toUpperCase()}
                       </span>
-                      <span className="text-[#A0A5AD]">{order.tableNumber ? `Table ${order.tableNumber}` : 'Takeaway'}</span>
+                      <span className="text-[var(--ns-muted)]">{order.tableNumber ? `Table ${order.tableNumber}` : 'Takeaway'}</span>
                       {statusBadge(order.status)}
                     </div>
-                    <div className="text-[11px] text-[#6E737B]">
+                    <div className="text-[11px] text-[var(--ns-muted)]">
                       {new Date(order.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                       {order.items?.length ? ` · ${order.items.length} item${order.items.length !== 1 ? 's' : ''}` : ''}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-extrabold text-[#f1a83f]">{formatCurrency(Number(order.totalAmount || 0))}</div>
+                    <div className="font-extrabold text-[var(--ns-gold)]">{formatCurrency(Number(order.totalAmount || 0))}</div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-[10px] text-[#C5A880] mt-1"
+                      className="text-[10px] text-[var(--ns-gold)] mt-1"
                       onClick={() => navigate('/restaurant/pos')}
                     >
                       View in POS <ArrowRight size={11} />
@@ -146,10 +146,10 @@ export const RestaurantPortalPage: React.FC = () => {
               ))}
             </div>
           )}
-          <div className="p-4 border-t border-[#2B303E]">
+          <div className="p-4 border-t border-[var(--ns-glass-line)]">
             <Button
               variant="primary"
-              className="w-full bg-[#C5A880] hover:bg-[#b59870] text-[#10131A] font-bold"
+              className="w-full glass ns-glass-hover text-[var(--ns-ink)] font-bold"
               onClick={() => navigate('/restaurant/pos')}
             >
               <UtensilsCrossed size={15} /> Open Full Restaurant POS <ArrowRight size={14} />

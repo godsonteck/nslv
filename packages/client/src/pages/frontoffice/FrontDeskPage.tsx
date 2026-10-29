@@ -299,21 +299,21 @@ export const FrontDeskPage: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 animate-in fade-in duration-300">
       {/* ── Editorial Front Desk Header ── */}
-      <div className="glass-dark relative overflow-hidden rounded-3xl p-7 sm:p-9 text-white">
+      <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-9 text-[var(--ns-ink)]">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c59a58]/50 bg-[#c59a58]/15 px-3 py-1 text-[10px] font-black tracking-widest text-[#f0d49f] uppercase">
-                <Sparkles size={11} className="text-[#c59a58]" /> Reception Terminal
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[10px] font-black tracking-widest text-[var(--ns-gold)] uppercase">
+                <Sparkles size={11} className="text-[var(--ns-gold)]" /> Reception Terminal
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-[10px] font-bold text-sky-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-info)] glass-subtle px-3 py-1 text-[10px] font-bold text-[var(--ns-info)]">
                 <Clock size={11} /> Standard Checkout: {checkoutPolicy.checkoutTime}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white font-serif">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
               {greeting}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300/85 max-w-xl font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
               {nowFormatted}
             </p>
           </div>
@@ -321,21 +321,21 @@ export const FrontDeskPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => navigate('/reception/report')}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all"
             >
-              <BarChart3 size={14} className="text-[#38bdf8]" />
+              <BarChart3 size={14} className="text-[var(--ns-info)]" />
               <span>Reception Report</span>
             </button>
             <button
               onClick={() => navigate('/cash-at-hand')}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all"
             >
-              <WalletCards size={14} className="text-emerald-400" />
+              <WalletCards size={14} className="text-[var(--ns-success)]" />
               <span>Cash at Hand</span>
             </button>
             <button
               onClick={refresh}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all"
             >
               <RefreshCw size={13} />
               <span>Refresh</span>
@@ -345,11 +345,11 @@ export const FrontDeskPage: React.FC = () => {
       </div>
 
       {/* ── Dynamic Room Availability Bar (Tallies 100% with Overview and Rooms Page) ── */}
-      <div className="ns-card p-5 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-line)] pb-3">
+      <div className="ns-card glass p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] pb-3">
           <div className="flex items-center gap-2">
-            <DoorOpen size={16} className="text-[#c59a58]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#c59a58]">
+            <DoorOpen size={16} className="text-[var(--ns-gold)]" />
+            <span className="text-xs font-black uppercase tracking-wider text-[var(--ns-gold)]">
               Room Rack Inventory
             </span>
           </div>
@@ -360,64 +360,64 @@ export const FrontDeskPage: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
           {/* Ready to Sell / Available Today */}
-          <div className="ns-card p-4 border-l-2 border-l-emerald-500">
+          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-success)]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Ready to Sell (Available)</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Ready to Sell (Available)</span>
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <div className="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{availableRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Clean & available today</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{availableRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Clean & available today</div>
           </div>
 
           {/* Reserved for Today */}
-          <div className="ns-card p-4 border-l-2 border-l-amber-500">
+          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-warning)]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Reserved Today</span>
-              <Calendar size={13} className="text-amber-600 dark:text-amber-400" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved Today</span>
+              <Calendar size={13} className="text-[var(--ns-warning)]" />
             </div>
-            <div className="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{reservedRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Arrivals due / active bookings</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{reservedRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Arrivals due / active bookings</div>
           </div>
 
           {/* In-House Occupied */}
-          <div className="ns-card p-4 border-l-2 border-l-blue-500">
+          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-info)]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">In-House Stays</span>
-              <UserCheck size={13} className="text-blue-600 dark:text-blue-400" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House Stays</span>
+              <UserCheck size={13} className="text-[var(--ns-info)]" />
             </div>
-            <div className="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{occupiedRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Currently occupied rooms</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{occupiedRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Currently occupied rooms</div>
           </div>
 
           {/* Housekeeping Turnover */}
-          <div className="ns-card p-4 border-l-2 border-l-rose-500">
+          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-danger)]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Housekeeping Turnover</span>
-              <Building size={13} className="text-rose-600 dark:text-rose-400" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Housekeeping Turnover</span>
+              <Building size={13} className="text-[var(--ns-danger)]" />
             </div>
-            <div className="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{dirtyRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Dirty / cleaning in progress</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{dirtyRoomsToday.length}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Dirty / cleaning in progress</div>
           </div>
         </div>
 
         {/* Live Available Rooms Key Rack (Interactive walk-in selection) */}
         {availableRoomsToday.length > 0 && (
-          <div className="pt-2 border-t border-[var(--ns-line)]">
-            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <div className="pt-2 border-t border-[var(--ns-glass-line)]">
+            <div className="text-[11px] font-bold text-[var(--ns-muted)] uppercase tracking-wider mb-2 flex items-center justify-between">
               <span>Ready Rooms Available for Walk-Ins ({availableRoomsToday.length})</span>
-              <span className="text-[#c59a58] font-semibold lowercase">click room to view</span>
+              <span className="text-[var(--ns-gold)] font-semibold lowercase">click room to view</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableRoomsToday.map((room) => (
                 <div
                   key={room.id}
                   onClick={() => navigate('/reservations')}
-                  className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-500/20 hover:border-emerald-500 transition-all shadow-xs"
+                  className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-[var(--ns-success)] glass-subtle px-3 py-1.5 ns-glass-hover hover:border-[var(--ns-success)] transition-all shadow-xs"
                   title="Click to book room in reservations"
                 >
-                  <DoorOpen size={13} className="text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-xs font-black text-slate-900 dark:text-slate-100">Room {room.number}</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <DoorOpen size={13} className="text-[var(--ns-success)]" />
+                  <span className="text-xs font-black text-[var(--ns-ink)]">Room {room.number}</span>
+                  <span className="text-[10px] text-[var(--ns-success)] font-semibold">
                     {room.roomType?.name ? `(${room.roomType.name})` : ''}
                   </span>
                 </div>
@@ -430,27 +430,27 @@ export const FrontDeskPage: React.FC = () => {
       {/* ── Main Operations: Arrivals Queue & In-House Departures ── */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Arrivals Due Desk */}
-        <div className="ns-card overflow-hidden flex flex-col justify-between">
+        <div className="ns-card glass overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--ns-line)] px-6 py-4 bg-slate-50/80 dark:bg-slate-900/60 gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band gap-3">
               <div>
-                <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <LogIn size={16} className="text-blue-500 dark:text-blue-400" />
+                <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
+                  <LogIn size={16} className="text-[var(--ns-info)]" />
                   Expected Arrivals Queue ({arrivals.length})
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">
                   Guest check-in starts at 2:00 PM | Identity verification required
                 </p>
               </div>
 
               <div className="relative w-full sm:w-56">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
                 <input
                   type="text"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Filter arrivals..."
-                  className="ns-input w-full pl-8 pr-3 py-1 text-xs"
+                  className="ns-input glass-input w-full pl-8 pr-3 py-1 text-xs"
                 />
               </div>
             </div>
@@ -458,11 +458,11 @@ export const FrontDeskPage: React.FC = () => {
             {loading ? (
               <LoadingState />
             ) : arrivals.length === 0 ? (
-              <div className="p-12 text-center text-xs text-slate-400 dark:text-slate-500">
+              <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
                 No arrivals currently waiting in the check-in queue.
               </div>
             ) : (
-              <div className="divide-y divide-[var(--ns-line)] max-h-[520px] overflow-y-auto">
+              <div className="divide-y divide-[var(--ns-glass-line)] max-h-[520px] overflow-y-auto">
                 {arrivals.map((reservation) => {
                   const guestFullName =
                     [reservation.guests?.[0]?.guest?.firstName, reservation.guests?.[0]?.guest?.lastName]
@@ -471,22 +471,22 @@ export const FrontDeskPage: React.FC = () => {
                   return (
                     <div
                       key={reservation.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 ns-glass-hover transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 dark:bg-sky-950/60 text-blue-600 dark:text-blue-400 text-xs font-black shadow-xs">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl glass-subtle text-[var(--ns-info)] text-xs font-black shadow-xs">
                           <UserRound size={17} />
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                          <div className="truncate text-xs font-bold text-[var(--ns-ink)] flex items-center gap-2">
                             <span>{guestFullName}</span>
-                            <span className="rounded-md border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-[10px] font-black text-blue-600 dark:text-blue-400">
+                            <span className="rounded-md border border-[var(--ns-info)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-info)]">
                               Room {reservation.room?.number || 'Unassigned'}
                             </span>
                           </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                          <div className="mt-0.5 text-[11px] text-[var(--ns-muted)] flex items-center gap-2 flex-wrap">
                             <span>Checkout: {new Date(reservation.checkOutDate).toLocaleDateString()} 12:00 PM</span>
-                            <span className="text-slate-400">|</span>
+                            <span className="text-[var(--ns-muted)]">|</span>
                             <span>Ref: {reservation.confirmationNo || reservation.id.slice(0, 8).toUpperCase()}</span>
                           </div>
                         </div>
@@ -497,7 +497,7 @@ export const FrontDeskPage: React.FC = () => {
                           setForm({ ...form, idVerified: true });
                           setAction({ type: 'in', row: reservation });
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs shrink-0 self-end sm:self-auto transition-all"
+                        className="inline-flex items-center gap-1.5 rounded-xl glass px-3.5 py-1.5 text-xs font-bold text-[var(--ns-teal)] shadow-xs shrink-0 self-end sm:self-auto transition-all ns-glass-hover"
                       >
                         <LogIn size={13} />
                         <span>Check In</span>
@@ -511,15 +511,15 @@ export const FrontDeskPage: React.FC = () => {
         </div>
 
         {/* In-House Guests & Departure Settlement Desk */}
-        <div className="ns-card overflow-hidden flex flex-col justify-between">
+        <div className="ns-card glass overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-[var(--ns-line)] px-6 py-4 bg-slate-50/80 dark:bg-slate-900/60">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
               <div>
-                <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <LogOut size={16} className="text-amber-600 dark:text-amber-400" />
+                <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
+                  <LogOut size={16} className="text-[var(--ns-warning)]" />
                   In-House Stays and Checkout ({stays.length})
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">
                   Standard checkout deadline: 12:00 PM | Late departures: +GHS {checkoutPolicy.hourlyRate}/hr
                 </p>
               </div>
@@ -528,11 +528,11 @@ export const FrontDeskPage: React.FC = () => {
             {loading ? (
               <LoadingState />
             ) : stays.length === 0 ? (
-              <div className="p-12 text-center text-xs text-slate-400 dark:text-slate-500">
+              <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
                 No active in-house stays currently registered.
               </div>
             ) : (
-              <div className="divide-y divide-[var(--ns-line)] max-h-[520px] overflow-y-auto">
+              <div className="divide-y divide-[var(--ns-glass-line)] max-h-[520px] overflow-y-auto">
                 {stays.map((stay) => {
                   const late = getLateInfo(stay);
                   const guestFullName =
@@ -540,25 +540,25 @@ export const FrontDeskPage: React.FC = () => {
                   return (
                     <div
                       key={stay.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 ns-glass-hover transition-colors"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{guestFullName}</span>
-                          <span className="rounded-md border border-[#c59a58]/40 bg-[#c59a58]/10 px-2 py-0.5 text-[10px] font-black text-[#c59a58]">
+                          <span className="text-xs font-bold text-[var(--ns-ink)]">{guestFullName}</span>
+                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-gold)]">
                             Room {stay.room?.number || 'Unassigned'}
                           </span>
                           {late && (
-                            <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-black text-amber-600 dark:text-amber-400 animate-pulse">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-[var(--ns-warning)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-warning)] animate-pulse">
                               <AlertTriangle size={11} /> LATE +GHS {late.fee} ({late.lateHours}h)
                             </span>
                           )}
                         </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                        <div className="mt-0.5 text-[11px] text-[var(--ns-muted)] flex items-center gap-2 flex-wrap">
                           <span>
                             Departs {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : 'Active'} 12:00 PM
                           </span>
-                          <span className="text-slate-400">|</span>
+                          <span className="text-[var(--ns-muted)]">|</span>
                           <span>Checked in by {stay.checkedInByUser?.name || 'Reception Staff'}</span>
                         </div>
                       </div>
@@ -567,10 +567,10 @@ export const FrontDeskPage: React.FC = () => {
                         {statusBadge(stay.status || 'CHECKED_IN')}
                         <button
                           onClick={() => openCheckout(stay)}
-                          className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs ${
+                          className={`glass-subtle ns-glass-hover inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs ${
                             late
-                              ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                              : 'border border-[var(--ns-line)] bg-[var(--ns-surface)] hover:bg-[var(--ns-surface-2)] text-[var(--ns-ink)]'
+                              ? 'glass ns-glass-hover text-[var(--ns-warning)]'
+                              : 'border border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)]'
                           }`}
                         >
                           <LogOut size={13} />
@@ -595,8 +595,8 @@ export const FrontDeskPage: React.FC = () => {
         <form onSubmit={submit} className="space-y-4">
           {action?.type === 'in' ? (
             <>
-              <div className="rounded-xl border border-blue-500/30 bg-blue-900/20 p-3.5 text-xs text-blue-200 leading-relaxed">
-                <span className="font-bold text-blue-300">Identity Document Verification:</span> Check passport or national ID against booking particulars prior to key handover.
+              <div className="rounded-xl border border-[var(--ns-info)] glass-subtle p-3.5 text-xs text-[var(--ns-info)] leading-relaxed">
+                <span className="font-bold text-[var(--ns-info)]">Identity Document Verification:</span> Check passport or national ID against booking particulars prior to key handover.
               </div>
               <FormField label="ID Document Type">
                 <SelectInput
@@ -619,14 +619,14 @@ export const FrontDeskPage: React.FC = () => {
           ) : (
             <>
               {/* ── Folio Breakdown ── */}
-              <div className="rounded-xl border border-[#c59a58]/40 bg-slate-50 dark:bg-slate-900/60 overflow-hidden shadow-xs">
-                <div className="px-4 py-2.5 bg-[#c59a58]/10 border-b border-[#c59a58]/30 flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#c59a58]">Folio Breakdown — What this payment covers</span>
-                  <Receipt size={13} className="text-[#c59a58]" />
+              <div className="rounded-xl border border-[var(--ns-gold)] glass-subtle overflow-hidden shadow-xs">
+                <div className="px-4 py-2.5 ns-glass-band border-b border-[var(--ns-gold)] flex items-center justify-between">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--ns-gold)]">Folio Breakdown — What this payment covers</span>
+                  <Receipt size={13} className="text-[var(--ns-gold)]" />
                 </div>
-                <div className="divide-y divide-[var(--ns-line)]">
+                <div className="divide-y divide-[var(--ns-glass-line)]">
                   {checkoutLineItems.length === 0 && (
-                    <div className="px-4 py-3 text-xs text-slate-400 dark:text-slate-500 italic">No charges posted to folio yet.</div>
+                    <div className="px-4 py-3 text-xs text-[var(--ns-muted)] italic">No charges posted to folio yet.</div>
                   )}
                   {checkoutLineItems.map((line, idx) => {
                     const isLateFee = line.type === 'LATE_FEE';
@@ -637,66 +637,66 @@ export const FrontDeskPage: React.FC = () => {
                         key={idx}
                         className={`flex flex-col gap-1.5 px-4 py-2.5 text-xs ${
                           line.voided ? 'opacity-40' : ''
-                        } ${isLateFee ? 'bg-amber-50/70 dark:bg-amber-950/25 border-l-2 border-l-amber-500' : ''} ${isCredit ? 'bg-emerald-50/40 dark:bg-emerald-950/10' : ''}`}
+                        } ${isLateFee ? 'ns-glass-band border-l-2 border-l-[var(--ns-warning)]' : ''} ${isCredit ? 'ns-glass-band' : ''}`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
                             {isLateFee ? (
-                              <label className="flex items-center gap-2 cursor-pointer font-semibold text-amber-700 dark:text-amber-400">
+                              <label className="flex items-center gap-2 cursor-pointer font-semibold text-[var(--ns-warning)]">
                                 <input
                                   type="checkbox"
                                   checked={chargeLateCheckoutFee}
                                   onChange={(e) => setChargeLateCheckoutFee(e.target.checked)}
-                                  className="h-3.5 w-3.5 accent-[#c59a58] shrink-0"
+                                  className="h-3.5 w-3.5 accent-[var(--ns-gold)] shrink-0"
                                 />
                                 <span className={line.voided ? 'line-through' : ''}>{line.label}</span>
-                                <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase">
+                                <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase">
                                   {chargeLateCheckoutFee ? 'Late fee (will be charged)' : 'Late fee (not charging — tick to charge)'}
                                 </span>
                               </label>
                             ) : isCredit ? (
-                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                              <span className="text-[var(--ns-success)] font-semibold flex items-center gap-1.5">
                                 <CheckCircle2 size={11} />
                                 {line.label}
                               </span>
                             ) : (
-                              <span className="text-slate-700 dark:text-slate-300 truncate">{line.label}</span>
+                              <span className="text-[var(--ns-ink)] truncate">{line.label}</span>
                             )}
                           </div>
                           <span className={`font-bold tabular-nums shrink-0 ${
-                            isCredit ? 'text-emerald-700 dark:text-emerald-400' :
-                            isLateFee && !chargeLateCheckoutFee ? 'text-slate-400 line-through' :
-                            isLateFee && chargeLateCheckoutFee && !isUnpaid ? 'text-amber-700 dark:text-amber-400' :
-                            isUnpaid ? 'text-amber-600/70 dark:text-amber-400/70 italic' :
-                            'text-slate-800 dark:text-slate-200'
-                          } ${line.voided ? 'line-through text-slate-400' : ''}`}>
+                            isCredit ? 'text-[var(--ns-success)]' :
+                            isLateFee && !chargeLateCheckoutFee ? 'text-[var(--ns-muted)] line-through' :
+                            isLateFee && chargeLateCheckoutFee && !isUnpaid ? 'text-[var(--ns-warning)]' :
+                            isUnpaid ? 'text-[var(--ns-warning)] italic' :
+                            'text-[var(--ns-ink)]'
+                          } ${line.voided ? 'line-through text-[var(--ns-muted)]' : ''}`}>
                             {isCredit ? '−' : ''}GHS {line.amount.toFixed(2)}
-                            {isUnpaid && <span className="ml-1 text-[10px] text-amber-600 font-normal">(owing)</span>}
+                            {isUnpaid && <span className="ml-1 text-[10px] text-[var(--ns-warning)] font-normal">(owing)</span>}
                           </span>
                         </div>
 
                         {/* When late fee is NOT being charged — show clear info */}
                         {isLateFee && !chargeLateCheckoutFee && (
-                          <p className="text-[10.5px] text-emerald-700 dark:text-emerald-400 italic pl-5">
+                          <p className="text-[10.5px] text-[var(--ns-success)] italic pl-5">
                             ✓ Late checkout fee will NOT be charged. Tick the checkbox above to add it.
                           </p>
                         )}
 
                         {/* Optional payment allocation for late checkout */}
                         {isLateFee && chargeLateCheckoutFee && (
-                          <div className="pl-5 pt-1 space-y-1 border-t border-amber-500/20">
-                            <label className="flex items-center gap-2 cursor-pointer text-[11px] font-medium text-amber-900 dark:text-amber-200">
+                          <div className="pl-5 pt-1 space-y-1 border-t border-[var(--ns-warning)]">
+                            <label className="flex items-center gap-2 cursor-pointer text-[11px] font-medium text-[var(--ns-warning)]">
                               <input
                                 type="checkbox"
                                 checked={payLateFeeNow}
                                 onChange={(e) => setPayLateFeeNow(e.target.checked)}
-                                className="h-3.5 w-3.5 accent-[#c59a58] shrink-0"
+                                className="h-3.5 w-3.5 accent-[var(--ns-gold)] shrink-0"
                               />
                               <span>Include late checkout payment in this settlement now</span>
-                              <span className="rounded bg-amber-200/60 dark:bg-amber-800/60 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 dark:text-amber-200 uppercase">Optional</span>
+                              <span className="rounded glass-subtle px-1.5 py-0.2 text-[9px] font-bold text-[var(--ns-warning)] uppercase">Optional</span>
                             </label>
                             {!payLateFeeNow && (
-                              <p className="text-[10.5px] text-amber-700 dark:text-amber-400 italic">
+                              <p className="text-[10.5px] text-[var(--ns-warning)] italic">
                                 Late fee of GHS {line.amount.toFixed(2)} will remain on the folio as an outstanding balance to be paid later.
                               </p>
                             )}
@@ -708,7 +708,7 @@ export const FrontDeskPage: React.FC = () => {
                 </div>
                 {/* Late fee waiver reason — shown when NOT charging (audit note) */}
                 {activeLateInfo && !chargeLateCheckoutFee && (
-                  <div className="px-4 pb-3 pt-1 border-t border-amber-500/20 bg-amber-50/40 dark:bg-amber-950/10">
+                  <div className="px-4 pb-3 pt-1 border-t border-[var(--ns-warning)] ns-glass-band">
                     <FormField label="Reason for not charging late fee (optional audit note)">
                       <TextInput
                         value={lateFeeReason}
@@ -719,9 +719,9 @@ export const FrontDeskPage: React.FC = () => {
                   </div>
                 )}
                 {/* Total row */}
-                <div className="px-4 py-3 border-t-2 border-[#c59a58]/40 bg-[#c59a58]/5 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Total Amount Due</span>
-                  <span className="text-xl font-black text-[#c59a58]">GHS {checkoutTotal.toFixed(2)}</span>
+                <div className="px-4 py-3 border-t-2 border-[var(--ns-gold)] ns-glass-band flex items-center justify-between">
+                  <span className="text-xs font-bold text-[var(--ns-muted)]">Total Amount Due</span>
+                  <span className="text-xl font-black text-[var(--ns-gold)]">GHS {checkoutTotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -737,32 +737,32 @@ export const FrontDeskPage: React.FC = () => {
               </FormField>
 
               {/* ── Payment Allocation & Purpose Card ── */}
-              <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 dark:bg-sky-950/20 p-3.5 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-sky-900 dark:text-sky-200">
+              <div className="rounded-xl border border-[var(--ns-info)] glass-subtle p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-[var(--ns-info)]">
                   <span className="flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
-                    <ShieldCheck size={13} className="text-sky-600 dark:text-sky-400" />
+                    <ShieldCheck size={13} className="text-[var(--ns-info)]" />
                     Payment Allocation &amp; Purpose
                   </span>
-                  <span className="font-mono text-sky-700 dark:text-sky-300 font-extrabold">
+                  <span className="font-mono text-[var(--ns-info)] font-extrabold">
                     Due now: GHS {checkoutTotal.toFixed(2)}
                   </span>
                 </div>
-                <div className="text-[11px] text-sky-800 dark:text-sky-300 space-y-1">
+                <div className="text-[11px] text-[var(--ns-info)] space-y-1">
                   <div>
                     <span className="font-semibold">Paying for:</span>{' '}
-                    <span className="font-medium text-slate-800 dark:text-slate-100">{checkoutPaymentDescription}</span>
+                    <span className="font-medium text-[var(--ns-ink)]">{checkoutPaymentDescription}</span>
                   </div>
                   {activeLateInfo && (
                     <div className="flex items-center gap-1.5 text-[10.5px]">
                       <span className="font-semibold">Late checkout allocation:</span>{' '}
                       {!chargeLateCheckoutFee ? (
-                        <span className="text-slate-500 dark:text-slate-400 italic">Waived (Fee not charged)</span>
+                        <span className="text-[var(--ns-muted)] italic">Waived (Fee not charged)</span>
                       ) : payLateFeeNow ? (
-                        <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                        <span className="text-[var(--ns-success)] font-bold">
                           ✓ GHS {activeLateInfo.fee.toFixed(2)} allocated to this settlement
                         </span>
                       ) : (
-                        <span className="text-amber-700 dark:text-amber-400 font-semibold">
+                        <span className="text-[var(--ns-warning)] font-semibold">
                           ⚠ GHS {activeLateInfo.fee.toFixed(2)} deferred / remaining as debt
                         </span>
                       )}
@@ -785,13 +785,13 @@ export const FrontDeskPage: React.FC = () => {
               </FormField>
 
               {checkoutTotal > 0 && (
-                <div className="rounded-xl border border-amber-300/70 dark:border-amber-700/60 bg-amber-50/70 dark:bg-amber-950/20 p-3 space-y-2">
-                  <label className="flex items-center gap-2 text-xs font-bold text-amber-900 dark:text-amber-200 cursor-pointer">
+                <div className="rounded-xl border border-[var(--ns-warning)] glass-subtle p-3 space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-warning)] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={allowOwing}
                       onChange={(e) => setAllowOwing(e.target.checked)}
-                      className="h-3.5 w-3.5 accent-[#c59a58]"
+                      className="h-3.5 w-3.5 accent-[var(--ns-gold)]"
                     />
                     <span>Allow check-out with outstanding balance (Guest owes / Pay later)</span>
                   </label>
@@ -809,7 +809,7 @@ export const FrontDeskPage: React.FC = () => {
                 </div>
               )}
 
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-ink)] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={splitOpen}
@@ -817,20 +817,20 @@ export const FrontDeskPage: React.FC = () => {
                     setSplitOpen(e.target.checked);
                     setTenders([makeTenderRow()]);
                   }}
-                  className="h-3.5 w-3.5 accent-[#c59a58]"
+                  className="h-3.5 w-3.5 accent-[var(--ns-gold)]"
                 />
                 Split payment across multiple methods (e.g. Cash + MoMo)
               </label>
 
               {splitOpen && checkoutTotal > 0 && (
-                <div className="rounded-xl border border-[var(--ns-line)] p-3 bg-slate-50 dark:bg-slate-900/60">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] p-3 glass-subtle">
                   <TenderSplit total={checkoutTotal} rows={tenders} onChange={setTenders} />
                 </div>
               )}
             </>
           )}
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-2 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setAction(null)}>
               Cancel
             </Button>
@@ -838,7 +838,7 @@ export const FrontDeskPage: React.FC = () => {
               type="submit"
               loading={busy}
               disabled={splitOpen && !allowOwing && !tendersCoverTotal(tenders, checkoutTotal)}
-              className="bg-gradient-to-r from-[#174b59] to-[#0f3440] text-white"
+              className="glass text-[var(--ns-teal)] ns-glass-hover"
             >
               {action?.type === 'in'
                 ? 'Confirm Check-In'

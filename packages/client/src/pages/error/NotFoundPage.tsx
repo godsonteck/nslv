@@ -13,8 +13,8 @@ export const NotFoundPage: React.FC = () => {
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
       <div className="glass-strong w-full max-w-md rounded-3xl p-10">
         <div
-          className="glass-warm mx-auto flex h-16 w-16 items-center justify-center rounded-2xl"
-          style={{ color: '#b88738' }}
+          className="glass-subtle mx-auto flex h-16 w-16 items-center justify-center rounded-2xl"
+          style={{ color: 'var(--ns-gold)' }}
         >
           <Compass size={30} />
         </div>

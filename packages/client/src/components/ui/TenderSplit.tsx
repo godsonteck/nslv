@@ -65,10 +65,10 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
   return (
     <div className="space-y-2.5">
       {rows.map((row, i) => (
-        <div key={i} className="rounded-xl border border-slate-200 bg-[#f7f8f6] p-2.5">
+        <div key={i} className="glass rounded-xl border border-[var(--ns-glass-line)] p-2.5">
           <div className="flex items-end gap-2">
             <div className="flex-1">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-[#667278] mb-1">Method</label>
+              <label className="block text-[10px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">Method</label>
               <SelectInput value={row.method} disabled={disabled} onChange={(e) => update(i, { method: e.target.value })}>
                 {TENDER_METHODS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -78,7 +78,7 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
               </SelectInput>
             </div>
             <div className="flex-1">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-[#667278] mb-1">Amount (GHS)</label>
+              <label className="block text-[10px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">Amount (GHS)</label>
               <TextInput
                 type="number"
                 min="0"
@@ -95,14 +95,14 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
               disabled={disabled || rows.length <= 1}
               onClick={() => remove(i)}
               title="Remove method"
-              className="mb-1 rounded-lg p-1.5 text-[#667278] hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="mb-1 rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <X size={14} />
             </button>
           </div>
           {needsReference(row.method) && (
             <div className="mt-2">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-[#667278] mb-1">
+              <label className="block text-[10px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">
                 {row.method === 'MOBILE_MONEY' ? 'Mobile money number' : 'Bank reference'}
               </label>
               <TextInput
@@ -119,7 +119,7 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
         <Button type="button" variant="outline" size="sm" disabled={disabled || !canAdd} onClick={() => onChange([...rows, makeTenderRow('CASH', '', '')])}>
           <Plus size={13} /> Add method
         </Button>
-        <div className={`text-xs font-bold ${Math.abs(remaining) < 0.005 ? 'text-emerald-600' : remaining < 0 ? 'text-red-600' : 'text-[#667278]'}`}>
+        <div className={`text-xs font-bold ${Math.abs(remaining) < 0.005 ? 'text-[var(--ns-success)]' : remaining < 0 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-muted)]'}`}>
           {Math.abs(remaining) < 0.005 ? 'Fully covered' : remaining < 0 ? `Over by GHS ${Math.abs(remaining).toFixed(2)}` : `Remaining GHS ${remaining.toFixed(2)}`}
         </div>
       </div>

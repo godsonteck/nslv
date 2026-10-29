@@ -1,824 +1,200 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
 
 :root {
-  --ns-ink: #14232b;
-  --ns-ink-2: #20343e;
-  --ns-teal: #174b59;
-  --ns-teal-deep: #0e3440;
-  --ns-gold: #b18a55;
-  --ns-gold-soft: #f3eadc;
-  --ns-bg: #f5f6f4;
-  --ns-surface: #ffffff;
-  --ns-surface-2: #fafaf8;
-  --ns-line: #e6e8e5;
-  --ns-muted: #7a858a;
-  --ns-danger: #b84b4b;
-  --ns-success: #26745b;
+  color-scheme: light;
+  --ns-ink: #18282e;
+  --ns-ink-2: #30454e;
+  --ns-teal: #194a5a;
+  --ns-teal-deep: #102f39;
+  --ns-gold: #79551f;
+  --ns-gold-soft: rgba(177, 138, 85, 0.06);
+  --ns-bg: #e8e4dc;
+  --ns-muted: #465961;
+  --ns-danger: #a92e39;
+  --ns-success: #16634b;
+  --ns-warning: #87500c;
+  --ns-info: #185b8c;
+  --ns-purple: #684391;
   --font-heading: "Manrope", system-ui, sans-serif;
   --font-body: "DM Sans", system-ui, sans-serif;
-  --glass-bg: rgba(255, 255, 255, 0.02);
-  --glass-bg-strong: rgba(255, 255, 255, 0.035);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-border-soft: rgba(255, 255, 255, 0.07);
-  --glass-text: #111827;
-  --glass-text-muted: #475569;
-  --glass-shadow: 0 30px 60px -30px rgba(15, 23, 42, 0.18);
+  --ns-glass-1: rgba(255, 255, 255, 0.02);
+  --ns-glass-2: rgba(255, 255, 255, 0.02);
+  --ns-glass-3: rgba(255, 255, 255, 0.02);
+  --ns-glass-line: rgba(38, 61, 69, 0.12);
+  --ns-glass-line-soft: rgba(38, 61, 69, 0.06);
+  --ns-glass-blur: 2px;
+  --ns-glass-filter: blur(var(--ns-glass-blur));
+  --ns-glass-hover: rgba(255, 255, 255, 0.04);
+  --ns-glass-shadow: 0 8px 24px -20px rgba(24, 40, 46, 0.12);
+  --ns-surface: var(--ns-glass-1);
+  --ns-surface-2: var(--ns-glass-1);
+  --ns-line: var(--ns-glass-line);
+  --glass-bg: var(--ns-glass-1);
+  --glass-bg-strong: var(--ns-glass-1);
+  --glass-border: var(--ns-glass-line);
+  --glass-border-soft: var(--ns-glass-line-soft);
+  --glass-text: var(--ns-ink);
+  --glass-text-muted: var(--ns-muted);
+  --glass-shadow: var(--ns-glass-shadow);
 }
 
-html[data-theme="dark"],
-html.dark {
-  --ns-ink: #edf4f9;
-  --ns-ink-2: #dfeaf3;
-  --ns-teal: #5ab4d6;
-  --ns-teal-deep: #8ccfe5;
-  --ns-gold: #d7b37a;
-  --ns-gold-soft: #2d2b26;
+html[data-theme="dark"], html.dark {
+  color-scheme: dark;
+  --ns-ink: #f3f7fa;
+  --ns-ink-2: #dce8ee;
+  --ns-teal: #8cd5e5;
+  --ns-teal-deep: #b3e6ef;
+  --ns-gold: #e6c18a;
+  --ns-gold-soft: rgba(215, 179, 122, 0.06);
   --ns-bg: #0b1220;
-  --ns-surface: #121a27;
-  --ns-surface-2: #1a2433;
-  --ns-line: #2a3747;
-  --ns-muted: #9ab0c0;
-  --ns-danger: #ff7d7d;
-  --ns-success: #69d4a1;
-  --glass-bg: rgba(9, 15, 22, 0.05);
-  --glass-bg-strong: rgba(15, 21, 29, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.055);
-  --glass-border-soft: rgba(255, 255, 255, 0.035);
-  --glass-text: #f8fafc;
-  --glass-text-muted: #cbd5e1;
-  --glass-shadow: 0 36px 80px -32px rgba(0, 0, 0, 0.42);
+  --ns-muted: #c0d0da;
+  --ns-danger: #ffb4bb;
+  --ns-success: #9ee4c4;
+  --ns-warning: #f2d092;
+  --ns-info: #a7d8fb;
+  --ns-purple: #d3b9ef;
+  --ns-glass-1: rgba(12, 22, 34, 0.04);
+  --ns-glass-2: rgba(12, 22, 34, 0.04);
+  --ns-glass-3: rgba(12, 22, 34, 0.04);
+  --ns-glass-line: rgba(231, 244, 250, 0.14);
+  --ns-glass-line-soft: rgba(231, 244, 250, 0.08);
+  --ns-glass-hover: rgba(231, 244, 250, 0.04);
+  --ns-glass-shadow: 0 8px 24px -20px rgba(0, 0, 0, 0.24);
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-html, body, #root { height: auto; min-height: 100vh; margin: 0; }
-html { background: var(--ns-bg); overflow-y: auto; }
-body {
-  background: var(--ns-bg);
-  color: var(--ns-ink);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  overflow-y: auto;
-  min-height: 100vh;
-}
-#root { min-height: 100vh; }
-h1,h2,h3,h4,h5,h6 { font-family: var(--font-heading); }
-button,input,select,textarea { font: inherit; }
-button { cursor: pointer; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--ns-gold); outline-offset: 2px; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cfd5d3; border-radius: 999px; }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #2a3747; }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #3c4c60; }
-::selection { background: var(--ns-teal); color: white; }
-
-html[data-theme="dark"] body,
-html[data-theme="dark"] #root,
-html[data-theme="dark"] .ns-page,
-html[data-theme="dark"] .app-shell {
-  background: var(--ns-bg);
-  color: var(--ns-ink);
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body, #root { min-height: 100vh; margin: 0; }
+  html { background: var(--ns-bg); }
+  body {
+    isolation: isolate;
+    background: transparent;
+    color: var(--ns-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  #root, .ns-page, .app-shell { background: transparent; }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--ns-gold);
+    outline-offset: 2px;
+  }
+  input, select, textarea { color: var(--ns-ink); }
+  option { background: var(--ns-bg); color: var(--ns-ink); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--ns-glass-line); border-radius: 999px; }
+  ::selection { background: var(--ns-teal); color: var(--ns-bg); }
 }
 
-html[data-theme="dark"] .ns-input,
-html[data-theme="dark"] select,
-html[data-theme="dark"] input,
-html[data-theme="dark"] textarea {
-  color: var(--ns-ink) !important;
+@layer components {
+  .ns-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(80, 180, 215, 0.32), transparent 58%),
+      radial-gradient(ellipse at 100% 100%, rgba(177, 138, 85, 0.28), transparent 58%),
+      linear-gradient(135deg, #e3eceb, #e8e4dc 55%, #d4e3e7);
+  }
+  html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(45, 150, 180, 0.3), transparent 58%),
+      radial-gradient(ellipse at 100% 100%, rgba(197, 154, 88, 0.14), transparent 58%),
+      linear-gradient(135deg, #0b1622, #0b1220 55%, #142b38);
+  }
+  .ns-watermark { position: absolute; inset: 0; display: grid; place-items: center; }
+  .ns-watermark img {
+    width: clamp(420px, 54vw, 1000px);
+    max-width: 150vw;
+    height: auto;
+    opacity: 0.05;
+    user-select: none;
+    -webkit-mask-image: radial-gradient(ellipse, #000 38%, transparent 72%);
+    mask-image: radial-gradient(ellipse, #000 38%, transparent 72%);
+  }
+  html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img { opacity: 0.07; }
+
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+  .ns-card, .ns-card-soft, .glass-input, .ns-input, .ns-glass-band,
+  .ns-glass-bar, .ns-glass-bar-soft {
+    background-color: var(--ns-glass-1);
+    background-image: none;
+    -webkit-backdrop-filter: var(--ns-glass-filter);
+    backdrop-filter: var(--ns-glass-filter);
+    color: var(--ns-ink);
+  }
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm, .ns-card, .ns-card-soft {
+    border: 1px solid var(--ns-glass-line);
+    box-shadow: var(--ns-glass-shadow);
+  }
+  .ns-card { border-radius: 18px; }
+  .ns-card-soft { border-radius: 16px; }
+  .ns-eyebrow { color: var(--ns-gold); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
+  .ns-number { font-family: var(--font-heading); font-variant-numeric: tabular-nums; letter-spacing: -.035em; }
+  .ns-page { animation: ns-page-in .18s ease-out both; }
+  .ns-glass-hover { transition: background-color .15s ease, border-color .15s ease; }
+  .ns-glass-hover:hover { background-color: var(--ns-glass-hover); border-color: var(--ns-glass-line); }
+  .ns-glass-selected { background-color: var(--ns-glass-1); border-color: var(--ns-gold); }
+  .glass-input, .ns-input { border: 1px solid var(--ns-glass-line); border-radius: 10px; transition: border-color .15s ease; }
+  .glass-input::placeholder, .ns-input::placeholder { color: var(--ns-muted); opacity: 1; }
+  .glass-input:focus, .ns-input:focus { outline: 2px solid var(--ns-gold); outline-offset: 2px; }
+  .ns-table thead th {
+    background: var(--ns-glass-1);
+    color: var(--ns-muted);
+    border-bottom: 1px solid var(--ns-glass-line);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .ns-table tbody td { color: var(--ns-ink); }
+  .ns-table tbody tr { transition: background-color .15s ease; }
+  .ns-table tbody tr:hover { background: var(--ns-glass-hover); }
+  .ns-scrim {
+    background: rgba(12, 22, 34, 0.02);
+    -webkit-backdrop-filter: var(--ns-glass-filter);
+    backdrop-filter: var(--ns-glass-filter);
+  }
+  @media (max-width: 1023px) { .ns-card { border-radius: 15px; } }
+  @media (prefers-reduced-motion: reduce) { .ns-page { animation: none; } }
 }
 
-/* Cards are glass surfaces (see the glass system at the end of this file). */
-.ns-card { border-radius: 18px; }
-.ns-card-soft { border-radius: 16px; }
-.ns-eyebrow { color: var(--ns-gold); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
-.ns-number { font-family: var(--font-heading); font-variant-numeric: tabular-nums; letter-spacing: -.035em; }
-.ns-page { animation: ns-page-in .18s ease-out both; }
-@keyframes ns-page-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-.ns-table thead th { background: rgba(255,255,255,.30); color: #4a5568; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
-.ns-table tbody tr { transition: background .15s ease; }
-.ns-table tbody tr:hover { background: rgba(255,255,255,.34); }
-.ns-table tbody td { color: var(--ns-ink); }
-.ns-input { border: 1px solid var(--ns-glass-line, rgba(255,255,255,.55)); background: rgba(255,255,255,.55); border-radius: 10px; transition: .15s ease; }
-.ns-input:hover { border-color: rgba(177,138,85,.45); }
-.ns-input:focus { border-color: var(--ns-gold); box-shadow: 0 0 0 3px rgba(177,138,85,.13); outline: none; }
-
-@media (max-width: 1023px) { .ns-card { border-radius: 15px; } }
-
-/* =================================================================
-   DARK THEME — opaque neutral surfaces are handled by the glass system
-   at the end of this file (--ns-glass-* tokens resolve per theme), so
-   they no longer need to be flattened to solid --ns-surface here.
-   ================================================================= */
-
-/* =================================================================
-   DARK THEME - Dark navy text colors -> bright ink
-   ================================================================= */
-html[data-theme="dark"] [class~="text-[#0c1921]" i],
-html[data-theme="dark"] [class~="text-[#0f172a]" i],
-html[data-theme="dark"] [class~="text-[#0f141d]" i],
-html[data-theme="dark"] [class~="text-[#111827]" i],
-html[data-theme="dark"] [class~="text-[#14232b]" i],
-html[data-theme="dark"] [class~="text-[#173c4d]" i],
-html[data-theme="dark"] [class~="text-[#1a202c]" i],
-html[data-theme="dark"] [class~="text-[#1b4965]" i],
-html[data-theme="dark"] [class~="text-[#1e293b]" i],
-html[data-theme="dark"] [class~="text-[#20343e]" i],
-html[data-theme="dark"] [class~="text-[#334155]" i],
-html[data-theme="dark"] [class~="text-[#4a5568]" i],
-html[data-theme="dark"] [class~="text-[#1f2d33]" i],
-html[data-theme="dark"] [class~="text-slate-700" i],
-html[data-theme="dark"] [class~="text-slate-800" i],
-html[data-theme="dark"] [class~="text-slate-900" i],
-html[data-theme="dark"] [class~="text-gray-700" i],
-html[data-theme="dark"] [class~="text-gray-800" i],
-html[data-theme="dark"] [class~="text-gray-900" i],
-html[data-theme="dark"] [class~="hover:text-[#0c1921]" i]:hover,
-html[data-theme="dark"] [class~="hover:text-[#0f172a]" i]:hover,
-html[data-theme="dark"] [class~="hover:text-[#173c4d]" i]:hover,
-html[data-theme="dark"] [class~="hover:text-slate-900" i]:hover,
-html[data-theme="dark"] [class~="hover:text-slate-800" i]:hover { color: var(--ns-ink) !important; }
-
-html[data-theme="dark"] [class~="text-slate-500" i],
-html[data-theme="dark"] [class~="text-slate-600" i],
-html[data-theme="dark"] [class~="text-gray-500" i],
-html[data-theme="dark"] [class~="text-gray-600" i] { color: var(--ns-ink-2) !important; }
-
-/* Gold/amber accent text in dark mode */
-html[data-theme="dark"] [class~="text-[#b88738]" i],
-html[data-theme="dark"] [class~="text-[#b0743a]" i],
-html[data-theme="dark"] [class~="text-[#a05d20]" i],
-html[data-theme="dark"] [class~="text-[#a06010]" i] { color: var(--ns-gold) !important; }
-
-/* Muted/secondary text in dark mode */
-html[data-theme="dark"] [class~="text-[#6e7a8a]" i],
-html[data-theme="dark"] [class~="text-[#71828a]" i],
-html[data-theme="dark"] [class~="text-[#7a858a]" i],
-html[data-theme="dark"] [class~="text-[#899397]" i],
-html[data-theme="dark"] [class~="text-[#8a9598]" i],
-html[data-theme="dark"] [class~="text-[#9ca3af]" i],
-html[data-theme="dark"] [class~="text-[#a0aaad]" i],
-html[data-theme="dark"] [class~="text-[#a0a9b8]" i],
-html[data-theme="dark"] [class~="text-slate-300" i],
-html[data-theme="dark"] [class~="text-slate-400" i],
-html[data-theme="dark"] [class~="text-gray-400" i] { color: var(--ns-muted) !important; }
-
-/* Borders in dark mode */
-html[data-theme="dark"] [class~="border-[#e8ebe8]" i],
-html[data-theme="dark"] [class~="border-[#dfe4e0]" i],
-html[data-theme="dark"] [class~="border-[#edf0ed]" i],
-html[data-theme="dark"] [class~="border-[#e5e8e5]" i],
-html[data-theme="dark"] [class~="border-[#e5ebeb]" i],
-html[data-theme="dark"] [class~="border-[#edf2f2]" i],
-html[data-theme="dark"] [class~="border-[#dfe5e5]" i],
-html[data-theme="dark"] [class~="border-[#cbd5e1]" i],
-html[data-theme="dark"] [class~="border-[#1e2535]" i],
-html[data-theme="dark"] [class~="border-[#2a3040]" i],
-html[data-theme="dark"] [class~="border-slate-100" i],
-html[data-theme="dark"] [class~="border-slate-200" i],
-html[data-theme="dark"] [class~="border-slate-300" i],
-html[data-theme="dark"] [class~="border-gray-200" i],
-html[data-theme="dark"] [class~="border-gray-300" i] { border-color: var(--ns-line) !important; }
-
-/* =================================================================
-   LIGHT MODE - Dark navy bg containers -> white surface.
-   CRITICAL: NO color property here! Children keep their own text colors.
-   ================================================================= */
-html:not([data-theme="dark"]) [class*="bg-[#0c1921]"]:not(button):not([role="button"]):not(.btn) {
-  background-color: var(--ns-surface) !important;
+@keyframes ns-page-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-html:not([data-theme="dark"]) [class*="bg-[#0f141d]"]:not(button):not([role="button"]):not(.btn) {
-  background-color: var(--ns-surface-2) !important;
-}
-html:not([data-theme="dark"]) [class*="border-[#1e2535]"],
-html:not([data-theme="dark"]) [class*="border-[#2a3040]"] { border-color: #e2e8f0 !important; }
-
-/* LIGHT MODE - Ghost toggle buttons with dark bg -> neutral light */
-html:not([data-theme="dark"]) button[class*="bg-[#0c1921]"]:not([class*="text-white"]):not([class*="from-"]),
-html:not([data-theme="dark"]) button[class*="bg-[#0c1921]/70"]:not([class*="text-white"]):not([class*="from-"]) {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
-  color: #475569 !important;
-}
-html:not([data-theme="dark"]) button[class*="hover:bg-[#0c1921]"]:hover { background-color: #f1f5f9 !important; }
-
-/* LIGHT MODE - Off-white text -> ink for visibility on white surfaces */
-html:not([data-theme="dark"]) [class~="text-[#e8e6e0]"] { color: var(--ns-ink) !important; }
-html:not([data-theme="dark"]) [class~="text-[#f4f4f2]"] { color: var(--ns-ink) !important; }
-html:not([data-theme="dark"]) [class~="text-[#f3f4f6]"] { color: var(--ns-ink) !important; }
-html:not([data-theme="dark"]) [class~="text-[#f1f5f9]"] { color: var(--ns-ink) !important; }
-html:not([data-theme="dark"]) [class~="text-[#e2e8f0]"] { color: var(--ns-ink) !important; }
-
-/* LIGHT MODE - Ensure dark text stays dark and visible */
-html:not([data-theme="dark"]) [class~="text-[#0c1921]"] { color: #14232b !important; }
-html:not([data-theme="dark"]) [class~="text-[#0f172a]"] { color: #14232b !important; }
-html:not([data-theme="dark"]) [class~="text-[#1f2d33]"] { color: #14232b !important; }
-/* LIGHT MODE - Muted text -> readable shades */
-html:not([data-theme="dark"]) [class~="text-[#6e7a8a]"] { color: #52626b !important; }
-html:not([data-theme="dark"]) [class~="text-[#71828a]"] { color: #526268 !important; }
-html:not([data-theme="dark"]) [class~="text-[#a0a9b8]"] { color: #64748b !important; }
-
-/* LIGHT MODE - Pastel colors -> darker accessible versions */
-html:not([data-theme="dark"]) [class~="text-emerald-400"] { color: #047857 !important; }
-html:not([data-theme="dark"]) [class~="text-amber-400"] { color: #b45309 !important; }
-html:not([data-theme="dark"]) [class~="text-red-400"] { color: #b91c1c !important; }
-html:not([data-theme="dark"]) [class~="text-blue-400"] { color: #1d4ed8 !important; }
-html:not([data-theme="dark"]) [class~="text-sky-400"] { color: #0369a1 !important; }
-html:not([data-theme="dark"]) [class~="text-purple-400"] { color: #6d28d9 !important; }
-
-/* LIGHT MODE - bg-[#1e2535] icon badge -> subtle slate (bg only) */
-html:not([data-theme="dark"]) [class~="bg-[#1e2535]"]:not([class*="from-"]):not([class*="via-"]) {
-  background-color: #f1f5f9 !important;
-}
-
-/* Inline inputs inside dark containers */
-html:not([data-theme="dark"]) input.bg-transparent,
-html:not([data-theme="dark"]) select.bg-transparent { color: var(--ns-ink); }
-
-/* =================================================================
-   DARK THEME - Surface & Container overrides (bg only, no color!)
-   ================================================================= */
-html[data-theme="dark"] [class*="bg-[#0c1921]"]:not(button):not([role="button"]):not(.btn) {
-  background-color: var(--ns-surface) !important;
-  border-color: var(--ns-line) !important;
-}
-html[data-theme="dark"] [class*="bg-[#0f141d]"]:not(button):not([role="button"]):not(.btn) {
-  background-color: var(--ns-surface-2) !important;
-  border-color: var(--ns-line) !important;
-}
-html[data-theme="dark"] [class*="bg-[#0c1a24]"]:not(button):not([role="button"]):not(.btn),
-html[data-theme="dark"] [class*="bg-[#102433]"]:not(button):not([role="button"]):not(.btn),
-html[data-theme="dark"] [class*="bg-[#08121a]"]:not(button):not([role="button"]):not(.btn) {
-  background-color: var(--ns-surface) !important;
-  border-color: var(--ns-line) !important;
-}
-html[data-theme="dark"] [class*="border-[#1e2535]"],
-html[data-theme="dark"] [class*="border-[#2a3040]"] { border-color: var(--ns-line) !important; }
-
-/* Table cells inherit readable color */
-html[data-theme="dark"] td, html[data-theme="dark"] th { color: inherit; }
-
-/* Remove white gradient backgrounds in dark mode */
-html[data-theme="dark"] [class*="from-white"] {
-  background-image: none !important;
-  background-color: var(--ns-surface) !important;
-}
-
-/* High-contrast numeric colors in dark mode */
-html[data-theme="dark"] [class~="text-emerald-950" i],html[data-theme="dark"] [class~="text-emerald-900" i] { color: #a7f3d0 !important; }
-html[data-theme="dark"] [class~="text-emerald-800" i] { color: #6ee7b7 !important; }
-html[data-theme="dark"] [class~="text-amber-950" i],html[data-theme="dark"] [class~="text-amber-900" i] { color: #fde68a !important; }
-html[data-theme="dark"] [class~="text-amber-800" i] { color: #fcd34d !important; }
-html[data-theme="dark"] [class~="text-sky-950" i],html[data-theme="dark"] [class~="text-sky-900" i] { color: #bae6fd !important; }
-html[data-theme="dark"] [class~="text-sky-800" i] { color: #7dd3fc !important; }
-html[data-theme="dark"] [class~="text-rose-950" i],html[data-theme="dark"] [class~="text-rose-900" i],html[data-theme="dark"] [class~="text-red-950" i],html[data-theme="dark"] [class~="text-red-900" i] { color: #fecdd3 !important; }
-html[data-theme="dark"] [class~="text-rose-800" i],html[data-theme="dark"] [class~="text-red-800" i] { color: #fda4af !important; }
-html[data-theme="dark"] [class~="text-blue-950" i],html[data-theme="dark"] [class~="text-blue-900" i] { color: #bfdbfe !important; }
-html[data-theme="dark"] [class~="text-blue-800" i] { color: #93c5fd !important; }
-
-/* Off-white text -> ink in dark mode */
-html[data-theme="dark"] [class~="text-[#e8e6e0]" i],
-html[data-theme="dark"] [class~="text-[#f4f4f2]" i],
-html[data-theme="dark"] [class~="text-[#f3f4f6]" i],
-html[data-theme="dark"] [class~="text-[#f1f5f9]" i],
-html[data-theme="dark"] [class~="text-[#e2e8f0]" i] { color: var(--ns-ink) !important; }
-html[data-theme="dark"] [class~="hover:text-[#e8e6e0]" i]:hover { color: var(--ns-ink) !important; }
-
-/* Teal brand in dark mode */
-html[data-theme="dark"] [class~="text-[#174b59]" i],html[data-theme="dark"] [class~="hover:text-[#174b59]" i]:hover { color: var(--ns-teal) !important; }
-
-/* Tinted badge/pill backgrounds in dark mode */
-html[data-theme="dark"] [class~="bg-emerald-50" i],html[data-theme="dark"] [class~="bg-emerald-100" i] { background-color: rgba(16,185,129,.16) !important; border-color: rgba(16,185,129,.3) !important; }
-html[data-theme="dark"] [class~="bg-amber-50" i],html[data-theme="dark"] [class~="bg-amber-100" i] { background-color: rgba(245,158,11,.16) !important; border-color: rgba(245,158,11,.3) !important; }
-html[data-theme="dark"] [class~="bg-rose-50" i],html[data-theme="dark"] [class~="bg-rose-100" i],html[data-theme="dark"] [class~="bg-red-50" i],html[data-theme="dark"] [class~="bg-red-100" i] { background-color: rgba(239,68,68,.16) !important; border-color: rgba(239,68,68,.3) !important; }
-html[data-theme="dark"] [class~="bg-blue-50" i],html[data-theme="dark"] [class~="bg-blue-100" i],html[data-theme="dark"] [class~="bg-sky-50" i],html[data-theme="dark"] [class~="bg-sky-100" i] { background-color: rgba(14,165,233,.16) !important; border-color: rgba(14,165,233,.3) !important; }
-html[data-theme="dark"] [class~="bg-purple-50" i],html[data-theme="dark"] [class~="bg-purple-100" i] { background-color: rgba(168,85,247,.16) !important; border-color: rgba(168,85,247,.3) !important; }
-
-html[data-theme="dark"] [class~="border-emerald-200" i] { border-color: rgba(16,185,129,.35) !important; }
-html[data-theme="dark"] [class~="border-amber-200" i] { border-color: rgba(245,158,11,.35) !important; }
-html[data-theme="dark"] [class~="border-sky-200" i] { border-color: rgba(14,165,233,.35) !important; }
-html[data-theme="dark"] [class~="border-rose-200" i] { border-color: rgba(244,63,94,.35) !important; }
-
-html[data-theme="dark"] [class~="divide-[#edf0ed]" i] > :not([hidden]) ~ :not([hidden]),
-html[data-theme="dark"] [class~="divide-[#e5e8e5]" i] > :not([hidden]) ~ :not([hidden]),
-html[data-theme="dark"] [class~="divide-[#e8ebe8]" i] > :not([hidden]) ~ :not([hidden]),
-html[data-theme="dark"] [class~="divide-[#dfe4e0]" i] > :not([hidden]) ~ :not([hidden]),
-html[data-theme="dark"] [class~="divide-[#1e2535]" i] > :not([hidden]) ~ :not([hidden]),
-html[data-theme="dark"] [class~="divide-slate-100" i] > :not([hidden]) ~ :not([hidden]),
-html[data-theme="dark"] [class~="divide-slate-200" i] > :not([hidden]) ~ :not([hidden]) { border-color: var(--ns-line) !important; }
-
-
-/* =================================================================
-   NS LUXURY VILLA — GLASS DESIGN SYSTEM  (v2 · pronounced glass)
-   -----------------------------------------------------------------
-   Glass only reads as glass when four cues are present together:
-
-     1. a background with colour AND structure   → something to refract
-     2. a surface gradient                       → light falling on a sheet
-     3. a bright bevel edge                      → the cut edge of the pane
-     4. frosted haze across the whole surface    → the diffusing layer
-
-   v1 had only (2) and (4), over a near-white page — so it read as
-   pale paper. v2 adds a coloured, grid-structured canvas, a real
-   bevel, a lifted drop shadow, and fine frost grain.
-   ================================================================= */
-
-
-/* ---------- 1. Ambient canvas — what the glass refracts ---------- */
-.ns-ambient {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-  background:
-    radial-gradient(1200px 780px at 2% -16%, rgba(23, 75, 89, 0.42), transparent 60%),
-    radial-gradient(1000px 700px at 104% 0%, rgba(197, 154, 88, 0.42), transparent 58%),
-    radial-gradient(1200px 820px at 54% 122%, rgba(60, 160, 200, 0.34), transparent 62%),
-    radial-gradient(760px 560px at 76% 44%, rgba(255, 255, 255, 0.55), transparent 72%),
-    linear-gradient(162deg, #d3e3e8 0%, #e2ebee 42%, #f0e7d8 100%);
-}
-html[data-theme="dark"] .ns-ambient {
-  background:
-    radial-gradient(1200px 780px at 2% -16%, rgba(45, 150, 180, 0.44), transparent 60%),
-    radial-gradient(1000px 700px at 104% 0%, rgba(197, 154, 88, 0.26), transparent 58%),
-    radial-gradient(1200px 820px at 54% 122%, rgba(30, 104, 138, 0.48), transparent 62%),
-    linear-gradient(162deg, #050a10 0%, #0a1220 48%, #070d14 100%);
-}
-
-/* The refraction grid: the structure you see bending behind the glass. */
-.ns-ambient::before {
-  content: "";
-  position: absolute;
-  inset: -12%;
-  background-image:
-    linear-gradient(rgba(16, 44, 56, 0.11) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 44, 56, 0.11) 1px, transparent 1px);
-  background-size: 48px 48px, 48px 48px;
-  -webkit-mask-image: radial-gradient(125% 95% at 50% 28%, #000 18%, transparent 76%);
-  mask-image: radial-gradient(125% 95% at 50% 28%, #000 18%, transparent 76%);
-}
-html[data-theme="dark"] .ns-ambient::before {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.075) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.075) 1px, transparent 1px);
-}
-
-/* A slow diagonal light sweep across the whole canvas. */
-.ns-ambient::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(116deg, transparent 32%, rgba(255, 255, 255, 0.34) 45%, transparent 58%),
-    radial-gradient(900px 600px at 12% 92%, rgba(255, 255, 255, 0.30), transparent 70%);
-  mix-blend-mode: screen;
-  opacity: 0.75;
-}
-html[data-theme="dark"] .ns-ambient::after { opacity: 0.22; }
-
-.ns-orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(64px);
-  opacity: 0.82;
-  will-change: transform;
-}
-.ns-orb-1 { width: 52vw; height: 52vw; left: -14vw; top: -18vw;
-  background: radial-gradient(circle at 38% 34%, rgba(23, 75, 89, 0.66), rgba(23, 75, 89, 0) 68%);
-  animation: ns-drift-a 28s ease-in-out infinite; }
-.ns-orb-2 { width: 46vw; height: 46vw; right: -12vw; bottom: -18vw;
-  background: radial-gradient(circle at 60% 42%, rgba(197, 154, 88, 0.58), rgba(197, 154, 88, 0) 68%);
-  animation: ns-drift-b 34s ease-in-out infinite; }
-.ns-orb-3 { width: 38vw; height: 38vw; right: 12vw; top: -20vw;
-  background: radial-gradient(circle at 50% 50%, rgba(80, 180, 215, 0.52), rgba(80, 180, 215, 0) 68%);
-  animation: ns-drift-a 40s ease-in-out infinite reverse; }
-html[data-theme="dark"] .ns-orb { opacity: 0.55; }
-
-@keyframes ns-drift-a {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(3vw, 2vh, 0) scale(1.07); }
-}
-@keyframes ns-drift-b {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(-3vw, -2vh, 0) scale(1.06); }
-}
-@media (prefers-reduced-motion: reduce) { .ns-orb { animation: none; } }
-
-/* ---------- 2. Logo watermark — visible through the glass -------- */
-.ns-watermark { position: absolute; inset: 0; display: grid; place-items: center; }
-.ns-watermark img {
-  width: clamp(420px, 54vw, 1000px);
-  height: auto;
-  max-width: 160vw;
-  transform: rotate(-2deg);
-  opacity: 0.045;
-  filter: grayscale(0.25) contrast(1.06);
-  user-select: none;
-}
-html[data-theme="dark"] .ns-watermark img { opacity: 0.07; }
-
-/* ---------- 3. Tokens ---------- */
-:root {
-  --ns-glass-1: rgba(255, 255, 255, 0.015);
-  --ns-glass-2: rgba(255, 255, 255, 0.025);
-  --ns-glass-3: rgba(255, 255, 255, 0.04);
-
-  --ns-glass-line: rgba(255, 255, 255, 0.10);
-  --ns-glass-line-soft: rgba(255, 255, 255, 0.06);
-  --ns-glass-blur: 22px;
-
-  --ns-glass-sheen:
-    linear-gradient(148deg,
-      rgba(255, 255, 255, 0.48) 0%,
-      rgba(255, 255, 255, 0.18) 38%,
-      rgba(255, 255, 255, 0.10) 64%,
-      rgba(255, 255, 255, 0.20) 100%);
-  --ns-glass-sheen-soft:
-    linear-gradient(148deg,
-      rgba(255, 255, 255, 0.24) 0%,
-      rgba(255, 255, 255, 0.08) 55%,
-      rgba(255, 255, 255, 0.14) 100%);
-  --ns-glass-sheen-warm:
-    linear-gradient(148deg,
-      rgba(255, 252, 245, 0.28) 0%,
-      rgba(255, 246, 232, 0.18) 44%,
-      rgba(255, 250, 242, 0.10) 72%,
-      rgba(255, 248, 238, 0.18) 100%);
-
-  --ns-glass-frost: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0.35,0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23f)'/%3E%3C/svg%3E");
-
-  --ns-glass-bevel:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.22);
-  --ns-glass-bevel-soft:
-    inset 0 1px 0 rgba(255, 255, 255, 0.52),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.12);
-
-  --ns-glass-depth:
-    0 24px 48px -20px rgba(11, 36, 46, 0.18),
-    0 10px 22px -14px rgba(11, 36, 46, 0.12);
-  --ns-glass-depth-lg:
-    0 40px 90px -28px rgba(9, 30, 40, 0.22),
-    0 14px 30px -16px rgba(9, 30, 40, 0.16);
-
-  --ns-glass-base: rgba(255, 255, 255, 0.06);
-  --ns-glass-base-strong: rgba(255, 255, 255, 0.08);
-
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(180%) brightness(1.08) contrast(1.03);
-}
-
-html[data-theme="dark"] {
-  --ns-glass-1: rgba(20, 29, 39, 0.04);
-  --ns-glass-2: rgba(27, 37, 48, 0.05);
-  --ns-glass-3: rgba(33, 46, 60, 0.07);
-
-  --ns-glass-line: rgba(255, 255, 255, 0.035);
-  --ns-glass-line-soft: rgba(255, 255, 255, 0.025);
-
-  --ns-glass-sheen:
-    linear-gradient(148deg,
-      rgba(255, 255, 255, 0.07) 0%,
-      rgba(255, 255, 255, 0.02) 40%,
-      rgba(255, 255, 255, 0.01) 66%,
-      rgba(255, 255, 255, 0.04) 100%);
-  --ns-glass-sheen-soft:
-    linear-gradient(148deg,
-      rgba(255, 255, 255, 0.04) 0%,
-      rgba(255, 255, 255, 0.01) 60%,
-      rgba(255, 255, 255, 0.03) 100%);
-  --ns-glass-sheen-warm:
-    linear-gradient(148deg,
-      rgba(255, 236, 205, 0.05) 0%,
-      rgba(255, 226, 186, 0.01) 55%,
-      rgba(255, 236, 205, 0.02) 100%);
-
-  --ns-glass-bevel:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.02),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.10);
-  --ns-glass-bevel-soft:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
-
-  --ns-glass-depth:
-    0 26px 54px -22px rgba(0, 0, 0, 0.20),
-    0 10px 22px -14px rgba(0, 0, 0, 0.12);
-  --ns-glass-depth-lg:
-    0 46px 100px -30px rgba(0, 0, 0, 0.26),
-    0 16px 34px -18px rgba(0, 0, 0, 0.18);
-
-  --ns-glass-base: rgba(15, 22, 29, 0.10);
-  --ns-glass-base-strong: rgba(18, 25, 33, 0.12);
-
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(150%) brightness(1.08) contrast(1.00);
-}
-
-/* ---------- 4. Elevation classes ---------- */
-.glass,
-.ns-card {
-  background-color: rgba(255, 255, 255, 0.012);
-  background-image: var(--ns-glass-frost), var(--ns-glass-sheen);
-  background-size: 160px 160px, 100% 100%;
-  background-repeat: repeat, no-repeat;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) brightness(1.04);
-  backdrop-filter: blur(16px) saturate(160%) brightness(1.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 22px -18px rgba(15, 23, 42, 0.08);
-}
-
-.glass-strong {
-  background-color: rgba(255, 255, 255, 0.018);
-  background-image: var(--ns-glass-frost),
-    linear-gradient(148deg,
-      rgba(255, 255, 255, 0.14) 0%,
-      rgba(255, 255, 255, 0.06) 40%,
-      rgba(255, 255, 255, 0.03) 68%,
-      rgba(255, 255, 255, 0.07) 100%);
-  background-size: 160px 160px, 100% 100%;
-  background-repeat: repeat, no-repeat;
-  -webkit-backdrop-filter: blur(18px) saturate(150%) brightness(1.05);
-  backdrop-filter: blur(18px) saturate(150%) brightness(1.05);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 12px 28px -22px rgba(15, 23, 42, 0.08);
-}
-
-.ns-card-soft,
-.glass-subtle {
-  background-color: rgba(255, 255, 255, 0.008);
-  background-image: var(--ns-glass-sheen-soft);
-  background-repeat: no-repeat;
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  backdrop-filter: blur(14px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
-}
-
-.glass-warm {
-  background-color: rgba(255, 255, 255, 0.01);
-  background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm);
-  background-size: 160px 160px, 100% 100%;
-  background-repeat: repeat, no-repeat;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 26px -18px rgba(150, 112, 52, 0.08);
-}
-
-/* Dark editorial panels: smoked glass with a gold edge. */
-.glass-dark {
-  background-color: rgba(15, 22, 29, 0.04);
-  background-image:
-    var(--ns-glass-frost),
-    linear-gradient(150deg, rgba(20, 33, 43, 0.24) 0%, rgba(12, 22, 30, 0.18) 55%, rgba(16, 28, 38, 0.22) 100%);
-  background-size: 160px 160px, 100% 100%;
-  background-repeat: repeat, no-repeat;
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(197, 154, 88, 0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(197, 154, 88, 0.04),
-    0 14px 30px -20px rgba(4, 10, 16, 0.18);
-}
-
-/* Bars: header / sidebar — same glass, edge-to-edge. */
-.ns-glass-bar {
-  background-color: rgba(255, 255, 255, 0.018);
-  background-image: var(--ns-glass-sheen);
-  background-repeat: no-repeat;
-  -webkit-backdrop-filter: blur(14px) saturate(160%) brightness(1.04);
-  backdrop-filter: blur(14px) saturate(160%) brightness(1.04);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
-}
-.ns-glass-bar-soft {
-  background-color: rgba(255, 255, 255, 0.01);
-  background-image: var(--ns-glass-sheen-soft);
-  background-repeat: no-repeat;
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  backdrop-filter: blur(12px) saturate(150%);
-  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.08);
-}
-
-/* ---------- 5. Inputs ---------- */
-.glass-input,
-.ns-input {
-  background-color: rgba(255, 255, 255, 0.46) !important;
-  background-image: var(--ns-glass-sheen-soft) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%);
-  backdrop-filter: blur(20px) saturate(190%);
-  border: 1px solid var(--ns-glass-line) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.80),
-    inset 0 2px 6px rgba(15, 42, 52, 0.10);
-}
-html[data-theme="dark"] .glass-input,
-html[data-theme="dark"] .ns-input {
-  background-color: rgba(255, 255, 255, 0.07) !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    inset 0 2px 8px rgba(0, 0, 0, 0.40);
-}
-.glass-input::placeholder,
-.ns-input::placeholder { color: var(--ns-muted); opacity: 0.85; }
-.glass-input:focus,
-.ns-input:focus {
-  border-color: rgba(177, 138, 85, 0.80) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.80),
-    inset 0 2px 6px rgba(15, 42, 52, 0.08),
-    0 0 0 3px rgba(177, 138, 85, 0.20);
-}
-
-/* ---------- 6. Page shells stay transparent so the canvas shows --- */
-.ns-page,
-.app-shell,
-#root { background: transparent !important; }
-/* body must stay transparent: it paints above negative-z layers, so an
-   opaque body would hide the ambient canvas behind the glass. */
-body { background: transparent !important; }
-
-/* ---------- 7. Neutral surfaces → glass (precise, brand-safe) ----- */
-/* Standard card surfaces: bg-white, neutral off-whites, surface tokens,
-   and light gradient cards. Brand gradient buttons stay untouched. */
-[class~="bg-white"]:not(button):not(input):not(select):not(textarea):not([role="button"]),
-[class~="bg-[#f7f8f6]" i], [class~="bg-[#fbfcfa]" i], [class~="bg-[#f9faf9]" i],
-[class~="bg-[#f3f5f3]" i], [class~="bg-[#f7f9f7]" i], [class~="bg-[#f0f2ef]" i],
-[class~="bg-[#f2f5f2]" i], [class~="bg-[#f8fafc]" i], [class~="bg-[#f8fbfb]" i],
-[class~="bg-[#f4f6f4]" i], [class~="bg-[#f9faf8]" i], [class~="bg-[#f7f9f8]" i],
-[class~="bg-[#e9ece9]" i], [class~="bg-[#f6f8f6]" i], [class~="bg-[#fbfcfb]" i],
-[class~="bg-[#fbfdfd]" i], [class~="bg-[#fbfdfc]" i], [class~="bg-[#fbfbf9]" i],
-[class~="bg-[#f7faf9]" i], [class~="bg-[#f8fbf9]" i], [class~="bg-[#f0f3f2]" i],
-[class~="bg-[#f0f4f2]" i], [class~="bg-[#f5f6f4]" i],
-[style*="background-color: var(--ns-surface)"],
-[class*="bg-[var(--ns-surface)]"]:not([class*="bg-[var(--ns-surface-2)]"]),
-[class*="from-white"]:not(button):not([role="button"]),
-[class*="from-[var(--ns-surface)]"],
-[class*="from-[#f8faf8]"],
-[class*="from-[#fbfcfa]"] {
-  background-color: var(--ns-glass-base) !important;
-  background-image: var(--ns-glass-frost), var(--ns-glass-sheen) !important;
-  background-size: 160px 160px, 100% 100% !important;
-  background-repeat: repeat, no-repeat !important;
-  -webkit-backdrop-filter: var(--ns-glass-filter);
-  backdrop-filter: var(--ns-glass-filter);
-  border-color: var(--ns-glass-line) !important;
-  box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth) !important;
-}
-
-/* Warm cream surfaces keep their warmth, as warm glass. */
-[class~="bg-[#fbf9f5]"]:not(button), [class~="bg-[#fbf8f2]"]:not(button),
-[class~="bg-[#f7f0e5]"]:not(button), [class~="bg-[#faf6ed]"]:not(button),
-[class~="bg-[#fcfaf5]"]:not(button), [class~="bg-[#fdfbf7]"]:not(button),
-[class~="bg-[#fcf8f0]"]:not(button), [class~="bg-[#fffbeb]"]:not(button),
-[class~="bg-[#fff8f4]"]:not(button), [class~="bg-[#fbf8f2]"]:not(button) {
-  background-color: var(--ns-glass-base) !important;
-  background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm) !important;
-  background-size: 160px 160px, 100% 100% !important;
-  background-repeat: repeat, no-repeat !important;
-  -webkit-backdrop-filter: var(--ns-glass-filter);
-  backdrop-filter: var(--ns-glass-filter);
-  border-color: rgba(255, 255, 255, 0.72) !important;
-  box-shadow: var(--ns-glass-bevel), 0 20px 42px -20px rgba(150, 112, 52, 0.26) !important;
-}
-
-/* Cool tinted panels keep a blue cast, as glass. */
-[class~="bg-[#f3f8f9]"]:not(button), [class~="bg-[#f0f8fa]"]:not(button),
-[class~="bg-[#e8f2f4]"]:not(button), [class~="bg-[#d6e9ee]"]:not(button),
-[class~="bg-[#ecfdf5]"]:not(button), [class~="bg-[#f0f7f2]"]:not(button) {
-  background-color: rgba(226, 242, 246, 0.34) !important;
-  background-image: var(--ns-glass-frost),
-    linear-gradient(148deg, rgba(255, 255, 255, 0.52) 0%, rgba(214, 238, 245, 0.22) 60%, rgba(255, 255, 255, 0.30) 100%) !important;
-  background-size: 160px 160px, 100% 100% !important;
-  background-repeat: repeat, no-repeat !important;
-  -webkit-backdrop-filter: var(--ns-glass-filter);
-  backdrop-filter: var(--ns-glass-filter);
-  border-color: rgba(255, 255, 255, 0.66) !important;
-  box-shadow: var(--ns-glass-bevel), 0 18px 40px -20px rgba(18, 62, 78, 0.22) !important;
-}
-html[data-theme="dark"] [class~="bg-[#f3f8f9]"]:not(button),
-html[data-theme="dark"] [class~="bg-[#f0f8fa]"]:not(button),
-html[data-theme="dark"] [class~="bg-[#e8f2f4]"]:not(button),
-html[data-theme="dark"] [class~="bg-[#d6e9ee]"]:not(button),
-html[data-theme="dark"] [class~="bg-[#ecfdf5]"]:not(button),
-html[data-theme="dark"] [class~="bg-[#f0f7f2]"]:not(button) {
-  background-color: rgba(24, 52, 66, 0.44) !important;
-}
-
-/* Bands: header strips, toolbars, table heads, surface-2 panels. */
-[style*="background-color: var(--ns-surface-2)"],
-[class*="bg-[var(--ns-surface-2)]"],
-[class*="bg-white/95"]:not([class*="hover:bg-white/"]),
-[class*="bg-white/90"]:not([class*="hover:bg-white/"]),
-[class*="bg-white/80"]:not([class*="hover:bg-white/"]),
-[class*="bg-white/70"]:not([class*="hover:bg-white/"]),
-[class*="bg-white/60"]:not([class*="hover:bg-white/"]) {
-  background-color: var(--ns-glass-base) !important;
-  background-image: var(--ns-glass-sheen-soft) !important;
-  background-repeat: no-repeat !important;
-  -webkit-backdrop-filter: blur(24px) saturate(185%);
-  backdrop-filter: blur(24px) saturate(185%);
-  box-shadow: var(--ns-glass-bevel-soft) !important;
-}
-html[data-theme="dark"] [class*="bg-white/95"]:not([class*="hover:bg-white/"]),
-html[data-theme="dark"] [class*="bg-white/90"]:not([class*="hover:bg-white/"]),
-html[data-theme="dark"] [class*="bg-white/80"]:not([class*="hover:bg-white/"]),
-html[data-theme="dark"] [class*="bg-white/70"]:not([class*="hover:bg-white/"]),
-html[data-theme="dark"] [class*="bg-white/60"]:not([class*="hover:bg-white/"]) {
-  background-color: rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Neutral hover states: brighten the glass instead of snapping opaque. */
-[class~="hover:bg-white"]:hover,
-[class~="hover:bg-slate-50"]:hover,
-[class~="hover:bg-slate-100"]:hover,
-[class~="hover:bg-gray-50"]:hover,
-[class~="hover:bg-gray-100"]:hover,
-[class*="hover:bg-[#f"]:hover {
-  background-color: rgba(255, 255, 255, 0.44) !important;
-}
-html[data-theme="dark"] [class~="hover:bg-white"]:hover,
-html[data-theme="dark"] [class~="hover:bg-slate-50"]:hover,
-html[data-theme="dark"] [class~="hover:bg-slate-100"]:hover,
-html[data-theme="dark"] [class~="hover:bg-gray-50"]:hover,
-html[data-theme="dark"] [class~="hover:bg-gray-100"]:hover,
-html[data-theme="dark"] [class*="hover:bg-[#f"]:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* ---------- 8. Dark navy panels → smoked glass ------------------- */
-[class~="bg-[#14161d]" i], [class~="bg-[#1c1f28]" i], [class~="bg-[#122834]" i],
-[class~="bg-[#232733]" i], [class~="bg-[#1e2535]" i], [class~="bg-[#151c28]" i],
-[class~="bg-[#16181f]" i], [class~="bg-[#131722]" i], [class~="bg-[#0f141c]" i],
-[class~="bg-[#0f172a]" i], [class~="bg-[#20242f]" i], [class~="bg-[#252836]" i],
-[class~="bg-[#2b303e]" i], [class~="bg-[#1c2536]" i], [class~="bg-[#0e1117]" i],
-[class~="bg-[#10131a]" i], [class~="bg-[#0e0b12]" i] {
-  background-color: transparent !important;
-  background-image: var(--ns-glass-frost),
-    linear-gradient(150deg, rgba(30, 42, 55, 0.80) 0%, rgba(17, 25, 34, 0.76) 60%, rgba(24, 36, 48, 0.80) 100%) !important;
-  background-size: 160px 160px, 100% 100% !important;
-  background-repeat: repeat, no-repeat !important;
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
-  backdrop-filter: blur(28px) saturate(150%);
-  border-color: rgba(255, 255, 255, 0.14) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.40),
-    0 22px 44px -20px rgba(4, 10, 16, 0.50) !important;
-}
-
-/* ---------- 9. Status chips — tinted glass, hue preserved -------- */
-[class~="bg-emerald-50"], [class~="bg-emerald-100"] { background-color: rgba(16, 185, 129, 0.18) !important; border-color: rgba(16, 185, 129, 0.42) !important; }
-[class~="bg-amber-50"], [class~="bg-amber-100"] { background-color: rgba(245, 158, 11, 0.20) !important; border-color: rgba(245, 158, 11, 0.44) !important; }
-[class~="bg-rose-50"], [class~="bg-rose-100"], [class~="bg-red-50"], [class~="bg-red-100"] { background-color: rgba(244, 63, 94, 0.18) !important; border-color: rgba(244, 63, 94, 0.42) !important; }
-[class~="bg-sky-50"], [class~="bg-sky-100"], [class~="bg-blue-50"], [class~="bg-blue-100"] { background-color: rgba(14, 165, 233, 0.18) !important; border-color: rgba(14, 165, 233, 0.42) !important; }
-[class~="bg-purple-50"], [class~="bg-purple-100"] { background-color: rgba(168, 85, 247, 0.18) !important; border-color: rgba(168, 85, 247, 0.42) !important; }
-[class~="bg-teal-50"], [class~="bg-teal-100"] { background-color: rgba(20, 184, 166, 0.18) !important; border-color: rgba(20, 184, 166, 0.42) !important; }
-[class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-gray-50"], [class~="bg-gray-100"] { background-color: rgba(100, 116, 139, 0.16) !important; border-color: rgba(100, 116, 139, 0.34) !important; }
-[class~="bg-emerald-50"], [class~="bg-emerald-100"], [class~="bg-amber-50"], [class~="bg-amber-100"],
-[class~="bg-rose-50"], [class~="bg-rose-100"], [class~="bg-red-50"], [class~="bg-red-100"],
-[class~="bg-sky-50"], [class~="bg-sky-100"], [class~="bg-blue-50"], [class~="bg-blue-100"],
-[class~="bg-purple-50"], [class~="bg-purple-100"], [class~="bg-teal-50"], [class~="bg-teal-100"],
-[class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-gray-50"], [class~="bg-gray-100"] {
-  -webkit-backdrop-filter: blur(14px) saturate(170%);
-  backdrop-filter: blur(14px) saturate(170%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-
-/* ---------- 10. Tables, scrim, print ---------------------------- */
-.ns-table thead th {
-  background: rgba(255, 255, 255, 0.34) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  backdrop-filter: blur(18px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.50) !important;
-}
-.ns-table tbody tr { background: transparent; }
-.ns-table tbody tr:hover { background: rgba(255, 255, 255, 0.34) !important; }
-html[data-theme="dark"] .ns-table thead th {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.10) !important;
-  color: var(--ns-muted) !important;
-}
-html[data-theme="dark"] .ns-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-}
-
-.ns-scrim {
-  background: rgba(7, 14, 20, 0.46);
-  -webkit-backdrop-filter: blur(10px) saturate(150%);
-  backdrop-filter: blur(10px) saturate(150%);
-}
-
-/* Interactive glass picks up the light. */
-.glass:hover,
-.ns-card:hover { border-color: rgba(255, 255, 255, 0.95); }
 
 @media print {
+  :root, html[data-theme="dark"], html.dark {
+    --ns-ink: #18282e;
+    --ns-ink-2: #30454e;
+    --ns-muted: #465961;
+    --ns-gold: #79551f;
+    --ns-teal: #194a5a;
+    --ns-success: #16634b;
+    --ns-warning: #87500c;
+    --ns-danger: #a92e39;
+    --ns-info: #185b8c;
+    --ns-purple: #684391;
+    --ns-bg: #fff;
+    --ns-glass-1: transparent;
+    --ns-glass-2: transparent;
+    --ns-glass-3: transparent;
+    color-scheme: light;
+  }
   .ns-ambient, .ns-watermark { display: none !important; }
-  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm, .ns-card, .ns-card-soft {
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+  .ns-card, .ns-card-soft, .glass-input, .ns-input, .ns-glass-band,
+  .ns-glass-bar, .ns-glass-bar-soft {
     background: #fff !important;
     box-shadow: none !important;
     border-color: #dfe3e0 !important;
@@ -826,4 +202,3 @@ html[data-theme="dark"] .ns-table tbody tr:hover {
     backdrop-filter: none !important;
   }
 }
-

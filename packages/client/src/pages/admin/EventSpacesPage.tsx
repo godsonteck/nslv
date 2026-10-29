@@ -107,26 +107,26 @@ export const EventSpacesPage: React.FC = () => {
       header: 'Venue Name',
       render: (s: EventSpaceRecord) => (
         <div>
-          <div className="font-bold text-[#1a2b3c]">{s.name}</div>
-          <div className="text-[11px] text-[#7c8a95]">{s.description || 'No description'}</div>
+          <div className="font-bold text-[var(--ns-ink)]">{s.name}</div>
+          <div className="text-[11px] text-[var(--ns-muted)]">{s.description || 'No description'}</div>
         </div>
       ),
     },
     {
       key: 'location',
       header: 'Location',
-      render: (s: EventSpaceRecord) => <span className="text-xs text-[#5b6b7a]">{s.location || '—'}</span>,
+      render: (s: EventSpaceRecord) => <span className="text-xs text-[var(--ns-muted)]">{s.location || '—'}</span>,
     },
     {
       key: 'capacity',
       header: 'Max Capacity',
-      render: (s: EventSpaceRecord) => <span className="text-xs font-semibold text-[#1a2b3c]">{s.capacity || 0} guests</span>,
+      render: (s: EventSpaceRecord) => <span className="text-xs font-semibold text-[var(--ns-ink)]">{s.capacity || 0} guests</span>,
     },
     {
       key: 'rate',
       header: 'Rate / Hour',
       render: (s: EventSpaceRecord) => (
-        <span className="font-mono text-xs font-bold text-[#16a4d4]">
+        <span className="font-mono text-xs font-bold text-[var(--ns-teal)]">
           {s.pricePerHour ? formatCurrency(Number(s.pricePerHour)) : 'Free / Included'}
         </span>
       ),
@@ -137,10 +137,10 @@ export const EventSpacesPage: React.FC = () => {
       align: 'right' as const,
       render: (s: EventSpaceRecord) => (
         <div className="flex items-center justify-end gap-1">
-          <button onClick={() => openEdit(s)} className="p-1.5 text-[#5b6b7a] hover:text-[#16a4d4]">
+          <button onClick={() => openEdit(s)} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-teal)]">
             <Pencil size={14} />
           </button>
-          <button onClick={() => handleDelete(s)} className="p-1.5 text-[#5b6b7a] hover:text-red-600">
+          <button onClick={() => handleDelete(s)} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-danger)]">
             <Trash2 size={14} />
           </button>
         </div>
@@ -152,13 +152,13 @@ export const EventSpacesPage: React.FC = () => {
     <div className="space-y-6 select-none pb-8">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#8a9ba8]">
-            <Building2 size={13} className="text-[#a8761e]" /> Administration · Venues & Spaces
+          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-muted)]">
+            <Building2 size={13} className="text-[var(--ns-gold)]" /> Administration · Venues & Spaces
           </div>
-          <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#101a2b]">
+          <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[var(--ns-ink)]">
             Event Spaces Management
           </h1>
-          <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">
+          <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[var(--ns-muted)]">
             Configure property event locations, max capacities, and hourly rental rates for bookings.
           </p>
         </div>
@@ -193,7 +193,7 @@ export const EventSpacesPage: React.FC = () => {
           <FormField label="Description">
             <TextInput value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief details about facilities or sound systems" />
           </FormField>
-          <div className="flex justify-end gap-2 pt-3 border-t">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button type="submit" loading={saving}>{editing ? 'Save Changes' : 'Create Space'}</Button>
           </div>

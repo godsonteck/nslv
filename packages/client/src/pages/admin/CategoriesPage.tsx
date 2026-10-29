@@ -96,8 +96,8 @@ export const CategoriesPage: React.FC = () => {
       header: 'Category Name',
       render: (row: ItemCategory) => (
         <div>
-          <div className="font-semibold text-[#F4F4F2]">{row.name}</div>
-          <div className="text-[11px] text-[#A0A5AD]">{row.description || '—'}</div>
+          <div className="font-semibold text-[var(--ns-ink)]">{row.name}</div>
+          <div className="text-[11px] text-[var(--ns-muted)]">{row.description || '—'}</div>
         </div>
       ),
     },
@@ -111,15 +111,15 @@ export const CategoriesPage: React.FC = () => {
       header: 'Color',
       render: (row: ItemCategory) => (
         <div className="flex items-center gap-2">
-          <div className="h-4 w-4 rounded border border-[#2B303E]" style={{ backgroundColor: row.color || '#999' }} />
-          <span className="text-xs text-[#A0A5AD]">{row.color || '—'}</span>
+          <div className="h-4 w-4 rounded border border-[var(--ns-glass-line)]" style={{ backgroundColor: row.color || '#999' }} />
+          <span className="text-xs text-[var(--ns-muted)]">{row.color || '—'}</span>
         </div>
       ),
     },
     {
       key: 'order',
       header: 'Display Order',
-      render: (row: ItemCategory) => <span className="text-xs text-[#A0A5AD]">{row.order || 0}</span>,
+      render: (row: ItemCategory) => <span className="text-xs text-[var(--ns-muted)]">{row.order || 0}</span>,
     },
     {
       key: 'actions',
@@ -128,10 +128,10 @@ export const CategoriesPage: React.FC = () => {
       render: (row: ItemCategory) =>
         canManage ? (
           <div className="flex items-center justify-end gap-1">
-            <button onClick={() => handleEdit(row)} className="p-1.5 hover:bg-blue-500/10 rounded text-[#A0A5AD] hover:text-blue-400" title="Edit">
+            <button onClick={() => handleEdit(row)} className="p-1.5 glass-subtle ns-glass-hover rounded text-[var(--ns-muted)] hover:text-[var(--ns-info)]" title="Edit">
               <Edit2 size={14} />
             </button>
-            <button onClick={() => handleDelete(row.id)} className="p-1.5 hover:bg-red-500/10 rounded text-[#A0A5AD] hover:text-red-400" title="Delete">
+            <button onClick={() => handleDelete(row.id)} className="p-1.5 glass-subtle ns-glass-hover rounded text-[var(--ns-muted)] hover:text-[var(--ns-danger)]" title="Delete">
               <Trash2 size={14} />
             </button>
           </div>
@@ -221,7 +221,7 @@ export const CategoriesPage: React.FC = () => {
                 type="color"
                 value={formData.color}
                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                className="h-10 w-16 rounded cursor-pointer border border-[#2B303E]"
+                className="h-10 w-16 glass-input rounded cursor-pointer border border-[var(--ns-glass-line)]"
               />
               <TextInput
                 value={formData.color}
@@ -241,7 +241,7 @@ export const CategoriesPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="pt-4 border-t border-[#2B303E] flex justify-end gap-2">
+          <div className="pt-4 border-t border-[var(--ns-glass-line)] flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>

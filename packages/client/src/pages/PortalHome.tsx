@@ -31,13 +31,13 @@ export const PortalHome: React.FC = () => {
       <section className="glass-strong relative overflow-hidden rounded-3xl p-6 md:p-8">
         <div className="flex items-start gap-4">
           <div
-            className="glass-warm flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-            style={{ color: '#b88738' }}
+            className="glass-subtle flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+            style={{ color: 'var(--ns-gold)' }}
           >
             {portal.icon}
           </div>
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#b88738]">{role} portal</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-gold)]">{role} portal</p>
             <h1 className="mt-1 text-2xl font-bold" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
             <p className="mt-2 text-sm" style={{ color: 'var(--ns-muted)' }}>{portal.summary}</p>
           </div>
@@ -51,11 +51,11 @@ export const PortalHome: React.FC = () => {
               <Link
                 key={item.to}
                 to={item.to}
-                className="glass flex items-center justify-between rounded-xl p-4 text-sm transition-colors hover:border-[#c59a58]/60"
+                className="glass ns-glass-hover flex items-center justify-between rounded-xl p-4 text-sm transition-colors hover:border-[var(--ns-gold)]/60"
                 style={{ color: 'var(--ns-ink)' }}
               >
                 <span>{item.label}</span>
-                <ArrowRight size={16} className="text-[#b88738]" />
+                <ArrowRight size={16} className="text-[var(--ns-gold)]" />
               </Link>
             ))}
           </div>
@@ -63,7 +63,7 @@ export const PortalHome: React.FC = () => {
       )}
       <section className="glass rounded-2xl p-6">
         <div className="flex gap-3">
-          <AlertCircle size={18} className="mt-0.5 shrink-0 text-[#b88738]" />
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-[var(--ns-gold)]" />
           <div>
             <h2 className="text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Operational data is not connected yet</h2>
             <p className="mt-1 text-sm" style={{ color: 'var(--ns-muted)' }}>

@@ -383,7 +383,7 @@ export const CashRegisterPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={handleOpenHandoverModal}
-                className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white shadow-sm font-semibold"
+                className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold"
               >
                 <UserCheck size={14} /> Hand Over to Management
               </Button>
@@ -401,10 +401,10 @@ export const CashRegisterPage: React.FC = () => {
                   });
                   setEntryOpen(true);
                 }}
-                className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50 transition-colors"
-                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface)' }}
+                className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] transition-colors ns-glass-hover"
+                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
               >
-                <TrendingDown size={14} className="text-rose-500" /> Record Cash Out
+                <TrendingDown size={14} className="text-[var(--ns-danger)]" /> Record Cash Out
               </Button>
               <Button
                 variant="outline"
@@ -420,10 +420,10 @@ export const CashRegisterPage: React.FC = () => {
                   });
                   setEntryOpen(true);
                 }}
-                className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50 transition-colors"
-                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface)' }}
+                className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] transition-colors ns-glass-hover"
+                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
               >
-                <TrendingUp size={14} className="text-emerald-500" /> Record Cash In
+                <TrendingUp size={14} className="text-[var(--ns-success)]" /> Record Cash In
               </Button>
               <Button
                 variant="outline"
@@ -434,10 +434,10 @@ export const CashRegisterPage: React.FC = () => {
                   setMomoDepositReference('');
                   setMomoDepositOpen(true);
                 }}
-                className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50 transition-colors"
-                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface)' }}
+                className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] transition-colors ns-glass-hover"
+                style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
               >
-                <Smartphone size={14} className="text-amber-500" /> MoMo Wallet Deposit
+                <Smartphone size={14} className="text-[var(--ns-warning)]" /> MoMo Wallet Deposit
               </Button>
               <Button
                 variant="ghost"
@@ -447,7 +447,7 @@ export const CashRegisterPage: React.FC = () => {
                   setOpeningNotes(summary?.openingNotes || '');
                   setOpeningOpen(true);
                 }}
-                className="gap-1.5 hover:bg-[var(--ns-surface-2)] transition-colors"
+                className="gap-1.5 ns-glass-hover transition-colors"
                 style={{ color: 'var(--ns-muted)' }}
               >
                 <Coins size={14} /> Morning Float
@@ -459,8 +459,8 @@ export const CashRegisterPage: React.FC = () => {
     >
       {/* Date Navigator */}
       <div
-        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-line)] p-3.5 shadow-sm"
-        style={{ backgroundColor: 'var(--ns-surface)' }}
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-glass-line)] p-3.5 shadow-sm glass-subtle"
+        style={{ backgroundColor: 'var(--ns-glass-1)' }}
       >
         <div className="flex items-center gap-2">
           <Button
@@ -468,7 +468,7 @@ export const CashRegisterPage: React.FC = () => {
             size="sm"
             onClick={() => shiftDate(-1)}
             aria-label="Previous Day"
-            className="h-9 w-9 p-0 border-[var(--ns-line)]"
+            className="h-9 w-9 p-0 border-[var(--ns-glass-line)] ns-glass-hover"
             style={{ color: 'var(--ns-ink)' }}
           >
             <ChevronLeft size={16} />
@@ -477,15 +477,15 @@ export const CashRegisterPage: React.FC = () => {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="h-9 rounded-xl border border-[var(--ns-line)] px-3 text-sm font-semibold focus:border-[#c59a58] focus:outline-none focus:ring-1 focus:ring-[#c59a58]"
-            style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)' }}
+            className="h-9 rounded-xl border border-[var(--ns-glass-line)] px-3 text-sm font-semibold focus:border-[var(--ns-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--ns-gold)] glass-input"
+            style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-ink)' }}
           />
           <Button
             variant="outline"
             size="sm"
             onClick={() => shiftDate(1)}
             aria-label="Next Day"
-            className="h-9 w-9 p-0 border-[var(--ns-line)]"
+            className="h-9 w-9 p-0 border-[var(--ns-glass-line)] ns-glass-hover"
             style={{ color: 'var(--ns-ink)' }}
           >
             <ChevronRight size={16} />
@@ -494,7 +494,7 @@ export const CashRegisterPage: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setSelectedDate(todayStr)}
-            className="h-9 text-xs font-bold text-[#c59a58] hover:bg-[#c59a58]/10"
+            className="h-9 text-xs font-bold text-[var(--ns-gold)] ns-glass-hover"
           >
             Today
           </Button>
@@ -514,7 +514,7 @@ export const CashRegisterPage: React.FC = () => {
             size="sm"
             onClick={() => void load()}
             loading={loading}
-            className="h-9 gap-1.5 text-xs font-bold text-[#c59a58] hover:bg-[#c59a58]/10"
+            className="h-9 gap-1.5 text-xs font-bold text-[var(--ns-gold)] ns-glass-hover"
           >
             <RefreshCw size={13} /> Refresh
           </Button>
@@ -523,7 +523,7 @@ export const CashRegisterPage: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleResetRegister}
-              className="h-9 gap-1 text-[11px] font-bold text-rose-500 hover:bg-rose-500/10"
+              className="h-9 gap-1 text-[11px] font-bold text-[var(--ns-danger)] ns-glass-hover"
               title="Reset manual drawer entries"
             >
               <Trash2 size={13} /> Reset Day
@@ -535,16 +535,16 @@ export const CashRegisterPage: React.FC = () => {
       {/* Status Banner */}
       {isHandedOver ? (
         <div
-          className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] p-5 shadow-sm"
-          style={{ backgroundColor: 'var(--ns-surface)' }}
+          className="relative overflow-hidden rounded-2xl border border-[var(--ns-glass-line)] p-5 shadow-sm glass-subtle"
+          style={{ backgroundColor: 'var(--ns-glass-1)' }}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl glass-subtle text-[var(--ns-success)]">
                 <CheckCircle2 size={20} />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#c59a58]">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
                   Handover Complete
                 </span>
                 <h3 className="mt-0.5 text-base font-bold font-serif" style={{ color: 'var(--ns-ink)' }}>
@@ -559,25 +559,25 @@ export const CashRegisterPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => handlePrintHandoverSlip(handoverEntries[0])}
-              className="gap-1.5 border-[var(--ns-line)] hover:border-[#c59a58]/50"
-              style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-surface-2)' }}
+              className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] ns-glass-hover"
+              style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
             >
-              <Printer size={14} className="text-[#c59a58]" /> Print Slip
+              <Printer size={14} className="text-[var(--ns-gold)]" /> Print Slip
             </Button>
           </div>
         </div>
       ) : cashAtHand > 0 ? (
         <div
-          className="relative overflow-hidden rounded-2xl border border-amber-500/40 p-5 shadow-sm"
-          style={{ backgroundColor: 'var(--ns-surface)' }}
+          className="relative overflow-hidden rounded-2xl border border-[var(--ns-warning)] p-5 shadow-sm glass-subtle"
+          style={{ backgroundColor: 'var(--ns-glass-1)' }}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl glass-subtle text-[var(--ns-warning)]">
                 <Lock size={18} />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-500">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ns-warning)]">
                   Pending Handover
                 </span>
                 <h3 className="mt-0.5 text-base font-bold font-serif" style={{ color: 'var(--ns-ink)' }}>
@@ -592,7 +592,7 @@ export const CashRegisterPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={handleOpenHandoverModal}
-              className="gap-1.5 bg-[#c59a58] hover:bg-[#b88738] text-white font-semibold"
+              className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] font-semibold"
             >
               <UserCheck size={14} /> Hand Over Cash
             </Button>
@@ -600,13 +600,13 @@ export const CashRegisterPage: React.FC = () => {
         </div>
       ) : (
         <div
-          className="relative overflow-hidden rounded-2xl border border-[var(--ns-line)] p-4 shadow-sm"
-          style={{ backgroundColor: 'var(--ns-surface)' }}
+          className="relative overflow-hidden rounded-2xl border border-[var(--ns-glass-line)] p-4 shadow-sm glass-subtle"
+          style={{ backgroundColor: 'var(--ns-glass-1)' }}
         >
           <div className="flex items-center gap-3">
             <div
               className="flex h-9 w-9 items-center justify-center rounded-xl"
-              style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-teal)' }}
+              style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-teal)' }}
             >
               <Clock size={16} />
             </div>
@@ -667,14 +667,14 @@ export const CashRegisterPage: React.FC = () => {
 
       {/* ── Tabs Navigation ── */}
       <div
-        className="flex border-b border-[var(--ns-line)] rounded-t-2xl px-5 pt-3"
-        style={{ backgroundColor: 'var(--ns-surface)' }}
+        className="flex border-b border-[var(--ns-glass-line)] rounded-t-2xl px-5 pt-3 glass-subtle"
+        style={{ backgroundColor: 'var(--ns-glass-1)' }}
       >
         <button
           onClick={() => setActiveTab('ENTRIES')}
-          className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
+          className={`glass-subtle ns-glass-hover relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'ENTRIES'
-              ? 'border-b-2 border-[#c59a58]'
+              ? 'ns-glass-selected border-b-2 border-[var(--ns-gold)]'
               : 'opacity-70 hover:opacity-100'
           }`}
           style={{ color: activeTab === 'ENTRIES' ? 'var(--ns-ink)' : 'var(--ns-muted)' }}
@@ -683,7 +683,7 @@ export const CashRegisterPage: React.FC = () => {
           <span>Drawer Cash Ledger</span>
           <span
             className="rounded-full px-2 py-0.5 text-[10px]"
-            style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)' }}
+            style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-ink)' }}
           >
             {displayEntries.length}
           </span>
@@ -691,9 +691,9 @@ export const CashRegisterPage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('PAYMENTS')}
-          className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
+          className={`glass-subtle ns-glass-hover relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'PAYMENTS'
-              ? 'border-b-2 border-[#c59a58]'
+              ? 'ns-glass-selected border-b-2 border-[var(--ns-gold)]'
               : 'opacity-70 hover:opacity-100'
           }`}
           style={{ color: activeTab === 'PAYMENTS' ? 'var(--ns-ink)' : 'var(--ns-muted)' }}
@@ -702,7 +702,7 @@ export const CashRegisterPage: React.FC = () => {
           <span>Front Desk & POS Cash Sales</span>
           <span
             className="rounded-full px-2 py-0.5 text-[10px]"
-            style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)' }}
+            style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-ink)' }}
           >
             {summary?.cashPayments?.length ?? 0}
           </span>
@@ -710,9 +710,9 @@ export const CashRegisterPage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('CATEGORIES')}
-          className={`relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
+          className={`glass-subtle ns-glass-hover relative flex items-center gap-2 pb-3 pt-1 px-4 text-xs font-bold transition-colors ${
             activeTab === 'CATEGORIES'
-              ? 'border-b-2 border-[#c59a58]'
+              ? 'ns-glass-selected border-b-2 border-[var(--ns-gold)]'
               : 'opacity-70 hover:opacity-100'
           }`}
           style={{ color: activeTab === 'CATEGORIES' ? 'var(--ns-ink)' : 'var(--ns-muted)' }}
@@ -738,8 +738,8 @@ export const CashRegisterPage: React.FC = () => {
             <table className="w-full border-collapse text-left text-xs">
               <thead>
                 <tr
-                  className="border-b border-[var(--ns-line)] text-[10px] font-extrabold uppercase tracking-wider"
-                  style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-muted)' }}
+                  className="border-b border-[var(--ns-glass-line)] text-[10px] font-extrabold uppercase tracking-wider"
+                  style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-muted)' }}
                 >
                   <th className="py-3 px-4">Time</th>
                   <th className="py-3 px-4">Type</th>
@@ -751,7 +751,7 @@ export const CashRegisterPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {displayEntries.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-12 text-center text-xs" style={{ color: 'var(--ns-muted)' }}>
@@ -767,10 +767,7 @@ export const CashRegisterPage: React.FC = () => {
                     return (
                       <tr
                         key={row.id}
-                        className="transition-colors hover:bg-[var(--ns-surface-2)]"
-                        style={{
-                          backgroundColor: isHandover ? 'rgba(197,154,88,0.06)' : undefined,
-                        }}
+                        className={`transition-colors ns-glass-hover ${isHandover ? 'ns-glass-band' : ''}`}
                       >
                         <td className="py-3 px-4 font-mono text-[11px]" style={{ color: 'var(--ns-muted)' }}>
                           {new Date(row.recordedAt).toLocaleTimeString('en-GH', {
@@ -780,19 +777,19 @@ export const CashRegisterPage: React.FC = () => {
                         </td>
                         <td className="py-3 px-4">
                           {isHandover ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-[#c59a58]/20 px-2 py-0.5 text-[10px] font-bold text-[#c59a58]">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-gold)]">
                               <UserCheck size={11} /> Handover
                             </span>
                           ) : isMomo ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-500">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-warning)]">
                               <Smartphone size={11} /> MoMo
                             </span>
                           ) : isOutflow ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-500">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-danger)]">
                               <ArrowDown size={11} /> Out
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-success)]">
                               <ArrowUp size={11} /> In
                             </span>
                           )}
@@ -813,10 +810,10 @@ export const CashRegisterPage: React.FC = () => {
                           <span
                             className={
                               isHandover
-                                ? 'text-[#c59a58]'
+                                ? 'text-[var(--ns-gold)]'
                                 : isOutflow
-                                ? 'text-rose-500'
-                                : 'text-emerald-500'
+                                ? 'text-[var(--ns-danger)]'
+                                : 'text-[var(--ns-success)]'
                             }
                           >
                             {isOutflow ? '-' : '+'}
@@ -830,7 +827,7 @@ export const CashRegisterPage: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handlePrintHandoverSlip(row)}
-                                className="h-7 w-7 p-0 text-[#c59a58] hover:bg-[#c59a58]/10"
+                                className="h-7 w-7 p-0 text-[var(--ns-gold)] ns-glass-hover"
                                 title="Print Slip"
                               >
                                 <Printer size={13} />
@@ -840,7 +837,7 @@ export const CashRegisterPage: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handlePrintIndividualSlip(row)}
-                                className="h-7 w-7 p-0 hover:bg-[var(--ns-surface-2)]"
+                                className="h-7 w-7 p-0 ns-glass-hover"
                                 style={{ color: 'var(--ns-muted)' }}
                                 title="Print Slip"
                               >
@@ -852,7 +849,7 @@ export const CashRegisterPage: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteEntry(row)}
-                                className="h-7 w-7 p-0 text-rose-500 hover:bg-rose-50"
+                                className="h-7 w-7 p-0 text-[var(--ns-danger)] ns-glass-hover"
                                 title="Delete entry"
                               >
                                 <Trash2 size={13} />
@@ -884,7 +881,7 @@ export const CashRegisterPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-4">Time</th>
                   <th className="py-3 px-4">Source</th>
                   <th className="py-3 px-4">Description / Folio</th>
@@ -892,7 +889,7 @@ export const CashRegisterPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {(summary?.cashPayments ?? []).length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-xs text-[var(--ns-muted)]">
@@ -901,7 +898,7 @@ export const CashRegisterPage: React.FC = () => {
                   </tr>
                 ) : (
                   (summary?.cashPayments ?? []).map((p) => (
-                    <tr key={p.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                    <tr key={p.id} className="ns-glass-hover transition-colors">
                       <td className="py-3 px-4 font-mono text-[11px] text-[var(--ns-muted)]">
                         {new Date(p.processedAt).toLocaleTimeString('en-GH', {
                           hour: '2-digit',
@@ -909,7 +906,7 @@ export const CashRegisterPage: React.FC = () => {
                         })}
                       </td>
                       <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-bold text-[#173c4d] dark:text-[#7dd3fc]">
+                        <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
                           {p.source || 'FRONT_DESK'}
                         </span>
                       </td>
@@ -919,7 +916,7 @@ export const CashRegisterPage: React.FC = () => {
                       <td className="py-3 px-4 font-mono text-[11px] text-[var(--ns-muted)]">
                         {p.reference || p.sourceId || '—'}
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-sm font-bold text-emerald-600">
+                      <td className="py-3 px-4 text-right font-mono text-sm font-bold text-[var(--ns-success)]">
                         +{formatCurrency(Number(p.amount))}
                       </td>
                     </tr>
@@ -942,7 +939,7 @@ export const CashRegisterPage: React.FC = () => {
               {Object.entries(summary?.byCategory ?? {}).map(([cat, amt]) => (
                 <div
                   key={cat}
-                  className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-4 shadow-sm flex items-center justify-between"
+                  className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-4 shadow-sm flex items-center justify-between"
                 >
                   <div>
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
@@ -952,7 +949,7 @@ export const CashRegisterPage: React.FC = () => {
                       {formatCurrency(Number(amt))}
                     </div>
                   </div>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-xs">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg glass-subtle text-[var(--ns-danger)] font-bold text-xs">
                     {manualOutflows > 0 ? `${Math.round((Number(amt) / manualOutflows) * 100)}%` : '0%'}
                   </div>
                 </div>
@@ -974,17 +971,17 @@ export const CashRegisterPage: React.FC = () => {
         title="Close-of-Day Cash Handover to Management"
       >
         <form onSubmit={handleSaveHandover} className="space-y-4">
-          <div className="rounded-xl border border-[#c59a58]/30 bg-[#c59a58]/10 p-4 text-xs text-[var(--ns-muted)] space-y-2">
+          <div className="rounded-xl border border-[var(--ns-gold)] glass-subtle p-4 text-xs text-[var(--ns-muted)] space-y-2">
             <div className="flex items-center gap-2 font-bold text-[var(--ns-ink)]">
-              <Lock size={15} className="text-[#c59a58]" />
+              <Lock size={15} className="text-[var(--ns-gold)]" />
               Official Handover Policy
             </div>
             <p>
               Reception does <strong>not</strong> keep cash overnight. All physical drawer cash is counted and handed over to Management or Accounts. This resets the cash-at-hand to <strong>GH₵ 0.00</strong>.
             </p>
-            <div className="flex justify-between border-t border-[var(--ns-line)] pt-2 font-semibold text-[var(--ns-ink)]">
+            <div className="flex justify-between border-t border-[var(--ns-glass-line)] pt-2 font-semibold text-[var(--ns-ink)]">
               <span>Current Cash in Till:</span>
-              <span className="font-mono text-sm font-bold text-[#b88738]">
+              <span className="font-mono text-sm font-bold text-[var(--ns-gold)]">
                 {formatCurrency(cashAtHand)}
               </span>
             </div>
@@ -995,7 +992,7 @@ export const CashRegisterPage: React.FC = () => {
               type="date"
               value={selectedDate}
               readOnly
-              className="w-full rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] px-3.5 py-2.5 text-sm font-semibold text-[var(--ns-ink)]"
+              className="w-full rounded-xl border border-[var(--ns-glass-line)] glass-input px-3.5 py-2.5 text-sm font-semibold text-[var(--ns-ink)]"
             />
           </FormField>
 
@@ -1028,7 +1025,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setHandoverOpen(false)}>
               Cancel
             </Button>
@@ -1036,9 +1033,9 @@ export const CashRegisterPage: React.FC = () => {
               type="submit"
               variant="primary"
               loading={saving}
-              className="bg-[#173c4d] hover:bg-[#133240] text-[#fcf9f2] font-semibold gap-1.5"
+              className="glass ns-glass-hover text-[var(--ns-teal)] font-semibold gap-1.5"
             >
-              <Send size={14} className="text-[#c59a58]" /> Confirm & Hand Over Cash
+              <Send size={14} className="text-[var(--ns-gold)]" /> Confirm & Hand Over Cash
             </Button>
           </div>
         </form>
@@ -1113,7 +1110,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setEntryOpen(false)}>
               Cancel
             </Button>
@@ -1131,7 +1128,7 @@ export const CashRegisterPage: React.FC = () => {
         title="Record Mobile Money Deposit (from Drawer Cash)"
       >
         <form onSubmit={handleSaveMomoDeposit} className="space-y-4">
-          <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900">
+          <div className="rounded-xl border border-[var(--ns-warning)] glass-subtle p-3.5 text-xs text-[var(--ns-warning)]">
             <strong>Drawer Cash Deduction:</strong> Physical cash taken from the drawer to deposit into the villa MoMo merchant wallet will reduce the available cash at hand.
           </div>
 
@@ -1164,7 +1161,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setMomoDepositOpen(false)}>
               Cancel
             </Button>
@@ -1172,7 +1169,7 @@ export const CashRegisterPage: React.FC = () => {
               type="submit"
               variant="primary"
               loading={saving}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-semibold gap-1.5"
+              className="glass ns-glass-hover text-[var(--ns-warning)] font-semibold gap-1.5"
             >
               <Smartphone size={14} /> Record MoMo Deduction
             </Button>
@@ -1187,7 +1184,7 @@ export const CashRegisterPage: React.FC = () => {
         title="Morning Change Float"
       >
         <form onSubmit={handleSaveOpening} className="space-y-4">
-          <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-3.5 text-xs text-[var(--ns-muted)]">
+          <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3.5 text-xs text-[var(--ns-muted)]">
             Each business day starts fresh with <strong>GH₵ 0.00</strong> because cash is handed over to Management daily. If Management gave a change float for this morning, enter it below.
           </div>
 
@@ -1211,7 +1208,7 @@ export const CashRegisterPage: React.FC = () => {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
             <Button type="button" variant="ghost" onClick={() => setOpeningOpen(false)}>
               Cancel
             </Button>

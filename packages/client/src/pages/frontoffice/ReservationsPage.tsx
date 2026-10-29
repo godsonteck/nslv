@@ -662,7 +662,7 @@ export const ReservationsPage: React.FC = () => {
 
   const SortIcon = ({ field }: { field: 'checkInDate' | 'checkOutDate' }) => {
     if (sortField !== field) return <ChevronsUpDown size={11} className="ml-1 opacity-40" />;
-    return sortDir === 'asc' ? <ChevronUp size={11} className="ml-1 text-[#c59a58]" /> : <ChevronDown size={11} className="ml-1 text-[#c59a58]" />;
+    return sortDir === 'asc' ? <ChevronUp size={11} className="ml-1 text-[var(--ns-gold)]" /> : <ChevronDown size={11} className="ml-1 text-[var(--ns-gold)]" />;
   };
 
   interface GroupItem {
@@ -858,13 +858,13 @@ export const ReservationsPage: React.FC = () => {
       subtitle="Manage group bookings, individual room commitments, guest registration, and deposit settlements."
       actions={
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-line)] bg-[var(--ns-surface)] hover:bg-[var(--ns-surface-2)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[var(--ns-line)] bg-[var(--ns-surface)] hover:bg-[var(--ns-surface-2)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
-            <CreditCard size={14} className="text-[#c59a58]" /> Payments &amp; Receipts
+          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
+            <CreditCard size={14} className="text-[var(--ns-gold)]" /> Payments &amp; Receipts
           </Button>
-          <Button size="sm" onClick={() => setOpen(true)} className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5">
+          <Button size="sm" onClick={() => setOpen(true)} className="glass text-[var(--ns-teal)] shadow-md text-xs font-semibold gap-1.5 ns-glass-hover">
             <Plus size={14} /> New Reservation
           </Button>
         </div>
@@ -881,8 +881,8 @@ export const ReservationsPage: React.FC = () => {
         <Toolbar search={q} onSearch={setQ} placeholder="Search guest, booking code or room…">
           {/* Prominent Date Filter with label & Today shortcut */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <div className="flex items-center rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] px-2.5 h-10 shadow-sm focus-within:border-[#c59a58] focus-within:ring-1 focus-within:ring-[#c59a58]">
-              <CalendarDays size={14} className="text-[#c59a58] mr-2 flex-shrink-0" />
+            <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-2.5 h-10 shadow-sm focus-within:border-[var(--ns-gold)] focus-within:ring-1 focus-within:ring-[var(--ns-gold)]">
+              <CalendarDays size={14} className="text-[var(--ns-gold)] mr-2 flex-shrink-0" />
               <label htmlFor="resDateFilter" className="text-[11px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap cursor-pointer">
                 Filter date:
               </label>
@@ -891,14 +891,14 @@ export const ReservationsPage: React.FC = () => {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="border-0 bg-transparent text-xs font-semibold text-[var(--ns-ink)] focus:outline-none focus:ring-0 p-0 cursor-pointer"
+                className="border-0 bg-transparent text-xs font-semibold text-[var(--ns-ink)] focus:outline-none focus:ring-0 p-0 cursor-pointer glass-input"
                 title="Filter reservations by stay date"
               />
               {dateFilter && (
                 <button
                   type="button"
                   onClick={() => setDateFilter('')}
-                  className="ml-2 rounded-full p-1 text-[var(--ns-muted)] hover:bg-[var(--ns-surface-2)] hover:text-red-500"
+                  className="ml-2 rounded-full p-1 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] bg-[var(--ns-glass-1)]"
                   title="Clear date filter"
                 >
                   <X size={13} />
@@ -911,10 +911,10 @@ export const ReservationsPage: React.FC = () => {
                 const today = new Date().toISOString().slice(0, 10);
                 setDateFilter(dateFilter === today ? '' : today);
               }}
-              className={`h-10 px-3.5 rounded-xl border text-xs font-bold transition ${
+              className={`glass-subtle ns-glass-hover h-10 px-3.5 rounded-xl border text-xs font-bold transition ${
                 dateFilter === new Date().toISOString().slice(0, 10)
-                  ? 'border-[#173c4d] bg-[#173c4d] text-[#fdfbf7] shadow-sm font-black'
-                  : 'border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-[#c59a58] hover:text-[var(--ns-ink)]'
+                  ? 'border-[var(--ns-gold)] glass text-[var(--ns-teal)] shadow-sm font-black ns-glass-selected'
+                  : 'border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-ink)]'
               }`}
               title="Show reservations active today"
             >
@@ -923,7 +923,7 @@ export const ReservationsPage: React.FC = () => {
           </div>
 
           {/* Sort By Dropdown */}
-          <div className="flex items-center rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] px-2.5 h-10 shadow-sm focus-within:border-[#c59a58]">
+          <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-2.5 h-10 shadow-sm focus-within:border-[var(--ns-gold)]">
             <ArrowUpDown size={14} className="text-[var(--ns-muted)] mr-2 flex-shrink-0" />
             <select
               value={sortField ? `${sortField}_${sortDir}` : 'default'}
@@ -935,7 +935,7 @@ export const ReservationsPage: React.FC = () => {
                 else if (val === 'checkOut_desc') { setSortField('checkOutDate'); setSortDir('desc'); }
                 else { setSortField(null); setSortDir('asc'); }
               }}
-              className="border-0 bg-transparent text-xs font-semibold text-[var(--ns-ink)] focus:outline-none focus:ring-0 p-0 cursor-pointer"
+              className="border-0 bg-transparent text-xs font-semibold text-[var(--ns-ink)] focus:outline-none focus:ring-0 p-0 cursor-pointer glass-input"
               title="Sort reservations by date"
             >
               <option value="default">Sort: Default grouping</option>
@@ -950,7 +950,7 @@ export const ReservationsPage: React.FC = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="ns-input h-10 px-3 text-xs font-semibold"
+            className="ns-input glass-input h-10 px-3 text-xs font-semibold"
             title="Filter by status"
           >
             <option value="ALL">Status: ALL</option>
@@ -965,9 +965,9 @@ export const ReservationsPage: React.FC = () => {
 
         {/* Active Date Filter Banner */}
         {dateFilter && (
-          <div className="flex items-center justify-between border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] px-5 py-2.5 text-xs text-[var(--ns-ink)]">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] ns-glass-band px-5 py-2.5 text-xs text-[var(--ns-ink)]">
             <div className="flex items-center gap-2">
-              <CalendarDays size={14} className="text-[#c59a58]" />
+              <CalendarDays size={14} className="text-[var(--ns-gold)]" />
               <span>
                 Showing reservations active on{' '}
                 <strong className="font-bold text-[var(--ns-ink)]">
@@ -984,7 +984,7 @@ export const ReservationsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setDateFilter('')}
-              className="flex items-center gap-1 rounded-lg bg-[var(--ns-surface)] px-2 py-1 text-[11px] font-bold text-[#b88738] hover:bg-[var(--ns-surface-2)] border border-[var(--ns-line)]"
+              className="flex items-center gap-1 rounded-lg glass px-2 py-1 text-[11px] font-bold text-[var(--ns-gold)] ns-glass-hover border border-[var(--ns-glass-line)]"
             >
               <X size={12} /> Clear date filter
             </button>
@@ -994,7 +994,7 @@ export const ReservationsPage: React.FC = () => {
           <LoadingState />
         ) : displayItems.length === 0 ? (
           <div className="p-5">
-            <div className="rounded-2xl border border-dashed border-[var(--ns-line)] p-12 text-center bg-[var(--ns-surface-2)]">
+            <div className="rounded-2xl border border-dashed border-[var(--ns-glass-line)] p-12 text-center glass-subtle">
               <CalendarDays className="mx-auto text-[var(--ns-muted)]" />
               <h3 className="mt-3 text-sm font-extrabold text-[var(--ns-ink)]">
                 {dateFilter ? `No bookings on ${new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'No bookings yet'}
@@ -1003,7 +1003,7 @@ export const ReservationsPage: React.FC = () => {
                 {dateFilter ? 'Try a different date or clear the filter.' : 'Your fresh property database is ready for its first booking.'}
               </p>
               {dateFilter && (
-                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl bg-[#173c4d] px-4 py-2 text-[11px] font-extrabold text-[#fdfbf7] hover:bg-[#122834] transition">
+                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl glass px-4 py-2 text-[11px] font-extrabold text-[var(--ns-teal)] ns-glass-hover transition">
                   Clear date filter
                 </button>
               )}
@@ -1012,7 +1012,7 @@ export const ReservationsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-[var(--ns-surface-2)] text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-line)]">
+              <thead className="ns-glass-band text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="px-5 py-3">Reservation / Group</th>
                   <th className="px-5 py-3">Guests</th>
@@ -1021,7 +1021,7 @@ export const ReservationsPage: React.FC = () => {
                     <span className="flex items-center gap-3">
                       <button
                         onClick={() => toggleSort('checkInDate')}
-                        className={`flex items-center transition-colors hover:text-[#c59a58] ${sortField === 'checkInDate' ? 'text-[#c59a58] font-black' : ''}`}
+                        className={`glass-subtle ns-glass-hover flex items-center transition-colors hover:text-[var(--ns-gold)] ${sortField === 'checkInDate' ? 'text-[var(--ns-gold)] font-black' : ''}`}
                         title="Sort by check-in date"
                       >
                         Check-in <SortIcon field="checkInDate" />
@@ -1029,7 +1029,7 @@ export const ReservationsPage: React.FC = () => {
                       <span className="opacity-30">·</span>
                       <button
                         onClick={() => toggleSort('checkOutDate')}
-                        className={`flex items-center transition-colors hover:text-[#c59a58] ${sortField === 'checkOutDate' ? 'text-[#c59a58] font-black' : ''}`}
+                        className={`glass-subtle ns-glass-hover flex items-center transition-colors hover:text-[var(--ns-gold)] ${sortField === 'checkOutDate' ? 'text-[var(--ns-gold)] font-black' : ''}`}
                         title="Sort by check-out date"
                       >
                         Check-out <SortIcon field="checkOutDate" />
@@ -1042,7 +1042,7 @@ export const ReservationsPage: React.FC = () => {
                   <th />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ed] dark:divide-slate-800/80">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {displayItems.map((item) => {
                   if (item.isGroup) {
                     const isExpanded = expandedGroups.has(item.bookingId);
@@ -1050,7 +1050,7 @@ export const ReservationsPage: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <tr
                           onClick={() => setSelectedGroupId(item.bookingId)}
-                          className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors bg-slate-50/70 dark:bg-slate-900/40"
+                          className="cursor-pointer ns-glass-hover transition-colors ns-glass-band"
                         >
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-1.5 flex-wrap">
@@ -1065,14 +1065,14 @@ export const ReservationsPage: React.FC = () => {
                                     return next;
                                   });
                                 }}
-                                className="mr-0.5 rounded p-1 text-[#b88738] dark:text-amber-400 hover:bg-[#c59a58]/10 transition"
+                                className="mr-0.5 rounded p-1 text-[var(--ns-gold)] ns-glass-hover transition bg-[var(--ns-glass-1)]"
                                 title={isExpanded ? 'Collapse rooms' : 'Expand rooms'}
                               >
                                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                               </button>
-                              <span className="font-mono text-[11px] font-bold text-[#b88738] dark:text-amber-400">{item.bookingId}</span>
-                              <span className="inline-flex items-center gap-1 rounded-md bg-[#173c4d]/5 dark:bg-[#c59a58]/20 px-2 py-0.5 text-[9px] font-extrabold text-[#173c4d] dark:text-amber-300 border border-[#173c4d]/15 dark:border-[#c59a58]/40">
-                                <Users size={10} className="text-[#c59a58]" /> GROUP · {item.reservations.length} ROOMS
+                              <span className="font-mono text-[11px] font-bold text-[var(--ns-gold)]">{item.bookingId}</span>
+                              <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[9px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
+                                <Users size={10} className="text-[var(--ns-gold)]" /> GROUP · {item.reservations.length} ROOMS
                               </span>
                             </div>
                             <div className="mt-1 text-[10px] text-[var(--ns-muted)]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</div>
@@ -1081,9 +1081,9 @@ export const ReservationsPage: React.FC = () => {
                           <td className="px-5 py-4 text-xs text-[var(--ns-ink)]">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-extrabold">{formatGuestName(item.leadGuest)}</span>
-                              <span className="text-[10px] font-bold text-[#b88738] dark:text-amber-400">(Lead)</span>
+                              <span className="text-[10px] font-bold text-[var(--ns-gold)]">(Lead)</span>
                               {item.allGuests.length > 1 && (
-                                <span className="inline-flex items-center rounded-md bg-[var(--ns-surface-2)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-line)]">
+                                <span className="inline-flex items-center rounded-md glass-subtle px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                                   +{item.allGuests.length - 1} in party
                                 </span>
                               )}
@@ -1099,21 +1099,21 @@ export const ReservationsPage: React.FC = () => {
                           </td>
                           <td className="px-5 py-4 text-xs font-extrabold text-[var(--ns-ink)]">
                             <div>{formatCurrency(item.totalAmount)}</div>
-                            <div className="text-[9px] font-bold uppercase tracking-wider text-[#b88738] dark:text-amber-400">Group total</div>
-                            {item.discountAmount > 0 && <div className="mt-0.5 text-[10px] text-[#a05d20] dark:text-amber-400">Discount -{formatCurrency(item.discountAmount)}</div>}
+                            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-gold)]">Group total</div>
+                            {item.discountAmount > 0 && <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">Discount -{formatCurrency(item.discountAmount)}</div>}
                           </td>
                           <td className="px-5 py-4 text-xs">
                             {item.recordedTotal > 0 ? (
                               <>
-                                <div className={`font-extrabold ${item.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738] dark:text-amber-400'}`}>
+                                <div className={`font-extrabold ${item.isFullyPaid ? 'text-[var(--ns-success)]' : 'text-[var(--ns-gold)]'}`}>
                                   {formatCurrency(item.recordedTotal)} paid
                                 </div>
                                 {item.isFullyPaid ? (
-                                  <span className="mt-1 inline-block rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                                  <span className="mt-1 inline-block rounded-full glass-subtle px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                                     Paid in full (Group)
                                   </span>
                                 ) : (
-                                  <div className="mt-0.5 text-[10px] font-bold text-[#b0743a] dark:text-amber-400">
+                                  <div className="mt-0.5 text-[10px] font-bold text-[var(--ns-muted)]">
                                     Balance due {formatCurrency(item.balance)}
                                   </div>
                                 )}
@@ -1122,18 +1122,18 @@ export const ReservationsPage: React.FC = () => {
                             ) : (
                               <div>
                                 <span className="text-[var(--ns-muted)] font-semibold">Unpaid</span>
-                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a] dark:text-amber-400">Due {formatCurrency(item.totalAmount)}</div>
+                                <div className="mt-0.5 text-[10px] font-bold text-[var(--ns-muted)]">Due {formatCurrency(item.totalAmount)}</div>
                               </div>
                             )}
                           </td>
                           <td className="px-5 py-4">{statusBadge(item.status)}</td>
                           <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => setSelectedGroupId(item.bookingId)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="View group booking details">
+                              <button onClick={() => setSelectedGroupId(item.bookingId)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]" title="View group booking details">
                                 <Eye size={16} />
                               </button>
                               {canProcessPayment && !item.isFullyPaid && (
-                                <button onClick={() => openGroupDeposit(item)} className="rounded-lg p-2 text-[#b88738] dark:text-amber-400 hover:bg-[#c59a58]/10" title="Record group payment">
+                                <button onClick={() => openGroupDeposit(item)} className="rounded-lg p-2 text-[var(--ns-gold)] ns-glass-hover bg-[var(--ns-glass-1)]" title="Record group payment">
                                   <CreditCard size={16} />
                                 </button>
                               )}
@@ -1146,13 +1146,13 @@ export const ReservationsPage: React.FC = () => {
                                     return next;
                                   });
                                 }}
-                                className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400"
+                                className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]"
                                 title={isExpanded ? 'Hide rooms' : 'Show rooms in this group'}
                               >
                                 <BedDouble size={16} />
                               </button>
                               {canCancel && (
-                                <button onClick={() => cancelGroup(item.bookingId)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400" title="Cancel entire group booking">
+                                <button onClick={() => cancelGroup(item.bookingId)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] bg-[var(--ns-glass-1)]" title="Cancel entire group booking">
                                   <MoreHorizontal size={16} />
                                 </button>
                               )}
@@ -1165,10 +1165,10 @@ export const ReservationsPage: React.FC = () => {
                           <tr
                             key={subRes.id}
                             onClick={() => openDetails(subRes)}
-                            className="bg-amber-50/25 dark:bg-slate-950/60 border-l-4 border-l-[#c59a58] text-xs hover:bg-amber-100/40 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                            className="ns-glass-band border-l-4 border-l-[var(--ns-gold)] text-xs ns-glass-hover transition-colors cursor-pointer"
                           >
                             <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[var(--ns-muted)]">
-                              <span className="text-[#c59a58] font-bold mr-1.5">↳</span>
+                              <span className="text-[var(--ns-gold)] font-bold mr-1.5">↳</span>
                               {subRes.confirmationNo}
                             </td>
                             <td className="px-5 py-2.5 text-[var(--ns-ink)]">
@@ -1189,11 +1189,11 @@ export const ReservationsPage: React.FC = () => {
                             <td className="px-5 py-2.5">{statusBadge(subRes.status || 'PENDING')}</td>
                             <td className="px-5 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-1">
-                                <button onClick={() => openDetails(subRes)} className="p-1 text-[var(--ns-muted)] hover:text-[#b88738] dark:hover:text-amber-400" title="View room details"><Eye size={14} /></button>
+                                <button onClick={() => openDetails(subRes)} className="p-1 text-[var(--ns-muted)] hover:text-[var(--ns-gold)] glass-subtle ns-glass-hover" title="View room details"><Eye size={14} /></button>
                                 {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(subRes.status).toUpperCase()) && (
-                                  <button onClick={() => openEdit(subRes)} className="p-1 text-[var(--ns-muted)] hover:text-[#b88738] dark:hover:text-amber-400" title="Edit room stay"><Pencil size={14} /></button>
+                                  <button onClick={() => openEdit(subRes)} className="p-1 text-[var(--ns-muted)] hover:text-[var(--ns-gold)] glass-subtle ns-glass-hover" title="Edit room stay"><Pencil size={14} /></button>
                                 )}
-                                <button onClick={() => openManageGuests(subRes)} className="p-1 text-[var(--ns-muted)] hover:text-[#b88738] dark:hover:text-amber-400" title="Manage guests on room"><Users size={14} /></button>
+                                <button onClick={() => openManageGuests(subRes)} className="p-1 text-[var(--ns-muted)] hover:text-[var(--ns-gold)] glass-subtle ns-glass-hover" title="Manage guests on room"><Users size={14} /></button>
                               </div>
                             </td>
                           </tr>
@@ -1209,11 +1209,11 @@ export const ReservationsPage: React.FC = () => {
                     <tr
                       key={r.id}
                       onClick={() => openDetails(r)}
-                      className="cursor-pointer hover:bg-[var(--ns-surface-2)] transition-colors"
+                      className="cursor-pointer ns-glass-hover transition-colors"
                     >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-[11px] font-bold text-[#b88738] dark:text-amber-400">{r.confirmationNo || r.id.slice(0, 8)}</span>
+                          <span className="font-mono text-[11px] font-bold text-[var(--ns-gold)]">{r.confirmationNo || r.id.slice(0, 8)}</span>
                         </div>
                         <div className="mt-1 text-[10px] text-[var(--ns-muted)]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</div>
                         {isAdmin && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">Booked by: {r.bookedBy?.name || '-'}</div>}
@@ -1223,7 +1223,7 @@ export const ReservationsPage: React.FC = () => {
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-extrabold">{guestName(allGuests[0])}</span>
                             {extra > 0 && (
-                              <span className="inline-flex items-center rounded-md bg-[var(--ns-surface-2)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-line)]">
+                              <span className="inline-flex items-center rounded-md glass-subtle px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                                 +{extra} more
                               </span>
                             )}
@@ -1241,16 +1241,16 @@ export const ReservationsPage: React.FC = () => {
                       </td>
                       <td className="px-5 py-4 text-xs font-extrabold text-[var(--ns-ink)]">
                         {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
-                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[#a05d20] dark:text-amber-400" title={r.discountReason || 'Approved reservation discount'}>Discount -{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
+                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[var(--ns-muted)]" title={r.discountReason || 'Approved reservation discount'}>Discount -{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                       </td>
                       <td className="px-5 py-4 text-xs">
                         {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
                           <>
-                            <div className={`font-extrabold ${isFullyPaid(r) ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738] dark:text-amber-400'}`}>
+                            <div className={`font-extrabold ${isFullyPaid(r) ? 'text-[var(--ns-success)]' : 'text-[var(--ns-gold)]'}`}>
                               {formatCurrency(recordedDepositTotal(r))} paid
                             </div>
                             {isFullyPaid(r) ? (
-                              <span className="mt-1 inline-block rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                              <span className="mt-1 inline-block rounded-full glass-subtle px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                                 Paid in full
                               </span>
                             ) : (
@@ -1258,7 +1258,7 @@ export const ReservationsPage: React.FC = () => {
                                 {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
                                   <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">{formatCurrency(r.depositAmount)} expected</div>
                                 )}
-                                <div className="mt-0.5 text-[10px] font-bold text-[#b0743a] dark:text-amber-400">
+                                <div className="mt-0.5 text-[10px] font-bold text-[var(--ns-muted)]">
                                   Balance due {formatCurrency(reservationBalance(r))}
                                 </div>
                               </>
@@ -1271,7 +1271,7 @@ export const ReservationsPage: React.FC = () => {
                       <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">Out: {r.checkedOutBy.name}</div>}</td>
                       <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="View booking details">
+                          <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]" title="View booking details">
                             <Eye size={16} />
                           </button>
                           {canProcessPayment && !isFullyPaid(r) && String(r.status).toUpperCase() !== 'CANCELLED' && (
@@ -1284,32 +1284,32 @@ export const ReservationsPage: React.FC = () => {
                                 setDepositTenders([makeTenderRow()]);
                                 setDepositOpen(true);
                               }}
-                              className="rounded-lg p-2 text-[#b88738] dark:text-amber-400 hover:bg-[#c59a58]/10"
+                              className="rounded-lg p-2 text-[var(--ns-gold)] ns-glass-hover bg-[var(--ns-glass-1)]"
                               title={String(r.status).toUpperCase() === 'CHECKED_OUT' ? 'Record post-checkout payment' : 'Record payment'}
                             >
                               <CreditCard size={16} />
                             </button>
                           )}
                           {canEdit && ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(String(r.status).toUpperCase()) && (
-                            <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="Edit reservation details">
+                            <button onClick={() => openEdit(r)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]" title="Edit reservation details">
                               <Pencil size={16} />
                             </button>
                           )}
-                          <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738] dark:hover:text-amber-400" title="Manage guests on this reservation">
+                          <button onClick={() => openManageGuests(r)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]" title="Manage guests on this reservation">
                             <Users size={16} />
                           </button>
                           {canCancel && ['PENDING', 'CONFIRMED'].includes(String(r.status).toUpperCase()) && (
-                            <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-700 dark:hover:text-amber-300" title="Mark reservation as NO-SHOW">
+                            <button onClick={() => markNoShow(r.id)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-warning)] bg-[var(--ns-glass-1)]" title="Mark reservation as NO-SHOW">
                               <UserX size={16} />
                             </button>
                           )}
                           {!['CANCELLED', 'CHECKED_OUT', 'NO_SHOW'].includes(String(r.status).toUpperCase()) && (
-                            <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[var(--ns-muted)] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400" title="Cancel reservation">
+                            <button onClick={() => cancel(r.id)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] bg-[var(--ns-glass-1)]" title="Cancel reservation">
                               <MoreHorizontal size={16} />
                             </button>
                           )}
                           {canDeleteCancelled && String(r.status).toUpperCase() === 'CANCELLED' && (
-                            <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[#899397] dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400" title="Permanently delete cancelled reservation">
+                            <button onClick={() => deleteCancelled(r)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] bg-[var(--ns-glass-1)]" title="Permanently delete cancelled reservation">
                               <Trash2 size={16} />
                             </button>
                           )}
@@ -1328,11 +1328,11 @@ export const ReservationsPage: React.FC = () => {
       <Modal open={open} onClose={closeModal} title="New reservation" size="lg">
         <form onSubmit={save} className="space-y-5">
           <div className="flex flex-wrap gap-1.5">
-            <button type="button" onClick={() => setMulti(false)} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${!multi ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'border border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:border-[#c59a58] hover:text-[#b88738]'}`}>
+            <button type="button" onClick={() => setMulti(false)} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${!multi ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'}`}>
               Single room
             </button>
-            <button type="button" onClick={startMulti} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center gap-1.5 transition ${multi ? 'bg-[#173c4d] text-[#fdfbf7] shadow-sm' : 'border border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:border-[#c59a58] hover:text-[#b88738]'}`}>
-              <Users size={12} className="text-[#c59a58]" /> Group booking (multiple rooms)
+            <button type="button" onClick={startMulti} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center gap-1.5 transition ${multi ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'}`}>
+              <Users size={12} className="text-[var(--ns-gold)]" /> Group booking (multiple rooms)
             </button>
           </div>
 
@@ -1357,7 +1357,7 @@ export const ReservationsPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="rounded-2xl border border-[var(--ns-line)] p-4">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] p-4 glass-subtle">
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Guests in this booking</div>
                   <Button size="sm" type="button" variant="outline" onClick={() => setPeople((p) => [...p, { ...emptyPerson, key: uid() }])}>
@@ -1366,18 +1366,18 @@ export const ReservationsPage: React.FC = () => {
                 </div>
                 <div className="mt-3 space-y-3">
                   {people.map((p, i) => (
-                    <div key={p.key} className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-3">
+                    <div key={p.key} className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex flex-wrap gap-1.5">
-                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'existing' } : x)))} className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'existing' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}>
+                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'existing' } : x)))} className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'existing' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                             Existing
                           </button>
-                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'new' } : x)))} className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'new' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}>
+                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'new' } : x)))} className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'new' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                             New guest
                           </button>
                         </div>
                         {people.length > 1 && (
-                          <button type="button" onClick={() => setPeople((arr) => arr.filter((x) => x.key !== p.key))} className="text-[#b23a3a]">
+                          <button type="button" onClick={() => setPeople((arr) => arr.filter((x) => x.key !== p.key))} className="text-[var(--ns-muted)] glass-subtle ns-glass-hover">
                             <X size={14} />
                           </button>
                         )}
@@ -1414,7 +1414,7 @@ export const ReservationsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-[var(--ns-line)] p-4">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] p-4 glass-subtle">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Rooms in this party ({roomLines.length})</div>
@@ -1427,10 +1427,10 @@ export const ReservationsPage: React.FC = () => {
                         key={cnt}
                         type="button"
                         onClick={() => setMultiRoomCount(cnt)}
-                        className={`rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${
+                        className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${
                           roomLines.length === cnt
-                            ? 'bg-[#173c4d] text-[#fdfbf7] shadow-xs'
-                            : 'border border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:border-[#c59a58] hover:text-[#b88738]'
+                            ? 'glass text-[var(--ns-teal)] shadow-xs ns-glass-selected'
+                            : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'
                         }`}
                       >
                         {cnt} Rooms
@@ -1445,11 +1445,11 @@ export const ReservationsPage: React.FC = () => {
                   {roomLines.map((line, i) => {
                     const taken = roomLines.filter((x) => x.key !== line.key).map((x) => x.roomId);
                     return (
-                      <div key={line.key} className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-3">
+                      <div key={line.key} className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3">
                         <div className="flex items-center justify-between">
                           <div className="text-[11px] font-extrabold text-[var(--ns-ink)]">Room {i + 1} of {roomLines.length}</div>
                           {roomLines.length > 1 && (
-                            <button type="button" onClick={() => setRoomLines((arr) => arr.filter((x) => x.key !== line.key))} className="text-[#b23a3a] hover:bg-red-50 p-1 rounded" title="Remove this room">
+                            <button type="button" onClick={() => setRoomLines((arr) => arr.filter((x) => x.key !== line.key))} className="text-[var(--ns-muted)] ns-glass-hover p-1 rounded bg-[var(--ns-glass-1)]" title="Remove this room">
                               <Minus size={14} />
                             </button>
                           )}
@@ -1507,7 +1507,7 @@ export const ReservationsPage: React.FC = () => {
                                           ),
                                         )
                                       }
-                                      className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}
+                                      className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
                                     >
                                       {label || 'Person'}
                                     </button>
@@ -1520,7 +1520,7 @@ export const ReservationsPage: React.FC = () => {
                     );
                   })}
                   {roomLines.length === 0 && (
-                    <button type="button" onClick={() => setRoomLines((l) => [...l, emptyRoomLine(people[0]?.key || '')])} className="w-full rounded-xl border border-dashed border-[var(--ns-line)] py-6 text-xs font-bold text-[var(--ns-muted)] hover:border-[#c59a58] hover:text-[#b88738]">
+                    <button type="button" onClick={() => setRoomLines((l) => [...l, emptyRoomLine(people[0]?.key || '')])} className="w-full rounded-xl border border-dashed border-[var(--ns-glass-line)] py-6 text-xs font-bold text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)] ns-glass-hover bg-[var(--ns-glass-1)]">
                       + Add the first room
                     </button>
                   )}
@@ -1528,25 +1528,25 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               {/* Group Partial Payment & Real-time Due Card */}
-              <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-line)] pb-2.5">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-glass-line)] pb-2.5">
                   <div>
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)] flex items-center gap-1.5">
-                      <CreditCard size={14} className="text-[#c59a58]" /> Group Financial Breakdown &amp; Payment (optional)
+                      <CreditCard size={14} className="text-[var(--ns-gold)]" /> Group Financial Breakdown &amp; Payment (optional)
                     </div>
                     <p className="mt-0.5 text-[10px] text-[var(--ns-muted)]">Calculates total group charges, payments made, and remaining balance due.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {groupEstimatedTotal > 0 && Number(groupDeposit.amount) >= groupEstimatedTotal ? (
-                      <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                         ✓ Full Payment (Group)
                       </span>
                     ) : Number(groupDeposit.amount) > 0 ? (
-                      <span className="rounded-md bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 text-[11px] font-extrabold text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                         Part Payment / Deposit (Group)
                       </span>
                     ) : (
-                      <span className="rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-extrabold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                         Unpaid · Settle at check-in
                       </span>
                     )}
@@ -1600,14 +1600,14 @@ export const ReservationsPage: React.FC = () => {
                 </div>
 
                 {/* Live Real-time Due & Settlement Box */}
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-3 text-xs space-y-2">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3 text-xs space-y-2">
                   <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span className="font-semibold">Total money supposed to be paid (Group Total):</span>
                     <span className="font-extrabold text-[var(--ns-ink)] text-sm">{formatCurrency(groupEstimatedTotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span>Money paid now (Deposit):</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(Number(groupDeposit.amount) || 0)}</span>
+                    <span className="font-bold text-[var(--ns-success)]">{formatCurrency(Number(groupDeposit.amount) || 0)}</span>
                   </div>
                   {groupDeposit.method === 'CASH' && Number(groupDeposit.tendered) > Number(groupDeposit.amount) && (
                     <div className="flex justify-between items-center text-[var(--ns-muted)]">
@@ -1616,14 +1616,14 @@ export const ReservationsPage: React.FC = () => {
                     </div>
                   )}
                   {groupDeposit.method === 'CASH' && Number(groupDeposit.tendered) > Number(groupDeposit.amount) && (
-                    <div className="flex justify-between items-center rounded-lg bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
+                    <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-success)] border border-[var(--ns-success)]">
                       <span className="font-bold">&#8594; Change due to guest:</span>
                       <span className="font-extrabold text-sm">{formatCurrency(Number(groupDeposit.tendered) - Number(groupDeposit.amount))}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center rounded-lg bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1.5 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 mt-1">
+                  <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-warning)] border border-[var(--ns-warning)] mt-1">
                     <span className="font-bold">&#8594; Remaining money due (Group Balance left):</span>
-                    <span className="font-extrabold text-sm text-[#b88738]">
+                    <span className="font-extrabold text-sm text-[var(--ns-gold)]">
                       {formatCurrency(Math.max(0, groupEstimatedTotal - (Number(groupDeposit.amount) || 0)))}
                     </span>
                   </div>
@@ -1632,12 +1632,12 @@ export const ReservationsPage: React.FC = () => {
             </>
           ) : (
             <>
-              <div className="rounded-2xl border border-[var(--ns-line)] p-4">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] p-4 glass-subtle">
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" onClick={() => setGuestMode('existing')} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'existing' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}>
+                  <button type="button" onClick={() => setGuestMode('existing')} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'existing' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                     Select existing guest
                   </button>
-                  <button type="button" onClick={() => setGuestMode('new')} className={`rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'new' ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}>
+                  <button type="button" onClick={() => setGuestMode('new')} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'new' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                     Enter new guest details
                   </button>
                 </div>
@@ -1684,7 +1684,7 @@ export const ReservationsPage: React.FC = () => {
                               key={g.id}
                               type="button"
                               onClick={() => toggleFormGuest(g.id)}
-                              className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}
+                              className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
                             >
                               {g.firstName} {g.lastName}
                             </button>
@@ -1707,11 +1707,11 @@ export const ReservationsPage: React.FC = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField label="Room" required>
                   {!form.checkInDate || !form.checkOutDate || form.checkOutDate <= form.checkInDate ? (
-                    <div className="flex h-10 items-center rounded-xl border border-dashed border-[#d0d9d4] bg-[#f7f8f6] px-3 text-xs text-[#8a9598]">
+                    <div className="flex h-10 items-center rounded-xl border border-dashed border-[var(--ns-glass-line)] glass-subtle px-3 text-xs text-[var(--ns-muted)]">
                       Select arrival &amp; departure dates first
                     </div>
                   ) : bookableRooms.length === 0 ? (
-                    <div className="flex h-10 items-center rounded-xl border border-dashed border-[#f0c0a0] bg-[#fff8f4] px-3 text-xs text-[#b05a20] font-semibold">
+                    <div className="flex h-10 items-center rounded-xl border border-dashed border-[var(--ns-glass-line)] glass-subtle px-3 text-xs text-[var(--ns-warning)] font-semibold">
                       No rooms available for selected dates
                     </div>
                   ) : (
@@ -1730,25 +1730,25 @@ export const ReservationsPage: React.FC = () => {
                 </FormField>
               </div>
 
-              <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-line)] pb-2.5">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-glass-line)] pb-2.5">
                   <div>
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)] flex items-center gap-1.5">
-                      <CreditCard size={14} className="text-[#c59a58]" /> Financial Breakdown &amp; Payment (optional)
+                      <CreditCard size={14} className="text-[var(--ns-gold)]" /> Financial Breakdown &amp; Payment (optional)
                     </div>
                     <p className="mt-0.5 text-[10px] text-[var(--ns-muted)]">Calculates room charges, payments, and remaining money due.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {singleEstimatedTotal > 0 && Number(form.depositAmount) >= singleEstimatedTotal ? (
-                      <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                         ✓ Full Payment
                       </span>
                     ) : Number(form.depositAmount) > 0 ? (
-                      <span className="rounded-md bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 text-[11px] font-extrabold text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                         Part Payment / Deposit
                       </span>
                     ) : (
-                      <span className="rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-extrabold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                         Unpaid · Settle at check-in
                       </span>
                     )}
@@ -1771,18 +1771,18 @@ export const ReservationsPage: React.FC = () => {
                   </FormField>
                 </div>
                 {/* Live Real-time Due & Settlement Box */}
-                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-3 text-xs space-y-2">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3 text-xs space-y-2">
                   <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span className="font-semibold">Total money supposed to be paid:</span>
                     <span className="font-extrabold text-[var(--ns-ink)] text-sm">{formatCurrency(singleEstimatedTotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span>Money paid now (Deposit):</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(Number(form.depositAmount) || 0)}</span>
+                    <span className="font-bold text-[var(--ns-success)]">{formatCurrency(Number(form.depositAmount) || 0)}</span>
                   </div>
-                  <div className="flex justify-between items-center rounded-lg bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1.5 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 mt-1">
+                  <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-warning)] border border-[var(--ns-warning)] mt-1">
                     <span className="font-bold">&#8594; Remaining money due (Balance left):</span>
-                    <span className="font-extrabold text-sm text-[#b88738]">
+                    <span className="font-extrabold text-sm text-[var(--ns-gold)]">
                       {formatCurrency(Math.max(0, singleEstimatedTotal - (Number(form.depositAmount) || 0)))}
                     </span>
                   </div>
@@ -1791,7 +1791,7 @@ export const ReservationsPage: React.FC = () => {
             </>
           )}
 
-          <div className="rounded-2xl bg-[#f7f8f6] p-4 text-[11px] leading-5 text-[#778286]">
+          <div className="rounded-2xl glass-subtle p-4 text-[11px] leading-5 text-[var(--ns-muted)]">
             Availability and pricing must be validated by the server. The client does not reserve a room until the API confirms the booking.
           </div>
           <div className="flex justify-end gap-2">
@@ -1805,7 +1805,7 @@ export const ReservationsPage: React.FC = () => {
 
       <Modal open={!!editRes} onClose={() => { setEditRes(null); setEditAvailableRoomIds(null); }} title={editRes ? `Edit ${editRes.confirmationNo || 'reservation'}` : 'Edit reservation'} size="lg">
         <form onSubmit={saveEdit} className="space-y-4">
-          <div className="rounded-xl bg-[#f7f8f6] p-3 text-xs text-[#667278]">{String(editRes?.status).toUpperCase() === 'CHECKED_IN' ? 'This guest is in house. You can extend or shorten departure and update stay details; any accommodation difference is posted to the open folio.' : 'Changes are checked against live availability. The room rate and booking total are recalculated from the revised stay dates.'}</div>
+          <div className="rounded-xl glass-subtle p-3 text-xs text-[var(--ns-muted)]">{String(editRes?.status).toUpperCase() === 'CHECKED_IN' ? 'This guest is in house. You can extend or shorten departure and update stay details; any accommodation difference is posted to the open folio.' : 'Changes are checked against live availability. The room rate and booking total are recalculated from the revised stay dates.'}</div>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Arrival" required><TextInput type="date" required disabled={String(editRes?.status).toUpperCase() === 'CHECKED_IN'} value={editForm.checkInDate} onChange={(e) => setEditForm({ ...editForm, checkInDate: e.target.value })} /></FormField>
             <FormField label="Departure" required><TextInput type="date" required value={editForm.checkOutDate} onChange={(e) => setEditForm({ ...editForm, checkOutDate: e.target.value })} /></FormField>
@@ -1815,9 +1815,9 @@ export const ReservationsPage: React.FC = () => {
                   {rooms.filter((room) => room.isActive && !['MAINTENANCE', 'OUT_OF_SERVICE'].includes(room.status)).map((room) => <option key={room.id} value={room.id}>Room {room.number} · {room.roomType?.name || 'Room'}</option>)}
                 </SelectInput>
               ) : editAvailabilityLoading ? (
-                <div className="flex h-10 items-center rounded-xl border border-[#eef1ee] bg-[#f7f8f6] px-3 text-xs text-[#8a9598]">Checking availability…</div>
+                <div className="flex h-10 items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 text-xs text-[var(--ns-muted)]">Checking availability…</div>
               ) : editAvailableRoomIds === null ? (
-                <div className="flex h-10 items-center rounded-xl border border-dashed border-[#d0d9d4] bg-[#f7f8f6] px-3 text-xs text-[#8a9598]">Select valid arrival &amp; departure dates to see available rooms</div>
+                <div className="flex h-10 items-center rounded-xl border border-dashed border-[var(--ns-glass-line)] glass-subtle px-3 text-xs text-[var(--ns-muted)]">Select valid arrival &amp; departure dates to see available rooms</div>
               ) : (
                 <SelectInput required value={editForm.roomId} onChange={(e) => setEditForm({ ...editForm, roomId: e.target.value })}>
                   <option value="">Select room</option>
@@ -1836,8 +1836,8 @@ export const ReservationsPage: React.FC = () => {
             <FormField label="Adults" required><TextInput type="number" min="1" required value={editForm.adults} onChange={(e) => setEditForm({ ...editForm, adults: e.target.value })} /></FormField>
             <FormField label="Children"><TextInput type="number" min="0" value={editForm.children} onChange={(e) => setEditForm({ ...editForm, children: e.target.value })} /></FormField>
           </div>
-          <FormField label="Special requests"><textarea className="ns-input min-h-20 w-full p-3 text-sm" value={editForm.specialRequests} onChange={(e) => setEditForm({ ...editForm, specialRequests: e.target.value })} /></FormField>
-          <FormField label="Internal notes"><textarea className="ns-input min-h-20 w-full p-3 text-sm" value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} /></FormField>
+          <FormField label="Special requests"><textarea className="ns-input glass-input min-h-20 w-full p-3 text-sm" value={editForm.specialRequests} onChange={(e) => setEditForm({ ...editForm, specialRequests: e.target.value })} /></FormField>
+          <FormField label="Internal notes"><textarea className="ns-input glass-input min-h-20 w-full p-3 text-sm" value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} /></FormField>
           <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setEditRes(null)}>Cancel</Button><Button type="submit" loading={saving}>Save changes</Button></div>
         </form>
       </Modal>
@@ -1867,20 +1867,20 @@ export const ReservationsPage: React.FC = () => {
                 const groupPaid = groupItem ? groupItem.recordedTotal : recordedDepositTotal(detailsRes);
                 const groupBalance = groupItem ? groupItem.balance : reservationBalance(detailsRes);
                 return (
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#c59a58]/30 bg-[#fbf9f5] p-4 text-xs text-[#173c4d]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-gold)] glass-subtle p-4 text-xs text-[var(--ns-ink)]">
                     <div className="flex items-center gap-2.5">
-                      <div className="rounded-xl bg-[#173c4d]/10 p-2 text-[#173c4d]">
-                        <Users size={18} className="text-[#c59a58]" />
+                      <div className="rounded-xl glass-subtle p-2 text-[var(--ns-ink)]">
+                        <Users size={18} className="text-[var(--ns-gold)]" />
                       </div>
                       <div>
                         <div className="font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
                           <span>Group Booking {detailsRes.bookingId}</span>
-                          <span className="rounded-full bg-[#173c4d] px-2.5 py-0.5 text-[10px] font-bold text-[#fdfbf7]">
+                          <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
                             {groupRooms.length} Room{groupRooms.length !== 1 ? 's' : ''} in Party
                           </span>
                         </div>
                         <div className="mt-0.5 text-[11px] text-[var(--ns-muted)]">
-                          Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[var(--ns-ink)]">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-emerald-600 dark:text-emerald-400">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[#b0743a] dark:text-amber-400">{formatCurrency(groupBalance)}</strong>
+                          Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[var(--ns-ink)]">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-[var(--ns-success)]">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[var(--ns-muted)]">{formatCurrency(groupBalance)}</strong>
                         </div>
                       </div>
                     </div>
@@ -1891,7 +1891,7 @@ export const ReservationsPage: React.FC = () => {
                         setDetailsRes(null);
                         setSelectedGroupId(bid);
                       }}
-                      className="flex items-center gap-1.5 rounded-xl bg-[#173c4d] px-3.5 py-1.5 text-xs font-extrabold text-[#fdfbf7] shadow-sm hover:bg-[#122834] transition"
+                      className="flex items-center gap-1.5 rounded-xl glass px-3.5 py-1.5 text-xs font-extrabold text-[var(--ns-teal)] shadow-sm ns-glass-hover transition"
                     >
                       View Entire Group <ChevronRight size={13} />
                     </button>
@@ -1900,14 +1900,14 @@ export const ReservationsPage: React.FC = () => {
               })()}
 
               {/* Header Overview Card */}
-              <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-5">
+              <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-5">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-base font-extrabold text-[#b88738]">
+                    <span className="font-mono text-base font-extrabold text-[var(--ns-gold)]">
                       {detailsRes.confirmationNo || detailsRes.id.slice(0, 8)}
                     </span>
                     {detailsRes.bookingId && (
-                      <span className="rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-extrabold text-[#173c4d] dark:text-teal-300 border border-[#173c4d]/20">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                         PARTY · {detailsRes.bookingId}
                       </span>
                     )}
@@ -1919,7 +1919,7 @@ export const ReservationsPage: React.FC = () => {
                   {detailsRes.bookedBy && (
                     <div className="mt-1 text-xs flex items-center gap-1 text-[var(--ns-ink)] font-semibold">
                       <span>👤 Booked by</span>
-                      <span className="text-[#b88738]">{detailsRes.bookedBy?.name || 'Staff'}</span>
+                      <span className="text-[var(--ns-gold)]">{detailsRes.bookedBy?.name || 'Staff'}</span>
                     </div>
                   )}
                 </div>
@@ -1932,30 +1932,30 @@ export const ReservationsPage: React.FC = () => {
               {/* Grid 1: Stay & Room Details & Guest Details */}
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Stay & Room */}
-                <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+                <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                     <BedDouble size={14} /> Room & Stay Information
                   </div>
                   <div className="space-y-2 text-xs">
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Assigned Room</span>
                       <span className="font-extrabold text-[var(--ns-ink)]">
                         {detailsRes.room ? `Room ${detailsRes.room.number}` : 'Unassigned'}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Room Type</span>
                       <span className="font-bold text-[var(--ns-ink)]">
                         {detailsRes.room?.roomType?.name || '—'}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Stay Period</span>
                       <span className="font-bold text-[var(--ns-ink)]">
                         {checkIn.toLocaleDateString()} → {checkOut.toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Duration</span>
                       <span className="font-bold text-[var(--ns-ink)]">{nights} night{nights === 1 ? '' : 's'}</span>
                     </div>
@@ -1970,7 +1970,7 @@ export const ReservationsPage: React.FC = () => {
                 </div>
 
                 {/* Primary & Additional Guests */}
-                <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+                <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <Users size={14} /> Guests on Booking
@@ -1981,24 +1981,24 @@ export const ReservationsPage: React.FC = () => {
                         setDetailsRes(null);
                         openManageGuests(r);
                       }}
-                      className="text-[10px] font-extrabold text-[#b88738] hover:underline"
+                      className="text-[10px] font-extrabold text-[var(--ns-gold)] hover:underline glass-subtle ns-glass-hover"
                     >
                       Manage →
                     </button>
                   </div>
                   <div className="space-y-2 text-xs">
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Primary Guest</span>
                       <span className="font-extrabold text-[var(--ns-ink)]">{formatGuestName(primaryGuest)}</span>
                     </div>
                     {primaryGuest?.phone && (
-                      <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                      <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                         <span className="text-[var(--ns-muted)]">Phone</span>
                         <span className="font-bold text-[var(--ns-ink)]">{primaryGuest.phone}</span>
                       </div>
                     )}
                     {primaryGuest?.email && (
-                      <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                      <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                         <span className="text-[var(--ns-muted)]">Email</span>
                         <span className="font-bold text-[var(--ns-ink)]">{primaryGuest.email}</span>
                       </div>
@@ -2008,7 +2008,7 @@ export const ReservationsPage: React.FC = () => {
                         <span className="text-[var(--ns-muted)] block mb-1">Additional Guests ({additionalGuests.length}):</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {additionalGuests.map((ag: any) => (
-                            <span key={ag.id} className="inline-flex rounded-md bg-[var(--ns-surface)] border border-[var(--ns-line)] px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
+                            <span key={ag.id} className="inline-flex rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
                               {formatGuestName(ag.guest)}
                             </span>
                           ))}
@@ -2020,41 +2020,41 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               {/* Financial Summary Card */}
-              <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                     <CreditCard size={14} /> Financial Breakdown &amp; Money Due
                   </div>
                   {isFullyPaid(detailsRes) ? (
-                    <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                       ✓ Paid in full
                     </span>
                   ) : recordedDepositTotal(detailsRes) > 0 ? (
-                    <span className="rounded-full bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                       Part Payment / Deposit
                     </span>
                   ) : (
-                    <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                       Unpaid · Balance Due
                     </span>
                   )}
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                     <span className="text-[var(--ns-muted)]">Nightly Base Rate</span>
                     <span className="font-bold text-[var(--ns-ink)]">
                       {formatCurrency(detailsRes.baseRate || detailsRes.room?.roomType?.basePrice || 0)} / night
                     </span>
                   </div>
                   {Number(detailsRes.discountAmount || 0) > 0 && (
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)] text-amber-600 dark:text-amber-400">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)] text-[var(--ns-warning)]">
                       <span>Discount ({detailsRes.discountReason || 'Approved discount'})</span>
                       <span className="font-bold">−{formatCurrency(detailsRes.discountAmount)}</span>
                     </div>
                   )}
                   {Number(detailsRes.taxAmount || 0) > 0 && (
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Taxes & Levies</span>
                       <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(detailsRes.taxAmount)}</span>
                     </div>
@@ -2062,45 +2062,45 @@ export const ReservationsPage: React.FC = () => {
 
                   {/* Always-visible 3 KPI Tiles */}
                   <div className="grid grid-cols-3 gap-2.5 pt-2">
-                    <div className="rounded-xl bg-[var(--ns-surface)] p-3 border border-[var(--ns-line)] text-center">
+                    <div className="rounded-xl glass-subtle p-3 border border-[var(--ns-glass-line)] text-center">
                       <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">Total Money Due</div>
                       <div className="text-base font-extrabold text-[var(--ns-ink)] mt-0.5">{formatCurrency(detailsRes.totalAmount)}</div>
                     </div>
-                    <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 p-3 border border-emerald-200 dark:border-emerald-800 text-center">
-                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Money Paid</div>
-                      <div className="text-base font-extrabold text-emerald-700 dark:text-emerald-300 mt-0.5">{formatCurrency(recordedDepositTotal(detailsRes))}</div>
+                    <div className="rounded-xl glass-subtle p-3 border border-[var(--ns-success)] text-center">
+                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-success)]">Money Paid</div>
+                      <div className="text-base font-extrabold text-[var(--ns-success)] mt-0.5">{formatCurrency(recordedDepositTotal(detailsRes))}</div>
                     </div>
-                    <div className={`rounded-xl p-3 border text-center ${reservationBalance(detailsRes) > 0 ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800' : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'}`}>
-                      <div className={`text-[10px] font-extrabold uppercase tracking-wider ${reservationBalance(detailsRes) > 0 ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    <div className={`rounded-xl p-3 border text-center ${reservationBalance(detailsRes) > 0 ? 'glass-subtle border-[var(--ns-warning)]' : 'glass-subtle border-[var(--ns-success)]'}`}>
+                      <div className={`text-[10px] font-extrabold uppercase tracking-wider ${reservationBalance(detailsRes) > 0 ? 'text-[var(--ns-warning)]' : 'text-[var(--ns-success)]'}`}>
                         Remaining Money Due
                       </div>
-                      <div className={`text-base font-extrabold mt-0.5 ${reservationBalance(detailsRes) > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'}`}>
+                      <div className={`text-base font-extrabold mt-0.5 ${reservationBalance(detailsRes) > 0 ? 'text-[var(--ns-warning)]' : 'text-[var(--ns-success)]'}`}>
                         {formatCurrency(reservationBalance(detailsRes))}
                       </div>
                     </div>
                   </div>
 
                   {/* Payment Ledger / History */}
-                  <div className="space-y-1.5 bg-[var(--ns-surface)] p-3 rounded-xl border border-[var(--ns-line)] mt-2">
+                  <div className="space-y-1.5 glass-subtle p-3 rounded-xl border border-[var(--ns-glass-line)] mt-2">
                     <div className="flex justify-between items-center">
-                      <span className={`font-bold ${isFullyPaid(detailsRes) ? 'text-emerald-600 dark:text-emerald-400' : recordedDepositTotal(detailsRes) > 0 ? 'text-[#b88738]' : 'text-[var(--ns-muted)]'}`}>
+                      <span className={`font-bold ${isFullyPaid(detailsRes) ? 'text-[var(--ns-success)]' : recordedDepositTotal(detailsRes) > 0 ? 'text-[var(--ns-gold)]' : 'text-[var(--ns-muted)]'}`}>
                         {isFullyPaid(detailsRes) ? 'Payment Status: Paid in full' : recordedDepositTotal(detailsRes) > 0 ? 'Payment Status: Part Payment / Deposit' : 'Payment Status: Unpaid · Due at check-in'}
                       </span>
-                      <span className={`font-extrabold ${isFullyPaid(detailsRes) ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738]'}`}>
+                      <span className={`font-extrabold ${isFullyPaid(detailsRes) ? 'text-[var(--ns-success)]' : 'text-[var(--ns-gold)]'}`}>
                         {formatCurrency(recordedDepositTotal(detailsRes))} paid
                         {!isFullyPaid(detailsRes) && Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && ` / ${formatCurrency(detailsRes.depositAmount)} expected`}
                       </span>
                     </div>
                     {recordedDeposits(detailsRes).length > 0 ? (
                       recordedDeposits(detailsRes).map((p: any) => (
-                        <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1.5 border-t border-[var(--ns-line)]">
+                        <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1.5 border-t border-[var(--ns-glass-line)]">
                           <span className="text-[var(--ns-muted)]">
                             Recorded · {p.method}
                             {p.reference ? ` · ${p.reference}` : ''}
                             {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{formatCurrency(p.amount)}</span>
+                            <span className="text-[var(--ns-success)] font-bold">{formatCurrency(p.amount)}</span>
                             <button
                               type="button"
                               title="Print payment receipt"
@@ -2115,7 +2115,7 @@ export const ReservationsPage: React.FC = () => {
                                   remainingBalance: reservationBalance(detailsRes),
                                 })
                               }
-                              className="rounded-md p-1 text-[var(--ns-muted)] hover:bg-[var(--ns-surface-2)] hover:text-[#b88738] transition-colors"
+                              className="rounded-md p-1 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] transition-colors bg-[var(--ns-glass-1)]"
                             >
                               <Printer size={12} />
                             </button>
@@ -2123,14 +2123,14 @@ export const ReservationsPage: React.FC = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="text-[11px] text-[#b88738] pt-1 border-t border-[var(--ns-line)]">
+                      <div className="text-[11px] text-[var(--ns-gold)] pt-1 border-t border-[var(--ns-glass-line)]">
                         No payment recorded yet. Collect partial payment or full amount at check-in.
                       </div>
                     )}
                     {!isFullyPaid(detailsRes) && (
-                      <div className="flex justify-between border-t border-[var(--ns-line)] pt-2 mt-1">
+                      <div className="flex justify-between border-t border-[var(--ns-glass-line)] pt-2 mt-1">
                         <span className="text-[var(--ns-muted)] font-semibold">Remaining balance left to pay:</span>
-                        <span className="font-extrabold text-[#b88738]">{formatCurrency(reservationBalance(detailsRes))}</span>
+                        <span className="font-extrabold text-[var(--ns-gold)]">{formatCurrency(reservationBalance(detailsRes))}</span>
                       </div>
                     )}
                   </div>
@@ -2139,7 +2139,7 @@ export const ReservationsPage: React.FC = () => {
 
               {/* Special Requests & Notes */}
               {(detailsRes.specialRequests || detailsRes.notes) && (
-                <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-2 text-xs">
+                <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-2 text-xs">
                   <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                     <FileText size={13} /> Notes & Special Requests
                   </div>
@@ -2159,13 +2159,13 @@ export const ReservationsPage: React.FC = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#edf0ed]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
                 <div className="flex items-center gap-2">
                   {canProcessPayment && ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT'].includes(String(detailsRes.status).toUpperCase()) && !isFullyPaid(detailsRes) && (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-[#b88738] border-[#c59a58]/40 hover:bg-[#c59a58]/10 font-bold"
+                      className="text-[var(--ns-gold)] border-[var(--ns-gold)] ns-glass-hover font-bold"
                       onClick={openDeposit}
                     >
                       <CreditCard size={13} /> Record payment
@@ -2184,7 +2184,7 @@ export const ReservationsPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:bg-red-50"
+                      className="text-[var(--ns-danger)] ns-glass-hover"
                       onClick={() => cancel(detailsRes.id)}
                     >
                       Cancel booking
@@ -2226,13 +2226,13 @@ export const ReservationsPage: React.FC = () => {
         {selectedGroup && (
           <div className="p-6 space-y-6">
             {/* Header Overview Card */}
-            <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-5">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-base font-extrabold text-[#b88738]">
+                  <span className="font-mono text-base font-extrabold text-[var(--ns-gold)]">
                     {selectedGroup.bookingId}
                   </span>
-                  <span className="rounded-md bg-[#173c4d]/10 px-2 py-0.5 text-[10px] font-extrabold text-[#173c4d] dark:text-teal-300 border border-[#173c4d]/20">
+                  <span className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                     GROUP BOOKING · {selectedGroup.reservations.length} ROOMS
                   </span>
                 </div>
@@ -2243,7 +2243,7 @@ export const ReservationsPage: React.FC = () => {
                 {selectedGroup.bookedBy && (
                   <div className="mt-1 text-xs flex items-center gap-1 text-[var(--ns-ink)] font-semibold">
                     <span>👤 Booked by</span>
-                    <span className="text-[#b88738]">{selectedGroup.bookedBy?.name || 'Staff'}</span>
+                    <span className="text-[var(--ns-gold)]">{selectedGroup.bookedBy?.name || 'Staff'}</span>
                   </div>
                 )}
               </div>
@@ -2256,22 +2256,22 @@ export const ReservationsPage: React.FC = () => {
             {/* Grid 1: Stay & Lead Guest Details */}
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Stay Dates */}
-              <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                 <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
-                  <CalendarDays size={14} className="text-[#c59a58]" /> Group Stay Dates
+                  <CalendarDays size={14} className="text-[var(--ns-gold)]" /> Group Stay Dates
                 </div>
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                     <span className="text-[var(--ns-muted)]">Check-in</span>
                     <span className="font-extrabold text-[var(--ns-ink)]">{new Date(selectedGroup.checkInDate).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                     <span className="text-[var(--ns-muted)]">Check-out</span>
                     <span className="font-extrabold text-[var(--ns-ink)]">{new Date(selectedGroup.checkOutDate).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                     <span className="text-[var(--ns-muted)]">Total Rooms</span>
-                    <span className="font-extrabold text-[#b88738]">{selectedGroup.rooms.length} Rooms</span>
+                    <span className="font-extrabold text-[var(--ns-gold)]">{selectedGroup.rooms.length} Rooms</span>
                   </div>
                   <div className="flex justify-between py-1">
                     <span className="text-[var(--ns-muted)]">Total Guests</span>
@@ -2281,26 +2281,26 @@ export const ReservationsPage: React.FC = () => {
               </div>
 
               {/* Lead Guest */}
-              <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+              <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                 <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                   <Users size={14} /> Lead Guest Contact
                 </div>
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                     <span className="text-[var(--ns-muted)]">Name</span>
                     <span className="font-extrabold text-[var(--ns-ink)] flex items-center gap-1">
                       {formatGuestName(selectedGroup.leadGuest)}
-                      {selectedGroup.leadGuest?.isVip && <span className="rounded bg-amber-100 px-1 py-0.5 text-[9px] font-extrabold text-amber-800">VIP</span>}
+                      {selectedGroup.leadGuest?.isVip && <span className="rounded glass-subtle px-1 py-0.5 text-[9px] font-extrabold text-[var(--ns-warning)]">VIP</span>}
                     </span>
                   </div>
                   {selectedGroup.leadGuest?.phone && (
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Phone</span>
                       <span className="font-bold text-[var(--ns-ink)]">{selectedGroup.leadGuest.phone}</span>
                     </div>
                   )}
                   {selectedGroup.leadGuest?.email && (
-                    <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Email</span>
                       <span className="font-bold text-[var(--ns-ink)]">{selectedGroup.leadGuest.email}</span>
                     </div>
@@ -2310,7 +2310,7 @@ export const ReservationsPage: React.FC = () => {
                       <span className="text-[var(--ns-muted)] block mb-1">Other Guests ({selectedGroup.allGuests.length - 1}):</span>
                       <div className="flex flex-wrap gap-1.5">
                         {selectedGroup.allGuests.filter((g: any) => g.id !== selectedGroup.leadGuest?.id).map((ag: any) => (
-                          <span key={ag.id} className="rounded-md bg-[var(--ns-surface)] border border-[var(--ns-line)] px-2 py-0.5 text-[11px] font-medium text-[var(--ns-ink)]">
+                          <span key={ag.id} className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[11px] font-medium text-[var(--ns-ink)]">
                             {formatGuestName(ag)}
                           </span>
                         ))}
@@ -2322,13 +2322,13 @@ export const ReservationsPage: React.FC = () => {
             </div>
 
             {/* Rooms in Group */}
-            <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+            <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
               <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <BedDouble size={14} /> Booked Rooms ({selectedGroup.reservations.length})
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[var(--ns-surface)] text-[10px] uppercase tracking-wider text-[var(--ns-muted)]">
+                  <thead className="ns-glass-band text-[10px] uppercase tracking-wider text-[var(--ns-muted)]">
                     <tr>
                       <th className="px-3 py-2">Room</th>
                       <th className="px-3 py-2">Confirmation</th>
@@ -2338,9 +2338,9 @@ export const ReservationsPage: React.FC = () => {
                       <th className="px-3 py-2 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ns-line)]">
+                  <tbody className="divide-y divide-[var(--ns-glass-line)]">
                     {selectedGroup.reservations.map((sub: any) => (
-                      <tr key={sub.id} className="hover:bg-[var(--ns-surface)]">
+                      <tr key={sub.id} className="ns-glass-hover">
                         <td className="px-3 py-2 font-bold text-[var(--ns-ink)]">
                           Room {sub.room?.number || '—'} <span className="text-[10px] font-normal text-[var(--ns-muted)]">({sub.room?.roomType?.name || 'Room'})</span>
                         </td>
@@ -2355,7 +2355,7 @@ export const ReservationsPage: React.FC = () => {
                               setSelectedGroupId(null);
                               openDetails(sub);
                             }}
-                            className="rounded p-1 text-[var(--ns-muted)] hover:bg-[#c59a58]/10 hover:text-[#b88738]"
+                            className="rounded p-1 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]"
                             title="View room details"
                           >
                             <Eye size={14} />
@@ -2369,51 +2369,51 @@ export const ReservationsPage: React.FC = () => {
             </div>
 
             {/* Financial Summary & Group Payment Card */}
-            <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 space-y-3">
+            <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
-                  <CreditCard size={14} className="text-[#c59a58]" /> Group Payment &amp; Financial Summary
+                  <CreditCard size={14} className="text-[var(--ns-gold)]" /> Group Payment &amp; Financial Summary
                 </div>
                 {selectedGroup.isFullyPaid ? (
-                  <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                     Paid in full (Group)
                   </span>
                 ) : (
-                  <span className="rounded-full bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                     Balance due {formatCurrency(selectedGroup.balance)}
                   </span>
                 )}
               </div>
               <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-[var(--ns-line)]">
+                <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                   <span className="text-[var(--ns-muted)]">Combined Group Total</span>
                   <span className="font-extrabold text-[var(--ns-ink)] text-sm">{formatCurrency(selectedGroup.totalAmount)}</span>
                 </div>
                 {selectedGroup.discountAmount > 0 && (
-                  <div className="flex justify-between py-1 border-b border-[var(--ns-line)] text-amber-600 dark:text-amber-400">
+                  <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)] text-[var(--ns-warning)]">
                     <span>Group Discounts</span>
                     <span className="font-bold">−{formatCurrency(selectedGroup.discountAmount)}</span>
                   </div>
                 )}
-                <div className="space-y-1.5 bg-[var(--ns-surface)] p-3 rounded-xl border border-[var(--ns-line)]">
+                <div className="space-y-1.5 glass-subtle p-3 rounded-xl border border-[var(--ns-glass-line)]">
                   <div className="flex justify-between items-center">
-                    <span className={`font-bold ${selectedGroup.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738]'}`}>
+                    <span className={`font-bold ${selectedGroup.isFullyPaid ? 'text-[var(--ns-success)]' : 'text-[var(--ns-gold)]'}`}>
                       Single Group Payment
                     </span>
-                    <span className={`font-extrabold ${selectedGroup.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#b88738]'}`}>
+                    <span className={`font-extrabold ${selectedGroup.isFullyPaid ? 'text-[var(--ns-success)]' : 'text-[var(--ns-gold)]'}`}>
                       {formatCurrency(selectedGroup.recordedTotal)} paid
                     </span>
                   </div>
                   {selectedGroup.payments.length > 0 ? (
                     selectedGroup.payments.map((p: any) => (
-                      <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-[var(--ns-line)]">
+                      <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-[var(--ns-glass-line)]">
                         <span className="text-[var(--ns-muted)]">
                           Group Deposit · {p.method}
                           {p.reference ? ` · ${p.reference}` : ''}
                           {p.processedAt ? ` · ${new Date(p.processedAt).toLocaleDateString()}` : ''}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{formatCurrency(p.amount)}</span>
+                          <span className="text-[var(--ns-success)] font-bold">{formatCurrency(p.amount)}</span>
                           <button
                             type="button"
                             title="Print payment receipt"
@@ -2429,7 +2429,7 @@ export const ReservationsPage: React.FC = () => {
                                 remainingBalance: selectedGroup.balance,
                               })
                             }
-                            className="rounded-md p-1 text-[var(--ns-muted)] hover:bg-[var(--ns-surface)] hover:text-[#b88738] transition-colors"
+                            className="rounded-md p-1 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] transition-colors bg-[var(--ns-glass-1)]"
                           >
                             <Printer size={12} />
                           </button>
@@ -2437,12 +2437,12 @@ export const ReservationsPage: React.FC = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-[11px] text-[#b0743a]">No group payment recorded yet. Collect partial payment below.</div>
+                    <div className="text-[11px] text-[var(--ns-muted)]">No group payment recorded yet. Collect partial payment below.</div>
                   )}
                   {!selectedGroup.isFullyPaid && (
-                    <div className="flex justify-between border-t border-[var(--ns-line)] pt-2 mt-1">
+                    <div className="flex justify-between border-t border-[var(--ns-glass-line)] pt-2 mt-1">
                       <span className="text-[var(--ns-muted)] font-semibold">Remaining Group Balance</span>
-                      <span className="font-extrabold text-[#b0743a] text-sm">{formatCurrency(selectedGroup.balance)}</span>
+                      <span className="font-extrabold text-[var(--ns-muted)] text-sm">{formatCurrency(selectedGroup.balance)}</span>
                     </div>
                   )}
                 </div>
@@ -2450,27 +2450,27 @@ export const ReservationsPage: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[var(--ns-line)]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
               <div className="flex items-center gap-2">
                 {canProcessPayment && !selectedGroup.isFullyPaid && (
                   <Button
                     variant="primary"
                     size="sm"
-                    className="bg-[#173c4d] text-[#fdfbf7] hover:bg-[#122834] font-bold"
+                    className="glass text-[var(--ns-teal)] ns-glass-hover font-bold"
                     onClick={() => {
                       const g = selectedGroup;
                       setSelectedGroupId(null);
                       openGroupDeposit(g);
                     }}
                   >
-                    <CreditCard size={13} className="text-[#c59a58]" /> Record group payment
+                    <CreditCard size={13} className="text-[var(--ns-gold)]" /> Record group payment
                   </Button>
                 )}
                 {canCancel && !['CANCELLED', 'CHECKED_OUT'].includes(String(selectedGroup.status).toUpperCase()) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-red-600 hover:bg-red-50"
+                    className="text-[var(--ns-danger)] ns-glass-hover"
                     onClick={() => cancelGroup(selectedGroup.bookingId)}
                   >
                     Cancel group booking
@@ -2497,21 +2497,21 @@ export const ReservationsPage: React.FC = () => {
         <div className="space-y-5">
           {depositTargetGroup ? (
             <>
-              <div className="rounded-xl bg-amber-500/10 p-3 text-xs text-[var(--ns-ink)] border border-[#c59a58]/30">
-                <div className="flex items-center gap-2 mb-1.5 font-bold text-[#b88738]">
-                  <Users size={14} className="text-[#c59a58]" /> Group Payment · {depositTargetGroup.reservations.length} Rooms ({depositTargetGroup.rooms.map((r: any) => `R${r.number}`).join(', ')})
+              <div className="rounded-xl glass-subtle p-3 text-xs text-[var(--ns-ink)] border border-[var(--ns-gold)]">
+                <div className="flex items-center gap-2 mb-1.5 font-bold text-[var(--ns-gold)]">
+                  <Users size={14} className="text-[var(--ns-gold)]" /> Group Payment · {depositTargetGroup.reservations.length} Rooms ({depositTargetGroup.rooms.map((r: any) => `R${r.number}`).join(', ')})
                 </div>
                 {depositTargetGroup.recordedTotal > 0 ? (
                   <>
-                    <span className="text-[#2e7d32] font-bold">{formatCurrency(depositTargetGroup.recordedTotal)} recorded</span>
-                    <span className="mx-1 text-[#899397]">·</span>
-                    <span className="text-[#b0743a] font-bold">Group balance due {formatCurrency(depositTargetGroup.balance)}</span>
+                    <span className="text-[var(--ns-muted)] font-bold">{formatCurrency(depositTargetGroup.recordedTotal)} recorded</span>
+                    <span className="mx-1 text-[var(--ns-muted)]">·</span>
+                    <span className="text-[var(--ns-muted)] font-bold">Group balance due {formatCurrency(depositTargetGroup.balance)}</span>
                   </>
                 ) : (
                   <span>No payment logged yet for this group. Record the group deposit.</span>
                 )}
-                <div className="mt-1 text-[10px] text-[#899397]">
-                  Outstanding group balance: <strong className="text-[#20343e]">{formatCurrency(depositTargetGroup.balance)}</strong> (Group total: {formatCurrency(depositTargetGroup.totalAmount)})
+                <div className="mt-1 text-[10px] text-[var(--ns-muted)]">
+                  Outstanding group balance: <strong className="text-[var(--ns-ink)]">{formatCurrency(depositTargetGroup.balance)}</strong> (Group total: {formatCurrency(depositTargetGroup.totalAmount)})
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -2550,54 +2550,54 @@ export const ReservationsPage: React.FC = () => {
 
               {/* Settlement Check Box */}
               {Number(depositForm.amount) > 0 && (
-                <div className="rounded-xl border border-[#dfe4e1] bg-[#f9faf9] p-3 text-xs space-y-2">
-                  <div className="flex justify-between items-center text-[#556368]">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3 text-xs space-y-2">
+                  <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span>Money supposed to be paid:</span>
-                    <span className="font-extrabold text-[#20343e]">{formatCurrency(depositTargetGroup.balance)}</span>
+                    <span className="font-extrabold text-[var(--ns-ink)]">{formatCurrency(depositTargetGroup.balance)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[#556368]">
+                  <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span>Money paid:</span>
-                    <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.amount))}</span>
+                    <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(depositForm.amount))}</span>
                   </div>
                   {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
-                    <div className="flex justify-between items-center text-[#556368]">
+                    <div className="flex justify-between items-center text-[var(--ns-muted)]">
                       <span>Cash tendered:</span>
-                      <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.tendered))}</span>
+                      <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(depositForm.tendered))}</span>
                     </div>
                   )}
-                  <div className="border-t border-[#e2e7e4] pt-2 flex justify-between items-center">
-                    <span className="font-semibold text-[#445055]">Payment Classification:</span>
+                  <div className="border-t border-[var(--ns-glass-line)] pt-2 flex justify-between items-center">
+                    <span className="font-semibold text-[var(--ns-ink)]">Payment Classification:</span>
                     {Number(depositForm.amount) >= depositTargetGroup.balance ? (
-                      <span className="rounded-md bg-[#ecfdf5] px-2 py-0.5 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
                         &#10003; Full Payment (Paid in full)
                       </span>
                     ) : (
-                      <span className="rounded-md bg-[#fffbeb] px-2 py-0.5 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
                         Part Payment / Deposit
                       </span>
                     )}
                   </div>
                   {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
-                    <div className="flex justify-between items-center rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[#047857] border border-[#a7f3d0]">
+                    <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
                       <span className="font-bold">&#8594; Change due to guest:</span>
                       <span className="font-extrabold text-sm">{formatCurrency(Number(depositForm.tendered) - Number(depositForm.amount))}</span>
                     </div>
                   )}
                   {Number(depositForm.amount) < depositTargetGroup.balance && (
-                    <div className="flex justify-between items-center rounded-lg bg-[#fffbeb] px-2.5 py-1.5 text-[#b45309] border border-[#fde68a]">
+                    <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
                       <span className="font-bold">&#8594; Remaining balance to be paid:</span>
                       <span className="font-extrabold text-sm">{formatCurrency(depositTargetGroup.balance - Number(depositForm.amount))}</span>
                     </div>
                   )}
                   {Number(depositForm.amount) >= depositTargetGroup.balance && (
-                    <div className="text-[11px] text-[#047857] font-semibold text-center pt-0.5">
+                    <div className="text-[11px] text-[var(--ns-success)] font-semibold text-center pt-0.5">
                       &#10003; This payment completely clears the outstanding group balance.
                     </div>
                   )}
                 </div>
               )}
 
-              <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
+              <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-muted)]">
                 <input
                   type="checkbox"
                   checked={depositSplitOpen}
@@ -2605,13 +2605,13 @@ export const ReservationsPage: React.FC = () => {
                     setDepositSplitOpen(e.target.checked);
                     setDepositTenders([makeTenderRow()]);
                   }}
-                  className="h-3.5 w-3.5 accent-[#174B59]"
+                  className="h-3.5 w-3.5 accent-[var(--ns-teal)]"
                 />
                 Split payment across methods (e.g. cash + mobile money)
               </label>
 
               {depositSplitOpen && (
-                <div className="rounded-xl border border-[#1e2535] p-3">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] p-3 glass-subtle">
                   <TenderSplit total={Number(depositForm.amount) || 0} rows={depositTenders} onChange={setDepositTenders} />
                 </div>
               )}
@@ -2631,27 +2631,27 @@ export const ReservationsPage: React.FC = () => {
             </>
           ) : detailsRes ? (
             <>
-              <div className="rounded-xl bg-[#f7f9f8] p-3 text-xs text-[#26363e]">
+              <div className="rounded-xl glass-subtle p-3 text-xs text-[var(--ns-muted)]">
                 {Number(detailsRes.depositAmount || 0) > 0 || recordedDepositTotal(detailsRes) > 0 ? (
                   <>
                     {Number(detailsRes.depositAmount || 0) > 0 && Number(detailsRes.depositAmount) !== recordedDepositTotal(detailsRes) && (
                       <>
-                        Payment expected: <span className="font-extrabold text-[#b88738]">{formatCurrency(detailsRes.depositAmount)}</span>
-                        <span className="mx-1 text-[#899397]">·</span>
+                        Payment expected: <span className="font-extrabold text-[var(--ns-gold)]">{formatCurrency(detailsRes.depositAmount)}</span>
+                        <span className="mx-1 text-[var(--ns-muted)]">·</span>
                       </>
                     )}
                     {recordedDepositTotal(detailsRes) > 0 && (
                       <>
-                        <span className="text-[#2e7d32] font-bold">{formatCurrency(recordedDepositTotal(detailsRes))} recorded</span>
-                        <span className="mx-1 text-[#899397]">·</span>
+                        <span className="text-[var(--ns-muted)] font-bold">{formatCurrency(recordedDepositTotal(detailsRes))} recorded</span>
+                        <span className="mx-1 text-[var(--ns-muted)]">·</span>
                       </>
                     )}
-                    <span className="text-[#b0743a] font-bold">Balance due {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
+                    <span className="text-[var(--ns-muted)] font-bold">Balance due {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}</span>
                   </>
                 ) : (
                   <span>No payment was logged on this reservation. Record the amount the guest paid.</span>
                 )}
-                <div className="mt-1 text-[10px] text-[#899397]">
+                <div className="mt-1 text-[10px] text-[var(--ns-muted)]">
                   Amount cannot exceed {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}
                 </div>
               </div>
@@ -2692,54 +2692,54 @@ export const ReservationsPage: React.FC = () => {
 
               {/* Settlement Check Box */}
               {Number(depositForm.amount) > 0 && (
-                <div className="rounded-xl border border-[#dfe4e1] bg-[#f9faf9] p-3 text-xs space-y-2">
-                  <div className="flex justify-between items-center text-[#556368]">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3 text-xs space-y-2">
+                  <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span>Money supposed to be paid:</span>
-                    <span className="font-extrabold text-[#20343e]">{formatCurrency(reservationBalance(detailsRes))}</span>
+                    <span className="font-extrabold text-[var(--ns-ink)]">{formatCurrency(reservationBalance(detailsRes))}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[#556368]">
+                  <div className="flex justify-between items-center text-[var(--ns-muted)]">
                     <span>Money paid:</span>
-                    <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.amount))}</span>
+                    <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(depositForm.amount))}</span>
                   </div>
                   {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
-                    <div className="flex justify-between items-center text-[#556368]">
+                    <div className="flex justify-between items-center text-[var(--ns-muted)]">
                       <span>Cash tendered:</span>
-                      <span className="font-bold text-[#20343e]">{formatCurrency(Number(depositForm.tendered))}</span>
+                      <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(depositForm.tendered))}</span>
                     </div>
                   )}
-                  <div className="border-t border-[#e2e7e4] pt-2 flex justify-between items-center">
-                    <span className="font-semibold text-[#445055]">Payment Classification:</span>
+                  <div className="border-t border-[var(--ns-glass-line)] pt-2 flex justify-between items-center">
+                    <span className="font-semibold text-[var(--ns-ink)]">Payment Classification:</span>
                     {Number(depositForm.amount) >= reservationBalance(detailsRes) ? (
-                      <span className="rounded-md bg-[#ecfdf5] px-2 py-0.5 text-[11px] font-extrabold text-[#047857] border border-[#a7f3d0]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
                         &#10003; Full Payment (Paid in full)
                       </span>
                     ) : (
-                      <span className="rounded-md bg-[#fffbeb] px-2 py-0.5 text-[11px] font-extrabold text-[#b45309] border border-[#fde68a]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
                         Part Payment / Deposit
                       </span>
                     )}
                   </div>
                   {depositForm.method === 'CASH' && Number(depositForm.tendered) > Number(depositForm.amount) && (
-                    <div className="flex justify-between items-center rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[#047857] border border-[#a7f3d0]">
+                    <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
                       <span className="font-bold">&#8594; Change due to guest:</span>
                       <span className="font-extrabold text-sm">{formatCurrency(Number(depositForm.tendered) - Number(depositForm.amount))}</span>
                     </div>
                   )}
                   {Number(depositForm.amount) < reservationBalance(detailsRes) && (
-                    <div className="flex justify-between items-center rounded-lg bg-[#fffbeb] px-2.5 py-1.5 text-[#b45309] border border-[#fde68a]">
+                    <div className="flex justify-between items-center rounded-lg glass-subtle px-2.5 py-1.5 text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
                       <span className="font-bold">&#8594; Remaining balance to be paid:</span>
                       <span className="font-extrabold text-sm">{formatCurrency(reservationBalance(detailsRes) - Number(depositForm.amount))}</span>
                     </div>
                   )}
                   {Number(depositForm.amount) >= reservationBalance(detailsRes) && (
-                    <div className="text-[11px] text-[#047857] font-semibold text-center pt-0.5">
+                    <div className="text-[11px] text-[var(--ns-success)] font-semibold text-center pt-0.5">
                       &#10003; This payment completely clears the outstanding reservation balance.
                     </div>
                   )}
                 </div>
               )}
 
-              <label className="flex items-center gap-2 text-xs font-bold text-[#4A5568]">
+              <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-muted)]">
                 <input
                   type="checkbox"
                   checked={depositSplitOpen}
@@ -2747,13 +2747,13 @@ export const ReservationsPage: React.FC = () => {
                     setDepositSplitOpen(e.target.checked);
                     setDepositTenders([makeTenderRow()]);
                   }}
-                  className="h-3.5 w-3.5 accent-[#174B59]"
+                  className="h-3.5 w-3.5 accent-[var(--ns-teal)]"
                 />
                 Split payment across methods (e.g. cash + mobile money)
               </label>
 
               {depositSplitOpen && (
-                <div className="rounded-xl border border-[#1e2535] p-3">
+                <div className="rounded-xl border border-[var(--ns-glass-line)] p-3 glass-subtle">
                   <TenderSplit total={Number(depositForm.amount) || 0} rows={depositTenders} onChange={setDepositTenders} />
                 </div>
               )}
@@ -2778,24 +2778,24 @@ export const ReservationsPage: React.FC = () => {
       <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={manageRes ? `Guests on ${manageRes.confirmationNo || 'reservation'}` : 'Manage guests'} size="lg">
         <div className="space-y-5">
           <div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Currently on the reservation</div>
+            <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Currently on the reservation</div>
             <div className="mt-2 space-y-1.5">
               {(manageRes?.guests?.length ? [...manageRes.guests].sort((a: any, b: any) => Number(b.isPrimary) - Number(a.isPrimary)) : []).map((g: any) => (
-                <div key={g.id} className="flex items-center justify-between rounded-xl border border-[#eef1ee] bg-[#fbfcfa] px-3 py-2 text-xs">
-                  <span className={g.isPrimary ? 'font-extrabold text-[#20343e]' : 'text-[#667278]'}>
-                    {guestName(g.guest)} {g.isPrimary && <span className="ml-1 rounded-md bg-[#173c4d]/5 px-1.5 py-0.5 text-[9px] font-extrabold text-[#173c4d] border border-[#173c4d]/15">PRIMARY</span>}
+                <div key={g.id} className="flex items-center justify-between rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 py-2 text-xs">
+                  <span className={g.isPrimary ? 'font-extrabold text-[var(--ns-ink)]' : 'text-[var(--ns-muted)]'}>
+                    {guestName(g.guest)} {g.isPrimary && <span className="ml-1 rounded-md glass-subtle px-1.5 py-0.5 text-[9px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">PRIMARY</span>}
                   </span>
-                  <span className="text-[10px] text-[#8a9598]">{g.guest?.phone || g.guest?.email || ''}</span>
+                  <span className="text-[10px] text-[var(--ns-muted)]">{g.guest?.phone || g.guest?.email || ''}</span>
                 </div>
               ))}
-              {(!manageRes?.guests || manageRes.guests.length === 0) && <p className="text-xs text-[#8a9598]">No guests attached yet.</p>}
+              {(!manageRes?.guests || manageRes.guests.length === 0) && <p className="text-xs text-[var(--ns-muted)]">No guests attached yet.</p>}
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wide text-[#20343e]">Add more guests</div>
+            <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Add more guests</div>
             <div className="mt-2 flex max-h-44 flex-wrap gap-1.5 overflow-y-auto">
               {guests.filter((g) => !guestAttached(g)).length === 0 ? (
-                <p className="text-xs text-[#8a9598]">All guests are already on this reservation.</p>
+                <p className="text-xs text-[var(--ns-muted)]">All guests are already on this reservation.</p>
               ) : (
                 guests
                   .filter((g) => !guestAttached(g))
@@ -2806,7 +2806,7 @@ export const ReservationsPage: React.FC = () => {
                         key={g.id}
                         type="button"
                         onClick={() => setManageIds((ids) => (active ? ids.filter((x) => x !== g.id) : [...ids, g.id]))}
-                        className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'bg-[#173c4d] text-[#fdfbf7]' : 'border border-[var(--ns-line)] bg-[var(--ns-surface)] text-[var(--ns-muted)] hover:border-[#c59a58]'}`}
+                        className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
                       >
                         {g.firstName} {g.lastName}
                       </button>

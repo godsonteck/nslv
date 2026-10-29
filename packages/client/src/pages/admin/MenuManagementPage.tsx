@@ -209,8 +209,8 @@ const openEdit = (item: any) => {
             onClick={() => setDomain(d.id)}
             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[11px] font-extrabold ${
               domain === d.id
-                ? 'bg-[#16a4d4] text-white'
-                : 'border border-[#dfe4e0] bg-white text-[#718086]'
+                ? 'glass ns-glass-selected text-[var(--ns-teal)]'
+                : 'border border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-muted)]'
             }`}
           >
             <d.icon size={15} /> {d.label}
@@ -233,17 +233,17 @@ const openEdit = (item: any) => {
                 id="inc-off"
                 checked={includeOff}
                 onChange={(e) => setIncludeOff(e.target.checked)}
-                className="h-4 w-4 accent-[#16a4d4]"
+                className="h-4 w-4 accent-[var(--ns-teal)]"
               />
-              <label htmlFor="inc-off" className="text-[10px] font-bold text-[#718086]">
+              <label htmlFor="inc-off" className="text-[10px] font-bold text-[var(--ns-muted)]">
                 Show archived
               </label>
             </div>
           }
         >
-          <div className="border-b border-[#e8ebe8] bg-[#fbfcfa] p-4">
+          <div className="border-b border-[var(--ns-glass-line)] ns-glass-band p-4">
             <input
-              className="ns-input h-10 w-full text-xs"
+              className="glass-input h-10 w-full text-xs text-[var(--ns-ink)] border-[var(--ns-glass-line)] placeholder:text-[var(--ns-muted)]"
               placeholder="Search menu…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -252,51 +252,51 @@ const openEdit = (item: any) => {
           {loading ? (
             <LoadingState />
           ) : visible.length === 0 ? (
-            <div className="p-12 text-center text-xs text-[#899397]">
+            <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
               No items found{includeOff ? '' : ' — check "Show archived" to see hidden items'}.
             </div>
           ) : (
-            <div className="divide-y divide-[#edf0ed]">
+            <div className="divide-y divide-[var(--ns-glass-line)]">
               {visible.map((i) => (
-                <div key={i.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#fbfcfa]">
+                <div key={i.id} className="flex items-center gap-4 px-5 py-3.5 ns-glass-hover">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       {i.isAvailable === false ? (
-                        <span className="text-[10px] font-extrabold uppercase tracking-wide text-[#b23a3a]">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-danger)]">
                           Archived
                         </span>
                       ) : (
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-[#2d8a68]" />
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--ns-success)]" />
                       )}
-                      <span className="truncate text-xs font-extrabold text-[#26363e]">{i.name}</span>
+                      <span className="truncate text-xs font-extrabold text-[var(--ns-ink)]">{i.name}</span>
                     </div>
-                    <div className="mt-0.5 text-[10px] text-[#8a9598]">
+                    <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">
                       {i.category}
                       {i.description ? ` · ${i.description}` : ''}
                     </div>
                   </div>
-                  <span className="shrink-0 text-xs font-extrabold text-[#a8761e]">
+                  <span className="shrink-0 text-xs font-extrabold text-[var(--ns-gold)]">
                     {formatCurrency(Number(i.price || 0))}
                   </span>
                   <div className="flex shrink-0 gap-1.5">
                     <button
                       onClick={() => onToggle(i)}
                       title={i.isAvailable ? 'Take off menu' : 'Put on menu'}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e0e5e2] bg-white text-[#657278] hover:bg-[#f7f9f7]"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--ns-glass-line)] glass-subtle text-[var(--ns-muted)] ns-glass-hover"
                     >
                       <Power size={14} />
                     </button>
                     <button
                       onClick={() => openEdit(i)}
                       title="Edit item"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e0e5e2] bg-white text-[#657278] hover:bg-[#f7f9f7]"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--ns-glass-line)] glass-subtle text-[var(--ns-muted)] ns-glass-hover"
                     >
                       <Pencil size={14} />
                     </button>
                     <button
                       onClick={() => onRemove(i)}
                       title="Delete item"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e0e5e2] bg-white text-[#b23a3a] hover:bg-[#fdf1f1]"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--ns-glass-line)] glass-subtle text-[var(--ns-danger)] ns-glass-hover"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -309,19 +309,19 @@ const openEdit = (item: any) => {
 
         <div className="space-y-6">
           <Section title="Posted orders" subtitle={`Recent ${domainLabel.toLowerCase()} transactions`}>
-            <div className="divide-y divide-[#edf0ed]">
+            <div className="divide-y divide-[var(--ns-glass-line)]">
               {orders.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#899397]">No orders yet.</div>
+                <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No orders yet.</div>
               ) : (
                 orders.slice(0, 8).map((o) => (
                   <div key={o.id} className="px-5 py-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[11px] font-extrabold text-[#26363e]">{o.orderNo}</span>
-                      <span className="text-[11px] font-extrabold text-[#a8761e]">
+                      <span className="font-mono text-[11px] font-extrabold text-[var(--ns-ink)]">{o.orderNo}</span>
+                      <span className="text-[11px] font-extrabold text-[var(--ns-gold)]">
                         {formatCurrency(Number(o.totalAmount || 0))}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-[10px] text-[#8a9598]">
+                    <div className="mt-1 flex items-center justify-between text-[10px] text-[var(--ns-muted)]">
                       <span>
                         {o.paymentMethod} · {o.paymentStatus}
                       </span>
@@ -336,7 +336,7 @@ const openEdit = (item: any) => {
           <Section title="Categories" subtitle={`Manage ${domainLabel.toLowerCase()} categories`}>
             <div className="px-5 py-3">
               {categories.length === 0 ? (
-                <div className="text-[10px] text-[#8a9598] mb-3">
+                <div className="text-[10px] text-[var(--ns-muted)] mb-3">
                   Using default categories. Create custom categories to manage your menu.
                 </div>
               ) : null}

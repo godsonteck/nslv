@@ -148,24 +148,21 @@ const PropertyDashboard: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 animate-in fade-in duration-300">
       {/* ── Editorial Villa Header ── */}
-      <div className="glass-dark relative overflow-hidden rounded-3xl p-7 sm:p-9 text-white">
-        <div className="absolute right-0 top-0 h-full w-1/2 opacity-15 pointer-events-none mix-blend-screen">
-          <img src={villaAssets.villaExterior} className="h-full w-full object-cover" alt="" />
-        </div>
+      <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-9 text-[var(--ns-ink)]">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c59a58]/50 bg-[#c59a58]/15 px-3 py-1 text-[10px] font-black tracking-widest text-[#f0d49f] uppercase">
-                <Sparkles size={11} className="text-[#c59a58]" /> NS Luxury Villa
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[10px] font-black tracking-widest text-[var(--ns-gold)] uppercase">
+                <Sparkles size={11} className="text-[var(--ns-gold)]" /> NS Luxury Villa
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold text-emerald-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-success)] glass-subtle px-3 py-1 text-[10px] font-bold text-[var(--ns-success)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live System Sync
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white font-serif">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
               {greeting}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300/85 max-w-xl font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
               Lokoe, Ho, Ghana | {nowFormatted}
             </p>
           </div>
@@ -174,7 +171,7 @@ const PropertyDashboard: React.FC = () => {
             <button
               onClick={() => void load()}
               disabled={refreshing}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-all backdrop-blur-xs disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all disabled:opacity-50"
             >
               <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
               <span>Refresh</span>
@@ -182,7 +179,7 @@ const PropertyDashboard: React.FC = () => {
             {canFrontDesk && (
               <button
                 onClick={() => navigate('/frontdesk')}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#c59a58] to-[#9b6e2e] px-4 py-2 text-xs font-extrabold text-white shadow-md hover:brightness-110 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl glass border-0 ns-glass-hover px-4 py-2 text-xs font-extrabold text-[var(--ns-ink)] shadow-md transition-all"
               >
                 <LogIn size={14} />
                 <span>Front Desk Terminal</span>
@@ -191,7 +188,7 @@ const PropertyDashboard: React.FC = () => {
             {canReserve && (
               <button
                 onClick={() => navigate('/reservations')}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#174b59] to-[#0f3440] px-4 py-2 text-xs font-extrabold text-white shadow-md hover:brightness-110 transition-all border border-[#174b59]/50"
+                className="inline-flex items-center gap-2 rounded-xl glass ns-glass-hover px-4 py-2 text-xs font-extrabold text-[var(--ns-ink)] shadow-md transition-all border border-[var(--ns-teal)]"
               >
                 <CalendarCheck size={14} />
                 <span>New Booking</span>
@@ -202,17 +199,17 @@ const PropertyDashboard: React.FC = () => {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-800 shadow-xs flex items-center gap-2">
+        <div className="rounded-2xl border border-[var(--ns-danger)] glass-subtle px-4 py-3 text-xs font-semibold text-[var(--ns-danger)] shadow-xs flex items-center gap-2">
           <AlertCircle size={15} />
           <span>{error}</span>
         </div>
       )}
 
       {/* ── Authoritative Room Availability Ledger ── */}
-      <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-line)] pb-4">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] pb-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#174b59] dark:text-[#5ab4d6]">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--ns-teal)]">
               <BedDouble size={16} />
               <span>Room Availability Today</span>
             </div>
@@ -222,7 +219,7 @@ const PropertyDashboard: React.FC = () => {
           </div>
           <button
             onClick={() => navigate('/rooms')}
-            className="text-xs font-bold text-[#c59a58] hover:text-[#9b6e2e] flex items-center gap-1 transition-colors self-start sm:self-auto"
+            className="text-xs font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors self-start sm:self-auto"
           >
             <span>Open Room Board</span>
             <ChevronRight size={14} />
@@ -234,53 +231,53 @@ const PropertyDashboard: React.FC = () => {
           {/* Available Rooms */}
           <div
             onClick={() => navigate('/rooms')}
-            className="group cursor-pointer rounded-2xl border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/50 p-4 shadow-2xs hover:border-emerald-400 hover:shadow-xs transition-all"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-success)] glass p-4 shadow-2xs hover:border-[var(--ns-success)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Available Today</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available Today</span>
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <div className="mt-2 text-3xl font-black text-emerald-950">{m.availableRooms}</div>
-            <div className="mt-1 text-[11px] text-emerald-700 font-medium">Ready for immediate check-in</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-success)]">{m.availableRooms}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-success)] font-medium">Ready for immediate check-in</div>
           </div>
 
           {/* Reserved Rooms */}
           <div
             onClick={() => navigate('/reservations')}
-            className="group cursor-pointer rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50/50 p-4 shadow-2xs hover:border-amber-400 hover:shadow-xs transition-all"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-warning)] glass p-4 shadow-2xs hover:border-[var(--ns-warning)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800">Reserved for Today</span>
-              <CalendarCheck size={14} className="text-amber-700" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved for Today</span>
+              <CalendarCheck size={14} className="text-[var(--ns-warning)]" />
             </div>
-            <div className="mt-2 text-3xl font-black text-amber-950">{m.reservedRooms}</div>
-            <div className="mt-1 text-[11px] text-amber-700 font-medium">Arrivals due / active bookings</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-warning)]">{m.reservedRooms}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-warning)] font-medium">Arrivals due / active bookings</div>
           </div>
 
           {/* Occupied Rooms */}
           <div
             onClick={() => navigate('/frontdesk')}
-            className="group cursor-pointer rounded-2xl border border-sky-200 bg-gradient-to-br from-white to-sky-50/50 p-4 shadow-2xs hover:border-sky-400 hover:shadow-xs transition-all"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-info)] glass p-4 shadow-2xs hover:border-[var(--ns-info)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-800">In-House Occupied</span>
-              <Users size={14} className="text-sky-700" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House Occupied</span>
+              <Users size={14} className="text-[var(--ns-info)]" />
             </div>
-            <div className="mt-2 text-3xl font-black text-sky-950">{m.occupiedRooms}</div>
-            <div className="mt-1 text-[11px] text-sky-700 font-medium">Checked-in guest stays</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-info)]">{m.occupiedRooms}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-info)] font-medium">Checked-in guest stays</div>
           </div>
 
           {/* Housekeeping / Dirty */}
           <div
             onClick={() => navigate('/rooms')}
-            className="group cursor-pointer rounded-2xl border border-rose-200 bg-gradient-to-br from-white to-rose-50/50 p-4 shadow-2xs hover:border-rose-400 hover:shadow-xs transition-all"
+            className="group cursor-pointer rounded-2xl border border-[var(--ns-danger)] glass p-4 shadow-2xs hover:border-[var(--ns-danger)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-800">Housekeeping Dirty</span>
-              <DoorOpen size={14} className="text-rose-700" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Housekeeping Dirty</span>
+              <DoorOpen size={14} className="text-[var(--ns-danger)]" />
             </div>
-            <div className="mt-2 text-3xl font-black text-rose-950">{m.dirtyRooms}</div>
-            <div className="mt-1 text-[11px] text-rose-700 font-medium">Awaiting turnover inspection</div>
+            <div className="mt-2 text-3xl font-black text-[var(--ns-danger)]">{m.dirtyRooms}</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-danger)] font-medium">Awaiting turnover inspection</div>
           </div>
         </div>
 
@@ -288,9 +285,9 @@ const PropertyDashboard: React.FC = () => {
         <div className="space-y-1.5 pt-2">
           <div className="flex items-center justify-between text-xs font-semibold text-[var(--ns-muted)]">
             <span>Overall Room Distribution ({m.totalRooms} Total Rooms)</span>
-            <span className="text-[#174b59] dark:text-[#5ab4d6] font-black">{m.occupancyRate}% Occupancy</span>
+            <span className="text-[var(--ns-teal)] font-black">{m.occupancyRate}% Occupancy</span>
           </div>
-          <div className="h-2.5 w-full bg-[var(--ns-surface-2)] rounded-full overflow-hidden flex border border-[var(--ns-line)]">
+          <div className="h-2.5 w-full ns-glass-band rounded-full overflow-hidden flex border border-[var(--ns-glass-line)]">
             <div
               className="bg-emerald-500 transition-all duration-500"
               style={{ width: `${m.totalRooms ? (m.availableRooms / m.totalRooms) * 100 : 0}%` }}
@@ -320,16 +317,16 @@ const PropertyDashboard: React.FC = () => {
         {/* Collections */}
         <div
           onClick={() => navigate('/payments')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-success)] hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Collected Today</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-success)] group-hover:scale-105 transition-transform">
               <CreditCard size={18} />
             </div>
           </div>
           <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">{formatCurrency(m.revenueToday)}</div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-success)]">
             <span>Posted ledger receipts</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
@@ -340,18 +337,18 @@ const PropertyDashboard: React.FC = () => {
         {/* Open Folios */}
         <div
           onClick={() => navigate('/guest-bills')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-warning)] hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Open Folio Balance</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-warning)] group-hover:scale-105 transition-transform">
               <Users size={18} />
             </div>
           </div>
           <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">
             {formatCurrency(m.outstandingBalanceTotal)}
           </div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-amber-700 dark:text-amber-400">
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-warning)]">
             <span>Across in-house guest folios</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
@@ -362,16 +359,16 @@ const PropertyDashboard: React.FC = () => {
         {/* Arrivals Today */}
         <div
           onClick={() => navigate('/frontdesk')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-xs hover:border-sky-500/50 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-info)] hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Today's Arrivals</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-info)] group-hover:scale-105 transition-transform">
               <LogIn size={18} />
             </div>
           </div>
           <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">{m.checkInsToday}</div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-sky-700 dark:text-sky-400">
+          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-info)]">
             <span>Processed check-ins today</span>
             <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
               View <ChevronRight size={11} />
@@ -382,11 +379,11 @@ const PropertyDashboard: React.FC = () => {
         {/* Departures Today */}
         <div
           onClick={() => navigate('/frontdesk')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-5 shadow-xs hover:border-slate-400 hover:shadow-md transition-all"
+          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-glass-line)] hover:shadow-md transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Today's Departures</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--ns-surface-2)] text-[var(--ns-muted)] group-hover:scale-105 transition-transform">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-muted)] group-hover:scale-105 transition-transform">
               <LogOut size={18} />
             </div>
           </div>
@@ -403,11 +400,11 @@ const PropertyDashboard: React.FC = () => {
       {/* ── Active In-House Stays & Department Pulse ── */}
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
         {/* In-House Guests Concierge Ledger */}
-        <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[var(--ns-line)] px-6 py-4 bg-[var(--ns-surface-2)]">
+        <div className="rounded-2xl border border-[var(--ns-glass-line)] glass shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
             <div>
               <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-                <Users size={16} className="text-[#174b59] dark:text-[#5ab4d6]" />
+                <Users size={16} className="text-[var(--ns-teal)]" />
                 In-House Active Stays
               </h2>
               <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">Checked-in guests currently occupying villa rooms</p>
@@ -415,7 +412,7 @@ const PropertyDashboard: React.FC = () => {
             {canFrontDesk && (
               <button
                 onClick={() => navigate('/frontdesk')}
-                className="text-xs font-bold text-[#c59a58] hover:text-[#9b6e2e] flex items-center gap-1 transition-colors"
+                className="text-xs font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
               >
                 Front Desk Terminal &rarr;
               </button>
@@ -427,7 +424,7 @@ const PropertyDashboard: React.FC = () => {
               No guests currently occupying villa rooms.
             </div>
           ) : (
-            <div className="divide-y divide-[var(--ns-line)]">
+            <div className="divide-y divide-[var(--ns-glass-line)]">
               {stays.slice(0, 6).map((s) => {
                 const guestFullName =
                   [s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest';
@@ -436,16 +433,16 @@ const PropertyDashboard: React.FC = () => {
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-[var(--ns-surface-2)] transition-colors"
+                    className="flex items-center justify-between gap-4 px-6 py-4 ns-glass-hover transition-colors"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-xs font-black text-white shadow-xs">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ns-glass-band text-xs font-black text-[var(--ns-ink)] shadow-xs">
                         {initials}
                       </div>
                       <div className="min-w-0">
                         <div className="truncate text-xs font-bold text-[var(--ns-ink)] flex items-center gap-2">
                           <span>{guestFullName}</span>
-                          <span className="rounded-md border border-[#c59a58]/40 bg-[#fbf8f2] dark:bg-[#c59a58]/20 px-2 py-0.5 text-[10px] font-black text-[#9b6e2e] dark:text-amber-300">
+                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-gold)]">
                             Room {s.room?.number || '—'}
                           </span>
                         </div>
@@ -461,7 +458,7 @@ const PropertyDashboard: React.FC = () => {
                       {statusBadge(s.status || 'CHECKED_IN')}
                       <button
                         onClick={() => navigate('/guest-bills')}
-                        className="rounded-lg border border-[var(--ns-line)] p-1.5 text-[var(--ns-muted)] hover:bg-[var(--ns-surface-2)] hover:text-[var(--ns-ink)] transition-colors"
+                        className="rounded-lg border border-[var(--ns-glass-line)] p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-ink)] transition-colors"
                         title="View Folio / Bill"
                       >
                         <Receipt size={14} />
@@ -475,17 +472,17 @@ const PropertyDashboard: React.FC = () => {
         </div>
 
         {/* Department Revenue Pulse */}
-        <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] shadow-xs overflow-hidden flex flex-col justify-between">
+        <div className="rounded-2xl border border-[var(--ns-glass-line)] glass shadow-xs overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-[var(--ns-line)] px-6 py-4 bg-[var(--ns-surface-2)]">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
               <div>
                 <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-                  <TrendingUp size={16} className="text-[#c59a58]" />
+                  <TrendingUp size={16} className="text-[var(--ns-gold)]" />
                   Department Pulse
                 </h2>
                 <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">Live revenue across property outlets</p>
               </div>
-              <span className="text-xs font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+              <span className="text-xs font-black text-[var(--ns-success)] glass-subtle px-2.5 py-1 rounded-full border border-[var(--ns-success)]">
                 {formatCurrency(totalDeptRevenue)}
               </span>
             </div>
@@ -494,15 +491,15 @@ const PropertyDashboard: React.FC = () => {
               {/* Restaurant */}
               <div
                 onClick={() => navigate('/restaurant/pos')}
-                className="group cursor-pointer rounded-xl border border-[var(--ns-line)] p-4 hover:border-[#174b59]/40 hover:bg-[var(--ns-surface-2)] transition-all"
+                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-4 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-warning)]">
                       <UtensilsCrossed size={16} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[#174b59] dark:group-hover:text-[#5ab4d6]">Restaurant Station</div>
+                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Restaurant Station</div>
                       <div className="text-[10px] text-[var(--ns-muted)]">Fine dining, breakfasts & orders</div>
                     </div>
                   </div>
@@ -515,15 +512,15 @@ const PropertyDashboard: React.FC = () => {
               {/* Bar */}
               <div
                 onClick={() => navigate('/bar/pos')}
-                className="group cursor-pointer rounded-xl border border-[var(--ns-line)] p-4 hover:border-[#174b59]/40 hover:bg-[var(--ns-surface-2)] transition-all"
+                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-4 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-purple)]">
                       <Wine size={16} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[#174b59] dark:group-hover:text-[#5ab4d6]">Bar &amp; Lounge</div>
+                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Bar &amp; Lounge</div>
                       <div className="text-[10px] text-[var(--ns-muted)]">Cocktails, wines & beverages</div>
                     </div>
                   </div>
@@ -536,15 +533,15 @@ const PropertyDashboard: React.FC = () => {
               {/* Pool */}
               <div
                 onClick={() => navigate('/pool/services')}
-                className="group cursor-pointer rounded-xl border border-[var(--ns-line)] p-4 hover:border-[#174b59]/40 hover:bg-[var(--ns-surface-2)] transition-all"
+                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-4 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-info)]">
                       <Waves size={16} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[#174b59] dark:group-hover:text-[#5ab4d6]">Swimming Pool</div>
+                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Swimming Pool</div>
                       <div className="text-[10px] text-[var(--ns-muted)]">Pool passes, towels & leisure</div>
                     </div>
                   </div>
@@ -556,11 +553,11 @@ const PropertyDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="border-t border-[var(--ns-line)] bg-[var(--ns-surface-2)] p-4 flex items-center justify-between text-xs">
+          <div className="border-t border-[var(--ns-glass-line)] ns-glass-band p-4 flex items-center justify-between text-xs">
             <span className="text-[var(--ns-muted)] font-medium">Daily outlets performance</span>
             <button
               onClick={() => navigate('/reports')}
-              className="text-[#174b59] dark:text-[#5ab4d6] font-bold hover:underline flex items-center gap-1"
+              className="text-[var(--ns-teal)] font-bold hover:underline flex items-center gap-1"
             >
               Outlets Analytics &rarr;
             </button>
@@ -625,8 +622,8 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#c59a58]/30 bg-amber-500/10 px-3 py-1 text-[11px] font-bold tracking-wider text-[#b88738] uppercase shadow-xs">
-            <Sparkles size={13} className="text-[#c59a58]" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[11px] font-bold tracking-wider text-[var(--ns-gold)] uppercase shadow-xs">
+            <Sparkles size={13} className="text-[var(--ns-gold)]" />
             {deptLabel} Workstation
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ns-ink)]">
@@ -643,14 +640,14 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="border-[var(--ns-line)] hover:bg-[var(--ns-surface-2)] bg-[var(--ns-surface)] text-[var(--ns-ink)] shadow-xs text-xs font-semibold"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold"
           >
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </Button>
           <Button
             size="sm"
             onClick={() => navigate(toPOS)}
-            className="bg-gradient-to-r from-[#174b59] to-[#0f3440] hover:from-[#133e4a] hover:to-[#0a232b] text-white shadow-md text-xs font-semibold gap-1.5"
+            className="glass ns-glass-hover text-[var(--ns-ink)] shadow-md text-xs font-semibold gap-1.5"
           >
             <ArrowRight size={14} /> Open {deptLabel} POS
           </Button>
@@ -658,29 +655,29 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       </div>
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700 shadow-xs">
+        <div className="rounded-xl border border-[var(--ns-danger)] glass-subtle px-4 py-3 text-xs font-semibold text-[var(--ns-danger)] shadow-xs">
           {error}
         </div>
       )}
 
       {/* Hero Sales Card */}
-      <section className="glass-dark relative overflow-hidden rounded-3xl text-white p-6 sm:p-8">
+      <section className="glass-subtle relative overflow-hidden rounded-3xl text-[var(--ns-ink)] p-6 sm:p-8">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 items-center">
           <div>
-            <div className="text-[11px] font-extrabold uppercase tracking-widest text-[#f5d99b]">
+            <div className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--ns-gold)]">
               Today's {deptLabel} Revenue
             </div>
-            <div className="mt-2 text-3xl sm:text-4xl font-black text-white">
+            <div className="mt-2 text-3xl sm:text-4xl font-black text-[var(--ns-ink)]">
               {formatCurrency(Number(todayRevenue || 0))}
             </div>
-            <p className="mt-2 text-xs text-slate-300 max-w-md">
+            <p className="mt-2 text-xs text-[var(--ns-muted)] max-w-md">
               Cumulative department sales processed across active guest folios, card, cash, and MoMo.
             </p>
             <div className="mt-5">
               <Button
                 size="sm"
                 onClick={() => navigate(toPOS)}
-                className="bg-gradient-to-r from-[#f1a83f] to-[#d48c26] text-[#201608] font-bold text-xs shadow-md"
+                className="glass text-[var(--ns-ink)] font-bold text-xs shadow-md"
               >
                 <ArrowRight size={14} /> Take New Order
               </Button>
@@ -688,13 +685,13 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Orders Today</div>
-              <div className="mt-1 text-2xl font-black text-white">{todayOrders.length}</div>
+            <div className="rounded-xl glass-subtle border border-[var(--ns-glass-line)] p-4">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Orders Today</div>
+              <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{todayOrders.length}</div>
             </div>
-            <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Items Sold</div>
-              <div className="mt-1 text-2xl font-black text-white">
+            <div className="rounded-xl glass-subtle border border-[var(--ns-glass-line)] p-4">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Items Sold</div>
+              <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">
                 {todayOrders.reduce((s, o) => s + (o.orderItems?.length || 1), 0)}
               </div>
             </div>
@@ -703,15 +700,15 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       </section>
 
       {/* Recent Transactions Table */}
-      <div className="rounded-2xl border border-[var(--ns-line)] bg-[var(--ns-surface)] shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[var(--ns-line)] px-6 py-4 bg-[var(--ns-surface-2)]">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
           <div>
             <h2 className="text-sm font-extrabold text-[var(--ns-ink)]">Recent {deptLabel} Transactions</h2>
             <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">Orders and receipts posted today</p>
           </div>
           <button
             onClick={() => navigate(toPOS)}
-            className="text-xs font-bold text-[#174b59] dark:text-[#6ee7b7] hover:underline"
+            className="text-xs font-bold text-[var(--ns-teal)] hover:underline"
           >
             New Order &rarr;
           </button>
@@ -722,7 +719,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] uppercase font-bold tracking-wider text-[var(--ns-muted)]">
+              <thead className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] uppercase font-bold tracking-wider text-[var(--ns-muted)]">
                 <tr>
                   <th className="px-6 py-3.5">Order No.</th>
                   <th className="px-6 py-3.5">Payment</th>
@@ -731,9 +728,9 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
                   <th className="px-6 py-3.5 text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--ns-line)]">
+              <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {orders.slice(0, 10).map((o) => (
-                  <tr key={o.id} className="hover:bg-[var(--ns-surface-2)] transition-colors">
+                  <tr key={o.id} className="ns-glass-hover transition-colors">
                     <td className="px-6 py-3.5 font-mono text-xs font-bold text-[var(--ns-ink)]">
                       {o.orderNo || o.transactionNo}
                     </td>
@@ -743,7 +740,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
                       {formatCurrency(Number(o.totalAmount || 0))}
                     </td>
                     <td className="px-6 py-3.5 text-right">
-                      <Button variant="outline" size="sm" onClick={() => printReceipt(o, kind)} className="gap-1 text-xs border-[var(--ns-line)] text-[var(--ns-ink)]">
+                      <Button variant="outline" size="sm" onClick={() => printReceipt(o, kind)} className="gap-1 text-xs border-[var(--ns-glass-line)] text-[var(--ns-ink)]">
                         <Printer size={13} /> Print
                       </Button>
                     </td>
