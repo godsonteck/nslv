@@ -207,14 +207,6 @@ export function formatUserGreeting(
     .filter(Boolean)
     .join(' ');
   const name = fullName || user?.firstName?.trim() || user?.username?.trim();
-  const day = date.toLocaleDateString('en-GB', { weekday: 'long' });
   const base = getTimeGreeting(date);
-  const phrase = name ? `${base}, ${name}` : base;
-  const suffix =
-    base === 'Good morning'
-      ? `— here's to a bright ${day}`
-      : base === 'Good afternoon'
-        ? `— enjoy your ${day} afternoon`
-        : `— hope your ${day} is going well`;
-  return `${phrase} ${suffix}`;
+  return name ? `${base}, ${name}` : base;
 }

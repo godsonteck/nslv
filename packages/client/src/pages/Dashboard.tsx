@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { reportsApi, roomsApi, staysApi, posApi, reservationsApi } from '../services/apiService';
 import { clearGetCache } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { formatCurrency, formatUserGreeting } from '@nslv/shared';
+import { formatCurrency } from '@nslv/shared';
 import {
   ArrowRight,
   BedDouble,
@@ -109,7 +109,6 @@ const PropertyDashboard: React.FC = () => {
   const canRooms = has('rooms.view');
   const canPayments = has('payments.view');
 
-  const greeting = formatUserGreeting(user);
   const nowFormatted = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -160,7 +159,7 @@ const PropertyDashboard: React.FC = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
-              {greeting}
+              Operations &amp; Overview
             </h1>
             <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
               Lokoe, Ho, Ghana | {nowFormatted}
@@ -578,7 +577,6 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  const greeting = formatUserGreeting(user);
   const deptLabel = kind === 'restaurant' ? 'Restaurant' : kind === 'bar' ? 'Bar' : 'Pool';
   const icon = kind === 'restaurant' ? UtensilsCrossed : kind === 'bar' ? Wine : Waves;
   const toPOS = kind === 'restaurant' ? '/restaurant/pos' : kind === 'bar' ? '/bar/pos' : '/pool/services';
@@ -627,7 +625,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             {deptLabel} Workstation
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ns-ink)]">
-            {greeting}
+            {deptLabel} Operations
           </h1>
           <p className="mt-1 text-xs text-[var(--ns-muted)]">
             Real-time orders, receipts, and revenue reconciliation for this outlet.

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { reservationsApi, staysApi, roomsApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, formatUserGreeting } from '@nslv/shared';
+import { formatCurrency } from '@nslv/shared';
 import {
   LogIn,
   LogOut,
@@ -45,7 +45,6 @@ export const FrontDeskPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const permissions = user?.permissions ?? [];
-  const greeting = formatUserGreeting(user);
 
   const [stays, setStays] = useState<any[]>([]);
   const [arrivals, setArrivals] = useState<any[]>([]);
@@ -303,7 +302,7 @@ export const FrontDeskPage: React.FC = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
-              {greeting}
+              Front Desk &amp; Reception
             </h1>
             <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
               {nowFormatted}
