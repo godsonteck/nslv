@@ -32,6 +32,18 @@ interface BillStay {
   id: string;
   isCheckedOut?: boolean;
   finalBalance?: number;
+  actualCheckOut?: string;
+  checkedOutDate?: string;
+  checkOutNotes?: string | null;
+  checkOutPaymentMethod?: string | null;
+  totalBilled?: number;
+  paidAtCheckout?: number;
+  totalPaid?: number;
+  currentOwed?: number;
+  cashPaid?: number;
+  momoPaid?: number;
+  cardPaid?: number;
+  bankPaid?: number;
   guest: { firstName: string; lastName?: string | null; id?: string } | null;
   room: { number: string | number; roomType?: { name?: string } } | null;
   actualCheckIn: string;
@@ -65,6 +77,57 @@ interface BillStay {
 }
 
 const money = (v: number | string | undefined | null) => Number(v ?? 0);
+
+export const computeBillSummary = (stay: BillStay, folio: any) => {
+  const isCheckedOut = Boolean(stay.isCheckedOut || stay.reservation?.status === 'CHECKED_OUT');
+  const actualCheckOut = stay.actualCheckOut || (stay as any).checkedOutDate || (stay as any).reservation?.checkOutDate;
+
+  const items = (folio?.items || []).filter(
+    (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()) && Number(i.amount) > 0,
+  );
+  const totalBilled = stay.totalBilled !== undefined ? Number(stay.totalBilled) : items.reduce((s: number, i: any) => s + money(i.amount), 0);
+
+  const payments = folio?.payments || [];
+  const totalPaid = stay.totalPaid !== undefined ? Number(stay.totalPaid) : payments.reduce((s: number, p: any) => s + money(p.amount), 0);
+
+  const checkoutTime = actualCheckOut ? new Date(actualCheckOut).getTime() : null;
+  const paidAtCheckout = stay.paidAtCheckout !== undefined
+    ? Number(stay.paidAtCheckout)
+    : checkoutTime
+    ? payments.filter((p: any) => new Date(p.processedAt || p.createdAt).getTime() <= checkoutTime + 5000).reduce((s: number, p: any) => s + money(p.amount), 0)
+    : totalPaid;
+
+  let cashPaid = stay.cashPaid !== undefined ? Number(stay.cashPaid) : 0;
+  let momoPaid = stay.momoPaid !== undefined ? Number(stay.momoPaid) : 0;
+  let cardPaid = stay.cardPaid !== undefined ? Number(stay.cardPaid) : 0;
+  let bankPaid = stay.bankPaid !== undefined ? Number(stay.bankPaid) : 0;
+
+  if (stay.cashPaid === undefined && payments.length) {
+    for (const p of payments) {
+      const amt = money(p.amount);
+      const m = String(p.method).toUpperCase();
+      if (m === 'CASH') cashPaid += amt;
+      else if (m === 'MOBILE_MONEY' || m === 'MOMO') momoPaid += amt;
+      else if (m === 'CARD') cardPaid += amt;
+      else if (m === 'BANK_TRANSFER') bankPaid += amt;
+    }
+  }
+
+  const balance = money(folio?.balance);
+
+  return {
+    isCheckedOut,
+    actualCheckOut,
+    totalBilled,
+    paidAtCheckout,
+    totalPaid,
+    cashPaid,
+    momoPaid,
+    cardPaid,
+    bankPaid,
+    balance,
+  };
+};
 
 export const GuestBillsPage: React.FC = () => {
   const [stays, setStays] = useState<BillStay[]>([]);
@@ -213,7 +276,8 @@ export const GuestBillsPage: React.FC = () => {
   const printBill = () => {
     if (!selectedBill) return;
     const { stay, folio } = selectedBill;
-    const win = window.open('', '_blank', 'width=520,height=800');
+    const summary = computeBillSummary(stay, folio);
+    const win = window.open('', '_blank', 'width=560,height=840');
     if (!win) {
       showToast('error', 'Pop-up blocked. Please allow pop-ups to print bill.');
       return;
@@ -245,34 +309,44 @@ export const GuestBillsPage: React.FC = () => {
 
     const guestName = formatGuestName(stay.guest, 'Guest');
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
-    const balance = money(folio.balance);
+    const balance = summary.balance;
+
+    const checkedOutStr = summary.actualCheckOut
+      ? new Date(summary.actualCheckOut).toLocaleString('en-GH', { dateStyle: 'medium', timeStyle: 'short' })
+      : null;
 
     win.document.write(`<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>Guest Bill · Room ${stay.room?.number ?? '—'}</title>
+  <title>Guest Folio · Room ${stay.room?.number ?? '—'} · ${guestName}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; font-size: 11.5px; color: #0c1921; background: #fff; padding: 24px; max-width: 460px; margin: 0 auto; }
-    .header { text-align: center; border-bottom: 2px solid #c59a58; padding-bottom: 12px; margin-bottom: 16px; }
-    .logo { height: 48px; object-fit: contain; margin-bottom: 8px; }
+    body { font-family: 'Inter', sans-serif; font-size: 11px; color: #0c1921; background: #fff; padding: 24px; max-width: 500px; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px solid #c59a58; padding-bottom: 12px; margin-bottom: 14px; }
+    .logo { height: 46px; object-fit: contain; margin-bottom: 6px; }
     .title { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 800; color: #0c1921; letter-spacing: 1px; }
-    .sub { font-size: 10px; font-weight: 600; color: #c59a58; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
-    .company { font-size: 9.5px; color: #5a6b75; margin-top: 4px; }
-    .meta-card { background: #fcf9f2; border: 1px solid #e7d8bc; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
+    .sub { font-size: 10px; font-weight: 700; color: #c59a58; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .company { font-size: 9px; color: #5a6b75; margin-top: 3px; }
+    .meta-card { background: #fcf9f2; border: 1px solid #e7d8bc; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10.5px; }
-    .lbl { color: #71828a; font-weight: 600; text-transform: uppercase; font-size: 9px; }
+    .lbl { color: #71828a; font-weight: 600; text-transform: uppercase; font-size: 8.5px; }
     .val { font-weight: 700; color: #0c1921; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
-    th { background: #0c1921; color: #fcf9f2; text-align: left; padding: 6px 10px; font-size: 9.5px; text-transform: uppercase; font-weight: 700; }
-    td { padding: 6px 10px; border-bottom: 1px solid #edf2f2; }
-    .section-title { font-size: 11px; font-weight: 800; color: #0c1921; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 6px; }
-    .total-card { border-top: 2px solid #0c1921; border-bottom: 2px solid #0c1921; padding: 10px 0; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .total-card .lbl { font-size: 12px; font-weight: 800; color: #0c1921; }
-    .total-card .amt { font-size: 16px; font-weight: 900; color: ${balance > 0 ? '#b91c1c' : '#047857'}; }
-    .footer { text-align: center; font-size: 9.5px; color: #71828a; margin-top: 24px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
-    .btn { display: block; width: 100%; padding: 10px; background: #0c1921; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; margin-top: 16px; }
+    .audit-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; margin: 14px 0; }
+    .audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; font-size: 10.5px; }
+    .audit-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; }
+    .badge-amber { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-emerald { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10.5px; }
+    th { background: #0c1921; color: #fcf9f2; text-align: left; padding: 6px 8px; font-size: 9px; text-transform: uppercase; font-weight: 700; }
+    td { padding: 5px 8px; border-bottom: 1px solid #edf2f2; }
+    .section-title { font-size: 10.5px; font-weight: 800; color: #0c1921; text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 4px; }
+    .total-card { border-top: 2px solid #0c1921; border-bottom: 2px solid #0c1921; padding: 10px 0; margin-top: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .total-card .lbl { font-size: 11px; font-weight: 800; color: #0c1921; }
+    .total-card .amt { font-size: 16px; font-weight: 900; color: ${balance > 0.005 ? '#b91c1c' : '#047857'}; }
+    .footer { text-align: center; font-size: 9px; color: #71828a; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
+    .btn { display: block; width: 100%; padding: 10px; background: #0c1921; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; margin-top: 14px; }
     @media print { .btn { display: none; } body { padding: 0; } }
   </style>
 </head>
@@ -280,26 +354,59 @@ export const GuestBillsPage: React.FC = () => {
   <div class="header">
     <img src="${logoUrl}" alt="NS Luxury Villa" class="logo" onerror="this.style.display='none'"/>
     <div class="title">NS LUXURY VILLA</div>
-    <div class="sub">Official In-House Guest Folio</div>
+    <div class="sub">${summary.isCheckedOut ? 'Departure Settlement Folio' : 'Official Guest Room Folio'}</div>
     <div class="company">Lokoe, Ho, Volta Region, Ghana | Tel: +233 535 572 774</div>
   </div>
 
   <div class="meta-card">
     <div class="grid">
-      <div><div class="lbl">Room Number</div><div class="val">Room ${stay.room?.number ?? '—'} (${stay.room?.roomType?.name || 'Suite'})</div></div>
-      <div><div class="lbl">Guest Name</div><div class="val">${guestName}</div></div>
-      <div><div class="lbl">Checked In</div><div class="val">${new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}</div></div>
+      <div><div class="lbl">Room & Guest</div><div class="val">Room ${stay.room?.number ?? '—'} (${stay.room?.roomType?.name || 'Suite'}) · ${guestName}</div></div>
       <div><div class="lbl">Folio Reference</div><div class="val" style="font-family:monospace">${folio.id.slice(0, 8).toUpperCase()}</div></div>
+      <div><div class="lbl">Checked In</div><div class="val">${new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}</div></div>
+      <div>
+        <div class="lbl">${summary.isCheckedOut ? 'Checked Out On' : 'Account Status'}</div>
+        <div class="val">${checkedOutStr ? `<span class="badge badge-amber">Checked Out: ${checkedOutStr}</span>` : '<span class="badge badge-emerald">In-House</span>'}</div>
+      </div>
     </div>
   </div>
 
-  <div class="section-title">Room & Department Charges</div>
-  ${items ? `<table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead><tbody>${items}</tbody></table>` : '<div style="font-size:11px;color:#71828a;padding:8px 0">No posted charges on record.</div>'}
+  <!-- Financial Audit Summary: Supposed to pay, Paid by checkout, Total paid (Cash/MoMo), Balance -->
+  <div class="audit-card">
+    <div style="font-size:9.5px;font-weight:800;color:#0c1921;text-transform:uppercase;letter-spacing:0.5px;">Departure & Settlement Summary</div>
+    <div class="audit-grid">
+      <div class="audit-item">
+        <div class="lbl">Supposed to Pay (Total Bill)</div>
+        <div class="val" style="font-size:12px;font-family:monospace;">${formatCurrency(summary.totalBilled)}</div>
+      </div>
+      <div class="audit-item">
+        <div class="lbl">${summary.isCheckedOut ? 'Paid by Checkout' : 'Paid at Check-in'}</div>
+        <div class="val" style="font-size:12px;font-family:monospace;color:#047857;">${formatCurrency(summary.paidAtCheckout)}</div>
+      </div>
+      <div class="audit-item">
+        <div class="lbl">Total Paid to Date</div>
+        <div class="val" style="font-size:12px;font-family:monospace;color:#047857;">${formatCurrency(summary.totalPaid)}</div>
+        <div style="font-size:8.5px;color:#475569;margin-top:2px;">
+          ${summary.cashPaid > 0 ? `💵 Cash: ${formatCurrency(summary.cashPaid)} ` : ''}
+          ${summary.momoPaid > 0 ? `📱 MoMo: ${formatCurrency(summary.momoPaid)} ` : ''}
+          ${summary.cardPaid > 0 ? `💳 Card: ${formatCurrency(summary.cardPaid)} ` : ''}
+          ${summary.bankPaid > 0 ? `🏦 Bank: ${formatCurrency(summary.bankPaid)} ` : ''}
+          ${summary.totalPaid === 0 ? 'No payments recorded' : ''}
+        </div>
+      </div>
+      <div class="audit-item" style="border-color:${balance > 0.005 ? '#fca5a5' : '#86efac'};background:${balance > 0.005 ? '#fef2f2' : '#f0fdf4'};">
+        <div class="lbl" style="color:${balance > 0.005 ? '#b91c1c' : '#15803d'};">Guest Owes</div>
+        <div class="val" style="font-size:13px;font-family:monospace;color:${balance > 0.005 ? '#b91c1c' : '#15803d'};">${formatCurrency(balance)}</div>
+      </div>
+    </div>
+  </div>
 
-  ${payments ? `<div class="section-title" style="margin-top:16px">Recorded Payments & Deposits</div><table><thead><tr><th>Method</th><th style="text-align:center">Date</th><th style="text-align:right">Amount</th></tr></thead><tbody>${payments}</tbody></table>` : ''}
+  <div class="section-title">Department Charges & Services</div>
+  ${items ? `<table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead><tbody>${items}</tbody></table>` : '<div style="font-size:10.5px;color:#71828a;padding:6px 0">No posted charges on record.</div>'}
+
+  ${payments ? `<div class="section-title">Recorded Payments & Settlements</div><table><thead><tr><th>Method</th><th style="text-align:center">Date</th><th style="text-align:right">Amount</th></tr></thead><tbody>${payments}</tbody></table>` : ''}
 
   <div class="total-card">
-    <div class="lbl">BALANCE OUTSTANDING DUE:</div>
+    <div class="lbl">FINAL BALANCE OWED:</div>
     <div class="amt">${formatCurrency(balance)}</div>
   </div>
 
@@ -394,18 +501,18 @@ export const GuestBillsPage: React.FC = () => {
             <table className="w-full border-collapse text-left text-xs">
               <thead>
                 <tr className="border-b border-[var(--ns-line)] bg-[var(--ns-surface-2)] text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
-                  <th className="py-3 px-5">Room</th>
-                  <th className="py-3 px-5">Guest Name</th>
-                  <th className="py-3 px-5">Folio Ref</th>
-                  <th className="py-3 px-5">Account Status</th>
-                  <th className="py-3 px-5 text-right">Balance Due</th>
-                  <th className="py-3 px-5 text-right">Action</th>
+                  <th className="py-3 px-4">Room &amp; Guest</th>
+                  <th className="py-3 px-4">Checkout / Status</th>
+                  <th className="py-3 px-4 text-right">Supposed to Pay</th>
+                  <th className="py-3 px-4 text-right">Paid by Then</th>
+                  <th className="py-3 px-4">Paid &amp; Method (Cash / MoMo)</th>
+                  <th className="py-3 px-4 text-right">Guest Owes</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--ns-line)]">
                 {visible.map(({ stay, folio }) => {
-                  const balance = money(folio.balance);
-                  const isSettled = balance <= 0.01;
+                  const summary = computeBillSummary(stay, folio);
 
                   return (
                     <tr
@@ -413,57 +520,157 @@ export const GuestBillsPage: React.FC = () => {
                       onClick={() => openBillModal(stay, folio)}
                       className="cursor-pointer hover:bg-[var(--ns-surface-2)] transition-colors"
                     >
-                      <td className="py-3.5 px-5">
+                      {/* Room & Guest */}
+                      <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
                           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#173c4d] font-mono text-xs font-black text-[#c59a58]">
                             {stay.room?.number ?? '—'}
                           </span>
-                          <span className="text-[11px] font-semibold text-[var(--ns-muted)]">
-                            {stay.room?.roomType?.name || 'Room'}
-                          </span>
+                          <div>
+                            <div className="font-bold text-[var(--ns-ink)] text-xs flex items-center gap-1.5 flex-wrap">
+                              <span>{formatGuestName(stay.guest, 'Guest')}</span>
+                              <span className="text-[10px] text-[var(--ns-muted)] font-normal">
+                                ({stay.room?.roomType?.name || 'Room'})
+                              </span>
+                            </div>
+                            <div className="text-[10px] font-mono text-[#b88738]">
+                              Folio #{folio.id.slice(0, 8).toUpperCase()}
+                            </div>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-5">
-                        <div className="font-bold text-[var(--ns-ink)] text-xs flex items-center gap-1.5 flex-wrap">
-                          <span>{formatGuestName(stay.guest, 'Guest')}</span>
-                          {stay.isCheckedOut && (
-                            <span className="rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 text-[10px] font-extrabold px-1.5 py-0.2">
+
+                      {/* Checkout / Status */}
+                      <td className="py-3.5 px-4">
+                        {summary.isCheckedOut ? (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 text-[10px] font-black uppercase px-2 py-0.2">
                               Checked Out
                             </span>
+                            <div className="text-[10.5px] font-semibold text-slate-700 dark:text-slate-300">
+                              {summary.actualCheckOut ? new Date(summary.actualCheckOut).toLocaleDateString('en-GH', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Date recorded'}
+                            </div>
+                            <div className="text-[9.5px] text-slate-400">
+                              {summary.actualCheckOut ? new Date(summary.actualCheckOut).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' }) : ''}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1 rounded bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 text-[10px] font-black uppercase px-2 py-0.2">
+                              In-House Stay
+                            </span>
+                            <div className="text-[10px] text-[var(--ns-muted)]">
+                              Since {new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}
+                            </div>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Supposed to Pay (Total Bill) */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="font-mono text-xs font-black text-slate-900 dark:text-slate-100">
+                          {formatCurrency(summary.totalBilled)}
+                        </div>
+                        <div className="text-[9.5px] text-[var(--ns-muted)]">Total folio bill</div>
+                      </td>
+
+                      {/* Paid by Then */}
+                      <td className="py-3.5 px-4 text-right">
+                        {summary.isCheckedOut ? (
+                          <>
+                            <div className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                              {formatCurrency(summary.paidAtCheckout)}
+                            </div>
+                            <div className="text-[9.5px] text-slate-400">At departure</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                              {formatCurrency(summary.totalPaid)}
+                            </div>
+                            <div className="text-[9.5px] text-slate-400">Paid to date</div>
+                          </>
+                        )}
+                      </td>
+
+                      {/* Paid & Method (Cash / MoMo) */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                          {formatCurrency(summary.totalPaid)} <span className="text-[9.5px] text-slate-400 font-normal">total</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1">
+                          {summary.cashPaid > 0 && (
+                            <span className="inline-flex items-center gap-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                              💵 Cash {formatCurrency(summary.cashPaid)}
+                            </span>
+                          )}
+                          {summary.momoPaid > 0 && (
+                            <span className="inline-flex items-center gap-0.5 rounded bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                              📱 MoMo {formatCurrency(summary.momoPaid)}
+                            </span>
+                          )}
+                          {summary.cardPaid > 0 && (
+                            <span className="inline-flex items-center gap-0.5 rounded bg-blue-100 dark:bg-blue-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                              💳 Card {formatCurrency(summary.cardPaid)}
+                            </span>
+                          )}
+                          {summary.bankPaid > 0 && (
+                            <span className="inline-flex items-center gap-0.5 rounded bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.5 text-[9.5px] font-extrabold text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
+                              🏦 Bank {formatCurrency(summary.bankPaid)}
+                            </span>
+                          )}
+                          {summary.totalPaid === 0 && (
+                            <span className="text-[10px] text-slate-400 italic">No payments yet</span>
                           )}
                         </div>
-                        <div className="text-[10px] text-[var(--ns-muted)]">
-                          {stay.isCheckedOut ? 'Departure recorded' : `Checked in: ${new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}`}
-                        </div>
                       </td>
-                      <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[#b88738]">
-                        {folio.id.slice(0, 8).toUpperCase()}
-                      </td>
-                      <td className="py-3.5 px-5">
-                        {isSettled ? (
+
+                      {/* What Guest Owes */}
+                      <td className="py-3.5 px-4 text-right">
+                        {summary.balance > 0.005 ? (
+                          <>
+                            <div className="font-mono text-sm font-black text-rose-600 dark:text-rose-400">
+                              {formatCurrency(summary.balance)}
+                            </div>
+                            <div className="text-[9.5px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                              Owes balance
+                            </div>
+                          </>
+                        ) : (
                           <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle2 size={10} /> Fully Settled
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                            <Clock size={10} /> Balance Pending
-                          </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-5 text-right font-mono text-sm font-black">
-                        <span className={balance > 0 ? 'text-[#b91c1c] dark:text-[#f87171]' : 'text-[#047857] dark:text-[#34d399]'}>
-                          {formatCurrency(balance)}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5 text-right" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openBillModal(stay, folio)}
-                          className="h-8 gap-1.5 border-[var(--ns-line)] text-xs font-semibold text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
-                        >
-                          <ReceiptText size={13} className="text-[#c59a58]" /> View Bill
-                        </Button>
+
+                      {/* Action */}
+                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {summary.balance > 0.005 && (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedBill({ stay, folio });
+                                setPayAmount(summary.balance.toFixed(2));
+                                setPayMethod('CASH');
+                                setPayRef('');
+                                setPayDesc(`Payment for outstanding balance (Room ${stay.room?.number || '—'})`);
+                                setPayModalOpen(true);
+                              }}
+                              className="h-8 gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold"
+                            >
+                              <CreditCard size={12} /> Pay
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openBillModal(stay, folio)}
+                            className="h-8 gap-1 border-[var(--ns-line)] text-xs font-semibold text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)]"
+                          >
+                            <ReceiptText size={13} className="text-[#c59a58]" /> View
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -484,29 +691,120 @@ export const GuestBillsPage: React.FC = () => {
             : 'Guest Bill'
         }
       >
-        {selectedBill && (
+        {selectedBill && (() => {
+          const summary = computeBillSummary(selectedBill.stay, selectedBill.folio);
+          return (
           <div className="space-y-4">
-            {/* Header info */}
-            <div className="rounded-xl border border-[#c59a58]/30 bg-[#c59a58]/10 p-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
-                  Folio {selectedBill.folio.id.slice(0, 8).toUpperCase()}
-                </span>
-                <div className="text-sm font-bold text-[var(--ns-ink)]">
-                  Room {selectedBill.stay.room?.number ?? ''} | {formatGuestName(selectedBill.stay.guest, 'Guest')}
+            {/* Header info & Departure Audit */}
+            <div className="rounded-2xl border border-[var(--ns-line)] bg-gradient-to-br from-[var(--ns-surface)] to-[var(--ns-surface-2)] p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-line)] pb-3">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#b88738]">
+                    Folio #{selectedBill.folio.id.slice(0, 8).toUpperCase()}
+                  </span>
+                  <div className="text-base font-black text-[var(--ns-ink)]">
+                    Room {selectedBill.stay.room?.number ?? '—'} · {formatGuestName(selectedBill.stay.guest, 'Guest')}
+                  </div>
+                  <div className="text-[11px] text-[var(--ns-muted)]">
+                    Checked in: {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString('en-GH')}
+                  </div>
                 </div>
-                <div className="text-[11px] text-[var(--ns-muted)]">
-                  Checked in {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString('en-GH')}
+                <div className="text-right">
+                  {summary.isCheckedOut ? (
+                    <div className="inline-flex flex-col items-end">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-950/70 px-2.5 py-1 text-xs font-black text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                        <AlertCircle size={13} /> Checked Out
+                      </span>
+                      {summary.actualCheckOut && (
+                        <span className="text-[10.5px] font-semibold text-amber-800 dark:text-amber-300 mt-1">
+                          {new Date(summary.actualCheckOut).toLocaleString('en-GH', { dateStyle: 'medium', timeStyle: 'short' })}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/70 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700">
+                      <CheckCircle2 size={13} /> In-House
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="text-right">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
-                  Balance Due
-                </span>
-                <div className="text-xl font-black text-[var(--ns-ink)]">
-                  {formatCurrency(money(selectedBill.folio.balance))}
+
+              {/* 4 Financial Audit Tiles */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                    Supposed to Pay
+                  </span>
+                  <div className="font-mono text-sm font-black text-[var(--ns-ink)] mt-0.5">
+                    {formatCurrency(summary.totalBilled)}
+                  </div>
+                  <span className="text-[9px] text-[var(--ns-muted)]">Total bill charges</span>
+                </div>
+
+                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                    {summary.isCheckedOut ? 'Paid by Checkout' : 'Paid at Check-in'}
+                  </span>
+                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    {formatCurrency(summary.paidAtCheckout)}
+                  </div>
+                  <span className="text-[9px] text-[var(--ns-muted)]">
+                    {summary.isCheckedOut ? 'At departure time' : 'Initial settlement'}
+                  </span>
+                </div>
+
+                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                    Total Paid to Date
+                  </span>
+                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    {formatCurrency(summary.totalPaid)}
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {summary.cashPaid > 0 && (
+                      <span className="rounded bg-emerald-100 dark:bg-emerald-950 px-1 py-0.2 text-[9px] font-extrabold text-emerald-800 dark:text-emerald-300">
+                        💵 Cash {formatCurrency(summary.cashPaid)}
+                      </span>
+                    )}
+                    {summary.momoPaid > 0 && (
+                      <span className="rounded bg-amber-100 dark:bg-amber-950 px-1 py-0.2 text-[9px] font-extrabold text-amber-900 dark:text-amber-300">
+                        📱 MoMo {formatCurrency(summary.momoPaid)}
+                      </span>
+                    )}
+                    {summary.cardPaid > 0 && (
+                      <span className="rounded bg-blue-100 dark:bg-blue-950 px-1 py-0.2 text-[9px] font-extrabold text-blue-800 dark:text-blue-300">
+                        💳 Card {formatCurrency(summary.cardPaid)}
+                      </span>
+                    )}
+                    {summary.bankPaid > 0 && (
+                      <span className="rounded bg-purple-100 dark:bg-purple-950 px-1 py-0.2 text-[9px] font-extrabold text-purple-800 dark:text-purple-300">
+                        🏦 Bank {formatCurrency(summary.bankPaid)}
+                      </span>
+                    )}
+                    {summary.totalPaid === 0 && (
+                      <span className="text-[9px] text-slate-400 italic">No payments</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={`rounded-xl border p-2.5 ${summary.balance > 0.005 ? 'border-rose-300 bg-rose-50/70 dark:border-rose-800/60 dark:bg-rose-950/30' : 'border-emerald-300 bg-emerald-50/70 dark:border-emerald-800/60 dark:bg-emerald-950/30'}`}>
+                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${summary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    Guest Owes
+                  </span>
+                  <div className={`font-mono text-sm font-black mt-0.5 ${summary.balance > 0.005 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    {formatCurrency(summary.balance)}
+                  </div>
+                  <span className={`text-[9px] font-semibold ${summary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    {summary.balance > 0.005 ? 'Outstanding balance' : 'Fully settled'}
+                  </span>
                 </div>
               </div>
+
+              {selectedBill.stay.checkOutNotes && (
+                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1.5 text-[11px] text-amber-900 dark:text-amber-200">
+                  <span className="font-bold">Checkout Remark:</span> {selectedBill.stay.checkOutNotes}
+                </div>
+              )}
             </div>
 
             {/* Charges List */}
@@ -624,7 +922,8 @@ export const GuestBillsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
       </Modal>
 
       {/* Quick Payment Settlement Modal */}

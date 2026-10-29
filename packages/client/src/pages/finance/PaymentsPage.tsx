@@ -38,6 +38,7 @@ import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type Tende
 import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { printPaymentReceipt } from '../../lib/company';
+import { computeBillSummary } from '../frontoffice/GuestBillsPage';
 
 interface PaymentRecord {
   id: string;
@@ -77,6 +78,18 @@ interface BillStay {
   id: string;
   reservationId?: string;
   isCheckedOut?: boolean;
+  actualCheckOut?: string | null;
+  checkedOutDate?: string | null;
+  checkOutNotes?: string | null;
+  checkOutPaymentMethod?: string | null;
+  totalBilled?: number;
+  paidAtCheckout?: number;
+  totalPaid?: number;
+  currentOwed?: number;
+  cashPaid?: number;
+  momoPaid?: number;
+  cardPaid?: number;
+  bankPaid?: number;
   finalBalance?: number;
   guest: { firstName: string; lastName?: string | null } | null;
   room: { number: string | number; name?: string; roomType?: { name?: string } } | null;
@@ -93,6 +106,13 @@ interface BillStay {
         description: string;
         amount: number | string;
         type: string;
+      }>;
+      payments?: Array<{
+        id: string;
+        method: string;
+        amount: number | string;
+        processedAt?: string;
+        createdAt?: string;
       }>;
     }>;
   };
@@ -194,6 +214,7 @@ export const PaymentsPage: React.FC = () => {
     selectedStay?.reservation.folios[0] ??
     null;
   const balance = folio ? money(folio.balance) : 0;
+  const selectedSummary = (selectedStay && folio) ? computeBillSummary(selectedStay as any, folio) : null;
 
   const handleStayChange = (stayId: string) => {
     const stay = allSelectableStays.find((s) => s.id === stayId || s.reservationId === stayId) || null;
@@ -862,10 +883,18 @@ export const PaymentsPage: React.FC = () => {
                 <optgroup label="Checked-Out Guests (Owing Balance)">
                   {unsettledStays.map((s) => {
                     const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
-                    const bal = f ? money(f.balance) : 0;
+                    const summary = computeBillSummary(s as any, f);
+                    const coDate = summary.actualCheckOut;
+                    const dateStr = coDate
+                      ? new Date(coDate).toLocaleDateString('en-GH', { day: '2-digit', month: 'short' })
+                      : 'Departed';
+                    const splitParts: string[] = [];
+                    if (summary.cashPaid > 0) splitParts.push(`Cash: ${formatCurrency(summary.cashPaid)}`);
+                    if (summary.momoPaid > 0) splitParts.push(`MoMo: ${formatCurrency(summary.momoPaid)}`);
+                    const splitStr = splitParts.length > 0 ? ` [${splitParts.join(', ')}]` : '';
                     return (
                       <option key={s.id} value={s.id}>
-                        Room {s.room?.number || '—'} · {formatGuestName(s.guest)} [CHECKED OUT] (Owing: {formatCurrency(bal)})
+                        Room {s.room?.number || '—'} · {formatGuestName(s.guest)} [Checked out: {dateStr}] · Owes: {formatCurrency(summary.balance)} (Billed: {formatCurrency(summary.totalBilled)}, Paid: {formatCurrency(summary.totalPaid)}{splitStr})
                       </option>
                     );
                   })}
@@ -874,35 +903,112 @@ export const PaymentsPage: React.FC = () => {
             </SelectInput>
           </FormField>
 
-          {/* Outstanding Bill Details Banner */}
-          {selectedStay && folio && (
-            <div className={`rounded-2xl border p-4 text-xs ${selectedStay.isCheckedOut || selectedStay.reservation.status === 'CHECKED_OUT' ? 'border-amber-300 bg-amber-50/80 text-amber-950 dark:bg-amber-950/30 dark:border-amber-700/60 dark:text-amber-200' : 'border-[#dfe4df] bg-gradient-to-br from-[#f8faf8] to-[#edf6f4]'}`}>
-              {(selectedStay.isCheckedOut || selectedStay.reservation.status === 'CHECKED_OUT') && (
-                <div className="mb-2.5 flex items-center gap-2 rounded-lg bg-amber-100/90 dark:bg-amber-900/50 px-3 py-1.5 text-xs font-bold text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-                  <AlertCircle size={15} className="text-amber-600 shrink-0" />
-                  <span>Post-Checkout Debt Settlement · Room {selectedStay.room?.number || '—'} · Conf: {selectedStay.reservation.confirmationNo || '—'}</span>
+          {/* Outstanding Bill Details & Settlement Audit Banner */}
+          {selectedStay && folio && selectedSummary && (
+            <div className={`rounded-2xl border p-4 text-xs ${selectedSummary.isCheckedOut ? 'border-amber-300 bg-amber-50/80 text-amber-950 dark:bg-amber-950/30 dark:border-amber-700/60 dark:text-amber-200' : 'border-[#dfe4df] bg-gradient-to-br from-[#f8faf8] to-[#edf6f4]'}`}>
+              {selectedSummary.isCheckedOut ? (
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-100/90 dark:bg-amber-900/50 px-3 py-2 text-xs font-bold text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={16} className="text-amber-600 shrink-0" />
+                    <span>Post-Checkout Debt Settlement · Room {selectedStay.room?.number || '—'} · {formatGuestName(selectedStay.guest)}</span>
+                  </div>
+                  {selectedSummary.actualCheckOut && (
+                    <span className="text-[11px] font-extrabold text-amber-900 dark:text-amber-100 bg-amber-200/80 dark:bg-amber-800/80 px-2.5 py-0.5 rounded-md">
+                      Checked out: {new Date(selectedSummary.actualCheckOut).toLocaleString('en-GH', { dateStyle: 'medium', timeStyle: 'short' })}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="mb-3 flex items-center justify-between text-xs text-[var(--ns-muted)]">
+                  <span className="font-semibold">Room {selectedStay.room?.number || '—'} · {formatGuestName(selectedStay.guest)}</span>
+                  <span className="font-mono text-[11px] text-[#0e7490] dark:text-[#38bdf8]">Folio #{folio.id.slice(0, 8).toUpperCase()}</span>
                 </div>
               )}
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Outstanding Bill Balance</span>
-                  <div className="mt-0.5 text-2xl font-black text-[var(--ns-ink)]">
-                    {formatCurrency(balance)}
+
+              {/* 4 Financial Audit Tiles */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                {/* 1. What Guest is Supposed to Pay */}
+                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                    Supposed to Pay
+                  </span>
+                  <div className="font-mono text-sm font-black text-[var(--ns-ink)] mt-0.5">
+                    {formatCurrency(selectedSummary.totalBilled)}
+                  </div>
+                  <span className="text-[9px] text-[var(--ns-muted)]">Total billed charges</span>
+                </div>
+
+                {/* 2. How Much Paid by Checkout / Check-in */}
+                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                    {selectedSummary.isCheckedOut ? 'Paid by Checkout' : 'Paid at Check-in'}
+                  </span>
+                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    {formatCurrency(selectedSummary.paidAtCheckout)}
+                  </div>
+                  <span className="text-[9px] text-[var(--ns-muted)]">
+                    {selectedSummary.isCheckedOut ? 'Departure payment' : 'Initial deposit'}
+                  </span>
+                </div>
+
+                {/* 3. Total Paid with Cash & MoMo breakdown */}
+                <div className="rounded-xl border border-[var(--ns-line)] bg-[var(--ns-surface)] p-2.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                    Total Paid to Date
+                  </span>
+                  <div className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    {formatCurrency(selectedSummary.totalPaid)}
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedSummary.cashPaid > 0 && (
+                      <span className="rounded bg-emerald-100 dark:bg-emerald-950 px-1 py-0.2 text-[9px] font-extrabold text-emerald-800 dark:text-emerald-300">
+                        💵 Cash {formatCurrency(selectedSummary.cashPaid)}
+                      </span>
+                    )}
+                    {selectedSummary.momoPaid > 0 && (
+                      <span className="rounded bg-amber-100 dark:bg-amber-950 px-1 py-0.2 text-[9px] font-extrabold text-amber-900 dark:text-amber-300">
+                        📱 MoMo {formatCurrency(selectedSummary.momoPaid)}
+                      </span>
+                    )}
+                    {selectedSummary.cardPaid > 0 && (
+                      <span className="rounded bg-blue-100 dark:bg-blue-950 px-1 py-0.2 text-[9px] font-extrabold text-blue-800 dark:text-blue-300">
+                        💳 Card {formatCurrency(selectedSummary.cardPaid)}
+                      </span>
+                    )}
+                    {selectedSummary.bankPaid > 0 && (
+                      <span className="rounded bg-purple-100 dark:bg-purple-950 px-1 py-0.2 text-[9px] font-extrabold text-purple-800 dark:text-purple-300">
+                        🏦 Bank {formatCurrency(selectedSummary.bankPaid)}
+                      </span>
+                    )}
+                    {selectedSummary.totalPaid === 0 && (
+                      <span className="text-[9px] text-slate-400 italic">No payments yet</span>
+                    )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="rounded-md bg-[var(--ns-surface-2)] px-2.5 py-1 text-[11px] font-mono font-bold text-[#0e7490] dark:text-[#38bdf8] border border-[var(--ns-line)]">
-                    Folio #{folio.id.slice(0, 8).toUpperCase()}
+
+                {/* 4. What Guest Currently Owes */}
+                <div className={`rounded-xl border p-2.5 ${selectedSummary.balance > 0.005 ? 'border-rose-300 bg-rose-50/70 dark:border-rose-800/60 dark:bg-rose-950/30' : 'border-emerald-300 bg-emerald-50/70 dark:border-emerald-800/60 dark:bg-emerald-950/30'}`}>
+                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${selectedSummary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    Guest Owes
+                  </span>
+                  <div className={`font-mono text-sm font-black mt-0.5 ${selectedSummary.balance > 0.005 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    {formatCurrency(selectedSummary.balance)}
                   </div>
-                  <p className="mt-1 text-[10px] text-[var(--ns-muted)]">
-                    Room {selectedStay.room?.number || '—'} · {folio.items?.length || 0} line items
-                  </p>
+                  <span className={`text-[9px] font-semibold ${selectedSummary.balance > 0.005 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                    {selectedSummary.balance > 0.005 ? 'Outstanding balance' : 'Fully settled'}
+                  </span>
                 </div>
               </div>
 
+              {selectedStay.checkOutNotes && (
+                <div className="mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1.5 text-[11px] text-amber-900 dark:text-amber-200">
+                  <span className="font-bold">Checkout Remark:</span> {selectedStay.checkOutNotes}
+                </div>
+              )}
+
               {/* Quick Fill Buttons */}
               {balance > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-[var(--ns-line)]">
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-[var(--ns-line)]">
                   <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)] self-center">Quick fill:</span>
                   <button
                     type="button"

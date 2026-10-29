@@ -97,7 +97,39 @@ export class StayService {
     const staffIds = [...new Set(stays.map((stay) => stay.checkedInBy))];
     const staff = staffIds.length ? await prisma.user.findMany({ where: { id: { in: staffIds } }, select: { id: true, firstName: true, lastName: true, username: true } }) : [];
     const staffById = new Map(staff.map((user) => [user.id, { id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.username, username: user.username }]));
-    return stays.map((stay) => ({ ...stay, checkedInByUser: staffById.get(stay.checkedInBy) || { id: stay.checkedInBy, name: 'Former staff account' } }));
+    return stays.map((stay) => {
+      const folio = stay.reservation?.folios?.find((f) => f.status === 'OPEN') || stay.reservation?.folios?.[0];
+      const nonVoidedCharges = (folio?.items || []).filter(
+        (i) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type) && Number(i.amount) > 0,
+      );
+      const totalBilled = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
+      const allPayments = folio?.payments || [];
+      const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+      let cashPaid = 0;
+      let momoPaid = 0;
+      let cardPaid = 0;
+      let bankPaid = 0;
+      for (const p of allPayments) {
+        const amt = Number(p.amount);
+        const m = String(p.method).toUpperCase();
+        if (m === 'CASH') cashPaid += amt;
+        else if (m === 'MOBILE_MONEY' || m === 'MOMO') momoPaid += amt;
+        else if (m === 'CARD') cardPaid += amt;
+        else if (m === 'BANK_TRANSFER') bankPaid += amt;
+      }
+      return {
+        ...stay,
+        totalBilled,
+        paidAtCheckout: totalPaid,
+        totalPaid,
+        currentOwed: Number(folio?.balance ?? 0),
+        cashPaid,
+        momoPaid,
+        cardPaid,
+        bankPaid,
+        checkedInByUser: staffById.get(stay.checkedInBy) || { id: stay.checkedInBy, name: 'Former staff account' },
+      };
+    });
   }
 
   /**
@@ -150,6 +182,33 @@ export class StayService {
       const checkOut = res.checkOuts[0];
       const primaryGuest = res.guests[0]?.guest;
       const folio = res.folios.find((f) => Number(f.balance) > 0.005) || res.folios[0];
+
+      const nonVoidedCharges = (folio?.items || []).filter(
+        (i) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type) && Number(i.amount) > 0,
+      );
+      const totalBilled = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
+      const allPayments = folio?.payments || [];
+      const checkoutTime = checkOut?.actualCheckOut ? new Date(checkOut.actualCheckOut).getTime() : null;
+      const paymentsByCheckout = checkoutTime
+        ? allPayments.filter((p) => new Date(p.processedAt).getTime() <= checkoutTime + 5000)
+        : allPayments;
+      const paidAtCheckout = paymentsByCheckout.reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+      let cashPaid = 0;
+      let momoPaid = 0;
+      let cardPaid = 0;
+      let bankPaid = 0;
+      for (const p of allPayments) {
+        const amt = Number(p.amount);
+        const m = String(p.method).toUpperCase();
+        if (m === 'CASH') cashPaid += amt;
+        else if (m === 'MOBILE_MONEY' || m === 'MOMO') momoPaid += amt;
+        else if (m === 'CARD') cardPaid += amt;
+        else if (m === 'BANK_TRANSFER') bankPaid += amt;
+      }
+      const currentOwed = Number(folio?.balance || 0);
+
       return {
         id: checkIn?.id || res.id,
         reservationId: res.id,
@@ -158,12 +217,23 @@ export class StayService {
         room: res.room ? { number: res.room.number, name: res.room.name, roomType: res.room.roomType } : null,
         actualCheckIn: checkIn?.actualCheckIn || res.checkInDate,
         actualCheckOut: checkOut?.actualCheckOut || res.checkOutDate,
+        checkedOutDate: checkOut?.actualCheckOut || res.checkOutDate,
         checkedInBy: checkIn?.checkedInBy,
         checkedInByUser: checkIn?.checkedInBy ? staffById.get(checkIn.checkedInBy) : undefined,
         checkedOutBy: checkOut?.checkedOutBy,
         checkedOutByUser: checkOut?.checkedOutBy ? staffById.get(checkOut.checkedOutBy) : undefined,
         isCheckedOut: true,
-        finalBalance: checkOut ? Number(checkOut.finalBalance) : Number(folio?.balance || 0),
+        finalBalance: checkOut ? Number(checkOut.finalBalance) : currentOwed,
+        totalBilled,
+        paidAtCheckout,
+        totalPaid,
+        currentOwed,
+        cashPaid,
+        momoPaid,
+        cardPaid,
+        bankPaid,
+        checkOutNotes: checkOut?.notes,
+        checkOutPaymentMethod: checkOut?.paymentMethod,
         reservation: {
           id: res.id,
           confirmationNo: res.confirmationNo,
