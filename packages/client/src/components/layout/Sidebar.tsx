@@ -168,8 +168,8 @@ export const Sidebar: React.FC = () => {
                         : 'justify-center h-10 w-10 mx-auto'
                     } ${
                       isActive
-                        ? 'bg-gradient-to-r from-[#173c4d] to-[#0f2834] text-white shadow-sm border border-[#c59a58]/40'
-                        : 'hover:bg-[var(--ns-glass-1)] text-slate-500 hover:text-[var(--ns-ink)]'
+                        ? 'border border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)] shadow-[0_12px_28px_-18px_rgba(15,23,42,0.35)]'
+                        : 'border border-transparent hover:border-[var(--ns-glass-line-soft)] hover:bg-[var(--ns-glass-1)] text-slate-500 hover:text-[var(--ns-ink)]'
                     }`
                   }
                 >
@@ -186,14 +186,14 @@ export const Sidebar: React.FC = () => {
                         size={sidebarOpen ? 15 : 18}
                         className={`shrink-0 transition-all ${
                           isActive
-                            ? 'text-[#f0d49f]'
+                            ? 'text-[#c59a58]'
                             : 'text-slate-400 group-hover:text-[#c59a58]'
                         }`}
                       />
                       {sidebarOpen && (
                         <span
-                          className={`truncate ${isActive ? 'font-extrabold text-white' : ''}`}
-                          style={{ color: isActive ? '#ffffff' : 'var(--ns-ink)' }}
+                          className={`truncate ${isActive ? 'font-extrabold' : ''}`}
+                          style={{ color: isActive ? 'var(--ns-ink)' : 'var(--ns-ink)' }}
                         >
                           {label}
                         </span>

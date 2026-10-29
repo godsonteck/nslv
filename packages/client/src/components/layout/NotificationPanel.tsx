@@ -21,13 +21,13 @@ const notificationTarget = (notification: NotificationRecord): string => {
 const priorityColor = (priority: string): string => {
   switch (priority) {
     case 'URGENT':
-      return 'text-red-600 bg-red-50 border-red-200';
+      return 'text-red-500 bg-red-500/10 border-red-500/25';
     case 'HIGH':
-      return 'text-orange-600 bg-orange-50 border-orange-200';
+      return 'text-orange-500 bg-orange-500/10 border-orange-500/25';
     case 'MEDIUM':
-      return 'text-blue-600 bg-blue-50 border-blue-200';
+      return 'text-blue-500 bg-blue-500/10 border-blue-500/25';
     default:
-      return 'text-slate-600 bg-slate-50 border-slate-200';
+      return 'text-slate-400 bg-slate-500/10 border-slate-400/20';
   }
 };
 
@@ -57,36 +57,43 @@ const NotificationItem: React.FC<{
   const [deleting, setDeleting] = useState(false);
 
   return (
-    <div className={`border rounded-lg transition-all ${notification.isRead ? 'bg-slate-50 border-slate-200' : 'bg-white border-blue-300'}`}>
+    <div
+      className={`border rounded-lg transition-all ${
+        notification.isRead
+          ? 'border-[var(--ns-glass-line-soft)] bg-[var(--ns-glass-1)]'
+          : 'border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)]'
+      }`}
+    >
       <button
         onClick={() => onOpen(notification)}
         className="group flex w-full items-start gap-3 rounded-t-lg p-3 text-left"
         title="Open notification"
       >
-        <span className="text-lg mt-0.5">{typeIcon(notification.type)}</span>
-        <div className="flex-1 min-w-0">
+        <span className="mt-0.5 text-lg">{typeIcon(notification.type)}</span>
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <h4 className="text-xs font-semibold text-slate-800">{notification.title}</h4>
-              <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-2">{notification.message}</p>
+              <h4 className="text-xs font-semibold" style={{ color: 'var(--ns-ink)' }}>{notification.title}</h4>
+              <p className="mt-0.5 line-clamp-2 text-[11px]" style={{ color: 'var(--ns-muted)' }}>{notification.message}</p>
             </div>
             {!notification.isRead && (
-              <span className={`inline-block px-2 py-1 rounded text-[10px] font-semibold uppercase whitespace-nowrap ${priorityColor(notification.priority)}`}>
+              <span className={`inline-block whitespace-nowrap rounded px-2 py-1 text-[10px] font-semibold uppercase border ${priorityColor(notification.priority)}`}>
                 {notification.priority}
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1.5">
+          <div className="mt-1.5 flex items-center gap-1 text-[10px]" style={{ color: 'var(--ns-muted)' }}>
             {new Date(notification.createdAt).toLocaleString()}
             <ArrowUpRight size={11} className="opacity-0 transition group-hover:opacity-100" />
           </div>
         </div>
       </button>
-      <div className="flex items-center gap-1.5 px-3 pb-2 border-t border-slate-200">
+      <div className="flex items-center gap-1.5 border-t border-[var(--ns-glass-line-soft)] px-3 pb-2 pt-2">
         {!notification.isRead && (
           <button
             onClick={async () => await onMarkAsRead(notification.id)}
-            className="flex items-center gap-1 px-2 py-1 rounded text-[10px] text-slate-600 hover:bg-slate-100"
+            className="flex items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-[var(--ns-glass-1)]"
+            style={{ color: 'var(--ns-ink)' }}
             title="Mark as read"
           >
             <Check size={12} /> Mark read
@@ -102,7 +109,8 @@ const NotificationItem: React.FC<{
             }
           }}
           disabled={deleting}
-          className="ml-auto flex items-center gap-1 px-2 py-1 rounded text-[10px] text-red-600 hover:bg-red-50 disabled:opacity-50"
+          className="ml-auto flex items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-red-500/10 disabled:opacity-50"
+          style={{ color: '#f87171' }}
           title="Delete notification"
         >
           <Trash2 size={12} /> {deleting ? 'Deleting...' : 'Delete'}
@@ -137,13 +145,13 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="absolute right-0 top-12 w-96 max-h-[600px] rounded-2xl border border-slate-200 bg-white shadow-2xl flex flex-col">
+    <div className="glass-strong absolute right-0 top-12 w-96 max-h-[600px] rounded-2xl flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-200 p-4">
+      <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] p-4" style={{ backgroundColor: 'var(--ns-glass-1)' }}>
         <div>
-          <h2 className="text-sm font-bold text-slate-800">Notifications</h2>
+          <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Notifications</h2>
           {unreadCount > 0 && (
-            <p className="text-[11px] text-slate-500 mt-0.5">{unreadCount} unread</p>
+            <p className="mt-0.5 text-[11px]" style={{ color: 'var(--ns-muted)' }}>{unreadCount} unread</p>
           )}
         </div>
         <div className="flex items-center gap-1">
@@ -153,7 +161,8 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
                 await markAllAsRead();
                 showToast('success', 'All notifications marked as read');
               }}
-              className="p-1.5 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-600"
+              className="rounded-lg p-1.5 text-xs font-semibold transition-colors hover:bg-[var(--ns-glass-1)]"
+              style={{ color: 'var(--ns-ink)' }}
               title="Mark all as read"
             >
               Mark all read
@@ -161,7 +170,8 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
           )}
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400"
+            className="rounded-lg p-1.5 transition-colors hover:bg-[var(--ns-glass-1)]"
+            style={{ color: 'var(--ns-muted)' }}
             title="Close"
           >
             <X size={16} />
@@ -172,11 +182,11 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {isLoading ? (
-          <div className="py-8 text-center text-xs text-slate-500">Loading notifications...</div>
+          <div className="py-8 text-center text-xs" style={{ color: 'var(--ns-muted)' }}>Loading notifications...</div>
         ) : notifications.length === 0 ? (
           <div className="py-8 text-center">
-            <Bell size={24} className="mx-auto text-slate-300 mb-2" />
-            <p className="text-xs text-slate-500">No notifications yet</p>
+            <Bell size={24} className="mx-auto mb-2" style={{ color: 'var(--ns-muted)' }} />
+            <p className="text-xs" style={{ color: 'var(--ns-muted)' }}>No notifications yet</p>
           </div>
         ) : (
           notifications.map((notification) => (

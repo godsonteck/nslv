@@ -166,12 +166,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'bg-[#174B59] hover:bg-[#0E3440] text-white font-semibold shadow-[0_6px_16px_rgba(23,75,89,.14)]',
-    secondary: 'border border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)] backdrop-blur-md text-[#27383F] hover:border-[#c59a58]/55',
-    accent: 'bg-[#B18A55] hover:bg-[#9B7648] text-white font-semibold shadow-[0_6px_16px_rgba(177,138,85,.16)]',
-    danger: 'bg-red-600 hover:bg-red-700 text-white font-semibold shadow-sm',
-    ghost: 'bg-transparent hover:bg-black/5 text-[#4A5568] hover:text-[#1A202C]',
-    outline: 'border border-[var(--ns-glass-line)] bg-transparent backdrop-blur-md text-[#27383F] hover:bg-white/30',
+    primary: 'bg-[#174B59]/85 hover:bg-[#0E3440]/85 text-white font-semibold shadow-[0_6px_16px_rgba(23,75,89,.14)]',
+    secondary: 'border border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)] backdrop-blur-md text-[var(--ns-ink)] hover:border-[#c59a58]/55',
+    accent: 'bg-[#B18A55]/80 hover:bg-[#9B7648]/85 text-white font-semibold shadow-[0_6px_16px_rgba(177,138,85,.16)]',
+    danger: 'bg-red-600/80 hover:bg-red-700/80 text-white font-semibold shadow-sm',
+    ghost: 'bg-transparent hover:bg-[var(--ns-glass-1)] text-[var(--ns-ink)]',
+    outline: 'border border-[var(--ns-glass-line)] bg-transparent backdrop-blur-md text-[var(--ns-ink)] hover:bg-[var(--ns-glass-1)]',
   };
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-xs rounded-md gap-1.5',
@@ -280,10 +280,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, badge, 
     <div>
       <div className="ns-eyebrow">NSVilla operations</div>
       <div className="mt-1 flex items-center gap-3">
-        <h1 className="font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[#14232B]">{title}</h1>
-        {badge && <span className="rounded-full border border-[#e7dccb] bg-[#f7f0e5] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em] text-[#a8761e]">{badge}</span>}
+        <h1 className="font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em]" style={{ color: 'var(--ns-ink)' }}>{title}</h1>
+        {badge && <span className="rounded-full border border-[#c59a58]/40 bg-[#c59a58]/10 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em]" style={{ color: '#b88738' }}>{badge}</span>}
       </div>
-      {subtitle && <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[#7a858a]">{subtitle}</p>}
+      {subtitle && <p className="mt-1.5 max-w-2xl text-[12px] leading-5" style={{ color: 'var(--ns-muted)' }}>{subtitle}</p>}
     </div>
     {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
   </div>

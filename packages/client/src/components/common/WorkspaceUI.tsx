@@ -33,7 +33,7 @@ export const ShellPage: React.FC<{
 export const StatTile: React.FC<{label:string; value:string|number; note?:string; icon?:LucideIcon; accent?:boolean; onClick?:()=>void}> = ({label,value,note,icon:Icon,accent,onClick}) => (
   <div
     className={`glass group relative overflow-hidden rounded-2xl p-5 transition-all duration-200 ${
-      accent ? 'glass-warm ring-1 ring-[#c59a58]/30' : ''
+      accent ? 'glass-warm' : ''
     } ${onClick ? 'cursor-pointer select-none hover:-translate-y-0.5' : ''}`}
     onClick={onClick}
     role={onClick ? 'button' : undefined}
@@ -82,7 +82,7 @@ export const Section: React.FC<{title:string; subtitle?:string; action?:React.Re
   <section className={`glass overflow-hidden rounded-2xl ${className}`}>
     <div
       className="flex flex-col gap-2 border-b border-[var(--ns-glass-line-soft)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-      style={{ backgroundColor: 'var(--ns-glass-1)' }}
+      style={{ backgroundColor: 'var(--ns-glass-1)', backdropFilter: 'blur(12px)' }}
     >
       <div>
         <h2 className="text-[14px] font-bold tracking-tight" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
