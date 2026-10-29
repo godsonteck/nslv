@@ -724,6 +724,25 @@ export const PaymentsPage: React.FC = () => {
                             Booking: {p.reservation.confirmationNo}
                           </div>
                         )}
+                        {/* Payment description — what the money was for */}
+                        {p.description && (
+                          <div className="mt-1 text-[10px] text-[#64748b] max-w-[220px] leading-tight">
+                            {(() => {
+                              const desc = p.description;
+                              const hasLateFee = /late checkout/i.test(desc);
+                              return (
+                                <span className="flex items-start gap-1 flex-wrap">
+                                  <span className="italic">{desc}</span>
+                                  {hasLateFee && (
+                                    <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[9px] font-black text-amber-800 uppercase shrink-0">
+                                      ⏱ Late fee incl.
+                                    </span>
+                                  )}
+                                </span>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </td>
 
                       {/* Method */}
@@ -736,6 +755,7 @@ export const PaymentsPage: React.FC = () => {
 
                       {/* Classification */}
                       <td className="px-5 py-4">
+                        <div className="flex flex-col gap-1">
                         {isRefund ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-rose-800 border border-rose-200">
                             <ArrowUpRight size={11} /> Refund
@@ -749,6 +769,17 @@ export const PaymentsPage: React.FC = () => {
                             <CheckCircle2 size={11} /> Paid in full
                           </span>
                         )}
+                        {p.description && /late checkout/i.test(p.description) && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-50 border border-amber-400 px-2 py-0.5 text-[9px] font-black text-amber-800 uppercase">
+                            ⏱ Incl. late fee
+                          </span>
+                        )}
+                        {p.description && /post.checkout/i.test(p.description) && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-orange-50 border border-orange-300 px-2 py-0.5 text-[9px] font-black text-orange-800 uppercase">
+                            Post-checkout
+                          </span>
+                        )}
+                        </div>
                       </td>
 
                       {/* Staff & Time */}
