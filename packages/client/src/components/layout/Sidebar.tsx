@@ -125,7 +125,7 @@ export const Sidebar: React.FC = () => {
           <img
             src={villaLogo}
             alt="NS Luxury Villa"
-            className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-[#c59a58]/40 shadow-xs"
+            className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-[var(--ns-teal)]/35 shadow-xs"
             title="NS Luxury Villa"
           />
           {sidebarOpen && (

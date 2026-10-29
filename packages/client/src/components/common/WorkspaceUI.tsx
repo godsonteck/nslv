@@ -49,7 +49,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
       </span>
       {Icon && (
         <span
-          className="skeuo-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-gold)] bg-white/40 dark:bg-black/30 border border-[var(--ns-glass-line)]"
+          className="skeuo-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] bg-white/40 dark:bg-black/30 border border-[var(--ns-glass-line)]"
           style={{ color: 'var(--ns-teal)' }}
         >
           <Icon size={16} />
@@ -71,7 +71,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
       </div>
     )}
     {onClick && (
-      <div className="mt-2.5 flex items-center gap-1 text-[11px] font-extrabold text-[var(--ns-gold)] opacity-90 transition-opacity group-hover:opacity-100">
+      <div className="mt-2.5 flex items-center gap-1 text-[11px] font-extrabold text-[var(--ns-teal)] opacity-90 transition-opacity group-hover:opacity-100">
         <ArrowUpRight size={13} /> View in table
       </div>
     )}

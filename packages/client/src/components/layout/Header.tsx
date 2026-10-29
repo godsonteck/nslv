@@ -71,7 +71,7 @@ export const Header: React.FC = () => {
         </button>
 
         <button onClick={() => navigate('/dashboard')} className="flex shrink-0 items-center gap-3 text-left">
-          <img src={villaLogo} alt={villaName} className="h-10 w-10 rounded-xl object-cover ring-1 ring-[#c59a58]/40 shadow-sm" />
+          <img src={villaLogo} alt={villaName} className="h-10 w-10 rounded-xl object-cover ring-1 ring-[var(--ns-teal)]/35 shadow-sm" />
           <div className="hidden sm:block">
             <div className="font-['Manrope'] text-[15px] font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {villaName}

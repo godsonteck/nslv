@@ -17,7 +17,6 @@ import {
   Lock,
   User as UserIcon,
   ShieldCheck,
-  Sparkles,
   MapPin,
   KeyRound,
   Sun,
@@ -170,8 +169,7 @@ export default function Login() {
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           
-          {/* ── Left Editorial Showcase (Calm, Serene, Minimal) ── */}
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden glass skeuo-card border border-[var(--ns-glass-line)] p-10 xl:p-12 min-h-[560px] shadow-2xl">
+          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden glass skeuo-card border border-[var(--ns-glass-line)] p-10 xl:p-12 min-h-[560px]">
             {/* Background Photography Vignette */}
             <div className="absolute inset-0 z-0">
               <img
@@ -179,26 +177,25 @@ export default function Login() {
                 alt="NS Luxury Villa"
                 className="w-full h-full object-cover transform scale-105 filter brightness-[0.65] contrast-[1.05]"
               />
-              {/* Soft, calm deep cinematic gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#040810]/95 via-[#07101e]/60 to-[#040810]/40" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,30,40,.35),rgba(4,30,40,.82))]" />
             </div>
 
             {/* Top Calm Eyebrow */}
             <div className="relative z-10 flex items-center gap-2">
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[10.5px] font-semibold tracking-wider uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--ns-gold)]" />
-                Boutique Hospitality & Living
+                Operations workspace
               </span>
             </div>
 
             {/* Editorial Centerpiece — Uncluttered & Poetic */}
             <div className="relative z-10 space-y-4 my-auto py-8">
               <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-sm">
-                Arrive as a Guest, <br />
-                <span className="text-[var(--ns-gold)] italic font-light">Stay as Family.</span>
+                Your property, <br />
+                <span className="text-[#9de0ea] italic font-light">in clear view.</span>
               </h1>
               <p className="text-sm xl:text-base text-slate-300 font-medium max-w-md leading-relaxed">
-                A serene haven where thoughtful hospitality meets effortless comfort. Welcome to the villa management workstation.
+                A focused workspace for reservations, guests, rooms, and daily service—designed for the people running the villa.
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
@@ -214,7 +211,7 @@ export default function Login() {
             {/* Bottom Property Signature */}
             <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-4 font-medium">
               <div className="flex items-center gap-1.5 text-slate-300">
-                <MapPin size={13} className="text-[var(--ns-gold)]" />
+                <MapPin size={13} className="text-[#9de0ea]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
               <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
@@ -224,12 +221,10 @@ export default function Login() {
             </div>
           </div>
 
-          {/* ── Right Floating Sign-In Terminal Card ── */}
           <div className="w-full lg:col-span-5 max-w-md mx-auto flex flex-col justify-center">
-            <div className="glass-strong skeuo-card rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] shadow-2xl relative overflow-hidden">
+            <div className="glass-strong skeuo-card rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden">
               
-              {/* Subtle top gold accent line */}
-              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--ns-gold)]/60 to-transparent" />
+              <div className="absolute top-0 left-0 right-0 h-px bg-[linear-gradient(90deg,transparent,rgba(76,169,188,.85),transparent)]" />
 
               {/* Card Header */}
               <div className="text-center pb-6">

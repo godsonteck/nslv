@@ -4,15 +4,15 @@
 
 :root {
   color-scheme: light;
-  /* Ultra-Visible High-Contrast Palette (Light Mode) */
-  --ns-ink: #0c1820;
-  --ns-ink-2: #1c2e38;
-  --ns-muted: #344854;
-  --ns-teal: #0c596b;
-  --ns-teal-deep: #083b47;
-  --ns-gold: #7d4f10;
-  --ns-gold-soft: rgba(189, 131, 38, 0.12);
-  --ns-bg: #eae7df;
+  /* Clear coastal-glass palette — quiet enough for operational work. */
+  --ns-ink: #112a38;
+  --ns-ink-2: #234252;
+  --ns-muted: #48616f;
+  --ns-teal: #16768c;
+  --ns-teal-deep: #0d5062;
+  --ns-gold: #2b7f97;
+  --ns-gold-soft: rgba(43, 127, 151, 0.12);
+  --ns-bg: #d8e9ed;
   --ns-danger: #b91c1c;
   --ns-success: #0d6b51;
   --ns-warning: #92400e;
@@ -23,18 +23,18 @@
   --font-body: "DM Sans", system-ui, sans-serif;
 
   /* Frosted Glass Foundation (Light Mode) */
-  --ns-glass-1: rgba(255, 255, 255, 0.30);
-  --ns-glass-2: rgba(255, 255, 255, 0.46);
-  --ns-glass-3: rgba(255, 255, 255, 0.65);
-  --ns-glass-line: rgba(255, 255, 255, 0.55);
-  --ns-glass-line-soft: rgba(255, 255, 255, 0.28);
-  --ns-glass-border-outer: rgba(28, 46, 56, 0.14);
-  --ns-glass-blur: 22px;
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(210%) brightness(1.03);
-  --ns-glass-hover: rgba(255, 255, 255, 0.60);
+  --ns-glass-1: rgba(244, 252, 253, 0.68);
+  --ns-glass-2: rgba(250, 254, 255, 0.82);
+  --ns-glass-3: rgba(255, 255, 255, 0.92);
+  --ns-glass-line: rgba(255, 255, 255, 0.82);
+  --ns-glass-line-soft: rgba(38, 93, 110, 0.16);
+  --ns-glass-border-outer: rgba(24, 79, 96, 0.20);
+  --ns-glass-blur: 18px;
+  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(125%) brightness(1.04);
+  --ns-glass-hover: rgba(255, 255, 255, 0.84);
   --ns-glass-shadow:
-    0 10px 30px -4px rgba(12, 24, 32, 0.08),
-    0 2px 6px -1px rgba(12, 24, 32, 0.04),
+    0 14px 32px -14px rgba(13, 66, 82, 0.30),
+    0 2px 6px -1px rgba(13, 66, 82, 0.10),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
 
   --ns-surface: var(--ns-glass-1);
@@ -51,9 +51,9 @@
   /* Skeuomorphic Tactile Specs (Light Mode) */
   --skeuo-specular: inset 0 1px 0 rgba(255, 255, 255, 0.95);
   --skeuo-bevel-bottom: inset 0 -1px 0 rgba(12, 24, 32, 0.06);
-  --skeuo-well-shadow: inset 0 2px 4px rgba(12, 24, 32, 0.10), inset 0 1px 1px rgba(12, 24, 32, 0.05), 0 1px 0 rgba(255, 255, 255, 0.9);
-  --skeuo-btn-shadow: 0 3px 6px -1px rgba(12, 24, 32, 0.12), 0 1px 2px rgba(12, 24, 32, 0.08);
-  --skeuo-card-shadow: 0 12px 32px -4px rgba(12, 24, 32, 0.08), 0 2px 6px -1px rgba(12, 24, 32, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  --skeuo-well-shadow: inset 0 2px 5px rgba(17, 71, 87, 0.16), inset 0 1px 1px rgba(17, 71, 87, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9);
+  --skeuo-btn-shadow: 0 3px 7px -1px rgba(13, 66, 82, 0.18), 0 1px 2px rgba(13, 66, 82, 0.10);
+  --skeuo-card-shadow: 0 16px 34px -14px rgba(13, 66, 82, 0.30), 0 2px 7px -2px rgba(13, 66, 82, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
 }
 
 html[data-theme="dark"], html.dark {
@@ -74,15 +74,15 @@ html[data-theme="dark"], html.dark {
   --ns-purple: #c084fc;
 
   /* Frosted Glass Foundation (Dark Mode) */
-  --ns-glass-1: rgba(8, 16, 28, 0.25);
-  --ns-glass-2: rgba(12, 22, 38, 0.40);
-  --ns-glass-3: rgba(18, 30, 50, 0.60);
+  --ns-glass-1: rgba(10, 31, 43, 0.68);
+  --ns-glass-2: rgba(12, 41, 55, 0.82);
+  --ns-glass-3: rgba(16, 52, 66, 0.92);
   --ns-glass-line: rgba(255, 255, 255, 0.18);
   --ns-glass-line-soft: rgba(255, 255, 255, 0.09);
   --ns-glass-border-outer: rgba(0, 0, 0, 0.5);
-  --ns-glass-blur: 28px;
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(220%) brightness(1.15);
-  --ns-glass-hover: rgba(255, 255, 255, 0.07);
+  --ns-glass-blur: 18px;
+  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(125%) brightness(1.05);
+  --ns-glass-hover: rgba(176, 229, 240, 0.12);
   --ns-glass-shadow:
     0 14px 40px -4px rgba(0, 0, 0, 0.6),
     0 4px 10px -2px rgba(0, 0, 0, 0.4),
@@ -190,22 +190,27 @@ html[data-theme="dark"], html.dark {
     pointer-events: none;
     overflow: hidden;
     background:
-      radial-gradient(ellipse at 10% 5%,  rgba(56, 189, 248, 0.55), transparent 52%),
-      radial-gradient(ellipse at 90% 15%, rgba(245, 158, 11, 0.42), transparent 48%),
-      radial-gradient(ellipse at 45% 88%, rgba(20, 184, 166, 0.38), transparent 55%),
-      radial-gradient(ellipse at 95% 92%, rgba(99, 102, 241, 0.28), transparent 48%),
-      radial-gradient(ellipse at 5%  70%, rgba(236, 72, 153, 0.20), transparent 45%),
-      linear-gradient(135deg, #e4f2f8, #f0ebe0 45%, #dff0f4);
+      radial-gradient(ellipse at 8% 3%, rgba(178, 228, 238, 0.92), transparent 43%),
+      radial-gradient(ellipse at 96% 8%, rgba(145, 205, 218, 0.56), transparent 38%),
+      radial-gradient(ellipse at 52% 105%, rgba(198, 233, 235, 0.88), transparent 48%),
+      linear-gradient(145deg, #cfe5e9 0%, #e2f0f1 48%, #c6e1e6 100%);
+  }
+  .ns-ambient::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .16;
+    background-image: radial-gradient(rgba(15, 71, 86, .22) .55px, transparent .75px);
+    background-size: 5px 5px;
+    mix-blend-mode: soft-light;
   }
 
   html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
     background:
-      radial-gradient(ellipse at 10% 5%,  rgba(14, 165, 233, 0.50), transparent 52%),
-      radial-gradient(ellipse at 90% 15%, rgba(217, 119, 6, 0.35), transparent 48%),
-      radial-gradient(ellipse at 45% 88%, rgba(13, 148, 136, 0.40), transparent 55%),
-      radial-gradient(ellipse at 95% 92%, rgba(99, 102, 241, 0.28), transparent 48%),
-      radial-gradient(ellipse at 5%  70%, rgba(236, 72, 153, 0.20), transparent 45%),
-      linear-gradient(135deg, #050b14, #090f1c 45%, #060d18);
+      radial-gradient(ellipse at 8% 3%, rgba(18, 94, 112, 0.68), transparent 42%),
+      radial-gradient(ellipse at 94% 8%, rgba(25, 78, 96, 0.58), transparent 40%),
+      radial-gradient(ellipse at 50% 105%, rgba(8, 68, 79, 0.64), transparent 50%),
+      linear-gradient(145deg, #061a25 0%, #082631 48%, #061a25 100%);
   }
 
   .ns-watermark { position: absolute; inset: 0; display: grid; place-items: center; }
@@ -213,12 +218,12 @@ html[data-theme="dark"], html.dark {
     width: clamp(420px, 54vw, 1000px);
     max-width: 150vw;
     height: auto;
-    opacity: 0.045;
+    opacity: 0.028;
     user-select: none;
     -webkit-mask-image: radial-gradient(ellipse, #000 38%, transparent 72%);
     mask-image: radial-gradient(ellipse, #000 38%, transparent 72%);
   }
-  html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img { opacity: 0.06; }
+  html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img { opacity: 0.045; }
 
   /* ──────────────────────────────────────────
      Glassy Backgrounds (Frosted Glassmorphism)
@@ -243,7 +248,7 @@ html[data-theme="dark"], html.dark {
   }
 
   .glass-subtle {
-    background: var(--ns-glass-1);
+    background: color-mix(in srgb, var(--ns-glass-1) 88%, transparent);
     border: 1px solid var(--ns-glass-line-soft);
     box-shadow: 0 4px 16px -2px rgba(12, 24, 32, 0.05), var(--skeuo-specular);
   }
@@ -255,13 +260,13 @@ html[data-theme="dark"], html.dark {
   }
 
   .glass-warm {
-    background: rgba(255, 248, 238, 0.42);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    box-shadow: 0 8px 24px rgba(189, 131, 38, 0.12), var(--skeuo-specular);
+    background: rgba(223, 246, 248, 0.76);
+    border: 1px solid rgba(31, 116, 139, 0.30);
+    box-shadow: 0 8px 24px rgba(18, 94, 112, 0.12), var(--skeuo-specular);
   }
   html[data-theme="dark"] .glass-warm, html.dark .glass-warm {
-    background: rgba(28, 20, 10, 0.38);
-    border: 1px solid rgba(251, 191, 36, 0.25);
+    background: rgba(9, 44, 57, 0.74);
+    border: 1px solid rgba(107, 201, 220, 0.25);
   }
 
   .ns-card {
@@ -323,19 +328,19 @@ html[data-theme="dark"], html.dark {
 
   /* Primary Tactile Button */
   .skeuo-btn-primary {
-    background: linear-gradient(180deg, #1a6274 0%, #114c5b 52%, #0b3945 100%) !important;
+    background: linear-gradient(180deg, #23869b 0%, #176f84 48%, #105b6e 100%) !important;
     color: #ffffff !important;
-    border: 1px solid #092f39 !important;
+    border: 1px solid #0b4c5d !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.45),
       inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-      0 3px 6px -1px rgba(11, 47, 57, 0.35),
+      0 3px 6px -1px rgba(11, 76, 93, 0.35),
       0 1px 2px rgba(0, 0, 0, 0.12) !important;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
     font-weight: 700 !important;
   }
   .skeuo-btn-primary:hover:not(:disabled) {
-    background: linear-gradient(180deg, #1e7084 0%, #145869 52%, #0d4250 100%) !important;
+    background: linear-gradient(180deg, #319ab0 0%, #1b7d93 48%, #12677b 100%) !important;
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.55),
@@ -360,9 +365,9 @@ html[data-theme="dark"], html.dark {
 
   /* Secondary Skeuomorphic Frosted Glass Button */
   .skeuo-btn-secondary {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 249, 251, 0.88) 52%, rgba(234, 240, 244, 0.92) 100%) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(233, 246, 248, 0.90) 52%, rgba(207, 232, 236, 0.92) 100%) !important;
     color: var(--ns-ink) !important;
-    border: 1px solid rgba(28, 46, 56, 0.22) !important;
+    border: 1px solid rgba(25, 87, 104, 0.28) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.95),
       inset 0 -1px 0 rgba(12, 24, 32, 0.08),
@@ -370,8 +375,8 @@ html[data-theme="dark"], html.dark {
     font-weight: 700 !important;
   }
   .skeuo-btn-secondary:hover:not(:disabled) {
-    background: linear-gradient(180deg, #ffffff 0%, #f0f4f7 100%) !important;
-    border-color: var(--ns-gold) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e7f5f7 100%) !important;
+    border-color: var(--ns-teal) !important;
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 1),
@@ -396,23 +401,23 @@ html[data-theme="dark"], html.dark {
 
   /* Accent Luxury Gold Skeuomorphic Button */
   .skeuo-btn-accent {
-    background: linear-gradient(180deg, #d8a353 0%, #bd8634 52%, #a06b1f 100%) !important;
+    background: linear-gradient(180deg, #3b9caf 0%, #227f95 52%, #17687c 100%) !important;
     color: #ffffff !important;
-    border: 1px solid #855512 !important;
+    border: 1px solid #125568 !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.55),
       inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-      0 3px 6px -1px rgba(160, 107, 31, 0.35),
+      0 3px 6px -1px rgba(18, 85, 104, 0.35),
       0 1px 2px rgba(0, 0, 0, 0.12) !important;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
     font-weight: 700 !important;
   }
   .skeuo-btn-accent:hover:not(:disabled) {
-    background: linear-gradient(180deg, #e3af5f 0%, #c8913d 52%, #ab7525 100%) !important;
+    background: linear-gradient(180deg, #51afc0 0%, #288da4 52%, #1a7186 100%) !important;
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      0 5px 12px rgba(160, 107, 31, 0.4) !important;
+      0 5px 12px rgba(18, 85, 104, 0.4) !important;
   }
   .skeuo-btn-accent:active:not(:disabled) {
     transform: translateY(1px);
