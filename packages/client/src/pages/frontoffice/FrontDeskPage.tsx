@@ -64,7 +64,7 @@ export const FrontDeskPage: React.FC = () => {
     paymentMethod: 'CASH',
   });
   const [splitOpen, setSplitOpen] = useState(false);
-  const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(true);
+  const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(false);
   const [payLateFeeNow, setPayLateFeeNow] = useState(true);
   const [lateFeeReason, setLateFeeReason] = useState('');
   const [allowOwing, setAllowOwing] = useState(false);
@@ -281,7 +281,7 @@ export const FrontDeskPage: React.FC = () => {
 
   const openCheckout = (stay: any) => {
     setSplitOpen(false);
-    setChargeLateCheckoutFee(true);
+    setChargeLateCheckoutFee(false);
     setPayLateFeeNow(true);
     setLateFeeReason('');
     setAllowOwing(false);
@@ -650,7 +650,9 @@ export const FrontDeskPage: React.FC = () => {
                                   className="h-3.5 w-3.5 accent-[#c59a58] shrink-0"
                                 />
                                 <span className={line.voided ? 'line-through' : ''}>{line.label}</span>
-                                <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase">Late fee</span>
+                                <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase">
+                                  {chargeLateCheckoutFee ? 'Late fee (will be charged)' : 'Late fee (not charging — tick to charge)'}
+                                </span>
                               </label>
                             ) : isCredit ? (
                               <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
@@ -663,6 +665,7 @@ export const FrontDeskPage: React.FC = () => {
                           </div>
                           <span className={`font-bold tabular-nums shrink-0 ${
                             isCredit ? 'text-emerald-700 dark:text-emerald-400' :
+                            isLateFee && !chargeLateCheckoutFee ? 'text-slate-400 line-through' :
                             isLateFee && chargeLateCheckoutFee && !isUnpaid ? 'text-amber-700 dark:text-amber-400' :
                             isUnpaid ? 'text-amber-600/70 dark:text-amber-400/70 italic' :
                             'text-slate-800 dark:text-slate-200'
@@ -671,6 +674,13 @@ export const FrontDeskPage: React.FC = () => {
                             {isUnpaid && <span className="ml-1 text-[10px] text-amber-600 font-normal">(owing)</span>}
                           </span>
                         </div>
+
+                        {/* When late fee is NOT being charged — show clear info */}
+                        {isLateFee && !chargeLateCheckoutFee && (
+                          <p className="text-[10.5px] text-emerald-700 dark:text-emerald-400 italic pl-5">
+                            ✓ Late checkout fee will NOT be charged. Tick the checkbox above to add it.
+                          </p>
+                        )}
 
                         {/* Optional payment allocation for late checkout */}
                         {isLateFee && chargeLateCheckoutFee && (
@@ -696,14 +706,14 @@ export const FrontDeskPage: React.FC = () => {
                     );
                   })}
                 </div>
-                {/* Late fee waiver reason — shown inline when toggled off */}
+                {/* Late fee waiver reason — shown when NOT charging (audit note) */}
                 {activeLateInfo && !chargeLateCheckoutFee && (
                   <div className="px-4 pb-3 pt-1 border-t border-amber-500/20 bg-amber-50/40 dark:bg-amber-950/10">
-                    <FormField label="Reason for waiving late fee (audit note)">
+                    <FormField label="Reason for not charging late fee (optional audit note)">
                       <TextInput
                         value={lateFeeReason}
                         onChange={(e) => setLateFeeReason(e.target.value)}
-                        placeholder="e.g., Authorized manager courtesy waiver"
+                        placeholder="e.g., Checkout recorded late on system, guest left on time"
                       />
                     </FormField>
                   </div>

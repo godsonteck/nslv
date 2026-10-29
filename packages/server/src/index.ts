@@ -14,7 +14,7 @@ import fs from 'fs';
 import { config, prisma } from './config';
 import routes from './routes';
 import { errorHandler } from './middleware/error';
-import { StayService } from './services/stays.service';
+
 
 const app = express();
 
@@ -143,7 +143,10 @@ if (!process.env.VERCEL) {
   Timezone:    ${config.villa.timezone}
 =====================================================
     `);
-    void StayService.autoAdjustHistoricalLateCheckoutFees();
+    // NOTE: autoAdjustHistoricalLateCheckoutFees is intentionally NOT run on startup.
+    // Late checkout fees must only be charged manually at the time of check-out by staff.
+    // Retroactively auto-charging is disabled to avoid incorrect charges when checkout
+    // was recorded late on the system but the guest did not actually overstay.
   });
 }
 

@@ -711,7 +711,9 @@ export class StayService {
         const lateInfo = this.calculateLateCheckoutFee(reservation.checkOutDate, new Date(), hourlyRate, checkoutTime);
         let lateFeeWaivedNote: string | null = null;
         if (folio && lateInfo.isLate && lateInfo.fee > 0) {
-          if (data.chargeLateCheckoutFee !== false) {
+          // Late checkout fee is opt-in: staff must explicitly pass chargeLateCheckoutFee: true.
+          // Default is false — do NOT automatically charge late fees.
+          if (data.chargeLateCheckoutFee === true) {
             const fee = new Prisma.Decimal(lateInfo.fee);
             await tx.folioItem.create({
               data: {
@@ -727,10 +729,9 @@ export class StayService {
               },
             });
             await tx.folio.update({ where: { id: folio.id }, data: { balance: { increment: fee } } });
-          } else {
-            // Fee waived by staff: persist the decision on the ledger as an
-            // already-voided item so it is immune to the historical fee
-            // recalculation job, visible on the folio, and auditable.
+          } else if (data.chargeLateCheckoutFee === false) {
+            // Fee explicitly waived by staff: persist the decision on the ledger as an
+            // already-voided item so it is auditable but does NOT affect the balance.
             const waiveReason = data.lateCheckoutFeeReason?.trim();
             const voidReason = `${LATE_FEE_WAIVER_VOID_REASON}${waiveReason ? `: ${waiveReason}` : ''}`;
             await tx.folioItem.create({
@@ -764,6 +765,8 @@ export class StayService {
               },
             });
           }
+          // If chargeLateCheckoutFee is undefined/null (not provided), the late fee is
+          // simply not posted. No charge, no waiver record — clean slate.
         }
         const ledger = folio
           ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
