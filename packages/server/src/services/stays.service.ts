@@ -99,17 +99,19 @@ export class StayService {
     const staffById = new Map(staff.map((user) => [user.id, { id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.username, username: user.username }]));
     return stays.map((stay) => {
       const folio = stay.reservation?.folios?.find((f) => f.status === 'OPEN') || stay.reservation?.folios?.[0];
-      const nonVoidedCharges = (folio?.items || []).filter(
-        (i) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type) && Number(i.amount) > 0,
+
+      // 1. Valid Payments
+      const rawPayments = folio?.payments || [];
+      const validPayments = rawPayments.filter(
+        (p: any) => (!p.status || p.status === 'COMPLETED') && !p.voidedAt && p.type !== 'REFUND',
       );
-      const totalBilled = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
-      const allPayments = folio?.payments || [];
-      const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalPaid = validPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+
       let cashPaid = 0;
       let momoPaid = 0;
       let cardPaid = 0;
       let bankPaid = 0;
-      for (const p of allPayments) {
+      for (const p of validPayments) {
         const amt = Number(p.amount);
         const m = String(p.method).toUpperCase();
         if (m === 'CASH') cashPaid += amt;
@@ -117,12 +119,35 @@ export class StayService {
         else if (m === 'CARD') cardPaid += amt;
         else if (m === 'BANK_TRANSFER') bankPaid += amt;
       }
+
+      // 2. Charges posted to folio
+      const nonVoidedCharges = (folio?.items || []).filter(
+        (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type),
+      );
+      const chargesSum = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
+      const rawFolioBalance = Number(folio?.balance ?? 0);
+      let currentOwed = rawFolioBalance;
+      if (chargesSum > 0) {
+        currentOwed = Math.max(0, chargesSum - totalPaid);
+      } else if (currentOwed <= 0.005) {
+        currentOwed = 0;
+      }
+
+      // 3. Supposed to Pay = Total Paid + Current Owed (always in 100% agreement)
+      const totalBilled = chargesSum > 0
+        ? Math.max(chargesSum, totalPaid + currentOwed)
+        : Math.max(totalPaid + currentOwed, Number(stay.reservation?.totalAmount || 0));
+
+      if (totalBilled >= totalPaid) {
+        currentOwed = Number((totalBilled - totalPaid).toFixed(2));
+      }
+
       return {
         ...stay,
         totalBilled,
         paidAtCheckout: totalPaid,
         totalPaid,
-        currentOwed: Number(folio?.balance ?? 0),
+        currentOwed,
         cashPaid,
         momoPaid,
         cardPaid,
@@ -183,23 +208,19 @@ export class StayService {
       const primaryGuest = res.guests[0]?.guest;
       const folio = res.folios.find((f) => Number(f.balance) > 0.005) || res.folios[0];
 
-      const nonVoidedCharges = (folio?.items || []).filter(
-        (i) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type) && Number(i.amount) > 0,
+      // 1. Gather all valid payments (excluding voided, refunded, or failed)
+      const rawPayments = folio?.payments || [];
+      const validPayments = rawPayments.filter(
+        (p: any) => (!p.status || p.status === 'COMPLETED') && !p.voidedAt && p.type !== 'REFUND',
       );
-      const totalBilled = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
-      const allPayments = folio?.payments || [];
-      const checkoutTime = checkOut?.actualCheckOut ? new Date(checkOut.actualCheckOut).getTime() : null;
-      const paymentsByCheckout = checkoutTime
-        ? allPayments.filter((p) => new Date(p.processedAt).getTime() <= checkoutTime + 5000)
-        : allPayments;
-      const paidAtCheckout = paymentsByCheckout.reduce((sum, p) => sum + Number(p.amount), 0);
-      const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalPaid = validPayments.reduce((sum, p) => sum + Number(p.amount), 0);
 
+      // Method breakdown
       let cashPaid = 0;
       let momoPaid = 0;
       let cardPaid = 0;
       let bankPaid = 0;
-      for (const p of allPayments) {
+      for (const p of validPayments) {
         const amt = Number(p.amount);
         const m = String(p.method).toUpperCase();
         if (m === 'CASH') cashPaid += amt;
@@ -207,7 +228,38 @@ export class StayService {
         else if (m === 'CARD') cardPaid += amt;
         else if (m === 'BANK_TRANSFER') bankPaid += amt;
       }
-      const currentOwed = Number(folio?.balance || 0);
+
+      // Payments made on or before departure checkout time
+      const checkoutTime = checkOut?.actualCheckOut ? new Date(checkOut.actualCheckOut).getTime() : null;
+      const paymentsByCheckout = checkoutTime
+        ? validPayments.filter((p) => new Date(p.processedAt).getTime() <= checkoutTime + 5000)
+        : validPayments;
+      const paidAtCheckout = paymentsByCheckout.reduce((sum, p) => sum + Number(p.amount), 0);
+
+      // 2. Charges posted to folio
+      const nonVoidedCharges = (folio?.items || []).filter(
+        (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type),
+      );
+      const chargesSum = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
+
+      // 3. True Current Balance Owed (Reconciled)
+      const rawFolioBalance = Number(folio?.balance ?? 0);
+      let currentOwed = rawFolioBalance;
+      if (chargesSum > 0) {
+        currentOwed = Math.max(0, chargesSum - totalPaid);
+      } else if (currentOwed <= 0.005) {
+        currentOwed = 0;
+      }
+
+      // 4. Supposed to Pay (Total Bill)
+      // Must ALWAYS satisfy: totalBilled = totalPaid + currentOwed
+      const totalBilled = chargesSum > 0
+        ? Math.max(chargesSum, totalPaid + currentOwed)
+        : Math.max(totalPaid + currentOwed, Number(res.totalAmount || 0));
+
+      if (totalBilled >= totalPaid) {
+        currentOwed = Number((totalBilled - totalPaid).toFixed(2));
+      }
 
       return {
         id: checkIn?.id || res.id,
@@ -223,7 +275,7 @@ export class StayService {
         checkedOutBy: checkOut?.checkedOutBy,
         checkedOutByUser: checkOut?.checkedOutBy ? staffById.get(checkOut.checkedOutBy) : undefined,
         isCheckedOut: true,
-        finalBalance: checkOut ? Number(checkOut.finalBalance) : currentOwed,
+        finalBalance: currentOwed,
         totalBilled,
         paidAtCheckout,
         totalPaid,
@@ -245,7 +297,7 @@ export class StayService {
           folios: res.folios.map((f) => ({
             id: f.id,
             status: f.status,
-            balance: Number(f.balance),
+            balance: f.id === folio?.id ? currentOwed : Number(f.balance),
             items: f.items.map((i) => ({
               id: i.id,
               description: i.description,
@@ -724,7 +776,7 @@ export class StayService {
         if (finalBalance > 0) {
           const tenders = data.tenders?.length
             ? data.tenders
-            : data.paymentMethod?.trim() && data.paymentMethod !== 'PAY_LATER'
+            : !data.allowOwing && data.paymentMethod?.trim() && data.paymentMethod !== 'PAY_LATER'
             ? [{ method: data.paymentMethod, amount: finalBalance }]
             : [];
           const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));

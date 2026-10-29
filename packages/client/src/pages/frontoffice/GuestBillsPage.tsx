@@ -82,28 +82,21 @@ export const computeBillSummary = (stay: BillStay, folio: any) => {
   const isCheckedOut = Boolean(stay.isCheckedOut || stay.reservation?.status === 'CHECKED_OUT');
   const actualCheckOut = stay.actualCheckOut || (stay as any).checkedOutDate || (stay as any).reservation?.checkOutDate;
 
-  const items = (folio?.items || []).filter(
-    (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()) && Number(i.amount) > 0,
+  // 1. Valid Payments
+  const rawPayments = folio?.payments || [];
+  const validPayments = rawPayments.filter(
+    (p: any) => (!p.status || p.status === 'COMPLETED') && !p.voidedAt && p.type !== 'REFUND',
   );
-  const totalBilled = stay.totalBilled !== undefined ? Number(stay.totalBilled) : items.reduce((s: number, i: any) => s + money(i.amount), 0);
+  const totalPaid = stay.totalPaid !== undefined ? Number(stay.totalPaid) : validPayments.reduce((s: number, p: any) => s + money(p.amount), 0);
 
-  const payments = folio?.payments || [];
-  const totalPaid = stay.totalPaid !== undefined ? Number(stay.totalPaid) : payments.reduce((s: number, p: any) => s + money(p.amount), 0);
-
-  const checkoutTime = actualCheckOut ? new Date(actualCheckOut).getTime() : null;
-  const paidAtCheckout = stay.paidAtCheckout !== undefined
-    ? Number(stay.paidAtCheckout)
-    : checkoutTime
-    ? payments.filter((p: any) => new Date(p.processedAt || p.createdAt).getTime() <= checkoutTime + 5000).reduce((s: number, p: any) => s + money(p.amount), 0)
-    : totalPaid;
-
+  // Method breakdown
   let cashPaid = stay.cashPaid !== undefined ? Number(stay.cashPaid) : 0;
   let momoPaid = stay.momoPaid !== undefined ? Number(stay.momoPaid) : 0;
   let cardPaid = stay.cardPaid !== undefined ? Number(stay.cardPaid) : 0;
   let bankPaid = stay.bankPaid !== undefined ? Number(stay.bankPaid) : 0;
 
-  if (stay.cashPaid === undefined && payments.length) {
-    for (const p of payments) {
+  if (stay.cashPaid === undefined && validPayments.length) {
+    for (const p of validPayments) {
       const amt = money(p.amount);
       const m = String(p.method).toUpperCase();
       if (m === 'CASH') cashPaid += amt;
@@ -113,7 +106,40 @@ export const computeBillSummary = (stay: BillStay, folio: any) => {
     }
   }
 
-  const balance = money(folio?.balance);
+  // 2. Paid by Checkout
+  const checkoutTime = actualCheckOut ? new Date(actualCheckOut).getTime() : null;
+  const paidAtCheckout = stay.paidAtCheckout !== undefined
+    ? Number(stay.paidAtCheckout)
+    : checkoutTime
+    ? validPayments.filter((p: any) => new Date(p.processedAt || p.createdAt).getTime() <= checkoutTime + 5000).reduce((s: number, p: any) => s + money(p.amount), 0)
+    : totalPaid;
+
+  // 3. Charges posted to folio
+  const items = (folio?.items || []).filter(
+    (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()),
+  );
+  const chargesSum = items.reduce((s: number, i: any) => s + money(i.amount), 0);
+
+  // 4. Current Balance Owed (Reconciled)
+  const rawBalance = stay.currentOwed !== undefined ? Number(stay.currentOwed) : money(folio?.balance);
+  let balance = rawBalance;
+  if (chargesSum > 0) {
+    balance = Math.max(0, chargesSum - totalPaid);
+  } else if (balance <= 0.005) {
+    balance = 0;
+  }
+
+  // 5. Total Billed (Supposed to Pay)
+  // Must ALWAYS satisfy: totalBilled = totalPaid + balance
+  const totalBilled = chargesSum > 0
+    ? Math.max(chargesSum, totalPaid + balance)
+    : stay.totalBilled !== undefined
+    ? Math.max(Number(stay.totalBilled), totalPaid + balance)
+    : Math.max(totalPaid + balance, money((stay as any).reservation?.totalAmount));
+
+  if (totalBilled >= totalPaid) {
+    balance = Number((totalBilled - totalPaid).toFixed(2));
+  }
 
   return {
     isCheckedOut,

@@ -174,7 +174,7 @@ export const FrontDeskPage: React.FC = () => {
           notes: checkoutPaymentDescription || undefined,
           ...(activeLateInfo && !chargeLateCheckoutFee ? { lateCheckoutFeeReason: lateFeeReason.trim() || undefined } : {}),
           ...(shouldAllowOwing ? { allowOwing: true, owingReason: finalOwingReason } : {}),
-          ...(checkoutTotal <= 0.005 ? {} : splitTenders ? { tenders: splitTenders } : (shouldAllowOwing && !form.paymentMethod ? {} : { paymentMethod: form.paymentMethod })),
+          ...(checkoutTotal <= 0.005 ? {} : splitTenders ? { tenders: splitTenders } : (shouldAllowOwing ? { paymentMethod: 'PAY_LATER' } : { paymentMethod: form.paymentMethod })),
         });
       }
       showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : allowOwing || (activeLateInfo && chargeLateCheckoutFee && !payLateFeeNow) ? 'Guest checked out with outstanding balance.' : 'Payment recorded & guest checked out.');

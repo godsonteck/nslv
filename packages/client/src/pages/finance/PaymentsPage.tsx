@@ -213,8 +213,14 @@ export const PaymentsPage: React.FC = () => {
     selectedStay?.reservation.folios.find((f) => f.status === 'OPEN') ??
     selectedStay?.reservation.folios[0] ??
     null;
-  const balance = folio ? money(folio.balance) : 0;
   const selectedSummary = (selectedStay && folio) ? computeBillSummary(selectedStay as any, folio) : null;
+  const balance = selectedSummary ? selectedSummary.balance : (folio ? money(folio.balance) : 0);
+
+  const owingUnsettledStays = unsettledStays.filter((s) => {
+    const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
+    const summary = computeBillSummary(s as any, f);
+    return summary.balance > 0.005;
+  });
 
   const handleStayChange = (stayId: string) => {
     const stay = allSelectableStays.find((s) => s.id === stayId || s.reservationId === stayId) || null;
@@ -223,7 +229,8 @@ export const PaymentsPage: React.FC = () => {
       stay?.reservation.folios.find((x) => x.status === 'OPEN') ??
       stay?.reservation.folios[0] ??
       null;
-    const bal = f ? money(f.balance) : 0;
+    const summary = stay && f ? computeBillSummary(stay as any, f) : null;
+    const bal = summary ? summary.balance : (f ? money(f.balance) : 0);
     const chargeItems = (f?.items || []).filter(
       (item: any) => !item.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(item.type).toUpperCase()) && Number(item.amount) > 0,
     );
@@ -525,7 +532,7 @@ export const PaymentsPage: React.FC = () => {
       </div>
 
       {/* Checked-Out Guests Outstanding Debt Alert */}
-      {unsettledStays.length > 0 && (
+      {owingUnsettledStays.length > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs shadow-xs">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-amber-500/20 p-2 text-amber-700 dark:text-amber-400">
@@ -533,10 +540,13 @@ export const PaymentsPage: React.FC = () => {
             </div>
             <div>
               <p className="font-extrabold text-amber-900 dark:text-amber-200">
-                {unsettledStays.length} Checked-Out Guest{unsettledStays.length === 1 ? '' : 's'} with Outstanding Balance
+                {owingUnsettledStays.length} Checked-Out Guest{owingUnsettledStays.length === 1 ? '' : 's'} with Outstanding Balance
               </p>
               <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80">
-                Total unpaid debt: {formatCurrency(unsettledStays.reduce((s, u) => s + (u.finalBalance || Number(u.reservation.folios[0]?.balance || 0)), 0))}. You can record payments for checked-out guests here anytime.
+                Total unpaid debt: {formatCurrency(owingUnsettledStays.reduce((sum, s) => {
+                  const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
+                  return sum + computeBillSummary(s as any, f).balance;
+                }, 0))}. You can record payments for checked-out guests here anytime.
               </p>
             </div>
           </div>
@@ -545,8 +555,8 @@ export const PaymentsPage: React.FC = () => {
             variant="outline"
             onClick={() => {
               openModal();
-              if (unsettledStays[0]) {
-                handleStayChange(unsettledStays[0].id);
+              if (owingUnsettledStays[0]) {
+                handleStayChange(owingUnsettledStays[0].id);
               }
             }}
             className="border-amber-400 text-amber-900 hover:bg-amber-100 font-bold dark:border-amber-600 dark:text-amber-200"
@@ -879,9 +889,9 @@ export const PaymentsPage: React.FC = () => {
                   })}
                 </optgroup>
               )}
-              {unsettledStays.length > 0 && (
+              {owingUnsettledStays.length > 0 && (
                 <optgroup label="Checked-Out Guests (Owing Balance)">
-                  {unsettledStays.map((s) => {
+                  {owingUnsettledStays.map((s) => {
                     const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
                     const summary = computeBillSummary(s as any, f);
                     const coDate = summary.actualCheckOut;
