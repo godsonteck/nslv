@@ -241,6 +241,7 @@ export const checkOutSchema = z.object({
   owingReason: z.string().max(300).trim().optional().nullable(),
   idempotencyKey: uuidSchema.optional(),
   notes: optionalString,
+  paymentDescription: optionalString,
 });
 
 // ── Payments ──

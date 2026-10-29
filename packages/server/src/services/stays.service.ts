@@ -47,6 +47,7 @@ export interface CheckOutDTO {
   owingReason?: string;
   idempotencyKey?: string;
   notes?: string;
+  paymentDescription?: string;
 }
 
 export class StayService {
@@ -668,6 +669,35 @@ export class StayService {
             }
             if (!folio) throw new AppError('An open folio is required to settle this stay.', 409, 'OPEN_FOLIO_REQUIRED');
             const checkoutPaymentIdempotencyKey = data.idempotencyKey || `checkout-payment-${reservation.id}`;
+            const isFullPayment = tendersTotal.eq(new Prisma.Decimal(finalBalance));
+
+            // Indicate what the money is for with explicit allocation
+            let paymentDesc = data.paymentDescription?.trim() || data.notes?.trim();
+            if (!paymentDesc) {
+              const allocationParts: string[] = [];
+              if (folio) {
+                const items = await tx.folioItem.findMany({
+                  where: { folioId: folio.id, voidedAt: null },
+                  select: { description: true, type: true, amount: true },
+                });
+                const chargeItems = items.filter(
+                  (i) => !['PAYMENT', 'DEPOSIT'].includes(i.type) && Number(i.amount) > 0,
+                );
+                const lateItem = chargeItems.find((i) => i.description?.toLowerCase().includes('late checkout'));
+                const otherItems = chargeItems.filter((i) => !i.description?.toLowerCase().includes('late checkout'));
+                if (otherItems.length) {
+                  const uniqueLabels = [...new Set(otherItems.map((i) => i.description || i.type))];
+                  allocationParts.push(uniqueLabels.slice(0, 2).join(', '));
+                }
+                if (lateItem) {
+                  allocationParts.push(`late checkout (${lateInfo.lateHours}h @ GHS ${lateInfo.hourlyRate.toFixed(2)})`);
+                }
+              }
+              paymentDesc = allocationParts.length
+                ? `${isFullPayment ? 'Settlement' : 'Partial payment'} for: ${allocationParts.join(' + ')}`
+                : isFullPayment ? 'Final settlement at check-out' : 'Partial payment at check-out';
+            }
+
             await PaymentService.processPaymentInTx(tx, {
               folioId: folio.id,
               reservationId: reservation.id,
@@ -676,9 +706,9 @@ export class StayService {
               method: tenders[0].method,
               tenders,
               idempotencyKey: checkoutPaymentIdempotencyKey,
-              description: tendersTotal.eq(new Prisma.Decimal(finalBalance)) ? 'Final settlement at check-out' : 'Partial payment at check-out',
+              description: paymentDesc,
               processedBy: data.checkedOutBy,
-              paymentType: tendersTotal.eq(new Prisma.Decimal(finalBalance)) ? 'PAYMENT' : 'DEPOSIT',
+              paymentType: isFullPayment ? 'PAYMENT' : 'DEPOSIT',
             });
             finalBalance = new Prisma.Decimal(finalBalance).minus(tendersTotal).toNumber();
           } else if (!data.allowOwing && data.paymentMethod !== 'PAY_LATER') {

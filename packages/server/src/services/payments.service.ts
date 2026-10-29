@@ -298,7 +298,9 @@ export class PaymentService {
         CashRegisterService.recordCashPayment({
           businessDate,
           amount: t.amount,
-          description: `Cash payment${paymentType === 'DEPOSIT' ? ' (deposit)' : ''} - ${reservation.id}`,
+          description: p.description
+            ? `${p.description} (${reservation.id.slice(0, 8).toUpperCase()})`
+            : `Cash payment${paymentType === 'DEPOSIT' ? ' (deposit)' : ''} - ${reservation.id}`,
           source: 'FRONT_DESK',
           sourceId: p.id,
           reference: t.reference,
@@ -311,9 +313,10 @@ export class PaymentService {
       const reservationStatus = (reservation as { status?: string }).status;
       const isCheckedOutGuest = reservationStatus === 'CHECKED_OUT';
       const tenderLabel = tenders.map(t => `${t.method} ${new Prisma.Decimal(t.amount).toFixed(2)}${t.reference ? ` · ${t.reference}` : ''}`).join(', ');
+      const purposeTag = data.description ? ` — For: ${data.description}` : '';
       await tx.folioItem.create({ data: {
         folioId: targetFolio.id, type: paymentType === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
-        description: `${paymentType === 'DEPOSIT' ? 'Deposit / Part payment collected' : 'Payment received'} (${tenderLabel})${isCheckedOutGuest ? ' — Post-checkout settlement' : ''}`,
+        description: `${paymentType === 'DEPOSIT' ? 'Deposit / Part payment collected' : 'Payment received'} (${tenderLabel})${purposeTag}${isCheckedOutGuest ? ' — Post-checkout settlement' : ''}`,
         amount: amount.negated(), quantity: 1, unitPrice: amount.negated(), department: 'FRONT_DESK',
         referenceId: payment.id, referenceType: 'PAYMENT', postedBy: data.processedBy,
       } });

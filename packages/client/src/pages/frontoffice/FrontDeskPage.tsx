@@ -65,6 +65,7 @@ export const FrontDeskPage: React.FC = () => {
   });
   const [splitOpen, setSplitOpen] = useState(false);
   const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(true);
+  const [payLateFeeNow, setPayLateFeeNow] = useState(true);
   const [lateFeeReason, setLateFeeReason] = useState('');
   const [allowOwing, setAllowOwing] = useState(false);
   const [owingReason, setOwingReason] = useState('');
@@ -159,16 +160,24 @@ export const FrontDeskPage: React.FC = () => {
         await staysApi.checkIn({ reservationId: action.row.id, ...form });
       } else {
         const splitTenders = splitOpen ? parseTenders(tenders) : undefined;
+        const willOweLateFee = Boolean(activeLateInfo && chargeLateCheckoutFee && !payLateFeeNow);
+        const shouldAllowOwing = allowOwing || willOweLateFee;
+        const finalOwingReason = willOweLateFee
+          ? `Late checkout fee of GHS ${activeLateInfo!.fee.toFixed(2)} unpaid at checkout${owingReason ? ` · ${owingReason.trim()}` : ''}`
+          : owingReason.trim() || undefined;
+
         await staysApi.checkOut({
           reservationId: action.row.reservationId || action.row.id,
           roomCondition: form.roomCondition,
           chargeLateCheckoutFee,
+          paymentDescription: checkoutPaymentDescription,
+          notes: checkoutPaymentDescription || undefined,
           ...(activeLateInfo && !chargeLateCheckoutFee ? { lateCheckoutFeeReason: lateFeeReason.trim() || undefined } : {}),
-          ...(allowOwing ? { allowOwing: true, owingReason: owingReason.trim() || undefined } : {}),
-          ...(splitTenders ? { tenders: splitTenders } : (allowOwing && !form.paymentMethod ? {} : { paymentMethod: form.paymentMethod })),
+          ...(shouldAllowOwing ? { allowOwing: true, owingReason: finalOwingReason } : {}),
+          ...(checkoutTotal <= 0.005 ? {} : splitTenders ? { tenders: splitTenders } : (shouldAllowOwing && !form.paymentMethod ? {} : { paymentMethod: form.paymentMethod })),
         });
       }
-      showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : allowOwing ? 'Guest checked out with outstanding balance.' : 'Payment recorded & guest checked out.');
+      showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : allowOwing || (activeLateInfo && chargeLateCheckoutFee && !payLateFeeNow) ? 'Guest checked out with outstanding balance.' : 'Payment recorded & guest checked out.');
       setAction(null);
       void load();
     } catch (e) {
@@ -195,41 +204,85 @@ export const FrontDeskPage: React.FC = () => {
 
   const activeLateInfo = action?.type === 'out' ? getLateInfo(action.row) : null;
 
-  /** Itemised folio charges for the checkout modal */
-  const checkoutLineItems: { label: string; amount: number; type: string; voided?: boolean }[] =
+  /** Itemised folio breakdown for the checkout modal.
+   *  Charges (positive items) and payments-applied (negative items) are split
+   *  so staff see exactly what the payment covers before confirming. */
+  const checkoutLineItems: { label: string; amount: number; type: string; voided?: boolean; isCredit?: boolean; unpaid?: boolean }[] =
     action?.type === 'out'
       ? (() => {
           const folio =
             (action.row.reservation?.folios || []).find((x: any) => x.status === 'OPEN') ??
             (action.row.reservation?.folios || [])[0] ??
             null;
-          const items: { label: string; amount: number; type: string; voided?: boolean }[] = [];
+          const chargeItems: { label: string; amount: number; type: string }[] = [];
+          let paymentsApplied = 0;
           if (folio?.items) {
             for (const item of folio.items) {
-              if (item.voidedAt) continue; // skip voided items
-              items.push({ label: item.description || item.type, amount: Number(item.amount), type: item.type });
+              if (item.voidedAt) continue;
+              const amt = Number(item.amount);
+              const isPaymentEntry = ['PAYMENT', 'DEPOSIT'].includes(String(item.type).toUpperCase());
+              if (isPaymentEntry || amt < 0) {
+                paymentsApplied += Math.abs(amt);
+              } else {
+                chargeItems.push({ label: item.description || item.type, amount: amt, type: item.type });
+              }
             }
           }
-          // Late checkout fee line — shown separately so staff can toggle it
+          const lines: { label: string; amount: number; type: string; voided?: boolean; isCredit?: boolean; unpaid?: boolean }[] = [
+            ...chargeItems,
+          ];
+          // Existing payments already applied (deposits, part-payments, etc.)
+          if (paymentsApplied > 0) {
+            lines.push({ label: 'Payments already applied', amount: paymentsApplied, type: 'PAYMENTS_APPLIED', isCredit: true });
+          }
+          // New late checkout fee — shown separately so staff can toggle it
           if (activeLateInfo) {
-            items.push({
+            lines.push({
               label: `Late checkout fee (${activeLateInfo.lateHours}h × GHS ${activeLateInfo.hourlyRate.toFixed(2)}/hr)`,
               amount: activeLateInfo.fee,
               type: 'LATE_FEE',
               voided: !chargeLateCheckoutFee,
+              unpaid: chargeLateCheckoutFee && !payLateFeeNow,
             });
           }
-          return items;
+          return lines;
         })()
       : [];
 
-  const checkoutTotal = checkoutLineItems
-    .filter((l) => !l.voided)
-    .reduce((sum, l) => sum + l.amount, 0);
+  /** Build an explicit human-readable allocation of what this payment covers */
+  const checkoutPaymentDescription = (() => {
+    if (action?.type !== 'out') return '';
+    const chargeItems = checkoutLineItems
+      .filter((l) => !l.isCredit && l.type !== 'LATE_FEE' && !l.voided);
+    const parts: string[] = [];
+    if (chargeItems.length) {
+      const roomTotal = chargeItems.reduce((s, i) => s + i.amount, 0);
+      parts.push(`Room / Folio charges (GHS ${roomTotal.toFixed(2)})`);
+    }
+    if (activeLateInfo && chargeLateCheckoutFee) {
+      if (payLateFeeNow) {
+        parts.push(`Late checkout fee (GHS ${activeLateInfo.fee.toFixed(2)}, ${activeLateInfo.lateHours}h)`);
+      } else {
+        parts.push(`Late checkout fee of GHS ${activeLateInfo.fee.toFixed(2)} deferred / owing`);
+      }
+    }
+    return parts.length ? `Settlement for: ${parts.join(' + ')}` : 'Final settlement at check-out';
+  })();
+
+  const checkoutTotal = (() => {
+    const charges = checkoutLineItems
+      .filter((l) => !l.isCredit && !l.voided && !l.unpaid)
+      .reduce((sum, l) => sum + l.amount, 0);
+    const credits = checkoutLineItems
+      .filter((l) => l.isCredit)
+      .reduce((sum, l) => sum + l.amount, 0);
+    return Math.max(0, charges - credits);
+  })();
 
   const openCheckout = (stay: any) => {
     setSplitOpen(false);
     setChargeLateCheckoutFee(true);
+    setPayLateFeeNow(true);
     setLateFeeReason('');
     setAllowOwing(false);
     setOwingReason('');
@@ -577,32 +630,68 @@ export const FrontDeskPage: React.FC = () => {
                   )}
                   {checkoutLineItems.map((line, idx) => {
                     const isLateFee = line.type === 'LATE_FEE';
+                    const isCredit = (line as any).isCredit;
+                    const isUnpaid = (line as any).unpaid;
                     return (
                       <div
                         key={idx}
-                        className={`flex items-center justify-between gap-2 px-4 py-2.5 text-xs ${
+                        className={`flex flex-col gap-1.5 px-4 py-2.5 text-xs ${
                           line.voided ? 'opacity-40' : ''
-                        } ${isLateFee ? 'bg-amber-50/60 dark:bg-amber-950/20' : ''}`}
+                        } ${isLateFee ? 'bg-amber-50/70 dark:bg-amber-950/25 border-l-2 border-l-amber-500' : ''} ${isCredit ? 'bg-emerald-50/40 dark:bg-emerald-950/10' : ''}`}
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          {isLateFee ? (
-                            <label className="flex items-center gap-2 cursor-pointer font-semibold text-amber-700 dark:text-amber-400">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {isLateFee ? (
+                              <label className="flex items-center gap-2 cursor-pointer font-semibold text-amber-700 dark:text-amber-400">
+                                <input
+                                  type="checkbox"
+                                  checked={chargeLateCheckoutFee}
+                                  onChange={(e) => setChargeLateCheckoutFee(e.target.checked)}
+                                  className="h-3.5 w-3.5 accent-[#c59a58] shrink-0"
+                                />
+                                <span className={line.voided ? 'line-through' : ''}>{line.label}</span>
+                                <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase">Late fee</span>
+                              </label>
+                            ) : isCredit ? (
+                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                                <CheckCircle2 size={11} />
+                                {line.label}
+                              </span>
+                            ) : (
+                              <span className="text-slate-700 dark:text-slate-300 truncate">{line.label}</span>
+                            )}
+                          </div>
+                          <span className={`font-bold tabular-nums shrink-0 ${
+                            isCredit ? 'text-emerald-700 dark:text-emerald-400' :
+                            isLateFee && chargeLateCheckoutFee && !isUnpaid ? 'text-amber-700 dark:text-amber-400' :
+                            isUnpaid ? 'text-amber-600/70 dark:text-amber-400/70 italic' :
+                            'text-slate-800 dark:text-slate-200'
+                          } ${line.voided ? 'line-through text-slate-400' : ''}`}>
+                            {isCredit ? '−' : ''}GHS {line.amount.toFixed(2)}
+                            {isUnpaid && <span className="ml-1 text-[10px] text-amber-600 font-normal">(owing)</span>}
+                          </span>
+                        </div>
+
+                        {/* Optional payment allocation for late checkout */}
+                        {isLateFee && chargeLateCheckoutFee && (
+                          <div className="pl-5 pt-1 space-y-1 border-t border-amber-500/20">
+                            <label className="flex items-center gap-2 cursor-pointer text-[11px] font-medium text-amber-900 dark:text-amber-200">
                               <input
                                 type="checkbox"
-                                checked={chargeLateCheckoutFee}
-                                onChange={(e) => setChargeLateCheckoutFee(e.target.checked)}
+                                checked={payLateFeeNow}
+                                onChange={(e) => setPayLateFeeNow(e.target.checked)}
                                 className="h-3.5 w-3.5 accent-[#c59a58] shrink-0"
                               />
-                              <span className={line.voided ? 'line-through' : ''}>{line.label}</span>
-                              <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase">Late fee</span>
+                              <span>Include late checkout payment in this settlement now</span>
+                              <span className="rounded bg-amber-200/60 dark:bg-amber-800/60 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 dark:text-amber-200 uppercase">Optional</span>
                             </label>
-                          ) : (
-                            <span className="text-slate-700 dark:text-slate-300 truncate">{line.label}</span>
-                          )}
-                        </div>
-                        <span className={`font-bold tabular-nums shrink-0 ${isLateFee && chargeLateCheckoutFee ? 'text-amber-700 dark:text-amber-400' : 'text-slate-800 dark:text-slate-200'} ${line.voided ? 'line-through text-slate-400' : ''}`}>
-                          GHS {line.amount.toFixed(2)}
-                        </span>
+                            {!payLateFeeNow && (
+                              <p className="text-[10.5px] text-amber-700 dark:text-amber-400 italic">
+                                Late fee of GHS {line.amount.toFixed(2)} will remain on the folio as an outstanding balance to be paid later.
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -636,6 +725,41 @@ export const FrontDeskPage: React.FC = () => {
                   <option value="DAMAGED">Requires Damage Inspection</option>
                 </SelectInput>
               </FormField>
+
+              {/* ── Payment Allocation & Purpose Card ── */}
+              <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 dark:bg-sky-950/20 p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-sky-900 dark:text-sky-200">
+                  <span className="flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                    <ShieldCheck size={13} className="text-sky-600 dark:text-sky-400" />
+                    Payment Allocation &amp; Purpose
+                  </span>
+                  <span className="font-mono text-sky-700 dark:text-sky-300 font-extrabold">
+                    Due now: GHS {checkoutTotal.toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-[11px] text-sky-800 dark:text-sky-300 space-y-1">
+                  <div>
+                    <span className="font-semibold">Paying for:</span>{' '}
+                    <span className="font-medium text-slate-800 dark:text-slate-100">{checkoutPaymentDescription}</span>
+                  </div>
+                  {activeLateInfo && (
+                    <div className="flex items-center gap-1.5 text-[10.5px]">
+                      <span className="font-semibold">Late checkout allocation:</span>{' '}
+                      {!chargeLateCheckoutFee ? (
+                        <span className="text-slate-500 dark:text-slate-400 italic">Waived (Fee not charged)</span>
+                      ) : payLateFeeNow ? (
+                        <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                          ✓ GHS {activeLateInfo.fee.toFixed(2)} allocated to this settlement
+                        </span>
+                      ) : (
+                        <span className="text-amber-700 dark:text-amber-400 font-semibold">
+                          ⚠ GHS {activeLateInfo.fee.toFixed(2)} deferred / remaining as debt
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <FormField label="Payment Method">
                 <SelectInput

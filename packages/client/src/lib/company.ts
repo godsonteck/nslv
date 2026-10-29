@@ -39,6 +39,8 @@ interface PaymentReceiptContext {
   remainingBalance?: number;
   /** Change given back to guest. */
   changeGiven?: number;
+  /** What the money is for / allocation note */
+  description?: string;
 }
 
 /** Converts a numeric GHS amount into formal English words for financial receipts
@@ -374,6 +376,7 @@ export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContex
       <tr><td class="lbl">Payment Method</td><td class="val">${esc((payment.method || '—').replace(/_/g, ' '))}</td></tr>
       <tr><td class="lbl">Payment Type</td><td class="val">${esc(typeLabel)}</td></tr>
       ${optRow('Transaction Reference', payment.reference || null)}
+      ${optRow('Payment For / Allocation', payment.description || context?.description || null)}
     </tbody>
   </table>
 

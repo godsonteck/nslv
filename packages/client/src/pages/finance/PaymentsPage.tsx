@@ -203,11 +203,19 @@ export const PaymentsPage: React.FC = () => {
       stay?.reservation.folios[0] ??
       null;
     const bal = f ? money(f.balance) : 0;
+    const chargeItems = (f?.items || []).filter(
+      (item: any) => !item.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(item.type).toUpperCase()) && Number(item.amount) > 0,
+    );
+    const itemNames = [...new Set(chargeItems.map((i: any) => i.description || i.type))];
+    const defaultDesc = itemNames.length
+      ? `Payment for: ${itemNames.slice(0, 3).join(', ')}${itemNames.length > 3 ? ` + ${itemNames.length - 3} more` : ''}`
+      : 'Guest folio settlement';
     setForm({
       ...form,
       stayId,
       amount: bal > 0 ? bal.toFixed(2) : '',
       tendered: '',
+      description: defaultDesc,
     });
   };
 
@@ -280,6 +288,7 @@ export const PaymentsPage: React.FC = () => {
         changeGiven: changeDue > 0 ? changeDue : undefined,
         remainingBalance: remainingAfter,
         fullySettled: settlesInFull,
+        description: desc,
       });
 
       showToast('success', settlesInFull ? 'Payment recorded — bill paid in full.' : 'Partial payment recorded.');
@@ -1039,11 +1048,11 @@ export const PaymentsPage: React.FC = () => {
                 placeholder="e.g. MoMo Ref / POS Auth"
               />
             </FormField>
-            <FormField label="Description (optional)">
+            <FormField label="Payment For / Purpose (What this money is for)">
               <TextInput
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Auto-generated if left blank"
+                placeholder="Indicate purpose (e.g. Room, Late checkout)"
               />
             </FormField>
           </div>

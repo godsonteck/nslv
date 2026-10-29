@@ -82,6 +82,7 @@ export const GuestBillsPage: React.FC = () => {
   const [payAmount, setPayAmount] = useState('');
   const [payMethod, setPayMethod] = useState<'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER'>('CASH');
   const [payRef, setPayRef] = useState('');
+  const [payDesc, setPayDesc] = useState('');
   const [paySubmitting, setPaySubmitting] = useState(false);
 
   const load = useCallback(async () => {
@@ -153,6 +154,14 @@ export const GuestBillsPage: React.FC = () => {
     setPayAmount(bal > 0 ? bal.toFixed(2) : '');
     setPayMethod('CASH');
     setPayRef('');
+    const chargeItems = (selectedBill.folio.items || []).filter(
+      (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()) && Number(i.amount) > 0,
+    );
+    const itemNames = [...new Set(chargeItems.map((i: any) => i.description || i.type))];
+    const defaultDesc = itemNames.length
+      ? `Payment for: ${itemNames.slice(0, 3).join(', ')}${itemNames.length > 3 ? ` + ${itemNames.length - 3} more` : ''}`
+      : `Settlement for Room ${selectedBill.stay.room?.number || '—'}`;
+    setPayDesc(defaultDesc);
     setPayModalOpen(true);
   };
 
@@ -173,9 +182,10 @@ export const GuestBillsPage: React.FC = () => {
       setPaySubmitting(true);
       const guestName = formatGuestName(selectedBill.stay.guest, 'Guest');
       const isSettled = amount >= bal - 0.005;
+      const basePurpose = payDesc.trim() || 'Payment settlement';
       const desc = isSettled
-        ? `Payment received in full (${payMethod}) for ${guestName}${selectedBill.stay.isCheckedOut ? ' [Post-checkout settlement]' : ''}`
-        : `Partial payment (${payMethod}) for ${guestName}. Remaining: GHS ${(bal - amount).toFixed(2)}${selectedBill.stay.isCheckedOut ? ' [Post-checkout settlement]' : ''}`;
+        ? `${basePurpose} (Paid in full via ${payMethod}) for ${guestName}${selectedBill.stay.isCheckedOut ? ' [Post-checkout settlement]' : ''}`
+        : `${basePurpose} (Part payment via ${payMethod}) for ${guestName}. Remaining: GHS ${(bal - amount).toFixed(2)}${selectedBill.stay.isCheckedOut ? ' [Post-checkout settlement]' : ''}`;
 
       await paymentsApi.processPayment({
         folioId: selectedBill.folio.id,
@@ -637,6 +647,33 @@ export const GuestBillsPage: React.FC = () => {
                 </span>
               </div>
             </div>
+
+            {/* Folio Charges Allocation Preview */}
+            {selectedBill.folio.items && (
+              <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 dark:bg-sky-950/20 p-3 text-xs space-y-1">
+                <div className="font-bold text-sky-900 dark:text-sky-200 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck size={12} className="text-sky-600 dark:text-sky-400" />
+                  What this money settles (Folio items)
+                </div>
+                <div className="text-[11px] text-sky-800 dark:text-sky-300 flex flex-wrap gap-1.5 pt-1">
+                  {(selectedBill.folio.items || [])
+                    .filter((i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()) && Number(i.amount) > 0)
+                    .map((i: any) => (
+                      <span key={i.id} className="rounded bg-white/70 dark:bg-slate-900/70 px-2 py-0.5 border border-sky-500/20 font-medium text-[10.5px]">
+                        {i.description || i.type} ({formatCurrency(money(i.amount))})
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            <FormField label="Payment For / Purpose (What the money is for)" required>
+              <TextInput
+                value={payDesc}
+                onChange={(e) => setPayDesc(e.target.value)}
+                placeholder="e.g. Payment for: Room Accommodation, Late checkout fee"
+              />
+            </FormField>
 
             <FormField label="Payment Amount (GHS)" required>
               <TextInput
