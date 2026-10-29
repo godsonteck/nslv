@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f6f8f6', padding: 24 }}>
+        <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: 'var(--ns-glass-bg)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid var(--ns-glass-border)' }}>
           <div style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
             <h1 style={{ fontSize: 18, fontWeight: 800, color: '#20343e', marginBottom: 8 }}>Something went wrong</h1>
@@ -37,9 +37,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 this.setState({ error: null });
               }}
               style={{
-                background: '#16a4d4',
+                background: 'rgba(22, 164, 212, 0.55)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 color: '#fff',
-                border: 'none',
+                border: '1px solid rgba(255, 255, 255, 0.5)',
                 borderRadius: 12,
                 padding: '10px 18px',
                 fontSize: 12,

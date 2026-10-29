@@ -159,16 +159,22 @@ export class StayService {
 
   /**
    * Get checked-out stays with an outstanding balance (unsettled folios / debt).
+   * Robust search: captures all checked-out reservations with open folios, non-zero folio balance,
+   * checkout finalBalance debt, owing notes, or uncollected reservation totals.
    */
   static async getUnsettledStays() {
     const reservations = await prisma.reservation.findMany({
       where: {
         status: 'CHECKED_OUT',
-        folios: {
-          some: {
-            balance: { gt: 0.005 },
-          },
-        },
+        OR: [
+          { folios: { some: { balance: { gt: 0.005 } } } },
+          { folios: { some: { status: 'OPEN' } } },
+          { checkOuts: { some: { finalBalance: { gt: 0.005 } } } },
+          { checkOuts: { some: { notes: { contains: 'owing', mode: 'insensitive' } } } },
+          { checkOuts: { some: { notes: { contains: 'unpaid', mode: 'insensitive' } } } },
+          { checkOuts: { some: { notes: { contains: 'deferred', mode: 'insensitive' } } } },
+          { totalAmount: { gt: 0 } },
+        ],
       },
       include: {
         guests: { where: { isPrimary: true }, include: { guest: true } },
@@ -202,11 +208,11 @@ export class StayService {
       staff.map((u) => [u.id, { id: u.id, name: `${u.firstName} ${u.lastName}`.trim() || u.username, username: u.username }]),
     );
 
-    return reservations.map((res) => {
+    const unsettledList = reservations.map((res) => {
       const checkIn = res.checkIns[0];
       const checkOut = res.checkOuts[0];
       const primaryGuest = res.guests[0]?.guest;
-      const folio = res.folios.find((f) => Number(f.balance) > 0.005) || res.folios[0];
+      const folio = res.folios.find((f) => Number(f.balance) > 0.005) || res.folios.find((f) => f.status === 'OPEN') || res.folios[0];
 
       // 1. Gather all valid payments (excluding voided, refunded, or failed)
       const rawPayments = folio?.payments || [];
@@ -244,18 +250,30 @@ export class StayService {
 
       // 3. True Current Balance Owed (Reconciled)
       const rawFolioBalance = Number(folio?.balance ?? 0);
-      let currentOwed = rawFolioBalance;
+      const coFinalBalance = Number(checkOut?.finalBalance ?? 0);
+
+      let currentOwed = 0;
       if (chargesSum > 0) {
         currentOwed = Math.max(0, chargesSum - totalPaid);
-      } else if (currentOwed <= 0.005) {
-        currentOwed = 0;
+      } else if (rawFolioBalance > 0.005) {
+        currentOwed = rawFolioBalance;
+      } else if (Number(res.totalAmount || 0) > totalPaid) {
+        currentOwed = Math.max(0, Number(res.totalAmount || 0) - totalPaid);
+      } else if (coFinalBalance > 0.005) {
+        currentOwed = coFinalBalance;
+      }
+
+      if (coFinalBalance > currentOwed) {
+        currentOwed = coFinalBalance;
       }
 
       // 4. Supposed to Pay (Total Bill)
       // Must ALWAYS satisfy: totalBilled = totalPaid + currentOwed
-      const totalBilled = chargesSum > 0
-        ? Math.max(chargesSum, totalPaid + currentOwed)
-        : Math.max(totalPaid + currentOwed, Number(res.totalAmount || 0));
+      const totalBilled = Math.max(
+        chargesSum,
+        Number(res.totalAmount || 0),
+        totalPaid + currentOwed,
+      );
 
       if (totalBilled >= totalPaid) {
         currentOwed = Number((totalBilled - totalPaid).toFixed(2));
@@ -318,6 +336,8 @@ export class StayService {
         },
       };
     });
+
+    return unsettledList.filter((stay) => stay.currentOwed > 0.005);
   }
 
   /** Execute Check-In workflow */

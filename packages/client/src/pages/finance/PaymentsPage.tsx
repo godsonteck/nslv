@@ -5,13 +5,14 @@
 // and instant official luxury receipt generation.
 // ============================================
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { paymentsApi, staysApi } from '../../services/apiService';
 import {
   CreditCard,
   Plus,
   RefreshCw,
   WalletCards,
+  Receipt,
   ReceiptText,
   Undo2,
   CheckCircle2,
@@ -97,6 +98,7 @@ interface BillStay {
     id: string;
     confirmationNo?: string;
     status?: string;
+    totalAmount?: number | string;
     folios: Array<{
       id: string;
       status: string;
@@ -216,6 +218,55 @@ export const PaymentsPage: React.FC = () => {
   const selectedSummary = (selectedStay && folio) ? computeBillSummary(selectedStay as any, folio) : null;
   const balance = selectedSummary ? selectedSummary.balance : (folio ? money(folio.balance) : 0);
 
+  const selectedBillBreakdown = useMemo(() => {
+    if (!selectedStay || !folio) return null;
+    const rawItems = (folio.items || []).filter(
+      (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()),
+    );
+
+    let accommodationCharges = 0;
+    let lateFeeCharges = 0;
+    let otherCharges = 0;
+    const lineDetails: Array<{ id: string; label: string; amount: number; isLateFee: boolean; category: string }> = [];
+
+    for (const item of rawItems) {
+      const amt = Number(item.amount) || 0;
+      const desc = item.description || item.type || 'Charge';
+      const isLate = /late checkout/i.test(desc) || String(item.type).toUpperCase() === 'LATE_FEE';
+      if (isLate) {
+        lateFeeCharges += amt;
+        lineDetails.push({ id: item.id, label: desc, amount: amt, isLateFee: true, category: 'Late Checkout' });
+      } else if (String(item.type).toUpperCase() === 'ACCOMMODATION') {
+        accommodationCharges += amt;
+        lineDetails.push({ id: item.id, label: desc, amount: amt, isLateFee: false, category: 'Accommodation' });
+      } else {
+        otherCharges += amt;
+        lineDetails.push({ id: item.id, label: desc, amount: amt, isLateFee: false, category: 'Other Charge' });
+      }
+    }
+
+    if (lineDetails.length === 0 && Number(selectedStay.reservation?.totalAmount) > 0) {
+      const baseAmt = Number(selectedStay.reservation.totalAmount);
+      accommodationCharges = baseAmt;
+      lineDetails.push({ id: 'res-base', label: 'Room Accommodation', amount: baseAmt, isLateFee: false, category: 'Accommodation' });
+    }
+
+    const totalCharges = accommodationCharges + lateFeeCharges + otherCharges;
+    const totalPaidSoFar = selectedSummary ? selectedSummary.totalPaid : 0;
+    const currentDebt = selectedSummary ? selectedSummary.balance : money(folio.balance);
+
+    return {
+      lineDetails,
+      accommodationCharges,
+      lateFeeCharges,
+      otherCharges,
+      totalCharges,
+      hasLateCheckout: lateFeeCharges > 0,
+      totalPaidSoFar,
+      currentDebt,
+    };
+  }, [selectedStay, folio, selectedSummary]);
+
   const owingUnsettledStays = unsettledStays.filter((s) => {
     const f = s.reservation.folios.find((x) => Number(x.balance) > 0.005) ?? s.reservation.folios[0];
     const summary = computeBillSummary(s as any, f);
@@ -234,10 +285,16 @@ export const PaymentsPage: React.FC = () => {
     const chargeItems = (f?.items || []).filter(
       (item: any) => !item.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(item.type).toUpperCase()) && Number(item.amount) > 0,
     );
-    const itemNames = [...new Set(chargeItems.map((i: any) => i.description || i.type))];
-    const defaultDesc = itemNames.length
-      ? `Payment for: ${itemNames.slice(0, 3).join(', ')}${itemNames.length > 3 ? ` + ${itemNames.length - 3} more` : ''}`
-      : 'Guest folio settlement';
+    const lateItem = chargeItems.find((i: any) => /late checkout/i.test(i.description || i.type));
+    let defaultDesc = 'Guest folio settlement';
+    if (lateItem && chargeItems.length > 1) {
+      defaultDesc = `Post-checkout settlement: Accommodation + Late checkout fee`;
+    } else if (lateItem) {
+      defaultDesc = `Payment for: Late checkout fee`;
+    } else if (chargeItems.length) {
+      const itemNames = [...new Set(chargeItems.map((i: any) => i.description || i.type))];
+      defaultDesc = `Payment for: ${itemNames.slice(0, 2).join(', ')}`;
+    }
     setForm({
       ...form,
       stayId,
@@ -1047,24 +1104,139 @@ export const PaymentsPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Quick Fill Buttons */}
+              {/* Itemized Folio Breakdown Card (Clearly shows Late Checkout vs Room vs Other) */}
+              {selectedBillBreakdown && selectedBillBreakdown.lineDetails.length > 0 && (
+                <div className="mb-3 rounded-xl border border-[#c59a58]/40 bg-white/70 dark:bg-slate-900/70 overflow-hidden shadow-xs">
+                  <div className="px-3 py-2 bg-[#c59a58]/10 border-b border-[#c59a58]/30 flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#c59a58] flex items-center gap-1.5">
+                      <Receipt size={13} className="text-[#c59a58]" />
+                      Folio Charges Itemization — What is in this bill
+                    </span>
+                    {selectedBillBreakdown.hasLateCheckout && (
+                      <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9.5px] font-black text-amber-800 dark:text-amber-300 uppercase">
+                        ⏱ Late checkout fee included
+                      </span>
+                    )}
+                  </div>
+                  <div className="divide-y divide-[var(--ns-line)] text-xs">
+                    {selectedBillBreakdown.lineDetails.map((line) => (
+                      <div
+                        key={line.id}
+                        className={`flex items-center justify-between px-3.5 py-2 ${
+                          line.isLateFee
+                            ? 'bg-amber-50/90 dark:bg-amber-950/30 border-l-3 border-l-amber-500 text-amber-950 dark:text-amber-200'
+                            : 'text-slate-800 dark:text-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {line.isLateFee ? (
+                            <span className="rounded bg-amber-200/90 dark:bg-amber-800/90 text-amber-950 dark:text-amber-100 font-black text-[9px] px-1.5 py-0.5 uppercase tracking-wide">
+                              Late Checkout
+                            </span>
+                          ) : (
+                            <span className="rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[9px] px-1.5 py-0.5 uppercase">
+                              {line.category}
+                            </span>
+                          )}
+                          <span className={`text-[11.5px] ${line.isLateFee ? 'font-semibold text-amber-900 dark:text-amber-200' : ''}`}>
+                            {line.label}
+                          </span>
+                        </div>
+                        <span className={`font-mono font-bold text-xs ${line.isLateFee ? 'text-amber-900 dark:text-amber-300' : 'text-slate-900 dark:text-slate-100'}`}>
+                          {formatCurrency(line.amount)}
+                        </span>
+                      </div>
+                    ))}
+                    {selectedBillBreakdown.totalPaidSoFar > 0 && (
+                      <div className="flex items-center justify-between px-3.5 py-2 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 text-xs">
+                        <span className="font-semibold flex items-center gap-1.5">
+                          <CheckCircle2 size={12} /> Total payments already applied
+                        </span>
+                        <span className="font-mono font-bold">− {formatCurrency(selectedBillBreakdown.totalPaidSoFar)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Fill & Allocation Buttons */}
               {balance > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-[var(--ns-line)]">
-                  <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)] self-center">Quick fill:</span>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, amount: balance.toFixed(2), tendered: '' })}
-                    className="rounded-lg bg-emerald-100 px-2.5 py-1 text-[11px] font-extrabold text-emerald-800 hover:bg-emerald-200 transition border border-emerald-300"
-                  >
-                    ✓ Pay Full Balance ({formatCurrency(balance)})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, amount: (balance / 2).toFixed(2), tendered: '' })}
-                    className="rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-800 hover:bg-amber-200 transition border border-amber-300"
-                  >
-                    50% Deposit ({formatCurrency(balance / 2)})
-                  </button>
+                <div className="space-y-2 pt-2 border-t border-[var(--ns-line)]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)]">
+                      Quick Allocate &amp; Fill:
+                    </span>
+                    <span className="text-[10px] text-slate-500">Click to fill amount &amp; set purpose</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          amount: balance.toFixed(2),
+                          tendered: '',
+                          description: selectedBillBreakdown?.hasLateCheckout
+                            ? `Full debt clearance (Accommodation + Late checkout fee)`
+                            : `Full settlement of outstanding room balance`,
+                        })
+                      }
+                      className="rounded-lg bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 transition border border-emerald-300 dark:border-emerald-700"
+                    >
+                      ✓ Pay Full Balance ({formatCurrency(balance)})
+                    </button>
+
+                    {selectedBillBreakdown?.hasLateCheckout && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm({
+                            ...form,
+                            amount: Math.min(balance, selectedBillBreakdown.lateFeeCharges).toFixed(2),
+                            tendered: '',
+                            description: `Payment for Late checkout fee (${formatCurrency(selectedBillBreakdown.lateFeeCharges)})`,
+                          })
+                        }
+                        className="rounded-lg bg-amber-100 dark:bg-amber-950 px-2.5 py-1 text-[11px] font-extrabold text-amber-900 dark:text-amber-200 hover:bg-amber-200 transition border border-amber-300 dark:border-amber-700 flex items-center gap-1"
+                      >
+                        ⏱ Pay Late Checkout Fee ({formatCurrency(Math.min(balance, selectedBillBreakdown.lateFeeCharges))})
+                      </button>
+                    )}
+
+                    {selectedBillBreakdown && selectedBillBreakdown.accommodationCharges > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const accomOwing = Math.max(0, balance - selectedBillBreakdown.lateFeeCharges);
+                          const amt = accomOwing > 0 ? accomOwing : balance;
+                          setForm({
+                            ...form,
+                            amount: amt.toFixed(2),
+                            tendered: '',
+                            description: `Payment for Accommodation / Room balance`,
+                          });
+                        }}
+                        className="rounded-lg bg-sky-100 dark:bg-sky-950 px-2.5 py-1 text-[11px] font-extrabold text-sky-900 dark:text-sky-200 hover:bg-sky-200 transition border border-sky-300 dark:border-sky-700"
+                      >
+                        🏨 Pay Room Balance
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          amount: (balance / 2).toFixed(2),
+                          tendered: '',
+                          description: 'Part payment / 50% deposit towards outstanding balance',
+                        })
+                      }
+                      className="rounded-lg bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-extrabold text-slate-800 dark:text-slate-200 hover:bg-slate-200 transition border border-slate-300 dark:border-slate-700"
+                    >
+                      50% Deposit ({formatCurrency(balance / 2)})
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -1123,6 +1295,19 @@ export const PaymentsPage: React.FC = () => {
                 <span className="font-medium">Money paid (This transaction):</span>
                 <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(Number(form.amount))}</span>
               </div>
+              {form.description && (
+                <div className="flex justify-between items-center text-[var(--ns-muted)] pt-1 border-t border-[var(--ns-line)]">
+                  <span className="font-medium">Paying for:</span>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    <span className="font-semibold text-slate-800 dark:text-slate-100">{form.description}</span>
+                    {/late checkout/i.test(form.description) && (
+                      <span className="rounded bg-amber-100 border border-amber-300 px-1.5 py-0.2 text-[9px] font-black text-amber-800 uppercase">
+                        ⏱ Late fee
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               {form.method === 'CASH' && Number(form.tendered) > Number(form.amount) && (
                 <div className="flex justify-between items-center text-[var(--ns-muted)]">
                   <span className="font-medium">Cash tendered:</span>
@@ -1195,13 +1380,42 @@ export const PaymentsPage: React.FC = () => {
                 placeholder="e.g. MoMo Ref / POS Auth"
               />
             </FormField>
-            <FormField label="Payment For / Purpose (What this money is for)">
-              <TextInput
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Indicate purpose (e.g. Room, Late checkout)"
-              />
-            </FormField>
+            <div className="space-y-1.5">
+              <FormField label="Payment For / Purpose (What this money is for)" required>
+                <TextInput
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="e.g. Late checkout fee, Room balance"
+                />
+              </FormField>
+              {/* Quick Purpose Selection Chips */}
+              <div className="flex flex-wrap gap-1 text-[10px]">
+                <span className="text-[9.5px] text-slate-400 self-center font-bold">Quick set:</span>
+                {selectedBillBreakdown?.hasLateCheckout && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, description: `Payment for Late checkout fee (${formatCurrency(selectedBillBreakdown.lateFeeCharges)})` })}
+                    className="rounded bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-1.5 py-0.5 font-bold transition"
+                  >
+                    ⏱ Late Checkout
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, description: 'Payment for Room Accommodation / Stay' })}
+                  className="rounded bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 px-1.5 py-0.5 font-bold transition"
+                >
+                  🏨 Room Stay
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, description: 'Full post-checkout debt clearance' })}
+                  className="rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 font-bold transition"
+                >
+                  ✓ Full Clearance
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-line)]">
