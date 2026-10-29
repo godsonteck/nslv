@@ -1,12 +1,12 @@
 // ============================================
-// NS LUXURY VILLA — Redesigned Staff Login Portal
-// Frosted Glassmorphism + Tactile Skeuomorphism + Ultra-Visible Typography
+// NS LUXURY VILLA — Staff Login Portal
+// Serene Luxury Glassmorphism + Calm Minimal Editorial
 // ============================================
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { useThemeStore, type ThemePreference } from '../stores/themeStore';
+import { useThemeStore } from '../stores/themeStore';
 import { apiFetch, ApiClientError } from '../services/api';
 import type { LoginResponse } from '@nslv/shared';
 import {
@@ -26,7 +26,6 @@ import {
   AlertCircle,
   Building2,
   CheckCircle2,
-  Radio,
 } from 'lucide-react';
 import { portalPathFor } from '../components/auth/PortalGuard';
 import { villaAssets } from '../assets';
@@ -101,30 +100,30 @@ export default function Login() {
 
   const logo = theme?.logoUrl || villaAssets.logo;
   const villaName = theme?.villaName || 'NS Luxury Villa';
-  const villaTagline = theme?.villaTagline || 'Lokoe, Ho, Volta Region, Ghana';
+  const villaTagline = theme?.villaTagline || 'Lokoe, Ho · Volta Region, Ghana';
   const heroImage = theme?.loginBgUrl || villaAssets.villaExterior;
 
   return (
     <div className="relative min-h-screen w-full flex flex-col justify-between overflow-x-hidden selection:bg-[var(--ns-teal)] selection:text-white">
       {/* ── Top Floating Navigation Strip ── */}
-      <header className="relative z-20 flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 max-w-7xl mx-auto w-full">
+      <header className="relative z-20 flex items-center justify-between px-6 py-5 sm:px-10 max-w-7xl mx-auto w-full">
         {/* Brand Link */}
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 sm:h-11 sm:sm:w-11 rounded-2xl overflow-hidden ring-2 ring-[var(--ns-gold)]/40 shadow-md skeuo-badge bg-black/20 flex items-center justify-center">
-            <img src={logo} alt={villaName} className="h-full w-full object-cover" />
+        <div className="flex items-center gap-3.5">
+          <div className="h-11 w-11 rounded-2xl overflow-hidden ring-1 ring-[var(--ns-glass-line)] shadow-sm flex items-center justify-center p-0.5 glass">
+            <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
           </div>
           <div>
-            <div className="font-['Manrope'] text-base sm:text-lg font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="font-['Manrope'] text-base sm:text-lg font-extrabold tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {villaName}
             </div>
-            <div className="text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
+            <div className="text-[10px] font-bold tracking-wider text-[var(--ns-muted)]">
               {villaTagline}
             </div>
           </div>
         </div>
 
-        {/* Tactile Skeuomorphic Theme Selector */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl glass-subtle skeuo-card border border-[var(--ns-glass-line)] shadow-xs">
+        {/* Tactile Theme Selector */}
+        <div className="flex items-center gap-1 p-1 rounded-2xl glass border border-[var(--ns-glass-line)] shadow-xs">
           <button
             type="button"
             onClick={() => setThemePreference('light')}
@@ -168,102 +167,92 @@ export default function Login() {
       </header>
 
       {/* ── Main Content Showcase Area ── */}
-      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8">
-        <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-12 gap-8 items-center">
+      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           
-          {/* ── Left Editorial Showcase (Desktop) ── */}
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between space-y-6 relative rounded-3xl overflow-hidden glass skeuo-card border border-[var(--ns-glass-line)] p-8 xl:p-10 min-h-[580px] shadow-2xl">
+          {/* ── Left Editorial Showcase (Calm, Serene, Minimal) ── */}
+          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden glass skeuo-card border border-[var(--ns-glass-line)] p-10 xl:p-12 min-h-[560px] shadow-2xl">
             {/* Background Photography Vignette */}
             <div className="absolute inset-0 z-0">
               <img
                 src={heroImage}
-                alt="NS Luxury Villa View"
-                className="w-full h-full object-cover transform scale-105 filter brightness-[0.72] contrast-[1.05]"
+                alt="NS Luxury Villa"
+                className="w-full h-full object-cover transform scale-105 filter brightness-[0.65] contrast-[1.05]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#060b12] via-[#09131ebd] to-[#070e1766]" />
+              {/* Soft, calm deep cinematic gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#040810]/95 via-[#07101e]/60 to-[#040810]/40" />
             </div>
 
-            {/* Top Tagline Pill */}
+            {/* Top Calm Eyebrow */}
             <div className="relative z-10 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full skeuo-badge bg-black/40 border border-white/20 text-white text-[10px] font-black tracking-widest uppercase">
-                <Sparkles size={12} className="text-[var(--ns-gold)]" />
-                NS Luxury Villa
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full skeuo-badge bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-extrabold uppercase">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                PMS Enterprise v1.0
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[10.5px] font-semibold tracking-wider uppercase">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--ns-gold)]" />
+                Boutique Hospitality & Living
               </span>
             </div>
 
-            {/* Editorial Centerpiece */}
-            <div className="relative z-10 space-y-4 my-auto">
-              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.12] drop-shadow-md">
+            {/* Editorial Centerpiece — Uncluttered & Poetic */}
+            <div className="relative z-10 space-y-4 my-auto py-8">
+              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-sm">
                 Arrive as a Guest, <br />
                 <span className="text-[var(--ns-gold)] italic font-light">Stay as Family.</span>
               </h1>
-              <p className="text-sm xl:text-base text-slate-200 font-medium max-w-lg leading-relaxed drop-shadow-sm">
-                Real-time workstation unifying front desk check-ins, guest billing folios, restaurant & bar POS, pool services, and managerial analytics.
+              <p className="text-sm xl:text-base text-slate-300 font-medium max-w-md leading-relaxed">
+                A serene haven where thoughtful hospitality meets effortless comfort. Welcome to the villa management workstation.
               </p>
 
-              {/* 3 Tactile Pillars */}
-              <div className="grid grid-cols-3 gap-3 pt-4">
-                <div className="glass-subtle skeuo-card rounded-2xl p-3.5 border border-white/15 bg-black/35 text-white">
-                  <div className="text-[10px] font-black uppercase text-[var(--ns-gold)] tracking-wider">Rooms & Suites</div>
-                  <div className="text-xs font-bold mt-1 text-slate-100">Live Availability</div>
-                </div>
-                <div className="glass-subtle skeuo-card rounded-2xl p-3.5 border border-white/15 bg-black/35 text-white">
-                  <div className="text-[10px] font-black uppercase text-[var(--ns-teal)] tracking-wider">Dining & Lounge</div>
-                  <div className="text-xs font-bold mt-1 text-slate-100">Instant POS Folios</div>
-                </div>
-                <div className="glass-subtle skeuo-card rounded-2xl p-3.5 border border-white/15 bg-black/35 text-white">
-                  <div className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Audit Security</div>
-                  <div className="text-xs font-bold mt-1 text-slate-100">Role-Guarded</div>
-                </div>
+              {/* Calm, quiet villa attributes — no busy boxes */}
+              <div className="pt-6 flex items-center gap-3 text-xs text-slate-300 font-medium">
+                <span>12 Luxury Suites</span>
+                <span className="text-slate-500">·</span>
+                <span>Poolside Lounge</span>
+                <span className="text-slate-500">·</span>
+                <span>Front Desk & Dining</span>
               </div>
             </div>
 
             {/* Bottom Property Signature */}
-            <div className="relative z-10 flex items-center justify-between text-xs text-slate-300 border-t border-white/10 pt-4 font-semibold">
-              <div className="flex items-center gap-1.5">
+            <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-4 font-medium">
+              <div className="flex items-center gap-1.5 text-slate-300">
                 <MapPin size={13} className="text-[var(--ns-gold)]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
-              <div className="flex items-center gap-1.5 text-emerald-400">
-                <ShieldCheck size={13} />
-                <span>Protected Access</span>
+              <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span>System Operational</span>
               </div>
             </div>
           </div>
 
           {/* ── Right Floating Sign-In Terminal Card ── */}
-          <div className="w-full lg:col-span-5 max-w-md mx-auto">
-            <div className="glass-strong skeuo-card rounded-3xl p-7 sm:p-9 border border-[var(--ns-glass-line)] shadow-2xl relative overflow-hidden">
+          <div className="w-full lg:col-span-5 max-w-md mx-auto flex flex-col justify-center">
+            <div className="glass-strong skeuo-card rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] shadow-2xl relative overflow-hidden">
               
-              {/* Card Ambient Top Sheen */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--ns-gold)] to-transparent opacity-80" />
+              {/* Subtle top gold accent line */}
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--ns-gold)]/60 to-transparent" />
 
-              {/* Terminal Title & Avatar */}
+              {/* Card Header */}
               <div className="text-center pb-6">
-                <div className="mx-auto mb-3.5 h-14 w-14 rounded-2xl skeuo-card bg-gradient-to-b from-white/90 to-white/60 dark:from-slate-800 dark:to-slate-900 border border-[var(--ns-glass-line)] shadow-md flex items-center justify-center p-1.5">
+                <div className="mx-auto mb-3 h-13 w-13 rounded-2xl glass p-1 border border-[var(--ns-glass-line)] shadow-xs flex items-center justify-center">
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
-                <div className="ns-eyebrow text-center">
-                  {two ? 'Two-Factor Verification' : 'Hospitality Workstation'}
+                <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
+                  {two ? 'Two-Factor Verification' : 'Staff Access'}
                 </div>
-                <h2 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
-                  {two ? 'Confirm Identity' : 'Staff Sign In'}
+                <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+                  {two ? 'Confirm Identity' : 'Welcome Back'}
                 </h2>
-                <p className="mt-1 text-xs font-semibold leading-relaxed" style={{ color: 'var(--ns-muted)' }}>
+                <p className="mt-1 text-xs font-medium" style={{ color: 'var(--ns-muted)' }}>
                   {two
                     ? 'Enter the 6-digit authentication token from your device'
-                    : 'Enter your assigned credentials to access your terminal'}
+                    : 'Sign in to access your hotel workstation'}
                 </p>
               </div>
 
               {/* Error Notice */}
               {err && (
-                <div className="mb-4 rounded-xl border border-[var(--ns-danger)]/50 bg-rose-500/10 p-3.5 text-xs font-bold text-[var(--ns-danger)] flex items-start gap-2.5 shadow-xs">
-                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <div className="mb-4 rounded-xl border border-[var(--ns-danger)]/40 bg-rose-500/10 p-3 text-xs font-semibold text-[var(--ns-danger)] flex items-start gap-2.5">
+                  <AlertCircle size={15} className="shrink-0 mt-0.5" />
                   <span className="leading-snug">{err}</span>
                 </div>
               )}
@@ -274,8 +263,8 @@ export default function Login() {
                   <>
                     {/* Username / Email */}
                     <div>
-                      <label className="block text-xs font-black mb-1.5" style={{ color: 'var(--ns-ink)' }}>
-                        Username or Work Email
+                      <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
+                        Username or Email
                       </label>
                       <div className="relative">
                         <UserIcon
@@ -288,8 +277,8 @@ export default function Login() {
                           autoComplete="username"
                           value={login}
                           onChange={(e) => setLogin(e.target.value)}
-                          placeholder="staff@villa.com or username"
-                          className="ns-input glass-input w-full pl-10 pr-3.5 py-2.5 text-xs font-bold rounded-xl transition-all"
+                          placeholder="Enter your username or email"
+                          className="ns-input glass-input w-full pl-10 pr-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all"
                           disabled={busy}
                         />
                       </div>
@@ -297,11 +286,9 @@ export default function Login() {
 
                     {/* Password */}
                     <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>
-                          Password
-                        </label>
-                      </div>
+                      <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
+                        Password
+                      </label>
                       <div className="relative">
                         <Lock
                           size={15}
@@ -313,14 +300,14 @@ export default function Login() {
                           autoComplete="current-password"
                           value={pw}
                           onChange={(e) => setPw(e.target.value)}
-                          placeholder="Enter your security password"
-                          className="ns-input glass-input w-full pl-10 pr-11 py-2.5 text-xs font-bold rounded-xl transition-all"
+                          placeholder="Enter your password"
+                          className="ns-input glass-input w-full pl-10 pr-10 py-2.5 text-xs font-semibold rounded-xl transition-all"
                           disabled={busy}
                         />
                         <button
                           type="button"
                           onClick={() => setShow(!show)}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg skeuo-btn-secondary text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-lg text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors"
                           disabled={busy}
                           aria-label={show ? 'Hide password' : 'Show password'}
                           title={show ? 'Hide password' : 'Show password'}
@@ -332,7 +319,7 @@ export default function Login() {
                   </>
                 ) : (
                   <div>
-                    <label className="block text-xs font-black mb-1.5" style={{ color: 'var(--ns-ink)' }}>
+                    <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
                       6-Digit Security Token
                     </label>
                     <div className="relative">
@@ -348,14 +335,14 @@ export default function Login() {
                         onChange={(e) => setTotp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder="••••••"
                         maxLength={6}
-                        className="ns-input glass-input w-full pl-10 pr-3 py-3 text-center text-xl font-black tracking-[.4em] rounded-xl transition-all"
+                        className="ns-input glass-input w-full pl-10 pr-3 py-2.5 text-center text-xl font-bold tracking-[.35em] rounded-xl transition-all"
                         disabled={busy}
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => setTwo(false)}
-                      className="mt-2 text-[11px] font-bold text-[var(--ns-muted)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
+                      className="mt-2 text-[11px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
                     >
                       <ArrowLeft size={12} />
                       Back to password login
@@ -363,52 +350,50 @@ export default function Login() {
                   </div>
                 )}
 
-                {/* Tactile Submit Button */}
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={busy}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl skeuo-btn skeuo-btn-primary px-4 py-3 text-sm font-black text-white shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl skeuo-btn skeuo-btn-primary px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                 >
                   {busy ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Authenticating…</span>
                     </div>
                   ) : (
                     <>
                       <span>{two ? 'Verify & Continue' : 'Sign In to Workstation'}</span>
-                      <ArrowRight size={16} />
+                      <ArrowRight size={14} />
                     </>
                   )}
                 </button>
               </form>
 
-              {/* Security Audit Badge Strip */}
-              <div className="mt-6 pt-5 border-t border-[var(--ns-glass-line)] flex items-center justify-between text-[10.5px] font-bold" style={{ color: 'var(--ns-muted)' }}>
-                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 size={13} />
+              {/* Security Strip */}
+              <div className="mt-6 pt-4 border-t border-[var(--ns-glass-line)] flex items-center justify-between text-[10px] font-medium" style={{ color: 'var(--ns-muted)' }}>
+                <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <CheckCircle2 size={12} />
                   <span>Encrypted TLS 1.3</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Building2 size={12} />
+                  <Building2 size={11} />
                   <span>NS Villa Server</span>
                 </div>
               </div>
             </div>
 
-            {/* Bottom System Legal Footnote */}
-            <div className="text-center mt-4">
-              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
-                Authorized Personnel Only · All terminal activity is audited.
-              </p>
-            </div>
+            {/* Calm Footer Footnote */}
+            <p className="text-center mt-3 text-[10.5px] font-medium text-[var(--ns-muted)]">
+              Authorized personnel only. All access is audited.
+            </p>
           </div>
         </div>
       </main>
 
       {/* ── Footer Strip ── */}
-      <footer className="relative z-10 px-5 py-3 text-center text-[10.5px] font-bold border-t border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
-        © {new Date().getFullYear()} {villaName} Management System. All rights reserved. Lokoe, Ho, Ghana.
+      <footer className="relative z-10 px-6 py-4 text-center text-[10.5px] font-medium border-t border-[var(--ns-glass-line)] text-[var(--ns-muted)]">
+        © {new Date().getFullYear()} {villaName}. All rights reserved.
       </footer>
     </div>
   );

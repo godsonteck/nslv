@@ -75,6 +75,24 @@ router.post('/:id/reject-refund', requireManagerOrAdmin, async (req, res, next) 
   }
 });
 
+// Correct payment amount / method (flexible mistake correction)
+router.patch('/:id/correct', requireAnyPermission('payments.adjust', 'payments.create'), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const paymentId = Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!;
+    const { amount, method, reason } = req.body || {};
+    const data = await PaymentService.correctPayment(paymentId, {
+      amount: Number(amount),
+      method: method ? String(method) : undefined,
+      reason: reason ? String(reason) : undefined,
+      correctedBy: userId,
+    });
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Admin-only hard delete of a payment record (mistake / duplicate correction).
 // Safely guarded server-side: refuses folio-posted, refund-referenced, or
 // closed-business-day records — those must go through the refund flow.

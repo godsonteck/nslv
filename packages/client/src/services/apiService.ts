@@ -642,6 +642,8 @@ export const paymentsApi = {
     apiFetch<any>(`/payments/${refundId}/reject-refund`, { method: 'POST', body: JSON.stringify({ reason }) }, token()),
   remove: async (paymentId: string): Promise<any> =>
     apiFetch<any>(`/payments/${paymentId}`, { method: 'DELETE' }, token()),
+  correct: async (paymentId: string, body: { amount: number; method?: string; reason?: string }): Promise<any> =>
+    apiFetch<any>(`/payments/${paymentId}/correct`, { method: 'PATCH', body: JSON.stringify(body) }, token()),
 };
 
 // ──────────────────────────────────────────

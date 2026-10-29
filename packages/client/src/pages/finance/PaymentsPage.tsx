@@ -32,6 +32,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
   AlertCircle,
+  Pencil,
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
@@ -171,6 +172,13 @@ export const PaymentsPage: React.FC = () => {
   const [refundReason, setRefundReason] = useState('');
   const [refundReference, setRefundReference] = useState('');
   const [refundMethod, setRefundMethod] = useState<DirectPaymentMethod>('CASH');
+
+  // Correction / Edit Mistake States
+  const [correctTarget, setCorrectTarget] = useState<PaymentRecord | null>(null);
+  const [correctAmount, setCorrectAmount] = useState('');
+  const [correctMethod, setCorrectMethod] = useState<DirectPaymentMethod>('CASH');
+  const [correctReason, setCorrectReason] = useState('Entry mistake correction');
+  const [correcting, setCorrecting] = useState(false);
 
   // Filters & Search
   const [q, setQ] = useState('');
@@ -423,6 +431,42 @@ export const PaymentsPage: React.FC = () => {
       showToast('error', e instanceof Error ? e.message : 'Unable to delete payment record');
     } finally {
       setBusyId(null);
+    }
+  };
+
+  const openCorrectModal = (payment: PaymentRecord) => {
+    setCorrectTarget(payment);
+    setCorrectAmount(money(payment.amount).toFixed(2));
+    setCorrectMethod((payment.method as DirectPaymentMethod) || 'CASH');
+    setCorrectReason('Correction of clerical entry mistake');
+  };
+
+  const submitCorrection = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!correctTarget) return;
+    const amount = Number(correctAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return showToast('error', 'Enter a valid positive payment amount.');
+    }
+    const reason = correctReason.trim();
+    if (!reason || reason.length < 3) {
+      return showToast('error', 'Please enter a correction note (at least 3 characters).');
+    }
+
+    try {
+      setCorrecting(true);
+      await paymentsApi.correct(correctTarget.id, {
+        amount,
+        method: correctMethod,
+        reason,
+      });
+      showToast('success', `Payment amount successfully corrected to ${formatCurrency(amount)}.`);
+      setCorrectTarget(null);
+      void load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to correct payment amount');
+    } finally {
+      setCorrecting(false);
     }
   };
 
@@ -851,6 +895,11 @@ export const PaymentsPage: React.FC = () => {
                             Post-checkout
                           </span>
                         )}
+                        {p.description && /Corrected from/i.test(p.description) && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full glass-subtle border border-[var(--ns-info)] px-2 py-0.5 text-[9px] font-black text-[var(--ns-info)] uppercase">
+                            ✏ Corrected
+                          </span>
+                        )}
                         </div>
                       </td>
 
@@ -960,6 +1009,17 @@ export const PaymentsPage: React.FC = () => {
                                 className="rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] transition-colors border border-transparent hover:border-[var(--ns-gold)] bg-[var(--ns-glass-1)]"
                               >
                                 <Printer size={15} />
+                              </button>
+                            )}
+
+                            {isCompletedPayment && (
+                              <button
+                                type="button"
+                                title="Correct payment amount or method (entry mistake)"
+                                onClick={() => openCorrectModal(p)}
+                                className="rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-info)] transition-colors border border-transparent hover:border-[var(--ns-info)] bg-[var(--ns-glass-1)]"
+                              >
+                                <Pencil size={15} />
                               </button>
                             )}
 
@@ -1557,6 +1617,124 @@ export const PaymentsPage: React.FC = () => {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* ── Correction Modal (Flexible Mistake Correction) ── */}
+      <Modal
+        open={!!correctTarget}
+        onClose={() => setCorrectTarget(null)}
+        title="Correct Payment Amount / Entry Mistake"
+      >
+        {correctTarget && (
+          <form onSubmit={submitCorrection} className="space-y-4 p-6">
+            <div className="rounded-xl border border-[var(--ns-info)] glass-subtle p-4 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-[var(--ns-info)] uppercase tracking-wider text-[10px]">
+                  Transaction Reference
+                </span>
+                <span className="font-mono font-bold text-[var(--ns-ink)]">
+                  {correctTarget.reference || `RCP-${correctTarget.id.slice(-8).toUpperCase()}`}
+                </span>
+              </div>
+              <div className="text-[11px] text-[var(--ns-muted)]">
+                Payer: <strong className="text-[var(--ns-ink)]">{correctTarget.guest ? formatGuestName(correctTarget.guest) : 'Guest'}</strong>
+                {correctTarget.reservation?.room?.number ? ` · Room ${correctTarget.reservation.room.number}` : ''}
+              </div>
+              <div className="text-[11px] text-[var(--ns-ink)] font-semibold pt-1 border-t border-[var(--ns-glass-line)] flex items-center justify-between">
+                <span>Original Recorded Amount:</span>
+                <span className="font-mono text-sm font-black text-[var(--ns-warning)]">
+                  {formatCurrency(money(correctTarget.amount))}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="Corrected Amount (GHS)" required>
+                <TextInput
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={correctAmount}
+                  onChange={(e) => setCorrectAmount(e.target.value)}
+                  placeholder="e.g. 50.00"
+                  autoFocus
+                />
+              </FormField>
+
+              <FormField label="Payment Method" required>
+                <SelectInput
+                  value={correctMethod}
+                  onChange={(e) => setCorrectMethod(e.target.value as DirectPaymentMethod)}
+                >
+                  <option value="CASH">CASH</option>
+                  <option value="CARD">CARD</option>
+                  <option value="MOBILE_MONEY">MOBILE_MONEY</option>
+                  <option value="BANK_TRANSFER">BANK_TRANSFER</option>
+                </SelectInput>
+              </FormField>
+            </div>
+
+            {/* Live Delta / Impact Preview */}
+            {(() => {
+              const original = money(correctTarget.amount);
+              const corrected = Number(correctAmount);
+              if (!Number.isFinite(corrected) || corrected <= 0) return null;
+              const delta = corrected - original;
+              if (Math.abs(delta) < 0.005) {
+                return (
+                  <div className="rounded-lg glass-subtle p-2.5 text-[11px] text-[var(--ns-muted)]">
+                    Amount is unchanged.
+                  </div>
+                );
+              }
+              return (
+                <div
+                  className={`rounded-xl p-3 text-xs border ${
+                    delta > 0
+                      ? 'border-[var(--ns-success)] glass-subtle text-[var(--ns-success)]'
+                      : 'border-[var(--ns-warning)] glass-subtle text-[var(--ns-warning)]'
+                  }`}
+                >
+                  <div className="font-bold flex items-center justify-between">
+                    <span>{delta > 0 ? 'Adjustment Credit (Folio credit increases):' : 'Adjustment Debit (Folio credit decreases):'}</span>
+                    <span className="font-mono font-black">
+                      {delta > 0 ? `+${formatCurrency(delta)}` : formatCurrency(delta)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[10.5px] opacity-90">
+                    {delta > 0
+                      ? 'The guest folio credit increases by this difference, automatically reducing any remaining balance.'
+                      : 'The guest folio credit is reduced by this difference; the folio balance will adjust accordingly.'}
+                  </p>
+                </div>
+              );
+            })()}
+
+            <FormField label="Reason for Correction (Audit Log)" required>
+              <TextInput
+                required
+                value={correctReason}
+                onChange={(e) => setCorrectReason(e.target.value)}
+                placeholder="e.g. Staff typo during entry, entered 500 instead of 50"
+              />
+            </FormField>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[var(--ns-glass-line)]">
+              <Button type="button" variant="ghost" onClick={() => setCorrectTarget(null)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                loading={correcting}
+                disabled={correcting || !Number(correctAmount) || Number(correctAmount) <= 0}
+              >
+                <CheckCircle2 size={14} /> Save Corrected Amount
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     </ShellPage>
   );

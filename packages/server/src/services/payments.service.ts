@@ -955,4 +955,140 @@ export class PaymentService {
       throw error;
     }
   }
+
+  /**
+   * Correct a payment amount and/or method when staff made a data entry mistake.
+   * Adjusts the Payment record, the linked FolioItem credit, re-balances the Folio,
+   * updates the CheckOut finalBalance if checked out, and writes a full audit trail.
+   */
+  static async correctPayment(
+    paymentId: string,
+    data: { amount: number; method?: string; reason?: string; correctedBy: string },
+  ) {
+    const newAmount = Number(data.amount);
+    if (!Number.isFinite(newAmount) || newAmount <= 0) {
+      throw new AppError('The corrected payment amount must be a positive number greater than zero.', 422, 'INVALID_AMOUNT');
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findUnique({
+        where: { id: paymentId },
+        include: {
+          refunds: { where: { status: 'COMPLETED' }, select: { amount: true } },
+        },
+      });
+
+      if (!payment) {
+        throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
+      }
+
+      if (payment.type === 'REFUND') {
+        throw new AppError('Cannot edit refund transactions directly. Adjust the original payment or delete the refund.', 422, 'CANNOT_EDIT_REFUND');
+      }
+
+      // Check refunds limit
+      const totalRefunded = payment.refunds.reduce((sum, r) => sum + Number(r.amount), 0);
+      if (newAmount < totalRefunded) {
+        throw new AppError(
+          `Corrected amount (GHS ${newAmount.toFixed(2)}) cannot be less than the GHS ${totalRefunded.toFixed(2)} already refunded from this payment.`,
+          422,
+          'AMOUNT_LESS_THAN_REFUNDS',
+        );
+      }
+
+      const oldAmount = Number(payment.amount);
+      const oldMethod = payment.method;
+      const newMethod =
+        data.method && Object.values(PaymentMethod).includes(data.method as any)
+          ? (data.method as PaymentMethod)
+          : payment.method;
+      const reason = data.reason?.trim() || 'Entry mistake correction';
+
+      // 1. Update Payment record
+      const correctionTag = ` [Corrected from GHS ${oldAmount.toFixed(2)} to GHS ${newAmount.toFixed(2)}: ${reason}]`;
+      const cleanDesc = payment.description
+        ? payment.description.replace(/ \[Corrected from GHS [^\]]+\]/g, '')
+        : '';
+      const updatedDescription = `${cleanDesc}${correctionTag}`.trim();
+
+      const updatedPayment = await tx.payment.update({
+        where: { id: paymentId },
+        data: {
+          amount: new Prisma.Decimal(newAmount),
+          method: newMethod,
+          description: updatedDescription,
+        },
+      });
+
+      // 2. Update linked FolioItem(s)
+      await tx.folioItem.updateMany({
+        where: {
+          referenceId: paymentId,
+          referenceType: 'PAYMENT',
+        },
+        data: {
+          amount: new Prisma.Decimal(newAmount).negated(),
+          unitPrice: new Prisma.Decimal(newAmount).negated(),
+        },
+      });
+
+      // 3. Recalculate and update Folio balance if attached to a folio
+      let folioBalance = 0;
+      if (payment.folioId) {
+        const ledger = await tx.folioItem.aggregate({
+          where: { folioId: payment.folioId, voidedAt: null },
+          _sum: { amount: true },
+        });
+        const rawBal = Number(ledger._sum.amount || 0);
+        folioBalance = Math.max(0, Number(rawBal.toFixed(2)));
+        const isSettled = folioBalance <= 0.005;
+
+        await tx.folio.update({
+          where: { id: payment.folioId },
+          data: {
+            balance: new Prisma.Decimal(folioBalance),
+            ...(isSettled
+              ? { status: FolioStatus.CLOSED, closedAt: new Date() }
+              : { status: FolioStatus.OPEN, closedAt: null }),
+          },
+        });
+      }
+
+      // 4. Update CheckOut finalBalance if guest already checked out
+      if (payment.reservationId) {
+        const checkOut = await tx.checkOut.findUnique({
+          where: { reservationId: payment.reservationId },
+        });
+        if (checkOut) {
+          await tx.checkOut.update({
+            where: { id: checkOut.id },
+            data: {
+              finalBalance: new Prisma.Decimal(folioBalance),
+            },
+          });
+        }
+      }
+
+      // 5. Audit Log
+      await AuditService.logInTransaction(tx, {
+        userId: data.correctedBy,
+        action: 'payment.corrected',
+        resource: 'payment',
+        resourceId: paymentId,
+        beforeData: {
+          amount: oldAmount,
+          method: oldMethod,
+          description: payment.description,
+        },
+        afterData: {
+          amount: newAmount,
+          method: newMethod,
+          reason,
+          folioBalance,
+        },
+      });
+
+      return updatedPayment;
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
 }
