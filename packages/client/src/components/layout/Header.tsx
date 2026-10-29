@@ -65,8 +65,7 @@ export const Header: React.FC = () => {
           onClick={toggleSidebar}
           aria-label={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           title={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-all shrink-0"
-          style={{ backgroundColor: 'var(--ns-glass-2)' }}
+          className="flex h-9 w-9 items-center justify-center glass-subtle rounded-xl text-slate-500 hover:text-[var(--ns-ink)] transition-all shrink-0"
         >
           {sidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeft size={17} />}
         </button>
@@ -103,8 +102,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => { setShowThemeMenu(v => !v); setShowNotifications(false); }}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-colors"
-              style={{ backgroundColor: 'var(--ns-glass-2)' }}
+              className="flex h-9 w-9 items-center justify-center glass-subtle rounded-xl text-slate-500 hover:text-[var(--ns-ink)] transition-colors"
               aria-label="Theme"
               title={`Theme: ${themePreference}`}
             >
@@ -137,8 +135,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative h-9 w-9 flex items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-colors"
-              style={{ backgroundColor: 'var(--ns-glass-2)' }}
+              className="relative h-9 w-9 flex items-center justify-center glass-subtle rounded-xl text-slate-500 hover:text-[var(--ns-ink)] transition-colors"
               aria-label="Notifications"
               title="Notifications"
             >
@@ -154,8 +151,7 @@ export const Header: React.FC = () => {
 
           {canSettings && (
             <button
-              className="hidden h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] sm:flex transition-colors"
-              style={{ backgroundColor: 'var(--ns-glass-2)' }}
+              className="hidden h-9 w-9 items-center justify-center glass-subtle rounded-xl text-slate-500 hover:text-[var(--ns-ink)] sm:flex transition-colors"
               onClick={() => navigate('/admin/settings')}
               aria-label="Settings"
             >

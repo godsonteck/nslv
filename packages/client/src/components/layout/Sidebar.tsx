@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
@@ -111,10 +111,9 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-[var(--ns-glass-line)] backdrop-blur-2xl transition-all duration-300 ease-in-out ${
+      className={`flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden ns-glass-bar-soft border-r border-[var(--ns-glass-line)] transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'w-[246px] px-3.5 py-4' : 'w-[68px] px-2 py-4'
       }`}
-      style={{ backgroundColor: 'var(--ns-glass-2)' }}
     >
       <div className="flex min-h-full flex-col">
         {/* Brand Header */}
@@ -212,8 +211,7 @@ export const Sidebar: React.FC = () => {
           {sidebarOpen ? (
             <div className="space-y-3">
               <div
-                className="flex items-center gap-2.5 rounded-2xl border border-[var(--ns-glass-line)] p-2.5 shadow-xs"
-                style={{ backgroundColor: 'var(--ns-glass-2)' }}
+                className="glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-[10px] font-black text-white shadow-2xs">
                   {initials}

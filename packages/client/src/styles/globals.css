@@ -325,7 +325,7 @@ html[data-theme="dark"] [class~="divide-slate-200" i] > :not([hidden]) ~ :not([h
     radial-gradient(1000px 700px at 104% 0%, rgba(197, 154, 88, 0.42), transparent 58%),
     radial-gradient(1200px 820px at 54% 122%, rgba(60, 160, 200, 0.34), transparent 62%),
     radial-gradient(760px 560px at 76% 44%, rgba(255, 255, 255, 0.55), transparent 72%),
-    linear-gradient(162deg, #dbe7ea 0%, #e6edef 42%, #efe8dd 100%);
+    linear-gradient(162deg, #d3e3e8 0%, #e2ebee 42%, #f0e7d8 100%);
 }
 html[data-theme="dark"] .ns-ambient {
   background:
@@ -341,8 +341,8 @@ html[data-theme="dark"] .ns-ambient {
   position: absolute;
   inset: -12%;
   background-image:
-    linear-gradient(rgba(18, 46, 58, 0.085) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(18, 46, 58, 0.085) 1px, transparent 1px);
+    linear-gradient(rgba(16, 44, 56, 0.11) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 44, 56, 0.11) 1px, transparent 1px);
   background-size: 48px 48px, 48px 48px;
   -webkit-mask-image: radial-gradient(125% 95% at 50% 28%, #000 18%, transparent 76%);
   mask-image: radial-gradient(125% 95% at 50% 28%, #000 18%, transparent 76%);
@@ -420,10 +420,10 @@ html[data-theme="dark"] .ns-watermark img { opacity: 0.12; }
   /* light falling across the pane (bright edge → body → re-lit foot) */
   --ns-glass-sheen:
     linear-gradient(148deg,
-      rgba(255, 255, 255, 0.70) 0%,
-      rgba(255, 255, 255, 0.34) 38%,
-      rgba(255, 255, 255, 0.18) 64%,
-      rgba(255, 255, 255, 0.36) 100%);
+      rgba(255, 255, 255, 0.62) 0%,
+      rgba(255, 255, 255, 0.28) 38%,
+      rgba(255, 255, 255, 0.14) 64%,
+      rgba(255, 255, 255, 0.30) 100%);
   --ns-glass-sheen-soft:
     linear-gradient(148deg,
       rgba(255, 255, 255, 0.44) 0%,
@@ -454,6 +454,10 @@ html[data-theme="dark"] .ns-watermark img { opacity: 0.12; }
   --ns-glass-depth-lg:
     0 40px 90px -28px rgba(9, 30, 40, 0.46),
     0 14px 30px -16px rgba(9, 30, 40, 0.28);
+
+  /* dark mode needs a tint body; light mode gets it from the sheen */
+  --ns-glass-base: transparent;
+  --ns-glass-base-strong: transparent;
 
   --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(200%) brightness(1.06) contrast(1.03);
 }
@@ -498,13 +502,16 @@ html[data-theme="dark"] {
     0 46px 100px -30px rgba(0, 0, 0, 0.82),
     0 16px 34px -18px rgba(0, 0, 0, 0.60);
 
+  --ns-glass-base: rgba(28, 41, 56, 0.50);
+  --ns-glass-base-strong: rgba(32, 46, 62, 0.62);
+
   --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(170%) brightness(1.12) contrast(1.02);
 }
 
 /* ---------- 4. Elevation classes ---------- */
 .glass,
 .ns-card {
-  background-color: transparent;
+  background-color: var(--ns-glass-base);
   background-image: var(--ns-glass-frost), var(--ns-glass-sheen);
   background-size: 160px 160px, 100% 100%;
   background-repeat: repeat, no-repeat;
@@ -515,7 +522,7 @@ html[data-theme="dark"] {
 }
 
 .glass-strong {
-  background-color: transparent;
+  background-color: var(--ns-glass-base-strong);
   background-image: var(--ns-glass-frost),
     linear-gradient(148deg,
       rgba(255, 255, 255, 0.84) 0%,
@@ -532,7 +539,7 @@ html[data-theme="dark"] {
 
 .ns-card-soft,
 .glass-subtle {
-  background-color: transparent;
+  background-color: var(--ns-glass-base);
   background-image: var(--ns-glass-sheen-soft);
   background-repeat: no-repeat;
   -webkit-backdrop-filter: blur(22px) saturate(180%);
@@ -542,7 +549,7 @@ html[data-theme="dark"] {
 }
 
 .glass-warm {
-  background-color: transparent;
+  background-color: var(--ns-glass-base);
   background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm);
   background-size: 160px 160px, 100% 100%;
   background-repeat: repeat, no-repeat;
@@ -552,7 +559,7 @@ html[data-theme="dark"] {
 
 /* Dark editorial panels: smoked glass with a gold edge. */
 .glass-dark {
-  background-color: transparent;
+  background-color: var(--ns-glass-base);
   background-image:
     var(--ns-glass-frost),
     linear-gradient(150deg, rgba(20, 33, 43, 0.86) 0%, rgba(12, 22, 30, 0.80) 55%, rgba(16, 28, 38, 0.84) 100%);
@@ -569,7 +576,7 @@ html[data-theme="dark"] {
 
 /* Bars: header / sidebar — same glass, edge-to-edge. */
 .ns-glass-bar {
-  background-color: transparent;
+  background-color: var(--ns-glass-base-strong);
   background-image: var(--ns-glass-sheen);
   background-repeat: no-repeat;
   -webkit-backdrop-filter: blur(34px) saturate(200%) brightness(1.04);
@@ -577,7 +584,7 @@ html[data-theme="dark"] {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 .ns-glass-bar-soft {
-  background-color: transparent;
+  background-color: var(--ns-glass-base);
   background-image: var(--ns-glass-sheen-soft);
   background-repeat: no-repeat;
   -webkit-backdrop-filter: blur(28px) saturate(190%);
@@ -637,12 +644,12 @@ body { background: transparent !important; }
 [class~="bg-[#f7faf9]" i], [class~="bg-[#f8fbf9]" i], [class~="bg-[#f0f3f2]" i],
 [class~="bg-[#f0f4f2]" i], [class~="bg-[#f5f6f4]" i],
 [style*="background-color: var(--ns-surface)"],
-[class*="bg-[var(--ns-surface)]"],
+[class*="bg-[var(--ns-surface)]"]:not([class*="bg-[var(--ns-surface-2)]"]),
 [class*="from-white"]:not(button):not([role="button"]),
 [class*="from-[var(--ns-surface)]"],
 [class*="from-[#f8faf8]"],
 [class*="from-[#fbfcfa]"] {
-  background-color: transparent !important;
+  background-color: var(--ns-glass-base) !important;
   background-image: var(--ns-glass-frost), var(--ns-glass-sheen) !important;
   background-size: 160px 160px, 100% 100% !important;
   background-repeat: repeat, no-repeat !important;
@@ -658,7 +665,7 @@ body { background: transparent !important; }
 [class~="bg-[#fcfaf5]"]:not(button), [class~="bg-[#fdfbf7]"]:not(button),
 [class~="bg-[#fcf8f0]"]:not(button), [class~="bg-[#fffbeb]"]:not(button),
 [class~="bg-[#fff8f4]"]:not(button), [class~="bg-[#fbf8f2]"]:not(button) {
-  background-color: transparent !important;
+  background-color: var(--ns-glass-base) !important;
   background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm) !important;
   background-size: 160px 160px, 100% 100% !important;
   background-repeat: repeat, no-repeat !important;
@@ -694,16 +701,24 @@ html[data-theme="dark"] [class~="bg-[#f0f7f2]"]:not(button) {
 /* Bands: header strips, toolbars, table heads, surface-2 panels. */
 [style*="background-color: var(--ns-surface-2)"],
 [class*="bg-[var(--ns-surface-2)]"],
-[class*="bg-white/"] {
-  background-color: transparent !important;
+[class*="bg-white/95"]:not([class*="hover:bg-white/"]),
+[class*="bg-white/90"]:not([class*="hover:bg-white/"]),
+[class*="bg-white/80"]:not([class*="hover:bg-white/"]),
+[class*="bg-white/70"]:not([class*="hover:bg-white/"]),
+[class*="bg-white/60"]:not([class*="hover:bg-white/"]) {
+  background-color: var(--ns-glass-base) !important;
   background-image: var(--ns-glass-sheen-soft) !important;
   background-repeat: no-repeat !important;
   -webkit-backdrop-filter: blur(24px) saturate(185%);
   backdrop-filter: blur(24px) saturate(185%);
   box-shadow: var(--ns-glass-bevel-soft) !important;
 }
-html[data-theme="dark"] [class*="bg-white/"] {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+html[data-theme="dark"] [class*="bg-white/95"]:not([class*="hover:bg-white/"]),
+html[data-theme="dark"] [class*="bg-white/90"]:not([class*="hover:bg-white/"]),
+html[data-theme="dark"] [class*="bg-white/80"]:not([class*="hover:bg-white/"]),
+html[data-theme="dark"] [class*="bg-white/70"]:not([class*="hover:bg-white/"]),
+html[data-theme="dark"] [class*="bg-white/60"]:not([class*="hover:bg-white/"]) {
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Neutral hover states: brighten the glass instead of snapping opaque. */
