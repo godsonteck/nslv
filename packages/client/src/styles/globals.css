@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
 
@@ -69,87 +69,36 @@ html[data-theme="dark"] .app-shell {
   color: var(--ns-ink);
 }
 
-html[data-theme="dark"] .ns-card,
-html[data-theme="dark"] .ns-card-soft,
-html[data-theme="dark"] .ns-input {
-  background-color: var(--ns-surface) !important;
-  color: var(--ns-ink) !important;
-  border-color: var(--ns-line) !important;
-}
-
 html[data-theme="dark"] .ns-input,
 html[data-theme="dark"] select,
 html[data-theme="dark"] input,
 html[data-theme="dark"] textarea {
-  background: var(--ns-surface-2) !important;
   color: var(--ns-ink) !important;
-  border-color: var(--ns-line) !important;
 }
 
-.ns-card { background: var(--ns-surface); border: 1px solid var(--ns-line); border-radius: 18px; box-shadow: 0 8px 28px rgba(23,44,52,.045); }
-.ns-card-soft { background: var(--ns-surface-2); border: 1px solid var(--ns-line); border-radius: 16px; }
+/* Cards are glass surfaces (see the glass system at the end of this file). */
+.ns-card { border-radius: 18px; }
+.ns-card-soft { border-radius: 16px; }
 .ns-eyebrow { color: var(--ns-gold); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
 .ns-number { font-family: var(--font-heading); font-variant-numeric: tabular-nums; letter-spacing: -.035em; }
 .ns-page { animation: ns-page-in .18s ease-out both; }
 @keyframes ns-page-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-.ns-table thead th { background: #f7f8f6; color: #4a5568; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
+.ns-table thead th { background: rgba(255,255,255,.30); color: #4a5568; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
 .ns-table tbody tr { transition: background .15s ease; }
-.ns-table tbody tr:hover { background: #fbfcfa; }
+.ns-table tbody tr:hover { background: rgba(255,255,255,.34); }
 .ns-table tbody td { color: var(--ns-ink); }
-.ns-input { border: 1px solid #dfe3e0; background: white; border-radius: 10px; transition: .15s ease; }
-.ns-input:hover { border-color: #cfd6d2; }
-.ns-input:focus { border-color: var(--ns-gold); box-shadow: 0 0 0 3px rgba(177,138,85,.11); outline: none; }
+.ns-input { border: 1px solid var(--ns-glass-line, rgba(255,255,255,.55)); background: rgba(255,255,255,.55); border-radius: 10px; transition: .15s ease; }
+.ns-input:hover { border-color: rgba(177,138,85,.45); }
+.ns-input:focus { border-color: var(--ns-gold); box-shadow: 0 0 0 3px rgba(177,138,85,.13); outline: none; }
 
 @media (max-width: 1023px) { .ns-card { border-radius: 15px; } }
 
 /* =================================================================
-   DARK THEME - White/near-white backgrounds flip to dark palette
+   DARK THEME — opaque neutral surfaces are handled by the glass system
+   at the end of this file (--ns-glass-* tokens resolve per theme), so
+   they no longer need to be flattened to solid --ns-surface here.
    ================================================================= */
-html[data-theme="dark"] [class~="bg-white" i],
-html[data-theme="dark"] [class~="bg-[#fbfcfa]" i],
-html[data-theme="dark"] [class~="bg-[#f7f8f6]" i],
-html[data-theme="dark"] [class~="bg-[#f7f9f8]" i],
-html[data-theme="dark"] [class~="bg-[#f0f2ef]" i],
-html[data-theme="dark"] [class~="bg-[#f3f5f3]" i],
-html[data-theme="dark"] [class~="bg-[#f9faf8]" i],
-html[data-theme="dark"] [class~="bg-[#f4f6f4]" i],
-html[data-theme="dark"] [class~="bg-[#fbfcfb]" i],
-html[data-theme="dark"] [class~="bg-[#fbfdfd]" i],
-html[data-theme="dark"] [class~="bg-[#fcfaf5]" i],
-html[data-theme="dark"] [class~="bg-[#faf6ed]" i],
-html[data-theme="dark"] [class~="bg-[#fbf9f5]" i],
-html[data-theme="dark"] [class~="bg-[#fcf8f0]" i],
-html[data-theme="dark"] [class~="bg-[#fdfbf7]" i],
-html[data-theme="dark"] [class~="bg-[#f0f3f2]" i],
-html[data-theme="dark"] [class~="bg-[#fbfdfc]" i],
-html[data-theme="dark"] [class~="bg-[#fbfbf9]" i],
-html[data-theme="dark"] [class~="bg-[#f3f8f9]" i],
-html[data-theme="dark"] [class~="bg-[#f8fbf9]" i],
-html[data-theme="dark"] [class~="bg-[#f7faf9]" i],
-html[data-theme="dark"] [class~="bg-[#f8fbfb]" i],
-html[data-theme="dark"] [class~="bg-[#f9faf9]" i],
-html[data-theme="dark"] [class~="bg-[#f0f8fa]" i],
-html[data-theme="dark"] [class~="bg-[#f0f4f2]" i],
-html[data-theme="dark"] [class~="bg-[#f8fafc]" i] { background-color: var(--ns-surface) !important; }
-
-html[data-theme="dark"] [class~="bg-white/95" i] { background-color: rgba(18,26,39,.96) !important; }
-html[data-theme="dark"] [class~="bg-white/80" i] { background-color: rgba(18,26,39,.84) !important; }
-html[data-theme="dark"] [class~="bg-white/70" i] { background-color: rgba(18,26,39,.76) !important; }
-html[data-theme="dark"] [class~="bg-[#f5f6f4]" i] { background-color: var(--ns-bg) !important; }
-
-html[data-theme="dark"] [class~="bg-slate-50" i],
-html[data-theme="dark"] [class~="bg-slate-100" i],
-html[data-theme="dark"] [class~="bg-slate-200" i],
-html[data-theme="dark"] [class~="bg-gray-50" i],
-html[data-theme="dark"] [class~="bg-gray-100" i],
-html[data-theme="dark"] [class~="hover:bg-white" i]:hover,
-html[data-theme="dark"] [class~="hover:bg-slate-50" i]:hover,
-html[data-theme="dark"] [class~="hover:bg-slate-100" i]:hover,
-html[data-theme="dark"] [class~="hover:bg-gray-50" i]:hover,
-html[data-theme="dark"] [class~="hover:bg-[#fbfcfb]" i]:hover,
-html[data-theme="dark"] [class~="hover:bg-[#f3f8f9]" i]:hover,
-html[data-theme="dark"] [class~="hover:bg-[#fcf8f0]" i]:hover { background-color: var(--ns-surface-2) !important; }
 
 /* =================================================================
    DARK THEME - Dark navy text colors -> bright ink
@@ -356,175 +305,327 @@ html[data-theme="dark"] [class~="bg-[#f0f7f2]" i] { background-color: #15241b !i
 /* bg-[#1e2535] icon badges in dark mode */
 html[data-theme="dark"] [class~="bg-[#1e2535]"]:not([class*="from-"]):not([class*="border-"]) { background-color: var(--ns-surface-2) !important; }
 
+
 /* =================================================================
-   GLASS MORPHISM — very transparent frosted surfaces + logo watermark
-   Everything except text is glass; text stays fully visible.
+   NS LUXURY VILLA — GLASS DESIGN SYSTEM
+   -----------------------------------------------------------------
+   One coherent language for the whole workstation:
+
+       ambient colour  →  frosted translucent surface  →  specular edge
+
+   Principles
+     · Only SURFACES become glass. Text, icons and imagery stay crisp.
+     · Brand colours (teal / gold) and status colours keep their hue —
+       they are tinted, never washed out to grey.
+     · Three elevation steps: glass-subtle → glass → glass-strong.
    ================================================================= */
-:root {
-  --ns-glass-bg: rgba(255, 255, 255, 0.16);
-  --ns-glass-border: rgba(255, 255, 255, 0.45);
-  --ns-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-}
-html[data-theme="dark"] {
-  --ns-glass-bg: rgba(14, 20, 30, 0.22);
-  --ns-glass-border: rgba(255, 255, 255, 0.18);
-  --ns-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.30);
-}
-.glass {
-  position: relative;
-  background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--ns-glass-border) !important;
-  box-shadow: var(--ns-glass-shadow);
-}
-.glass-strong {
-  background: rgba(255, 255, 255, 0.24) !important;
-  border-color: rgba(255, 255, 255, 0.55) !important;
-  backdrop-filter: blur(44px) saturate(200%);
-  -webkit-backdrop-filter: blur(44px) saturate(200%);
-  box-shadow: var(--ns-glass-shadow);
-}
-html[data-theme="dark"] .glass-strong {
-  background: rgba(14, 20, 30, 0.30) !important;
-  border-color: rgba(255, 255, 255, 0.24) !important;
-}
-.glass-input {
-  background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--ns-glass-border) !important;
-}
 
-/* Catch-all: every opaque inline surface → very transparent glass */
-[style*="background-color: var(--ns-surface)"] { background-color: var(--ns-glass-bg) !important; }
-html[data-theme="dark"] [style*="background-color: var(--ns-surface)"] { background-color: var(--ns-glass-bg) !important; }
-[style*="background-color: var(--ns-surface-2)"] { background-color: rgba(255, 255, 255, 0.14) !important; }
-html[data-theme="dark"] [style*="background-color: var(--ns-surface-2)"] { background-color: rgba(14, 20, 30, 0.18) !important; }
-/* Inline hex backgrounds → very transparent glass */
-[style*="background-color:#"], [style*="background-color: #"], [style*="background:#"], [style*="background: #"],
-[style*="backgroundColor:#"], [style*="backgroundColor: #"] {
-  background: var(--ns-glass-bg) !important;
-  background-image: none !important;
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
-  border-color: var(--ns-glass-border) !important;
-}
-
-/* ALL hex-color backgrounds → very transparent glass */
-[class*="bg-[#"] { background: var(--ns-glass-bg) !important; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-color: var(--ns-glass-border) !important; }
-
-/* ALL gradient backgrounds → very transparent glass */
-[class*="bg-gradient-to-"] { background: var(--ns-glass-bg) !important; background-image: none !important; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-color: var(--ns-glass-border) !important; }
-
-/* ALL Tailwind semantic color backgrounds → glass-tinted */
-[class*="bg-slate-"],[class*="bg-gray-"],[class*="bg-zinc-"],[class*="bg-stone-"],
-[class*="bg-red-"],[class*="bg-emerald-"],[class*="bg-amber-"],[class*="bg-blue-"],[class*="bg-rose-"],[class*="bg-sky-"],[class*="bg-purple-"],[class*="bg-orange-"],[class*="bg-fuchsia-"] {
-  background: var(--ns-glass-bg) !important;
-  backdrop-filter: blur(36px) saturate(170%);
-  -webkit-backdrop-filter: blur(36px) saturate(170%);
-  border-color: var(--ns-glass-border) !important;
-}
-
-/* bg-white and semi-transparent overlays → very transparent glass */
-[class~="bg-white"]:not(button):not([role="button"]):not(.btn) { background: var(--ns-glass-bg) !important; backdrop-filter: blur(36px) saturate(170%); -webkit-backdrop-filter: blur(36px) saturate(170%); border-color: var(--ns-glass-border) !important; }
-html[data-theme="dark"] [class~="bg-white"]:not(button):not([role="button"]):not(.btn) { background: var(--ns-glass-bg) !important; }
-[class*="bg-white/"] { background: rgba(255, 255, 255, 0.16) !important; backdrop-filter: blur(36px) saturate(170%); -webkit-backdrop-filter: blur(36px) saturate(170%); }
-html[data-theme="dark"] [class*="bg-white/"] { background: var(--ns-glass-bg) !important; }
-[class*="bg-black/"] { background: rgba(14, 20, 30, 0.22) !important; backdrop-filter: blur(36px); -webkit-backdrop-filter: blur(36px); }
-
-/* Solid dark container classes → very transparent glass */
-[class*="bg-[#151C28]"],[class*="bg-[#1C1F28]"],[class*="bg-[#1C2536]"],[class*="bg-[#0F141C]"],[class*="bg-[#0c1921]"],[class*="bg-[#0f141d]"],[class*="bg-[#111827]"],[class*="bg-[#1e2535]"],[class*="bg-[#0c1a24]"],[class*="bg-[#102433]"],[class*="bg-[#08121a]"],[class*="bg-[#0c151c]"],[class*="bg-[#111e28]"],[class*="bg-[#0a1218]"],[class*="bg-[#1e293b]"],[class*="bg-[#334155]"],[class*="bg-[#475569]"] { background: var(--ns-glass-bg) !important; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-color: var(--ns-glass-border) !important; }
-
-/* Logo watermark behind the whole workstation */
-.ns-watermark {
+/* ---------- 1. Ambient canvas — what the glass refracts ---------- */
+.ns-ambient {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  background:
+    radial-gradient(1100px 720px at 4% -14%, rgba(23, 75, 89, 0.20), transparent 62%),
+    radial-gradient(900px 640px at 103% 2%, rgba(177, 138, 85, 0.22), transparent 60%),
+    radial-gradient(1100px 720px at 52% 120%, rgba(90, 180, 214, 0.16), transparent 62%),
+    linear-gradient(165deg, #f9faf8 0%, #eef2ef 46%, #f5efe6 100%);
 }
-.ns-watermark img {
+html[data-theme="dark"] .ns-ambient {
+  background:
+    radial-gradient(1100px 720px at 4% -14%, rgba(45, 140, 168, 0.26), transparent 62%),
+    radial-gradient(900px 640px at 103% 2%, rgba(177, 138, 85, 0.18), transparent 60%),
+    radial-gradient(1100px 720px at 52% 120%, rgba(28, 92, 124, 0.30), transparent 62%),
+    linear-gradient(165deg, #070c12 0%, #0b1220 48%, #090f17 100%);
+}
+
+.ns-orb {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: clamp(420px, 58vw, 1150px);
+  border-radius: 999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.ns-orb-1 { width: 44vw; height: 44vw; left: -12vw; top: -14vw;
+  background: radial-gradient(circle at 35% 35%, rgba(23, 75, 89, 0.50), rgba(23, 75, 89, 0) 70%);
+  animation: ns-drift-a 28s ease-in-out infinite; }
+.ns-orb-2 { width: 40vw; height: 40vw; right: -10vw; bottom: -16vw;
+  background: radial-gradient(circle at 60% 40%, rgba(177, 138, 85, 0.45), rgba(177, 138, 85, 0) 70%);
+  animation: ns-drift-b 34s ease-in-out infinite; }
+.ns-orb-3 { width: 32vw; height: 32vw; right: 16vw; top: -18vw;
+  background: radial-gradient(circle at 50% 50%, rgba(90, 180, 214, 0.38), rgba(90, 180, 214, 0) 70%);
+  animation: ns-drift-a 40s ease-in-out infinite reverse; }
+html[data-theme="dark"] .ns-orb { opacity: 0.45; }
+
+@keyframes ns-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(3vw, 2vh, 0) scale(1.07); }
+}
+@keyframes ns-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-3vw, -2vh, 0) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) { .ns-orb { animation: none; } }
+
+/* ---------- 2. Logo watermark — single, calm, behind everything -- */
+.ns-watermark { position: absolute; inset: 0; display: grid; place-items: center; }
+.ns-watermark img {
+  width: clamp(380px, 50vw, 940px);
   height: auto;
-  max-width: 170vw;
-  transform: translate(-50%, -50%) rotate(-1.5deg);
-  filter: grayscale(0.45) contrast(1.2);
-  opacity: 0.065;
+  max-width: 150vw;
+  transform: rotate(-2deg);
+  opacity: 0.075;
+  filter: grayscale(0.35) contrast(1.04);
   user-select: none;
 }
-html[data-theme="dark"] .ns-watermark img { opacity: 0.12; }
+html[data-theme="dark"] .ns-watermark img { opacity: 0.10; }
 
-/* Text inside glass containers — always fully visible, never transparent */
-.glass *,
-.glass-strong *,
-[class*="bg-[#"] *,
-[class*="bg-gradient-to-"] *,
-[class*="bg-slate-"] *,
-[class*="bg-gray-"] *,
-[class*="bg-red-"] *,
-[class*="bg-emerald-"] *,
-[class*="bg-amber-"] *,
-[class*="bg-blue-"] *,
-[class*="bg-rose-"] *,
-[class*="bg-sky-"] *,
-[class*="bg-purple-"] *,
-[class*="bg-orange-"] *,
-[class*="bg-fuchsia-"] *,
-[class~="bg-white"] *,
-[class*="bg-white/"] * {
-  opacity: 1 !important;
+/* ---------- 3. Tokens ---------- */
+:root {
+  --ns-glass-1: rgba(255, 255, 255, 0.34);   /* subtle bands / table heads   */
+  --ns-glass-2: rgba(255, 255, 255, 0.48);   /* standard cards / panels      */
+  --ns-glass-3: rgba(255, 255, 255, 0.64);   /* floating: modal, menu, toast */
+  --ns-glass-warm: rgba(255, 250, 242, 0.50);
+  --ns-glass-line: rgba(255, 255, 255, 0.60);
+  --ns-glass-line-soft: rgba(255, 255, 255, 0.38);
+  --ns-glass-blur: 26px;
+  --ns-glass-spec: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.20);
+  --ns-glass-shadow: 0 12px 30px rgba(22, 38, 46, 0.07), 0 2px 8px rgba(22, 38, 46, 0.04);
+  --ns-glass-shadow-lg: 0 28px 70px rgba(22, 38, 46, 0.18), 0 6px 18px rgba(22, 38, 46, 0.08);
+}
+html[data-theme="dark"] {
+  --ns-glass-1: rgba(22, 31, 44, 0.36);
+  --ns-glass-2: rgba(22, 31, 44, 0.50);
+  --ns-glass-3: rgba(26, 36, 51, 0.68);
+  --ns-glass-warm: rgba(38, 34, 28, 0.52);
+  --ns-glass-line: rgba(255, 255, 255, 0.15);
+  --ns-glass-line-soft: rgba(255, 255, 255, 0.09);
+  --ns-glass-spec: inset 0 1px 0 rgba(255, 255, 255, 0.10), inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  --ns-glass-shadow: 0 14px 34px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.26);
+  --ns-glass-shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.60), 0 6px 20px rgba(0, 0, 0, 0.40);
 }
 
-/* Preserve original text colors on glass — do not force text to inherit background transparency */
-.glass [class*="text-"],
-.glass-strong [class*="text-"],
-[class*="bg-[#"] [class*="text-"],
-[class*="bg-gradient-to-"] [class*="text-"],
-[class~="bg-white"] [class*="text-"],
-[class*="bg-white/"] [class*="text-"] {
-  opacity: 1 !important;
+/* ---------- 4. Elevation classes ---------- */
+.glass,
+.ns-card {
+  background: var(--ns-glass-2);
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  border: 1px solid var(--ns-glass-line);
+  box-shadow: var(--ns-glass-spec), var(--ns-glass-shadow);
+}
+.ns-card-soft,
+.glass-subtle {
+  background: var(--ns-glass-1);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid var(--ns-glass-line-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.glass-strong {
+  background: var(--ns-glass-3);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  backdrop-filter: blur(36px) saturate(190%);
+  border: 1px solid var(--ns-glass-line);
+  box-shadow: var(--ns-glass-spec), var(--ns-glass-shadow-lg);
+}
+.glass-warm {
+  background: var(--ns-glass-warm);
+  border-color: rgba(197, 154, 88, 0.30);
+}
+/* Dark editorial panels keep their depth but read as glass */
+.glass-dark {
+  background: linear-gradient(135deg, rgba(12, 21, 28, 0.80), rgba(17, 30, 40, 0.72));
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  backdrop-filter: blur(30px) saturate(160%);
+  border: 1px solid rgba(197, 154, 88, 0.32);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 18px 44px rgba(6, 12, 18, 0.38);
 }
 
-/* Ensure placeholder text on glass inputs is readable */
+/* ---------- 5. Inputs ---------- */
+.glass-input,
+.ns-input {
+  background: rgba(255, 255, 255, 0.58) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid var(--ns-glass-line) !important;
+  box-shadow: inset 0 1px 2px rgba(22, 38, 46, 0.05);
+}
+html[data-theme="dark"] .glass-input,
+html[data-theme="dark"] .ns-input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.28);
+}
 .glass-input::placeholder,
-.glass [class*="glass-input"]::placeholder {
-  opacity: 0.65 !important;
+.ns-input::placeholder { color: var(--ns-muted); opacity: 0.85; }
+.glass-input:focus,
+.ns-input:focus {
+  border-color: rgba(177, 138, 85, 0.75) !important;
+  box-shadow: inset 0 1px 2px rgba(22, 38, 46, 0.04), 0 0 0 3px rgba(177, 138, 85, 0.16);
 }
 
-/* Glass morphism text contrast — light text on glass must read as dark ink (light theme) */
-html:not([data-theme="dark"]) .glass [class*="text-white"],
-html:not([data-theme="dark"]) .glass-strong [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-[#"] [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-gradient-to-"] [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-slate-"] [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-red-"] [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-emerald-"] [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-amber-"] [class*="text-white"],
-html:not([data-theme="dark"]) [class*="bg-blue-"] [class*="text-white"] {
-  color: var(--ns-ink) !important;
+/* ---------- 6. Page shells stay transparent so the canvas shows --- */
+.ns-page,
+.app-shell,
+#root { background: transparent !important; }
+/* body must stay transparent: it paints above negative-z layers, so an
+   opaque body would hide the ambient canvas behind the glass. */
+body { background: transparent !important; }
+
+/* ---------- 7. Neutral surfaces → glass (precise, brand-safe) ----- */
+/* Tailwind bg-white on non-interactive containers */
+[class~="bg-white"]:not(button):not(input):not(select):not(textarea):not([role="button"]) {
+  background-color: var(--ns-glass-2) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
 }
-/* Glass morphism text contrast — dark theme keeps light text readable on dark glass */
-html[data-theme="dark"] .glass [class*="text-white"],
-html[data-theme="dark"] .glass-strong [class*="text-white"],
-html[data-theme="dark"] [class*="bg-[#"] [class*="text-white"],
-html[data-theme="dark"] [class*="bg-gradient-to-"] [class*="text-white"] {
-  color: var(--ns-ink-2) !important;
+[class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.42) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+}
+html[data-theme="dark"] [class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-/* Light hex text colors (#F..., #E...) → dark ink on glass (light theme) */
-html:not([data-theme="dark"]) [class*="text-[#F"] { color: var(--ns-ink) !important; }
-html:not([data-theme="dark"]) [class*="text-[#E"] { color: var(--ns-ink) !important; }
-/* Brand gold text → ink on glass (light theme) */
-html:not([data-theme="dark"]) [class*="text-[#c59a58]"],
-html:not([data-theme="dark"]) [class*="text-[#f1a83f]"],
-html:not([data-theme="dark"]) [class*="text-[#f0d49f]"],
-html:not([data-theme="dark"]) [class*="text-[#E2B768]"],
-html:not([data-theme="dark"]) [class*="text-[#b88738]"],
-html:not([data-theme="dark"]) [class*="text-[#a8761e]"],
-html:not([data-theme="dark"]) [class*="text-[#9b6e2e]"] {
-  color: var(--ns-ink) !important;
+/* Neutral off-white hex surfaces used across the workstation */
+[class~="bg-[#f7f8f6]" i], [class~="bg-[#fbfcfa]" i], [class~="bg-[#f9faf9]" i],
+[class~="bg-[#f3f5f3]" i], [class~="bg-[#f7f9f7]" i], [class~="bg-[#f0f2ef]" i],
+[class~="bg-[#f2f5f2]" i], [class~="bg-[#f8fafc]" i], [class~="bg-[#f8fbfb]" i],
+[class~="bg-[#f4f6f4]" i], [class~="bg-[#f9faf8]" i], [class~="bg-[#f7f9f8]" i],
+[class~="bg-[#e9ece9]" i], [class~="bg-[#f6f8f6]" i], [class~="bg-[#fbfcfb]" i],
+[class~="bg-[#fbfdfd]" i], [class~="bg-[#fbfdfc]" i], [class~="bg-[#fbfbf9]" i],
+[class~="bg-[#f7faf9]" i], [class~="bg-[#f8fbf9]" i], [class~="bg-[#f0f3f2]" i],
+[class~="bg-[#f0f4f2]" i], [class~="bg-[#f5f6f4]" i] {
+  background-color: var(--ns-glass-2) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
 }
+/* Warm cream surfaces keep their warmth, as glass */
+[class~="bg-[#fbf9f5]"], [class~="bg-[#fbf8f2]"], [class~="bg-[#f7f0e5]"],
+[class~="bg-[#faf6ed]"], [class~="bg-[#fcfaf5]"], [class~="bg-[#fdfbf7]"],
+[class~="bg-[#fcf8f0]"] {
+  background-color: var(--ns-glass-warm) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+}
+/* Cool tinted panels */
+[class~="bg-[#f3f8f9]"], [class~="bg-[#f0f8fa]"] {
+  background-color: rgba(232, 245, 249, 0.46) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+}
+html[data-theme="dark"] [class~="bg-[#f3f8f9]"],
+html[data-theme="dark"] [class~="bg-[#f0f8fa]"] {
+  background-color: rgba(24, 48, 60, 0.46) !important;
+}
+
+/* Inline surface tokens */
+[style*="background-color: var(--ns-surface)"] {
+  background-color: var(--ns-glass-2) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+}
+[style*="background-color: var(--ns-surface-2)"] {
+  background-color: var(--ns-glass-1) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+}
+
+/* The same tokens used as Tailwind arbitrary utilities: bg-[var(--ns-surface)] */
+[class*="bg-[var(--ns-surface)]"] {
+  background-color: var(--ns-glass-2) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+}
+[class*="bg-[var(--ns-surface-2)]"] {
+  background-color: var(--ns-glass-1) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+}
+
+/* Light gradient card surfaces (from-white / from-surface) → glass.
+   Brand gradient buttons are excluded so teal & gold actions stay strong. */
+[class*="from-white"]:not(button):not([role="button"]),
+[class*="from-[var(--ns-surface)]"],
+[class*="from-[#f8faf8]"],
+[class*="from-[#fbfcfa]"] {
+  background-image: none !important;
+  background-color: var(--ns-glass-2) !important;
+  -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--ns-glass-blur)) saturate(180%);
+}
+
+/* Neutral hover states stay translucent instead of snapping opaque */
+[class~="hover:bg-white"]:hover,
+[class~="hover:bg-slate-50"]:hover,
+[class~="hover:bg-slate-100"]:hover,
+[class~="hover:bg-gray-50"]:hover,
+[class~="hover:bg-gray-100"]:hover,
+[class*="hover:bg-[#f"]:hover {
+  background-color: rgba(255, 255, 255, 0.34) !important;
+}
+html[data-theme="dark"] [class~="hover:bg-white"]:hover,
+html[data-theme="dark"] [class~="hover:bg-slate-50"]:hover,
+html[data-theme="dark"] [class~="hover:bg-slate-100"]:hover,
+html[data-theme="dark"] [class~="hover:bg-gray-50"]:hover,
+html[data-theme="dark"] [class~="hover:bg-gray-100"]:hover,
+html[data-theme="dark"] [class*="hover:bg-[#f"]:hover {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ---------- 8. Dark navy panels → dark glass, depth preserved ----- */
+[class~="bg-[#14161d]" i], [class~="bg-[#1c1f28]" i], [class~="bg-[#122834]" i],
+[class~="bg-[#232733]" i], [class~="bg-[#1e2535]" i], [class~="bg-[#151c28]" i],
+[class~="bg-[#16181f]" i], [class~="bg-[#131722]" i], [class~="bg-[#0f141c]" i],
+[class~="bg-[#0f172a]" i], [class~="bg-[#20242f]" i], [class~="bg-[#252836]" i],
+[class~="bg-[#2b303e]" i], [class~="bg-[#1c2536]" i], [class~="bg-[#0e1117]" i],
+[class~="bg-[#10131a]" i], [class~="bg-[#0e0b12]" i] {
+  background-color: rgba(18, 24, 33, 0.72) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* ---------- 9. Status chips — tinted glass, hue preserved -------- */
+[class~="bg-emerald-50"], [class~="bg-emerald-100"] { background-color: rgba(16, 185, 129, 0.14) !important; border-color: rgba(16, 185, 129, 0.32) !important; }
+[class~="bg-amber-50"], [class~="bg-amber-100"] { background-color: rgba(245, 158, 11, 0.15) !important; border-color: rgba(245, 158, 11, 0.34) !important; }
+[class~="bg-rose-50"], [class~="bg-rose-100"], [class~="bg-red-50"], [class~="bg-red-100"] { background-color: rgba(244, 63, 94, 0.14) !important; border-color: rgba(244, 63, 94, 0.32) !important; }
+[class~="bg-sky-50"], [class~="bg-sky-100"], [class~="bg-blue-50"], [class~="bg-blue-100"] { background-color: rgba(14, 165, 233, 0.14) !important; border-color: rgba(14, 165, 233, 0.32) !important; }
+[class~="bg-purple-50"], [class~="bg-purple-100"] { background-color: rgba(168, 85, 247, 0.14) !important; border-color: rgba(168, 85, 247, 0.32) !important; }
+[class~="bg-teal-50"], [class~="bg-teal-100"] { background-color: rgba(20, 184, 166, 0.14) !important; border-color: rgba(20, 184, 166, 0.32) !important; }
+[class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-gray-50"], [class~="bg-gray-100"] { background-color: rgba(100, 116, 139, 0.13) !important; border-color: rgba(100, 116, 139, 0.28) !important; }
+[class~="bg-emerald-50"], [class~="bg-emerald-100"], [class~="bg-amber-50"], [class~="bg-amber-100"],
+[class~="bg-rose-50"], [class~="bg-rose-100"], [class~="bg-red-50"], [class~="bg-red-100"],
+[class~="bg-sky-50"], [class~="bg-sky-100"], [class~="bg-blue-50"], [class~="bg-blue-100"],
+[class~="bg-purple-50"], [class~="bg-purple-100"], [class~="bg-teal-50"], [class~="bg-teal-100"],
+[class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-gray-50"], [class~="bg-gray-100"] {
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+}
+
+/* ---------- 10. Tables, scrim, print ---------------------------- */
+html[data-theme="dark"] .ns-table thead th {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--ns-muted) !important;
+}
+html[data-theme="dark"] .ns-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.ns-scrim {
+  background: rgba(9, 15, 22, 0.42);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+}
+@media print {
+  .ns-ambient, .ns-watermark { display: none !important; }
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .ns-card, .ns-card-soft {
+    background: #fff !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+

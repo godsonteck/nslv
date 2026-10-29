@@ -167,11 +167,11 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const variantClasses = {
     primary: 'bg-[#174B59] hover:bg-[#0E3440] text-white font-semibold shadow-[0_6px_16px_rgba(23,75,89,.14)]',
-    secondary: 'bg-[#F4F6F4] hover:bg-[#E9ECE9] text-[#27383F] border border-[#DDE2DE]',
+    secondary: 'border border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)] backdrop-blur-md text-[#27383F] hover:border-[#c59a58]/55',
     accent: 'bg-[#B18A55] hover:bg-[#9B7648] text-white font-semibold shadow-[0_6px_16px_rgba(177,138,85,.16)]',
     danger: 'bg-red-600 hover:bg-red-700 text-white font-semibold shadow-sm',
     ghost: 'bg-transparent hover:bg-black/5 text-[#4A5568] hover:text-[#1A202C]',
-    outline: 'bg-white hover:bg-[#F7F8F6] text-[#27383F] border border-[#DDE2DE]',
+    outline: 'border border-[var(--ns-glass-line)] bg-transparent backdrop-blur-md text-[#27383F] hover:bg-white/30',
   };
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-xs rounded-md gap-1.5',
@@ -564,19 +564,19 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
   return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4"
+      className="ns-scrim fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-3 sm:p-4"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-2xl border border-[var(--ns-line)] shadow-2xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all`}
-        style={{ backgroundColor: 'var(--ns-surface)', color: 'var(--ns-ink)' }}
+        className={`glass-strong my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-2xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all`}
+        style={{ color: 'var(--ns-ink)' }}
       >
         <div
-          className="flex items-center justify-between px-6 py-4 border-b border-[var(--ns-line)] shrink-0"
-          style={{ backgroundColor: 'var(--ns-surface-2)' }}
+          className="flex items-center justify-between px-6 py-4 border-b border-[var(--ns-glass-line-soft)] shrink-0"
+          style={{ backgroundColor: 'var(--ns-glass-1)' }}
         >
           <div>
             <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
@@ -617,14 +617,14 @@ interface DrawerProps {
 export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, children }) => {
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 flex justify-end">
+    <div className="ns-scrim fixed inset-0 z-50 overflow-hidden flex justify-end">
       <div
-        className="w-full max-w-xl border-l border-[var(--ns-line)] h-full flex flex-col shadow-2xl"
-        style={{ backgroundColor: 'var(--ns-surface)', color: 'var(--ns-ink)' }}
+        className="glass-strong w-full max-w-xl border-l border-[var(--ns-glass-line)] h-full flex flex-col"
+        style={{ color: 'var(--ns-ink)' }}
       >
         <div
-          className="px-6 py-4 border-b border-[var(--ns-line)] flex items-center justify-between shrink-0"
-          style={{ backgroundColor: 'var(--ns-surface-2)' }}
+          className="px-6 py-4 border-b border-[var(--ns-glass-line-soft)] flex items-center justify-between shrink-0"
+          style={{ backgroundColor: 'var(--ns-glass-1)' }}
         >
           <div>
             <h2 className="text-base font-bold font-['Manrope']" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
@@ -672,10 +672,10 @@ export const TextInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & {
 }) => (
   <input
     {...props}
-    style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', ...style }}
-    className={`w-full border ${
-      error ? 'border-red-500' : 'border-[var(--ns-line)]'
-    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/15 transition-all ${className}`}
+    style={{ color: 'var(--ns-ink)', ...style }}
+    className={`glass-input w-full border ${
+      error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
+    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none transition-all ${className}`}
   />
 );
 
@@ -688,10 +688,10 @@ export const SelectInput: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 }) => (
   <select
     {...props}
-    style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', ...style }}
-    className={`w-full border ${
-      error ? 'border-red-500' : 'border-[var(--ns-line)]'
-    } rounded-[10px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/15 transition-all ${className}`}
+    style={{ color: 'var(--ns-ink)', ...style }}
+    className={`glass-input w-full border ${
+      error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
+    } rounded-[10px] px-3.5 py-2.5 text-xs focus:outline-none transition-all ${className}`}
   >
     {children}
   </select>
@@ -705,10 +705,10 @@ export const TextareaInput: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaEl
 }) => (
   <textarea
     {...props}
-    style={{ backgroundColor: 'var(--ns-surface-2)', color: 'var(--ns-ink)', ...style }}
-    className={`w-full border ${
-      error ? 'border-red-500' : 'border-[var(--ns-line)]'
-    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none focus:border-[#B18A55] focus:ring-2 focus:ring-[#B18A55]/15 transition-all ${className}`}
+    style={{ color: 'var(--ns-ink)', ...style }}
+    className={`glass-input w-full border ${
+      error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
+    } rounded-[10px] px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none transition-all ${className}`}
   />
 );
 
@@ -747,13 +747,13 @@ export const ToastContainer: React.FC = () => {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className="flex items-start gap-3 p-3.5 rounded-lg bg-white border border-slate-200 shadow-xl text-xs font-medium"
+          className="glass-strong flex items-start gap-3 p-3.5 rounded-lg text-xs font-medium"
         >
           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
             t.type === 'success' ? 'bg-emerald-500' : t.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
           }`} />
-          <span className="flex-1 text-slate-800">{t.message}</span>
-          <button onClick={() => remove(t.id)} className="text-slate-400 hover:text-slate-600 shrink-0">
+          <span className="flex-1" style={{ color: 'var(--ns-ink)' }}>{t.message}</span>
+          <button onClick={() => remove(t.id)} className="shrink-0" style={{ color: 'var(--ns-muted)' }}>
             <X size={14} />
           </button>
         </div>

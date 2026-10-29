@@ -111,10 +111,10 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-[var(--ns-line)] transition-all duration-300 ease-in-out ${
+      className={`flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-[var(--ns-glass-line)] backdrop-blur-2xl transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'w-[246px] px-3.5 py-4' : 'w-[68px] px-2 py-4'
       }`}
-      style={{ backgroundColor: 'var(--ns-surface)' }}
+      style={{ backgroundColor: 'var(--ns-glass-2)' }}
     >
       <div className="flex min-h-full flex-col">
         {/* Brand Header */}
@@ -153,7 +153,7 @@ export const Sidebar: React.FC = () => {
                 {section.title}
               </div>
             ) : sIdx > 0 ? (
-              <div className="my-2 border-t border-[var(--ns-line)] mx-1" />
+              <div className="my-2 border-t border-[var(--ns-glass-line)] mx-1" />
             ) : null}
 
             <div className="space-y-1">
@@ -170,7 +170,7 @@ export const Sidebar: React.FC = () => {
                     } ${
                       isActive
                         ? 'bg-gradient-to-r from-[#173c4d] to-[#0f2834] text-white shadow-sm border border-[#c59a58]/40'
-                        : 'hover:bg-[var(--ns-surface-2)] text-slate-500 hover:text-[var(--ns-ink)]'
+                        : 'hover:bg-[var(--ns-glass-1)] text-slate-500 hover:text-[var(--ns-ink)]'
                     }`
                   }
                 >
@@ -212,8 +212,8 @@ export const Sidebar: React.FC = () => {
           {sidebarOpen ? (
             <div className="space-y-3">
               <div
-                className="flex items-center gap-2.5 rounded-2xl border border-[var(--ns-line)] p-2.5 shadow-xs"
-                style={{ backgroundColor: 'var(--ns-surface)' }}
+                className="flex items-center gap-2.5 rounded-2xl border border-[var(--ns-glass-line)] p-2.5 shadow-xs"
+                style={{ backgroundColor: 'var(--ns-glass-2)' }}
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#174b59] to-[#0e3440] text-[10px] font-black text-white shadow-2xs">
                   {initials}
@@ -228,7 +228,7 @@ export const Sidebar: React.FC = () => {
                 </div>
               </div>
               <div
-                className="border-t border-[var(--ns-line)] pt-2.5 text-[9px] leading-4"
+                className="border-t border-[var(--ns-glass-line)] pt-2.5 text-[9px] leading-4"
                 style={{ color: 'var(--ns-muted)' }}
               >
                 <div className="font-black uppercase tracking-[.14em]" style={{ color: 'var(--ns-ink)' }}>

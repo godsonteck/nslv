@@ -299,7 +299,7 @@ export const FrontDeskPage: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 animate-in fade-in duration-300">
       {/* ── Editorial Front Desk Header ── */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#c59a58]/35 bg-gradient-to-r from-[#0c151c] via-[#111e28] to-[#0a1218] p-7 sm:p-9 text-white shadow-[0_16px_40px_rgba(10,18,24,0.35)]">
+      <div className="glass-dark relative overflow-hidden rounded-3xl p-7 sm:p-9 text-white">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">

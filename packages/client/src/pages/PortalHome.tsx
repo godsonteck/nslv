@@ -28,46 +28,56 @@ export const PortalHome: React.FC = () => {
 
   return (
     <div className="max-w-5xl space-y-6">
-      <section className="bg-[#151C28] border border-[#2D3748] rounded-2xl p-6 md:p-8">
+      <section className="glass-strong relative overflow-hidden rounded-3xl p-6 md:p-8">
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-[#8C2D19]/20 text-[#E2B768]">{portal.icon}</div>
+          <div
+            className="glass-warm flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+            style={{ color: '#b88738' }}
+          >
+            {portal.icon}
+          </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#E2B768]">{role} portal</p>
-            <h1 className="mt-1 text-2xl font-bold text-[#F3F4F6]">{greeting}</h1>
-            <p className="mt-2 text-sm text-[#9CA3AF]">{portal.summary}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#b88738]">{role} portal</p>
+            <h1 className="mt-1 text-2xl font-bold" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
+            <p className="mt-2 text-sm" style={{ color: 'var(--ns-muted)' }}>{portal.summary}</p>
           </div>
         </div>
       </section>
       {portal.available.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-[#F3F4F6]">Available now</h2>
+          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Available now</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {portal.available.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="flex items-center justify-between rounded-xl border border-[#2D3748] bg-[#1C2536] p-4 text-sm text-[#F3F4F6] hover:border-[#C49A45]/60"
+                className="glass flex items-center justify-between rounded-xl p-4 text-sm transition-colors hover:border-[#c59a58]/60"
+                style={{ color: 'var(--ns-ink)' }}
               >
                 <span>{item.label}</span>
-                <ArrowRight size={16} className="text-[#E2B768]" />
+                <ArrowRight size={16} className="text-[#b88738]" />
               </Link>
             ))}
           </div>
         </section>
       )}
-      <section className="rounded-2xl border border-[#2D3748] bg-[#151C28] p-6">
+      <section className="glass rounded-2xl p-6">
         <div className="flex gap-3">
-          <AlertCircle size={18} className="mt-0.5 shrink-0 text-[#E2B768]" />
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-[#b88738]" />
           <div>
-            <h2 className="text-sm font-semibold text-[#F3F4F6]">Operational data is not connected yet</h2>
-            <p className="mt-1 text-sm text-[#9CA3AF]">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Operational data is not connected yet</h2>
+            <p className="mt-1 text-sm" style={{ color: 'var(--ns-muted)' }}>
               These workflows stay unavailable until their server APIs, permissions, and persistence are implemented. No sample figures are shown here.
             </p>
           </div>
         </div>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           {portal.pending.map((item) => (
-            <div key={item} className="flex items-center gap-2 rounded-lg border border-[#2D3748] bg-[#0F141C] p-3 text-xs text-[#9CA3AF]">
+            <div
+              key={item}
+              className="glass-subtle flex items-center gap-2 rounded-lg p-3 text-xs"
+              style={{ color: 'var(--ns-muted)' }}
+            >
               <ClipboardList size={14} />
               {item}
             </div>

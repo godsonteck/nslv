@@ -148,7 +148,7 @@ const PropertyDashboard: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 animate-in fade-in duration-300">
       {/* ── Editorial Villa Header ── */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#c59a58]/35 bg-gradient-to-r from-[#0c151c] via-[#111e28] to-[#0a1218] p-7 sm:p-9 text-white shadow-[0_16px_40px_rgba(10,18,24,0.35)]">
+      <div className="glass-dark relative overflow-hidden rounded-3xl p-7 sm:p-9 text-white">
         <div className="absolute right-0 top-0 h-full w-1/2 opacity-15 pointer-events-none mix-blend-screen">
           <img src={villaAssets.villaExterior} className="h-full w-full object-cover" alt="" />
         </div>
@@ -664,7 +664,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       )}
 
       {/* Hero Sales Card */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c1a24] via-[#102433] to-[#08121a] text-white shadow-lg border border-white/10 p-6 sm:p-8">
+      <section className="glass-dark relative overflow-hidden rounded-3xl text-white p-6 sm:p-8">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 items-center">
           <div>
             <div className="text-[11px] font-extrabold uppercase tracking-widest text-[#f5d99b]">

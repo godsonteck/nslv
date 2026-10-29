@@ -8,6 +8,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useThemeStore } from './stores/themeStore';
 import { MainLayout } from './components/layout/MainLayout';
+import { AmbientBackdrop } from './components/layout/AmbientBackdrop';
 import Login from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Spinner } from './components/ui';
@@ -85,6 +86,7 @@ const HomeRedirect: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AppInitializer>
+      <AmbientBackdrop />
       <HashRouter>
         <Routes>
         {/* Public Authentication Route */}

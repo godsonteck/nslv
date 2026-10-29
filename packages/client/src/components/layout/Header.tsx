@@ -57,8 +57,8 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-[var(--ns-line)] backdrop-blur-xl"
-      style={{ backgroundColor: 'var(--ns-surface)' }}
+      className="sticky top-0 z-40 border-b border-[var(--ns-glass-line)] backdrop-blur-2xl"
+      style={{ backgroundColor: 'var(--ns-glass-3)' }}
     >
       <div className="flex h-[70px] items-center gap-3 px-4 sm:px-6 lg:px-7">
         {/* Sidebar Toggle Button */}
@@ -66,8 +66,8 @@ export const Header: React.FC = () => {
           onClick={toggleSidebar}
           aria-label={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           title={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-all shrink-0"
-          style={{ backgroundColor: 'var(--ns-surface)' }}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-all shrink-0"
+          style={{ backgroundColor: 'var(--ns-glass-2)' }}
         >
           {sidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeft size={17} />}
         </button>
@@ -104,8 +104,8 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => { setShowThemeMenu(v => !v); setShowNotifications(false); }}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-colors"
-              style={{ backgroundColor: 'var(--ns-surface)' }}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-colors"
+              style={{ backgroundColor: 'var(--ns-glass-2)' }}
               aria-label="Theme"
               title={`Theme: ${themePreference}`}
             >
@@ -113,8 +113,8 @@ export const Header: React.FC = () => {
             </button>
             {showThemeMenu && (
               <div
-                className="absolute right-0 top-12 w-44 rounded-2xl border border-[var(--ns-line)] p-1.5 shadow-xl z-50"
-                style={{ backgroundColor: 'var(--ns-surface)' }}
+                className="absolute right-0 top-12 w-44 rounded-2xl border border-[var(--ns-glass-line)] p-1.5 shadow-xl z-50"
+                style={{ backgroundColor: 'var(--ns-glass-3)' }}
               >
                 <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
                 {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
@@ -139,8 +139,8 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative h-9 w-9 flex items-center justify-center rounded-xl border border-[var(--ns-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-colors"
-              style={{ backgroundColor: 'var(--ns-surface)' }}
+              className="relative h-9 w-9 flex items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] transition-colors"
+              style={{ backgroundColor: 'var(--ns-glass-2)' }}
               aria-label="Notifications"
               title="Notifications"
             >
@@ -156,8 +156,8 @@ export const Header: React.FC = () => {
 
           {canSettings && (
             <button
-              className="hidden h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] sm:flex transition-colors"
-              style={{ backgroundColor: 'var(--ns-surface)' }}
+              className="hidden h-9 w-9 items-center justify-center rounded-xl border border-[var(--ns-glass-line)] text-slate-500 hover:text-[var(--ns-ink)] hover:bg-[var(--ns-surface-2)] sm:flex transition-colors"
+              style={{ backgroundColor: 'var(--ns-glass-2)' }}
               onClick={() => navigate('/admin/settings')}
               aria-label="Settings"
             >
@@ -186,10 +186,10 @@ export const Header: React.FC = () => {
             </button>
             {openDropdown && (
               <div
-                className="absolute right-0 top-12 w-52 rounded-2xl border border-[var(--ns-line)] p-1.5 shadow-xl z-50"
-                style={{ backgroundColor: 'var(--ns-surface)' }}
+                className="absolute right-0 top-12 w-52 rounded-2xl border border-[var(--ns-glass-line)] p-1.5 shadow-xl z-50"
+                style={{ backgroundColor: 'var(--ns-glass-3)' }}
               >
-                <div className="border-b border-[var(--ns-line)] px-3 py-2.5">
+                <div className="border-b border-[var(--ns-glass-line)] px-3 py-2.5">
                   <div className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
                     {user ? `${user.firstName} ${user.lastName}` : 'Staff'}
                   </div>
