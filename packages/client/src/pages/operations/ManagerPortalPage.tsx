@@ -26,7 +26,10 @@ import {
   UserCheck,
   CheckCircle2,
   Sparkles,
+  BadgeCheck,
+  AlertTriangle,
 } from 'lucide-react';
+import { showToast } from '../../components/ui';
 
 export const ManagerPortalPage: React.FC = () => {
   const navigate = useNavigate();
@@ -50,6 +53,24 @@ export const ManagerPortalPage: React.FC = () => {
 
   const [activeStays, setActiveStays] = useState<any[]>([]);
   const [dirtyRooms, setDirtyRooms] = useState<any[]>([]);
+  const [clearingDebts, setClearingDebts] = useState(false);
+  const [clearResult, setClearResult] = useState<{ cleared: number; totalAmountCleared: number } | null>(null);
+
+  const handleClearPostCheckoutDebts = async () => {
+    if (!window.confirm(
+      'This will mark all post-checkout outstanding balances as fully paid, charging only the original nights-stayed amount (no late fees or extra charges).\n\nThis action cannot be undone. Proceed?'
+    )) return;
+    try {
+      setClearingDebts(true);
+      const result = await staysApi.clearPostCheckoutDebts();
+      setClearResult(result.data);
+      showToast('success', `Cleared ${result.data.cleared} post-checkout balance(s) totalling GHS ${result.data.totalAmountCleared.toFixed(2)}.`);
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Failed to clear post-checkout debts');
+    } finally {
+      setClearingDebts(false);
+    }
+  };
 
   useEffect(() => {
     const fetchManagerData = async () => {
@@ -345,6 +366,50 @@ export const ManagerPortalPage: React.FC = () => {
           </Section>
         </div>
       </div>
+
+      {/* ── Admin: Post-Checkout Debt Clearance ── */}
+      <Section
+        title="Post-Checkout Debt Clearance"
+        subtitle="One-time admin action: clears all existing post-checkout outstanding balances, charging guests only for the nights they stayed. No late fees or extra charges."
+      >
+        <div className="p-5 space-y-4">
+          <div className="rounded-xl border-2 border-[var(--ns-warning)] glass-subtle p-4 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-black text-[var(--ns-warning)] uppercase tracking-wide">
+              <AlertTriangle size={15} className="shrink-0" />
+              <span>Admin-Only Action — Irreversible</span>
+            </div>
+            <p className="text-[11px] text-[var(--ns-ink)] leading-relaxed">
+              This will find every checked-out reservation with an open outstanding balance and mark it as fully settled,
+              charging only the original <strong>reservation total</strong> (nights × room rate).
+              Any late fees or extra checkout charges are voided. A payment record is created in the audit trail.
+            </p>
+          </div>
+
+          {clearResult && (
+            <div className="rounded-xl border border-[var(--ns-success)] glass-subtle p-4 flex items-center gap-3">
+              <BadgeCheck size={20} className="text-[var(--ns-success)] shrink-0" />
+              <div className="text-xs">
+                <div className="font-black text-[var(--ns-success)]">Cleanup Complete</div>
+                <div className="text-[var(--ns-ink)] mt-0.5">
+                  {clearResult.cleared} reservation{clearResult.cleared !== 1 ? 's' : ''} cleared · Total settled: <strong>GHS {clearResult.totalAmountCleared.toFixed(2)}</strong>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearPostCheckoutDebts}
+            loading={clearingDebts}
+            disabled={clearingDebts}
+            className="gap-2 border-[var(--ns-warning)] text-[var(--ns-warning)] font-bold"
+          >
+            <BadgeCheck size={14} />
+            Clear All Post-Checkout Outstanding Balances
+          </Button>
+        </div>
+      </Section>
     </ShellPage>
   );
 };

@@ -67,8 +67,7 @@ export const FrontDeskPage: React.FC = () => {
   const [chargeLateCheckoutFee, setChargeLateCheckoutFee] = useState(false);
   const [payLateFeeNow, setPayLateFeeNow] = useState(true);
   const [lateFeeReason, setLateFeeReason] = useState('');
-  const [allowOwing, setAllowOwing] = useState(false);
-  const [owingReason, setOwingReason] = useState('');
+  // allowOwing removed — outstanding balance is now a hard block at checkout
   const [tenders, setTenders] = useState<TenderRow[]>([makeTenderRow()]);
 
   const nowFormatted = new Date().toLocaleDateString('en-GB', {
@@ -160,12 +159,7 @@ export const FrontDeskPage: React.FC = () => {
         await staysApi.checkIn({ reservationId: action.row.id, ...form });
       } else {
         const splitTenders = splitOpen ? parseTenders(tenders) : undefined;
-        const willOweLateFee = Boolean(activeLateInfo && chargeLateCheckoutFee && !payLateFeeNow);
-        const shouldAllowOwing = allowOwing || willOweLateFee;
-        const finalOwingReason = willOweLateFee
-          ? `Late checkout fee of GHS ${activeLateInfo!.fee.toFixed(2)} unpaid at checkout${owingReason ? ` · ${owingReason.trim()}` : ''}`
-          : owingReason.trim() || undefined;
-
+        // Outstanding balance is now a hard block — no allowOwing path
         await staysApi.checkOut({
           reservationId: action.row.reservationId || action.row.id,
           roomCondition: form.roomCondition,
@@ -173,11 +167,10 @@ export const FrontDeskPage: React.FC = () => {
           paymentDescription: checkoutPaymentDescription,
           notes: checkoutPaymentDescription || undefined,
           ...(activeLateInfo && !chargeLateCheckoutFee ? { lateCheckoutFeeReason: lateFeeReason.trim() || undefined } : {}),
-          ...(shouldAllowOwing ? { allowOwing: true, owingReason: finalOwingReason } : {}),
-          ...(checkoutTotal <= 0.005 ? {} : splitTenders ? { tenders: splitTenders } : (shouldAllowOwing ? { paymentMethod: 'PAY_LATER' } : { paymentMethod: form.paymentMethod })),
+          ...(checkoutTotal <= 0.005 ? {} : splitTenders ? { tenders: splitTenders } : { paymentMethod: form.paymentMethod }),
         });
       }
-      showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : allowOwing || (activeLateInfo && chargeLateCheckoutFee && !payLateFeeNow) ? 'Guest checked out with outstanding balance.' : 'Payment recorded & guest checked out.');
+      showToast('success', action.type === 'in' ? 'Guest successfully checked in!' : 'Payment recorded & guest checked out successfully.');
       setAction(null);
       void load();
     } catch (e) {
@@ -284,8 +277,7 @@ export const FrontDeskPage: React.FC = () => {
     setChargeLateCheckoutFee(false);
     setPayLateFeeNow(true);
     setLateFeeReason('');
-    setAllowOwing(false);
-    setOwingReason('');
+    // allowOwing removed
     setTenders([makeTenderRow()]);
     setAction({ type: 'out', row: stay });
     void staysApi
@@ -784,28 +776,18 @@ export const FrontDeskPage: React.FC = () => {
                 </SelectInput>
               </FormField>
 
+              {/* Hard block: Outstanding balance must be paid before checkout */}
               {checkoutTotal > 0 && (
-                <div className="rounded-xl border border-[var(--ns-warning)] glass-subtle p-3 space-y-2">
-                  <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-warning)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={allowOwing}
-                      onChange={(e) => setAllowOwing(e.target.checked)}
-                      className="h-3.5 w-3.5 accent-[var(--ns-gold)]"
-                    />
-                    <span>Allow check-out with outstanding balance (Guest owes / Pay later)</span>
-                  </label>
-                  {allowOwing && (
-                    <div className="pt-1">
-                      <FormField label="Reason or promise to pay (optional audit note)">
-                        <TextInput
-                          value={owingReason}
-                          onChange={(e) => setOwingReason(e.target.value)}
-                          placeholder="e.g., Guest will send via Mobile Money this evening"
-                        />
-                      </FormField>
-                    </div>
-                  )}
+                <div className="rounded-xl border-2 border-[var(--ns-danger)] glass-subtle p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-black text-[var(--ns-danger)] uppercase tracking-wide">
+                    <AlertTriangle size={15} className="shrink-0" />
+                    <span>Outstanding Balance — Payment Required Before Check-Out</span>
+                  </div>
+                  <p className="text-[11px] text-[var(--ns-danger)] leading-relaxed">
+                    This guest has an unpaid balance of <strong>GHS {checkoutTotal.toFixed(2)}</strong>.
+                    Full payment must be collected before check-out can be completed.
+                    Select a payment method above and confirm the amount.
+                  </p>
                 </div>
               )}
 
@@ -837,14 +819,10 @@ export const FrontDeskPage: React.FC = () => {
             <Button
               type="submit"
               loading={busy}
-              disabled={splitOpen && !allowOwing && !tendersCoverTotal(tenders, checkoutTotal)}
+              disabled={splitOpen ? !tendersCoverTotal(tenders, checkoutTotal) : false}
               className="glass text-[var(--ns-teal)] ns-glass-hover"
             >
-              {action?.type === 'in'
-                ? 'Confirm Check-In'
-                : allowOwing && (!splitOpen || !tendersCoverTotal(tenders, checkoutTotal))
-                ? 'Complete Check-Out (Owing Balance)'
-                : 'Settle & Complete Check-Out'}
+              {action?.type === 'in' ? 'Confirm Check-In' : 'Settle & Complete Check-Out'}
             </Button>
           </div>
         </form>

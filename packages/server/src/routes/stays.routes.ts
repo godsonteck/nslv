@@ -130,4 +130,15 @@ router.post('/reservations/:id/waive-late-fee', requirePermission('checkout.perf
   }
 });
 
+// Admin: clear all post-checkout outstanding debts (charges only room nights, voids extras)
+router.post('/clear-post-checkout-debts', requirePermission('settings.edit'), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const result = await StayService.clearPostCheckoutDebts(userId);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

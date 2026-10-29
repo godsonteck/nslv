@@ -600,6 +600,12 @@ export const staysApi = {
     }, token());
     return { success: true, data };
   },
+  /** Admin: clear all post-checkout debts — marks checked-out folios as paid,
+   *  only charging the original nights-stayed amount, no extra charges. */
+  clearPostCheckoutDebts: async (): Promise<{ success: true; data: { cleared: number; totalAmountCleared: number; reservationIds: string[] } }> => {
+    const data = await apiFetch<any>('/stays/clear-post-checkout-debts', { method: 'POST' }, token());
+    return { success: true, data };
+  },
 };
 
 // ──────────────────────────────────────────

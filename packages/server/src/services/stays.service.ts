@@ -359,6 +359,138 @@ export class StayService {
     return unsettledList.filter((stay) => stay.currentOwed > 0.005);
   }
 
+  /**
+   * Admin utility: clear all post-checkout outstanding debts by writing a
+   * corrective cash payment for each unsettled checked-out reservation.
+   * Only the original room total (reservation.totalAmount) is charged; any
+   * extra folio items posted at checkout (referenceType = 'CHECKOUT') are
+   * voided first so the guest is not overcharged.
+   */
+  static async clearPostCheckoutDebts(clearedBy: string): Promise<{ cleared: number; totalAmountCleared: number; reservationIds: string[] }> {
+    // 1. Find all CHECKED_OUT reservations whose folio still carries a balance
+    const reservations = await prisma.reservation.findMany({
+      where: {
+        status: 'CHECKED_OUT',
+        folios: { some: { balance: { gt: 0.005 } } },
+      },
+      include: {
+        guests: { where: { isPrimary: true } },
+        folios: {
+          where: { balance: { gt: 0.005 } },
+          include: { items: true, payments: true },
+        },
+        checkOuts: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
+
+    let cleared = 0;
+    let totalAmountCleared = 0;
+    const reservationIds: string[] = [];
+
+    for (const reservation of reservations) {
+      const folio = reservation.folios[0];
+      if (!folio) continue;
+      const primaryGuestId = reservation.guests[0]?.guestId;
+      if (!primaryGuestId) continue;
+      const checkOut = reservation.checkOuts[0];
+
+      try {
+        await prisma.$transaction(async (tx) => {
+          // a. Void extra CHECKOUT-referenceType items (late fees etc.)
+          const extraItems = folio.items.filter(
+            (i) => !i.voidedAt && i.referenceType === 'CHECKOUT' && !['PAYMENT', 'DEPOSIT'].includes(i.type),
+          );
+          for (const item of extraItems) {
+            await tx.folioItem.update({
+              where: { id: item.id },
+              data: { voidedAt: new Date(), voidReason: 'Admin cleanup: only base room charge applicable' },
+            });
+          }
+
+          // b. Calculate how much is owed (only the original room total matters)
+          const correctTotal = Number(reservation.totalAmount);
+          const alreadyPaid = folio.payments
+            .filter((p) => !p.voidedAt && p.type !== 'REFUND')
+            .reduce((sum, p) => sum + Number(p.amount), 0);
+          const remaining = Math.max(0, correctTotal - alreadyPaid);
+
+          if (remaining > 0.005) {
+            // c. Create Payment record
+            await tx.payment.create({
+              data: {
+                reservationId: reservation.id,
+                guestId: primaryGuestId,
+                folioId: folio.id,
+                amount: remaining,
+                currency: 'GHS',
+                method: 'CASH',
+                source: 'FOLIO',
+                description: 'Admin: post-checkout balance cleared — charged only for nights stayed',
+                processedBy: clearedBy,
+                status: 'COMPLETED',
+                type: 'PAYMENT',
+                idempotencyKey: 'admin-clear-' + reservation.id,
+              },
+            });
+
+            // d. Create FolioItem payment entry
+            await tx.folioItem.create({
+              data: {
+                type: 'PAYMENT',
+                description: 'Admin: post-checkout balance cleared',
+                amount: new Prisma.Decimal(-remaining),
+                quantity: 1,
+                unitPrice: new Prisma.Decimal(remaining),
+                department: 'FRONT_DESK',
+                referenceType: 'ADMIN_CLEAR',
+                postedBy: clearedBy,
+                folioId: folio.id,
+              },
+            });
+          }
+
+          // e. Close the folio
+          await tx.folio.update({
+            where: { id: folio.id },
+            data: { status: 'CLOSED', balance: 0, closedAt: new Date() },
+          });
+
+          // f. Update checkout finalBalance
+          if (checkOut) {
+            await tx.checkOut.update({
+              where: { id: checkOut.id },
+              data: {
+                finalBalance: 0,
+                notes: checkOut.notes
+                  ? checkOut.notes + ' | Admin: balance cleared, only room nights charged'
+                  : 'Admin: balance cleared, only room nights charged',
+              },
+            });
+          }
+
+          // g. Audit log
+          await AuditService.logInTransaction(tx, {
+            userId: clearedBy,
+            action: 'admin.post_checkout_debt_cleared',
+            resource: 'reservation',
+            resourceId: reservation.id,
+            afterData: { folioId: folio.id, remaining, correctTotal, alreadyPaid },
+          });
+        });
+
+        cleared++;
+        totalAmountCleared += Math.max(0, Number(reservation.totalAmount) -
+          folio.payments.filter((p) => !p.voidedAt && p.type !== 'REFUND').reduce((sum, p) => sum + Number(p.amount), 0));
+        reservationIds.push(reservation.id);
+      } catch (_err) {
+        // One failure must not abort the rest — log and continue
+        console.error(`[clearPostCheckoutDebts] Failed for reservation ${reservation.id}:`, _err);
+      }
+    }
+
+    return { cleared, totalAmountCleared, reservationIds };
+  }
+
   /** Execute Check-In workflow */
   static async checkInGuest(data: CheckInDTO) {
     try {
@@ -818,7 +950,7 @@ export class StayService {
         if (finalBalance > 0) {
           const tenders = data.tenders?.length
             ? data.tenders
-            : !data.allowOwing && data.paymentMethod?.trim() && data.paymentMethod !== 'PAY_LATER'
+            : data.paymentMethod?.trim() && data.paymentMethod !== 'PAY_LATER'
             ? [{ method: data.paymentMethod, amount: finalBalance }]
             : [];
           const tendersTotal = tenders.reduce((sum, t) => sum.plus(new Prisma.Decimal(t.amount)), new Prisma.Decimal(0));
@@ -828,8 +960,8 @@ export class StayService {
           }
 
           if (tenders.length > 0) {
-            if (!tendersTotal.eq(new Prisma.Decimal(finalBalance)) && !data.allowOwing) {
-              throw new AppError(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the outstanding balance (${finalBalance.toFixed(2)}). Check "Guest owes balance" to proceed with partial settlement.`, 422, 'TENDER_MISMATCH');
+            if (!tendersTotal.eq(new Prisma.Decimal(finalBalance))) {
+              throw new AppError(`Tender amounts (${tendersTotal.toFixed(2)}) must equal the outstanding balance (${finalBalance.toFixed(2)}).`, 422, 'TENDER_MISMATCH');
             }
             if (!folio) throw new AppError('An open folio is required to settle this stay.', 409, 'OPEN_FOLIO_REQUIRED');
             const checkoutPaymentIdempotencyKey = data.idempotencyKey || `checkout-payment-${reservation.id}`;
@@ -875,18 +1007,18 @@ export class StayService {
               paymentType: isFullPayment ? 'PAYMENT' : 'DEPOSIT',
             });
             finalBalance = new Prisma.Decimal(finalBalance).minus(tendersTotal).toNumber();
-          } else if (!data.allowOwing && data.paymentMethod !== 'PAY_LATER') {
-            throw new AppError('Select a payment method to settle the outstanding balance, or select "Guest owes balance" to complete check-out.', 422, 'PAYMENT_METHOD_REQUIRED');
+          } else {
+            throw new AppError(
+              `Guest has an outstanding balance of GHS ${finalBalance.toFixed(2)}. Full payment is required before check-out. Please collect the full amount or add a payment before proceeding.`,
+              422,
+              'OUTSTANDING_BALANCE_REQUIRED',
+            );
           }
         } else if (finalBalance < 0) {
           throw new AppError(`Folio has a guest credit of GHS ${Math.abs(finalBalance).toFixed(2)}. Process the refund before check-out.`, 409, 'GUEST_CREDIT_UNSETTLED');
         }
 
-        const isSettled = finalBalance <= 0.005;
-        const owingNote = finalBalance > 0.005
-          ? `Guest checked out owing GHS ${finalBalance.toFixed(2)}${data.owingReason ? ` (Note: ${data.owingReason})` : ''}`
-          : null;
-
+        // After payment, finalBalance should be 0 (hard block enforces full settlement)
         // Create CheckOut record
         const checkOut = await tx.checkOut.create({
           data: {
@@ -897,7 +1029,7 @@ export class StayService {
             roomCondition: (data.roomCondition as RoomCondition) || RoomCondition.DIRTY,
             finalBalance,
             paymentMethod: (data.paymentMethod as PaymentMethod) || (data.tenders?.[0]?.method as PaymentMethod) || null,
-            notes: [data.notes, lateFeeWaivedNote, owingNote].filter(Boolean).join(' | ') || null,
+            notes: [data.notes, lateFeeWaivedNote].filter(Boolean).join(' | ') || null,
           },
         });
 
@@ -913,13 +1045,13 @@ export class StayService {
           data: { status: data.roomCondition === 'DAMAGED' ? RoomStatus.MAINTENANCE : data.roomCondition === 'DIRTY' ? RoomStatus.DIRTY : RoomStatus.AVAILABLE },
         });
 
-        // Close Folio if fully settled; keep OPEN if guest owes money!
+        // Close Folio — balance is always settled at this point (hard block above)
         if (folio) {
           await tx.folio.update({
             where: { id: folio.id },
             data: {
-              status: isSettled ? FolioStatus.CLOSED : FolioStatus.OPEN,
-              closedAt: isSettled ? new Date() : null,
+              status: FolioStatus.CLOSED,
+              closedAt: new Date(),
               balance: new Prisma.Decimal(finalBalance),
             },
           });
