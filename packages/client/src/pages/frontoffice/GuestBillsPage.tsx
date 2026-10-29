@@ -119,26 +119,30 @@ export const computeBillSummary = (stay: BillStay, folio: any) => {
     (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()),
   );
   const chargesSum = items.reduce((s: number, i: any) => s + money(i.amount), 0);
+  const lateFeeItems = items.filter(
+    (i: any) => i.referenceType === 'CHECKOUT' || /late checkout/i.test(i.description || ''),
+  );
+  const lateFeeAmount = lateFeeItems.reduce((s: number, i: any) => s + money(i.amount), 0);
+  const baseRoomAmount = (stay as any).baseRoomAmount !== undefined
+    ? Number((stay as any).baseRoomAmount)
+    : money((stay as any).reservation?.totalAmount);
 
-  // 4. Current Balance Owed (Reconciled)
-  const rawBalance = stay.currentOwed !== undefined ? Number(stay.currentOwed) : money(folio?.balance);
-  let balance = rawBalance;
-  if (chargesSum > 0) {
-    balance = Math.max(0, chargesSum - totalPaid);
-  } else if (balance <= 0.005) {
-    balance = 0;
-  }
-
-  // 5. Total Billed (Supposed to Pay)
-  // Must ALWAYS satisfy: totalBilled = totalPaid + balance
-  const totalBilled = chargesSum > 0
-    ? Math.max(chargesSum, totalPaid + balance)
+  // 4. Total Billed (Supposed to Pay)
+  let totalBilled = chargesSum > 0
+    ? chargesSum
     : stay.totalBilled !== undefined
-    ? Math.max(Number(stay.totalBilled), totalPaid + balance)
-    : Math.max(totalPaid + balance, money((stay as any).reservation?.totalAmount));
+    ? Number(stay.totalBilled)
+    : Math.max(totalPaid, baseRoomAmount + lateFeeAmount);
 
-  if (totalBilled >= totalPaid) {
-    balance = Number((totalBilled - totalPaid).toFixed(2));
+  // 5. Current Balance Owed (Reconciled)
+  // Must ALWAYS satisfy: totalBilled = totalPaid + balance
+  let balance = stay.currentOwed !== undefined && chargesSum === 0
+    ? Number(stay.currentOwed)
+    : Math.max(0, Number((totalBilled - totalPaid).toFixed(2)));
+
+  totalBilled = Math.max(totalBilled, totalPaid + balance);
+  if (totalPaid >= totalBilled) {
+    balance = 0;
   }
 
   return {
@@ -152,6 +156,9 @@ export const computeBillSummary = (stay: BillStay, folio: any) => {
     cardPaid,
     bankPaid,
     balance,
+    baseRoomAmount,
+    lateFeeAmount,
+    hasLateCheckout: lateFeeAmount > 0,
   };
 };
 
@@ -998,6 +1005,30 @@ export const GuestBillsPage: React.FC = () => {
                 onChange={(e) => setPayDesc(e.target.value)}
                 placeholder="e.g. Payment for: Room Accommodation, Late checkout fee"
               />
+              <div className="flex flex-wrap gap-1 mt-1 text-[10px]">
+                <span className="text-[9.5px] text-slate-400 self-center font-bold">Quick set:</span>
+                <button
+                  type="button"
+                  onClick={() => setPayDesc('Payment for Late checkout fee')}
+                  className="rounded bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-1.5 py-0.5 font-bold transition"
+                >
+                  ⏱ Late Checkout
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPayDesc('Payment for Room Accommodation / Stay')}
+                  className="rounded bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 px-1.5 py-0.5 font-bold transition"
+                >
+                  🏨 Room Stay
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPayDesc('Full post-checkout debt clearance')}
+                  className="rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 font-bold transition"
+                >
+                  ✓ Full Clearance
+                </button>
+              </div>
             </FormField>
 
             <FormField label="Payment Amount (GHS)" required>

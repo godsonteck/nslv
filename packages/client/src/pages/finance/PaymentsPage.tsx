@@ -426,6 +426,21 @@ export const PaymentsPage: React.FC = () => {
     }
   };
 
+  const handleWaiveLateFee = async (reservationId: string, amount: number) => {
+    if (!window.confirm(`Are you sure you want to remove and waive the Late Check-Out Fee of ${formatCurrency(amount)} from this guest's folio? This will restore the bill to the true reservation total.`)) return;
+    try {
+      setBusy(true);
+      await staysApi.waiveLateFee(reservationId, 'Removed by staff from payment modal');
+      showToast('success', 'Late check-out fee removed and folio balance updated successfully.');
+      setOpen(false);
+      void load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to waive late check-out fee');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submitRefund = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!refundTarget) return;
@@ -1141,9 +1156,19 @@ export const PaymentsPage: React.FC = () => {
                       Folio Charges Itemization — What is in this bill
                     </span>
                     {selectedBillBreakdown.hasLateCheckout && (
-                      <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9.5px] font-black text-amber-800 dark:text-amber-300 uppercase">
-                        ⏱ Late checkout fee included
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9.5px] font-black text-amber-800 dark:text-amber-300 uppercase">
+                          ⏱ Late checkout fee included
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleWaiveLateFee(selectedStay.reservationId || selectedStay.id, selectedBillBreakdown.lateFeeCharges)}
+                          className="rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 dark:bg-rose-950/60 dark:hover:bg-rose-900 dark:text-rose-300 px-2.5 py-0.5 text-[10px] font-extrabold border border-rose-300 dark:border-rose-700 transition flex items-center gap-1 shadow-xs"
+                          title="Void and remove this late checkout charge from the folio"
+                        >
+                          <Trash2 size={11} /> Remove / Waive Late Fee
+                        </button>
+                      </div>
                     )}
                   </div>
                   <div className="divide-y divide-[var(--ns-line)] text-xs">

@@ -244,39 +244,53 @@ export class StayService {
 
       // 2. Charges posted to folio
       const nonVoidedCharges = (folio?.items || []).filter(
-        (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(i.type),
+        (i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()),
       );
       const chargesSum = nonVoidedCharges.reduce((sum, i) => sum + Number(i.amount), 0);
 
-      // 3. True Current Balance Owed (Reconciled)
-      const rawFolioBalance = Number(folio?.balance ?? 0);
-      const coFinalBalance = Number(checkOut?.finalBalance ?? 0);
-
-      let currentOwed = 0;
-      if (chargesSum > 0) {
-        currentOwed = Math.max(0, chargesSum - totalPaid);
-      } else if (rawFolioBalance > 0.005) {
-        currentOwed = rawFolioBalance;
-      } else if (Number(res.totalAmount || 0) > totalPaid) {
-        currentOwed = Math.max(0, Number(res.totalAmount || 0) - totalPaid);
-      } else if (coFinalBalance > 0.005) {
-        currentOwed = coFinalBalance;
-      }
-
-      if (coFinalBalance > currentOwed) {
-        currentOwed = coFinalBalance;
-      }
-
-      // 4. Supposed to Pay (Total Bill)
-      // Must ALWAYS satisfy: totalBilled = totalPaid + currentOwed
-      const totalBilled = Math.max(
-        chargesSum,
-        Number(res.totalAmount || 0),
-        totalPaid + currentOwed,
+      // Separate Late Check-Out fees from Room & Extras
+      const lateFeeItems = nonVoidedCharges.filter(
+        (i: any) =>
+          i.referenceType === 'CHECKOUT' ||
+          (i.description && i.description.toLowerCase().includes('late checkout')),
       );
+      const lateFeeAmount = lateFeeItems.reduce((sum, i) => sum + Number(i.amount), 0);
+      const roomCharges = nonVoidedCharges
+        .filter((i: any) => !lateFeeItems.includes(i) && (i.type === 'ACCOMMODATION' || !i.category || i.category === 'ACCOMMODATION'))
+        .reduce((sum, i) => sum + Number(i.amount), 0);
+      const baseRoomAmount = roomCharges > 0 ? roomCharges : Number(res.totalAmount || 0);
+      const otherCharges = nonVoidedCharges
+        .filter((i: any) => !lateFeeItems.includes(i) && i.type !== 'ACCOMMODATION' && i.category && i.category !== 'ACCOMMODATION')
+        .reduce((sum, i) => sum + Number(i.amount), 0);
 
-      if (totalBilled >= totalPaid) {
-        currentOwed = Number((totalBilled - totalPaid).toFixed(2));
+      // 3. True Current Balance Owed (Reconciled)
+      const coFinalBalance = Number(checkOut?.finalBalance ?? 0);
+      const postCheckoutPaid = Math.max(0, totalPaid - paidAtCheckout);
+
+      let totalBilled = 0;
+      if (chargesSum > 0) {
+        totalBilled = Math.max(chargesSum, baseRoomAmount + lateFeeAmount + otherCharges);
+      } else if (coFinalBalance > 0.005) {
+        totalBilled = Math.max(Number(res.totalAmount || 0), paidAtCheckout + coFinalBalance);
+      } else {
+        totalBilled = Math.max(Number(res.totalAmount || 0), totalPaid);
+      }
+
+      // Remaining debt is strictly what has not been paid
+      let currentOwed = Math.max(0, Number((totalBilled - totalPaid).toFixed(2)));
+
+      // If folio had no charges recorded but checkout recorded a finalBalance,
+      // checkout balance is reduced by any post-checkout payment
+      if (chargesSum === 0 && coFinalBalance > 0.005) {
+        const remainingCheckoutDebt = Math.max(0, Number((coFinalBalance - postCheckoutPaid).toFixed(2)));
+        currentOwed = Math.max(currentOwed, remainingCheckoutDebt);
+        totalBilled = Math.max(totalBilled, totalPaid + currentOwed);
+      }
+
+      // Supposed to pay (totalBilled) must ALWAYS equal totalPaid + currentOwed
+      totalBilled = Math.max(totalBilled, totalPaid + currentOwed);
+      if (totalPaid >= totalBilled) {
+        currentOwed = 0;
       }
 
       return {
@@ -298,6 +312,11 @@ export class StayService {
         paidAtCheckout,
         totalPaid,
         currentOwed,
+        baseRoomAmount,
+        lateFeeAmount,
+        otherCharges,
+        hasLateCheckoutFee: lateFeeAmount > 0,
+        checkOutId: checkOut?.id,
         cashPaid,
         momoPaid,
         cardPaid,
@@ -1250,6 +1269,89 @@ export class StayService {
         message: 'Late check-out details and fee removed successfully.',
         voidedFeeTotal,
         adjustedCheckOut: onTimeDeadline,
+      };
+    });
+  }
+
+  /**
+   * Waive or remove a late check-out fee by reservationId
+   * Voids late fee folio items, updates checkout record notes, recalculates folio balance.
+   */
+  static async waiveOrRemoveLateFee(reservationId: string, userId: string, reason?: string) {
+    return prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.findUnique({
+        where: { id: reservationId },
+        include: {
+          folios: { include: { items: true } },
+          checkOuts: true,
+        },
+      });
+
+      if (!reservation) throw new AppError('Reservation not found.', 404, 'RESERVATION_NOT_FOUND');
+
+      const voidReason = reason?.trim() || 'Waived / Removed by staff (Late check-out fee cancelled)';
+      let voidedFeeTotal = 0;
+
+      for (const folio of reservation.folios) {
+        const lateItems = folio.items.filter(
+          (item) =>
+            !item.voidedAt &&
+            (item.referenceType === 'CHECKOUT' ||
+              (item.description && item.description.toLowerCase().includes('late'))),
+        );
+
+        for (const item of lateItems) {
+          await tx.folioItem.update({
+            where: { id: item.id },
+            data: {
+              voidedAt: new Date(),
+              voidedBy: userId,
+              voidReason,
+            },
+          });
+          voidedFeeTotal += Number(item.amount || 0);
+        }
+
+        // Recalculate folio balance
+        const updatedBalance = await tx.folioItem.aggregate({
+          where: { folioId: folio.id, voidedAt: null },
+          _sum: { amount: true },
+        });
+        await tx.folio.update({
+          where: { id: folio.id },
+          data: { balance: new Prisma.Decimal(updatedBalance._sum.amount || 0) },
+        });
+      }
+
+      // Reset checkout departure to on-time deadline if checkOut exists
+      const checkoutTimeSetting = await tx.systemSetting.findUnique({ where: { key: 'villa.checkout_time' } });
+      const checkoutTime = checkoutTimeSetting ? String(JSON.parse(checkoutTimeSetting.value) || '12:00') : '12:00';
+      const onTimeDeadline = this.stayBoundary(reservation.checkOutDate, checkoutTime);
+
+      for (const co of reservation.checkOuts) {
+        await tx.checkOut.update({
+          where: { id: co.id },
+          data: {
+            actualCheckOut: onTimeDeadline,
+            notes: co.notes
+              ? `${co.notes} | Late fee waived: ${voidReason}`
+              : `Late fee waived: ${voidReason}`,
+          },
+        });
+      }
+
+      await AuditService.logInTransaction(tx, {
+        userId,
+        action: 'stay.late_fee_waived',
+        resource: 'reservation',
+        resourceId: reservationId,
+        afterData: { voidedFeeTotal, voidReason },
+      });
+
+      return {
+        success: true,
+        message: `Late check-out fee of GHS ${voidedFeeTotal.toFixed(2)} removed successfully.`,
+        voidedFeeTotal,
       };
     });
   }

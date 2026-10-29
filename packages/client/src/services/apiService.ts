@@ -539,6 +539,10 @@ export const staysApi = {
     const data = await apiFetch<{ adjustedCount: number; hourlyRate: number; checkoutTime: string; totalCheckOuts: number }>('/stays/recalculate-late-fees', { method: 'POST' }, token());
     return { success: true, data };
   },
+  waiveLateFee: async (reservationId: string, reason?: string): Promise<{ success: true; data: any }> => {
+    const data = await apiFetch<any>(`/stays/reservations/${reservationId}/waive-late-fee`, { method: 'POST', body: JSON.stringify({ reason }) }, token());
+    return { success: true, data };
+  },
   getLateCheckouts: async (params?: { startDate?: string; endDate?: string; search?: string }): Promise<{
     success: true;
     data: {

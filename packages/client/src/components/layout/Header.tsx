@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
@@ -57,8 +57,7 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-[var(--ns-glass-line)] backdrop-blur-2xl"
-      style={{ backgroundColor: 'var(--ns-glass-3)' }}
+      className="ns-glass-bar sticky top-0 z-40 border-b border-[var(--ns-glass-line)]"
     >
       <div className="flex h-[70px] items-center gap-3 px-4 sm:px-6 lg:px-7">
         {/* Sidebar Toggle Button */}
@@ -113,8 +112,7 @@ export const Header: React.FC = () => {
             </button>
             {showThemeMenu && (
               <div
-                className="absolute right-0 top-12 w-44 rounded-2xl border border-[var(--ns-glass-line)] p-1.5 shadow-xl z-50"
-                style={{ backgroundColor: 'var(--ns-glass-3)' }}
+                className="glass-strong absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5"
               >
                 <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
                 {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
@@ -186,8 +184,7 @@ export const Header: React.FC = () => {
             </button>
             {openDropdown && (
               <div
-                className="absolute right-0 top-12 w-52 rounded-2xl border border-[var(--ns-glass-line)] p-1.5 shadow-xl z-50"
-                style={{ backgroundColor: 'var(--ns-glass-3)' }}
+                className="glass-strong absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5"
               >
                 <div className="border-b border-[var(--ns-glass-line)] px-3 py-2.5">
                   <div className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>

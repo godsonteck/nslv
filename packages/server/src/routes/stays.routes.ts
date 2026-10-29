@@ -117,4 +117,17 @@ router.delete('/late-checkouts/:id', requirePermission('settings.edit'), async (
   }
 });
 
+// Waive or remove late checkout fee by reservationId
+router.post('/reservations/:id/waive-late-fee', requirePermission('checkout.perform'), async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const reservationId = Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!;
+    const { reason } = req.body || {};
+    const result = await StayService.waiveOrRemoveLateFee(reservationId, userId, reason);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
