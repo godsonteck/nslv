@@ -23,15 +23,15 @@
   --font-body: "DM Sans", system-ui, sans-serif;
 
   /* Frosted Glass Foundation (Light Mode) */
-  --ns-glass-1: rgba(238, 250, 252, 0.32);
-  --ns-glass-2: rgba(248, 253, 254, 0.44);
-  --ns-glass-3: rgba(255, 255, 255, 0.58);
-  --ns-glass-line: rgba(255, 255, 255, 0.68);
-  --ns-glass-line-soft: rgba(24, 79, 96, 0.20);
-  --ns-glass-border-outer: rgba(24, 79, 96, 0.28);
-  --ns-glass-blur: 26px;
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(135%) brightness(1.08);
-  --ns-glass-hover: rgba(255, 255, 255, 0.52);
+  --ns-glass-1: rgba(240, 253, 255, 0.07);
+  --ns-glass-2: rgba(249, 254, 255, 0.12);
+  --ns-glass-3: rgba(255, 255, 255, 0.18);
+  --ns-glass-line: rgba(255, 255, 255, 0.62);
+  --ns-glass-line-soft: rgba(24, 79, 96, 0.18);
+  --ns-glass-border-outer: rgba(24, 79, 96, 0.30);
+  --ns-glass-blur: 32px;
+  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(145%) brightness(1.1);
+  --ns-glass-hover: rgba(255, 255, 255, 0.16);
   --ns-glass-shadow:
     0 14px 32px -14px rgba(13, 66, 82, 0.30),
     0 2px 6px -1px rgba(13, 66, 82, 0.10),
@@ -74,15 +74,15 @@ html[data-theme="dark"], html.dark {
   --ns-purple: #c084fc;
 
   /* Frosted Glass Foundation (Dark Mode) */
-  --ns-glass-1: rgba(7, 33, 45, 0.34);
-  --ns-glass-2: rgba(8, 39, 53, 0.48);
-  --ns-glass-3: rgba(12, 48, 62, 0.62);
-  --ns-glass-line: rgba(211, 245, 250, 0.26);
-  --ns-glass-line-soft: rgba(211, 245, 250, 0.13);
+  --ns-glass-1: rgba(7, 33, 45, 0.08);
+  --ns-glass-2: rgba(8, 39, 53, 0.14);
+  --ns-glass-3: rgba(12, 48, 62, 0.20);
+  --ns-glass-line: rgba(211, 245, 250, 0.36);
+  --ns-glass-line-soft: rgba(211, 245, 250, 0.16);
   --ns-glass-border-outer: rgba(0, 0, 0, 0.5);
-  --ns-glass-blur: 28px;
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(135%) brightness(1.08);
-  --ns-glass-hover: rgba(176, 229, 240, 0.16);
+  --ns-glass-blur: 34px;
+  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(145%) brightness(1.08);
+  --ns-glass-hover: rgba(176, 229, 240, 0.14);
   --ns-glass-shadow:
     0 14px 40px -4px rgba(0, 0, 0, 0.6),
     0 4px 10px -2px rgba(0, 0, 0, 0.4),
@@ -236,67 +236,94 @@ html[data-theme="dark"], html.dark {
   }
 
   .glass {
-    background: var(--ns-glass-1);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.05));
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--skeuo-card-shadow);
+    box-shadow: var(--skeuo-card-shadow), var(--skeuo-bevel-bottom);
   }
 
   .glass-strong {
-    background: var(--ns-glass-2);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), var(--ns-glass-2) 48%, rgba(135, 211, 224, 0.08));
     border: 1px solid var(--ns-glass-line);
     box-shadow: var(--skeuo-card-shadow);
   }
 
   .glass-subtle {
-    background: color-mix(in srgb, var(--ns-glass-1) 68%, transparent);
+    background: color-mix(in srgb, var(--ns-glass-1) 54%, transparent);
     border: 1px solid var(--ns-glass-line-soft);
     box-shadow: 0 4px 16px -2px rgba(12, 24, 32, 0.05), var(--skeuo-specular);
   }
 
   .glass-dark {
-    background: rgba(8, 14, 24, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    background: rgba(8, 27, 38, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    box-shadow: 0 16px 40px rgba(0, 42, 55, 0.25), var(--skeuo-specular);
   }
 
   .glass-warm {
-    background: rgba(198, 237, 241, 0.30);
+    background: rgba(198, 237, 241, 0.07);
     border: 1px solid rgba(31, 116, 139, 0.30);
     box-shadow: 0 8px 24px rgba(18, 94, 112, 0.12), var(--skeuo-specular);
   }
   html[data-theme="dark"] .glass-warm, html.dark .glass-warm {
-    background: rgba(9, 44, 57, 0.38);
+    background: rgba(9, 44, 57, 0.10);
     border: 1px solid rgba(107, 201, 220, 0.25);
   }
 
   .ns-card {
     border-radius: 20px;
-    background: var(--ns-glass-1);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.05));
     border: 1px solid var(--ns-glass-line);
     box-shadow: var(--skeuo-card-shadow);
   }
 
   .ns-card-soft {
     border-radius: 16px;
-    background: var(--ns-glass-1);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), var(--ns-glass-1) 55%, rgba(135, 211, 224, 0.04));
     border: 1px solid var(--ns-glass-line-soft);
     box-shadow: var(--skeuo-card-shadow);
   }
 
   .ns-glass-bar {
-    background: var(--ns-glass-2);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), var(--ns-glass-2) 55%, rgba(129, 205, 219, 0.06));
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     border-bottom: 1px solid var(--ns-glass-line);
-    box-shadow: 0 4px 20px -2px rgba(12, 24, 32, 0.06), var(--skeuo-specular);
+    box-shadow: 0 5px 18px -9px rgba(10, 64, 80, 0.35), var(--skeuo-specular), var(--skeuo-bevel-bottom);
   }
 
   .ns-glass-bar-soft {
-    background: var(--ns-glass-1);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), var(--ns-glass-1) 62%, rgba(106, 191, 208, 0.04));
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     border-right: 1px solid var(--ns-glass-line);
-    box-shadow: 4px 0 20px -2px rgba(12, 24, 32, 0.04), var(--skeuo-specular);
+    box-shadow: 5px 0 22px -12px rgba(10, 64, 80, 0.42), var(--skeuo-specular), inset -1px 0 rgba(7, 65, 82, 0.12);
+  }
+
+  /* The application rail is a single frosted, raised object rather than a flat column. */
+  aside.ns-glass-bar-soft {
+    border-right-color: rgba(255, 255, 255, 0.54);
+    box-shadow:
+      7px 0 26px -16px rgba(10, 64, 80, 0.50),
+      inset 1px 0 0 rgba(255, 255, 255, 0.42),
+      inset -1px 0 0 rgba(8, 66, 83, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  }
+
+  html[data-theme="dark"] .glass,
+  html.dark .glass,
+  html[data-theme="dark"] .ns-card,
+  html.dark .ns-card {
+    background: linear-gradient(145deg, rgba(202, 243, 249, 0.12), var(--ns-glass-1) 48%, rgba(38, 146, 166, 0.05));
+  }
+  html[data-theme="dark"] .glass-strong,
+  html.dark .glass-strong,
+  html[data-theme="dark"] .ns-glass-bar,
+  html.dark .ns-glass-bar {
+    background: linear-gradient(180deg, rgba(202, 243, 249, 0.14), var(--ns-glass-2) 55%, rgba(38, 146, 166, 0.07));
+  }
+  html[data-theme="dark"] .ns-glass-bar-soft,
+  html.dark .ns-glass-bar-soft {
+    background: linear-gradient(90deg, rgba(202, 243, 249, 0.10), var(--ns-glass-1) 62%, rgba(38, 146, 166, 0.05));
   }
 
   .ns-glass-band {
@@ -306,12 +333,12 @@ html[data-theme="dark"], html.dark {
   }
 
   .ns-scrim {
-    background: rgba(12, 24, 36, 0.45);
+    background: rgba(12, 24, 36, 0.22);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
   html[data-theme="dark"] .ns-scrim, html.dark .ns-scrim {
-    background: rgba(3, 7, 12, 0.65);
+    background: rgba(3, 7, 12, 0.30);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
@@ -328,7 +355,7 @@ html[data-theme="dark"], html.dark {
 
   /* Primary Tactile Button */
   .skeuo-btn-primary {
-    background: linear-gradient(180deg, #23869b 0%, #176f84 48%, #105b6e 100%) !important;
+    background: linear-gradient(180deg, rgba(50, 154, 176, 0.30) 0%, rgba(23, 111, 132, 0.22) 48%, rgba(16, 91, 110, 0.28) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #0b4c5d !important;
     box-shadow:
@@ -340,7 +367,7 @@ html[data-theme="dark"], html.dark {
     font-weight: 700 !important;
   }
   .skeuo-btn-primary:hover:not(:disabled) {
-    background: linear-gradient(180deg, #319ab0 0%, #1b7d93 48%, #12677b 100%) !important;
+    background: linear-gradient(180deg, rgba(70, 171, 192, 0.42) 0%, rgba(27, 125, 147, 0.32) 48%, rgba(18, 103, 123, 0.38) 100%) !important;
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.55),
@@ -355,7 +382,7 @@ html[data-theme="dark"], html.dark {
   }
 
   html[data-theme="dark"] .skeuo-btn-primary, html.dark .skeuo-btn-primary {
-    background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important;
+    background: linear-gradient(180deg, rgba(14, 165, 233, 0.30) 0%, rgba(3, 105, 161, 0.22) 52%, rgba(7, 89, 133, 0.28) 100%) !important;
     border: 1px solid #0284c7 !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -365,7 +392,7 @@ html[data-theme="dark"], html.dark {
 
   /* Secondary Skeuomorphic Frosted Glass Button */
   .skeuo-btn-secondary {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(233, 246, 248, 0.90) 52%, rgba(207, 232, 236, 0.92) 100%) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(233, 246, 248, 0.08) 52%, rgba(207, 232, 236, 0.14) 100%) !important;
     color: var(--ns-ink) !important;
     border: 1px solid rgba(25, 87, 104, 0.28) !important;
     box-shadow:
@@ -375,7 +402,7 @@ html[data-theme="dark"], html.dark {
     font-weight: 700 !important;
   }
   .skeuo-btn-secondary:hover:not(:disabled) {
-    background: linear-gradient(180deg, #ffffff 0%, #e7f5f7 100%) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(231, 245, 247, 0.18) 100%) !important;
     border-color: var(--ns-teal) !important;
     transform: translateY(-1px);
     box-shadow:
@@ -390,7 +417,7 @@ html[data-theme="dark"], html.dark {
   }
 
   html[data-theme="dark"] .skeuo-btn-secondary, html.dark .skeuo-btn-secondary {
-    background: linear-gradient(180deg, rgba(38, 55, 75, 0.92) 0%, rgba(26, 40, 58, 0.88) 52%, rgba(18, 28, 42, 0.95) 100%) !important;
+    background: linear-gradient(180deg, rgba(65, 112, 126, 0.16) 0%, rgba(26, 70, 84, 0.10) 52%, rgba(18, 55, 68, 0.16) 100%) !important;
     color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.18) !important;
     box-shadow:
@@ -401,7 +428,7 @@ html[data-theme="dark"], html.dark {
 
   /* Accent Luxury Gold Skeuomorphic Button */
   .skeuo-btn-accent {
-    background: linear-gradient(180deg, #3b9caf 0%, #227f95 52%, #17687c 100%) !important;
+    background: linear-gradient(180deg, rgba(59, 156, 175, 0.30) 0%, rgba(34, 127, 149, 0.22) 52%, rgba(23, 104, 124, 0.28) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #125568 !important;
     box-shadow:
@@ -413,7 +440,7 @@ html[data-theme="dark"], html.dark {
     font-weight: 700 !important;
   }
   .skeuo-btn-accent:hover:not(:disabled) {
-    background: linear-gradient(180deg, #51afc0 0%, #288da4 52%, #1a7186 100%) !important;
+    background: linear-gradient(180deg, rgba(81, 175, 192, 0.42) 0%, rgba(40, 141, 164, 0.32) 52%, rgba(26, 113, 134, 0.38) 100%) !important;
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.65),
@@ -428,7 +455,7 @@ html[data-theme="dark"], html.dark {
 
   /* Danger Crimson Skeuomorphic Button */
   .skeuo-btn-danger {
-    background: linear-gradient(180deg, #dc2626 0%, #b91c1c 52%, #991b1b 100%) !important;
+    background: linear-gradient(180deg, rgba(220, 38, 38, 0.30) 0%, rgba(185, 28, 28, 0.22) 52%, rgba(153, 27, 27, 0.28) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #7f1d1d !important;
     box-shadow:
@@ -440,7 +467,7 @@ html[data-theme="dark"], html.dark {
     font-weight: 700 !important;
   }
   .skeuo-btn-danger:hover:not(:disabled) {
-    background: linear-gradient(180deg, #ef4444 0%, #dc2626 52%, #b91c1c 100%) !important;
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.42) 0%, rgba(220, 38, 38, 0.32) 52%, rgba(185, 28, 28, 0.38) 100%) !important;
     transform: translateY(-1px);
   }
   .skeuo-btn-danger:active:not(:disabled) {
@@ -450,14 +477,14 @@ html[data-theme="dark"], html.dark {
 
   /* Outline / Ghost Tactile Buttons */
   .skeuo-btn-outline, .skeuo-btn-ghost {
-    background: rgba(255, 255, 255, 0.45) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
     color: var(--ns-ink) !important;
     border: 1px solid var(--ns-glass-line) !important;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 4px rgba(12, 24, 32, 0.04) !important;
     font-weight: 700 !important;
   }
   .skeuo-btn-outline:hover:not(:disabled), .skeuo-btn-ghost:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
     border-color: var(--ns-gold) !important;
     transform: translateY(-1px);
   }
@@ -471,7 +498,7 @@ html[data-theme="dark"], html.dark {
 
   /* Tactile Debossed / Sunken Form Inputs & Wells */
   .glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background-color: rgba(255, 255, 255, 0.30) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(28, 46, 56, 0.22) !important;
     box-shadow: var(--skeuo-well-shadow) !important;
     color: var(--ns-ink) !important;
@@ -484,7 +511,7 @@ html[data-theme="dark"], html.dark {
   html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
   html[data-theme="dark"] select,
   html[data-theme="dark"] textarea {
-    background-color: rgba(8, 28, 38, 0.32) !important;
+    background-color: rgba(8, 28, 38, 0.09) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
     box-shadow: var(--skeuo-well-shadow) !important;
     color: #f8fafc !important;
@@ -584,19 +611,20 @@ html[data-theme="dark"], html.dark {
   .ns-glass-hover:hover {
     background-color: var(--ns-glass-hover);
     border-color: var(--ns-glass-line);
-    box-shadow: 0 4px 12px rgba(12, 24, 32, 0.06);
+    box-shadow: 0 4px 12px rgba(12, 73, 91, 0.12), var(--skeuo-specular);
   }
 
   .ns-glass-selected {
-    background-color: var(--ns-glass-2) !important;
-    border-color: var(--ns-gold) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), var(--ns-glass-2) 65%, rgba(111, 203, 218, 0.06)) !important;
+    border-color: color-mix(in srgb, var(--ns-teal) 70%, white) !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 2px 6px rgba(125, 79, 16, 0.15) !important;
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(10, 76, 93, 0.12),
+      0 3px 8px rgba(10, 76, 93, 0.16) !important;
   }
   html[data-theme="dark"] .ns-glass-selected, html.dark .ns-glass-selected {
-    background-color: var(--ns-glass-2) !important;
-    border-color: var(--ns-gold) !important;
+    background: linear-gradient(180deg, rgba(202, 243, 249, 0.16), var(--ns-glass-2) 65%, rgba(38, 146, 166, 0.06)) !important;
+    border-color: rgba(112, 218, 237, 0.72) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.2),
       0 2px 8px rgba(251, 191, 36, 0.2) !important;
@@ -604,7 +632,7 @@ html[data-theme="dark"], html.dark {
 
   /* Tactile Tables */
   .ns-table thead th {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.50) 0%, rgba(240, 245, 248, 0.42) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 248, 0.08) 100%);
     color: var(--ns-ink);
     border-bottom: 2px solid var(--ns-glass-line);
     font-size: 11px;
@@ -614,7 +642,7 @@ html[data-theme="dark"], html.dark {
     box-shadow: 0 1px 2px rgba(12, 24, 32, 0.04);
   }
   html[data-theme="dark"] .ns-table thead th, html.dark .ns-table thead th {
-    background: linear-gradient(180deg, rgba(28, 42, 58, 0.50) 0%, rgba(18, 28, 42, 0.42) 100%);
+    background: linear-gradient(180deg, rgba(28, 42, 58, 0.14) 0%, rgba(18, 28, 42, 0.09) 100%);
     color: #f8fafc;
     border-bottom: 2px solid var(--ns-glass-line);
   }

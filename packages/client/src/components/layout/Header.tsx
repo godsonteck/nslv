@@ -141,7 +141,7 @@ export const Header: React.FC = () => {
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full skeuo-badge bg-rose-500 text-white text-[9px] font-black border border-white/60">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass skeuo-badge bg-rose-500/25 text-[var(--ns-danger)] text-[9px] font-black border border-rose-400/70">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}

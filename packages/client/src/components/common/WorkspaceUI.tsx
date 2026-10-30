@@ -49,7 +49,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
       </span>
       {Icon && (
         <span
-          className="skeuo-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] bg-white/40 dark:bg-black/30 border border-[var(--ns-glass-line)]"
+          className="skeuo-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] bg-white/15 dark:bg-black/10 border border-[var(--ns-glass-line)]"
           style={{ color: 'var(--ns-teal)' }}
         >
           <Icon size={16} />
