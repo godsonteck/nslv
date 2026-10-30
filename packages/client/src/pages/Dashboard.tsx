@@ -147,7 +147,7 @@ const PropertyDashboard: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 animate-in fade-in duration-300">
       {/* ── Editorial Villa Header ── */}
-      <div className="glass clay-card relative overflow-hidden rounded-3xl p-7 sm:p-9 border text-[var(--ns-ink)]">
+      <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-9 border text-[var(--ns-ink)]">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -205,7 +205,7 @@ const PropertyDashboard: React.FC = () => {
       )}
 
       {/* ── Authoritative Room Availability Ledger ── */}
-      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass clay-card p-6 shadow-md space-y-4">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass p-6 shadow-md space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] pb-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--ns-teal)]">

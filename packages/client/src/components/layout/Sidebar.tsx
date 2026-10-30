@@ -211,7 +211,7 @@ export const Sidebar: React.FC = () => {
           {sidebarOpen ? (
             <div className="space-y-3">
               <div
-                className="clay-card glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
+                className="glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl clay-badge bg-[var(--ns-teal)] text-white text-[10px] font-black border border-white/40">
                   {initials}

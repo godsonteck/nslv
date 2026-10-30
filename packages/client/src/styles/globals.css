@@ -251,117 +251,112 @@ html.dark input, html.dark select, html.dark textarea {
      ────────────────────────────────────────── */
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     color: var(--ns-ink);
   }
 
   .glass {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.02));
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--clay-card-shadow), var(--clay-bevel-bottom);
+    box-shadow: none;
   }
 
   .glass-strong {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), var(--ns-glass-2) 48%, rgba(135, 211, 224, 0.03));
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--clay-card-shadow);
+    box-shadow: none;
   }
 
   .glass-subtle {
-    background: color-mix(in srgb, var(--ns-glass-1) 54%, transparent);
+    background: transparent;
     border: 1px solid var(--ns-glass-line-soft);
-    box-shadow: 0 4px 16px -2px rgba(12, 24, 32, 0.05), var(--clay-specular);
+    box-shadow: none;
   }
 
   .glass-dark {
-    background: rgba(8, 27, 38, 0.10);
+    background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.24);
-    box-shadow: 0 16px 40px rgba(0, 42, 55, 0.25), var(--clay-specular);
+    box-shadow: none;
   }
 
   .glass-warm {
-    background: rgba(198, 237, 241, 0.07);
+    background: transparent;
     border: 1px solid rgba(31, 116, 139, 0.30);
-    box-shadow: 0 8px 24px rgba(18, 94, 112, 0.12), var(--clay-specular);
+    box-shadow: none;
   }
   html[data-theme="dark"] .glass-warm, html.dark .glass-warm {
-    background: rgba(9, 44, 57, 0.10);
+    background: transparent;
     border: 1px solid rgba(107, 201, 220, 0.25);
   }
 
   .ns-card {
     border-radius: 20px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.02));
+    background: transparent;
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--clay-card-shadow);
+    box-shadow: none;
   }
 
   .ns-card-soft {
     border-radius: 16px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), var(--ns-glass-1) 55%, rgba(135, 211, 224, 0.015));
+    background: transparent;
     border: 1px solid var(--ns-glass-line-soft);
-    box-shadow: var(--clay-card-shadow);
+    box-shadow: none;
   }
 
   .ns-glass-bar {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), var(--ns-glass-2) 55%, rgba(129, 205, 219, 0.025));
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     border-bottom: 1px solid var(--ns-glass-line);
-    box-shadow: 0 5px 18px -9px rgba(10, 64, 80, 0.35), var(--clay-specular), var(--clay-bevel-bottom);
+    box-shadow: none;
   }
 
   .ns-glass-bar-soft {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 62%, rgba(106, 191, 208, 0.018));
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     border-right: 1px solid var(--ns-glass-line);
-    box-shadow: 5px 0 22px -12px rgba(10, 64, 80, 0.42), var(--clay-specular), inset -1px 0 rgba(7, 65, 82, 0.12);
+    box-shadow: none;
   }
 
   /* The application rail is a single frosted, raised object rather than a flat column. */
   aside.ns-glass-bar-soft {
     border-right-color: rgba(255, 255, 255, 0.54);
-    box-shadow:
-      7px 0 26px -16px rgba(10, 64, 80, 0.50),
-      inset 1px 0 0 rgba(255, 255, 255, 0.42),
-      inset -1px 0 0 rgba(8, 66, 83, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    box-shadow: none;
   }
 
   html[data-theme="dark"] .glass,
   html.dark .glass,
   html[data-theme="dark"] .ns-card,
   html.dark .ns-card {
-    background: linear-gradient(145deg, rgba(202, 243, 249, 0.055), var(--ns-glass-1) 48%, rgba(38, 146, 166, 0.02));
+    background: transparent;
   }
   html[data-theme="dark"] .glass-strong,
   html.dark .glass-strong,
   html[data-theme="dark"] .ns-glass-bar,
   html.dark .ns-glass-bar {
-    background: linear-gradient(180deg, rgba(202, 243, 249, 0.07), var(--ns-glass-2) 55%, rgba(38, 146, 166, 0.025));
+    background: transparent;
   }
   html[data-theme="dark"] .ns-glass-bar-soft,
   html.dark .ns-glass-bar-soft {
-    background: linear-gradient(90deg, rgba(202, 243, 249, 0.05), var(--ns-glass-1) 62%, rgba(38, 146, 166, 0.018));
+    background: transparent;
   }
 
   .ns-glass-band {
-    background: color-mix(in srgb, var(--ns-glass-2) 78%, transparent);
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .ns-scrim {
-    background: rgba(12, 24, 36, 0.10);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
   html[data-theme="dark"] .ns-scrim, html.dark .ns-scrim {
-    background: rgba(3, 7, 12, 0.14);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   /* ──────────────────────────────────────────
@@ -704,31 +699,15 @@ html.dark input, html.dark select, html.dark textarea {
     background-color: transparent !important;
   }
 
-  /* A clear pane needs a faint refractive sheet to read as glass. These stay
-     transparent enough for the watermark to remain visible underneath. */
-  .glass, .ns-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(228, 247, 250, 0.055) 52%, rgba(104, 190, 207, 0.075)) !important;
-    border-color: rgba(255, 255, 255, 0.72);
-  }
-  .glass-strong, .ns-card-soft, .ns-glass-band {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(228, 247, 250, 0.075) 52%, rgba(104, 190, 207, 0.09)) !important;
-    border-color: rgba(255, 255, 255, 0.76);
-  }
-  .ns-glass-bar {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(222, 244, 248, 0.07) 58%, rgba(92, 184, 202, 0.10)) !important;
-    border-color: rgba(255, 255, 255, 0.78);
-  }
-  .ns-glass-bar-soft, aside.ns-glass-bar-soft {
-    background: linear-gradient(100deg, rgba(255, 255, 255, 0.16), rgba(222, 244, 248, 0.065) 60%, rgba(92, 184, 202, 0.085)) !important;
-    border-color: rgba(255, 255, 255, 0.76);
-  }
+  /* Pure transparent glass - no gradient overlays */
+  .glass, .ns-card,
+  .glass-strong, .ns-card-soft, .ns-glass-band,
+  .ns-glass-bar, .ns-glass-bar-soft,
   .glass-input, .ns-input,
-  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background: rgba(255, 255, 255, 0.075) !important;
-    border-color: rgba(255, 255, 255, 0.68) !important;
-  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea,
   .ns-glass-selected {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(213, 242, 247, 0.08)) !important;
+    background: transparent !important;
+    border-color: var(--ns-glass-line);
   }
   .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
   .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
@@ -737,18 +716,16 @@ html.dark input, html.dark select, html.dark textarea {
   }
   .clay-btn-primary, .clay-btn-accent { border-color: rgba(5, 95, 118, 0.72) !important; }
   .clay-btn-danger { border-color: rgba(185, 28, 28, 0.72) !important; }
+  /* Dark mode - pure transparent glass */
   html[data-theme="dark"] .glass, html.dark .glass,
-  html[data-theme="dark"] .ns-card, html.dark .ns-card {
-    background: linear-gradient(135deg, rgba(197, 242, 248, 0.12), rgba(19, 81, 95, 0.055) 52%, rgba(34, 143, 161, 0.08)) !important;
-    border-color: rgba(204, 245, 250, 0.42);
-  }
+  html[data-theme="dark"] .ns-card, html.dark .ns-card,
   html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
   html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
   html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
   html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
   html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
-    background: linear-gradient(135deg, rgba(197, 242, 248, 0.15), rgba(19, 81, 95, 0.07) 52%, rgba(34, 143, 161, 0.10)) !important;
-    border-color: rgba(204, 245, 250, 0.46);
+    background: transparent !important;
+    border-color: var(--ns-glass-line);
   }
   html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
   html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
@@ -761,7 +738,7 @@ html.dark input, html.dark select, html.dark textarea {
   }
 
   /* Claymorphism: soft, rounded, tactile forms replace hard bevels. */
-  .clay-card, .ns-card, .ns-card-soft, .glass, .glass-strong {
+  .clay-card, .ns-card, .ns-card-soft {
     border-radius: 24px;
     box-shadow:
       12px 14px 28px -18px rgba(7, 61, 77, 0.42),
@@ -820,9 +797,7 @@ html.dark input, html.dark select, html.dark textarea {
   }
   html[data-theme="dark"] .clay-card, html.dark .clay-card,
   html[data-theme="dark"] .ns-card, html.dark .ns-card,
-  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
-  html[data-theme="dark"] .glass, html.dark .glass,
-  html[data-theme="dark"] .glass-strong, html.dark .glass-strong {
+  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft {
     box-shadow:
       12px 14px 30px -17px rgba(0, 0, 0, 0.72),
       -7px -7px 18px -16px rgba(161, 237, 248, 0.22),

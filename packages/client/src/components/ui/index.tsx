@@ -68,7 +68,7 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
   return (
     <div
       onClick={onClick}
-      className="glass clay-card relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none border"
+      className="glass relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none border"
       style={{ borderColor: accent }}
     >
       {/* Tile Body */}

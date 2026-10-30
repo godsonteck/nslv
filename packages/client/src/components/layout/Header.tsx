@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
             </button>
             {showThemeMenu && (
               <div
-                className="glass-strong clay-card absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
+                className="glass-strong absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
               >
                 <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
                 {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
@@ -180,7 +180,7 @@ export const Header: React.FC = () => {
             </button>
             {openDropdown && (
               <div
-                className="glass-strong clay-card absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
+                className="glass-strong absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
               >
                 <div className="border-b border-[var(--ns-glass-line)] px-3 py-2.5">
                   <div className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>

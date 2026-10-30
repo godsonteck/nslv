@@ -58,7 +58,7 @@ const NotificationItem: React.FC<{
 
   return (
     <div
-      className={`border rounded-xl clay-card transition-all ${
+      className={`border rounded-xl transition-all ${
         notification.isRead
           ? 'border-[var(--ns-glass-line-soft)] bg-[var(--ns-glass-1)]'
           : 'border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)]'
@@ -145,7 +145,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="glass-strong clay-card absolute right-0 top-12 z-50 w-96 max-w-[calc(100vw-2rem)] max-h-[min(600px,calc(100dvh-6rem))] rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[var(--ns-glass-line)]">
+    <div className="glass-strong absolute right-0 top-12 z-50 w-96 max-w-[calc(100vw-2rem)] max-h-[min(600px,calc(100dvh-6rem))] rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[var(--ns-glass-line)]">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] p-4">
         <div>
