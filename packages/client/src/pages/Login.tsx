@@ -21,7 +21,6 @@ import {
   KeyRound,
   Sun,
   Moon,
-  Monitor,
   AlertCircle,
   Building2,
   CheckCircle2,
@@ -121,48 +120,19 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Tactile Theme Selector */}
-        <div className="flex items-center gap-1 p-1 rounded-2xl glass border border-[var(--ns-glass-line)] shadow-xs">
-          <button
-            type="button"
-            onClick={() => setThemePreference('light')}
-            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
-              themePreference === 'light'
-                ? 'clay-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
-                : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
-            }`}
-            title="Light mode"
-            aria-label="Light mode"
-          >
-            <Sun size={15} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setThemePreference('dark')}
-            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
-              themePreference === 'dark'
-                ? 'clay-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
-                : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
-            }`}
-            title="Dark mode"
-            aria-label="Dark mode"
-          >
-            <Moon size={15} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setThemePreference('system')}
-            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
-              themePreference === 'system'
-                ? 'clay-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
-                : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
-            }`}
-            title="System theme"
-            aria-label="System theme"
-          >
-            <Monitor size={15} />
-          </button>
-        </div>
+        {/* Tactile Theme Toggle */}
+        <button
+          type="button"
+          onClick={() => {
+            const newTheme = themePreference === 'dark' ? 'light' : 'dark';
+            setThemePreference(newTheme);
+          }}
+          className="flex h-10 w-10 items-center justify-center rounded-2xl glass border border-[var(--ns-glass-line)] text-[var(--ns-ink)] transition-all hover:scale-105"
+          aria-label={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
+          title={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          {themePreference === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
       </header>
 
       {/* ── Main Content Showcase Area ── */}

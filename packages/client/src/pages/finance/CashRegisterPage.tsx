@@ -9,34 +9,27 @@ import {
   ChevronRight,
   Clock,
   Coins,
-  DollarSign,
   FileText,
-  HelpCircle,
   Lock,
-  Plus,
   Printer,
   Receipt,
   RefreshCw,
   Send,
-  ShieldAlert,
   Smartphone,
   Trash2,
   TrendingDown,
   TrendingUp,
   UserCheck,
-  Users,
   Wallet,
 } from 'lucide-react';
 import {
   Button,
-  DataTable,
   FormField,
   Modal,
   SelectInput,
   showToast,
   TextInput,
 } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { useAuthStore } from '../../stores/authStore';
 import { cashRegisterApi, CashRegisterSummary, CashEntryRecord } from '../../services/apiService';
 import { printCashHandoverSlip, CashHandoverSlipData } from '../../lib/company';
@@ -371,11 +364,18 @@ export const CashRegisterPage: React.FC = () => {
   };
 
   return (
-    <ShellPage
-      eyebrow="Front Desk Finance"
-      title="Cash at Hand"
-      subtitle="Daily drawer reconciliation and close-of-day handover."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Wallet size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Cash at Hand</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Daily drawer reconciliation &amp; close-of-day handover</p>
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           {canManage && (
             <>
@@ -385,45 +385,31 @@ export const CashRegisterPage: React.FC = () => {
                 onClick={handleOpenHandoverModal}
                 className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold"
               >
-                <UserCheck size={14} /> Hand Over to Management
+                <UserCheck size={14} /> Hand Over
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setEntry({
-                    type: 'OUTFLOW',
-                    amount: '',
-                    description: '',
-                    category: 'FUEL',
-                    recipient: '',
-                    receiptRef: '',
-                  });
+                  setEntry({ type: 'OUTFLOW', amount: '', description: '', category: 'FUEL', recipient: '', receiptRef: '' });
                   setEntryOpen(true);
                 }}
                 className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] transition-colors ns-glass-hover"
                 style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
               >
-                <TrendingDown size={14} className="text-[var(--ns-danger)]" /> Record Cash Out
+                <TrendingDown size={14} className="text-[var(--ns-danger)]" /> Cash Out
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setEntry({
-                    type: 'INFLOW',
-                    amount: '',
-                    description: '',
-                    category: 'MISC',
-                    recipient: '',
-                    receiptRef: '',
-                  });
+                  setEntry({ type: 'INFLOW', amount: '', description: '', category: 'MISC', recipient: '', receiptRef: '' });
                   setEntryOpen(true);
                 }}
                 className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] transition-colors ns-glass-hover"
                 style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
               >
-                <TrendingUp size={14} className="text-[var(--ns-success)]" /> Record Cash In
+                <TrendingUp size={14} className="text-[var(--ns-success)]" /> Cash In
               </Button>
               <Button
                 variant="outline"
@@ -437,7 +423,7 @@ export const CashRegisterPage: React.FC = () => {
                 className="gap-1.5 border-[var(--ns-glass-line)] hover:border-[var(--ns-gold)] transition-colors ns-glass-hover"
                 style={{ color: 'var(--ns-ink)', backgroundColor: 'var(--ns-glass-1)' }}
               >
-                <Smartphone size={14} className="text-[var(--ns-warning)]" /> MoMo Wallet Deposit
+                <Smartphone size={14} className="text-[var(--ns-warning)]" /> MoMo Deposit
               </Button>
               <Button
                 variant="ghost"
@@ -450,13 +436,12 @@ export const CashRegisterPage: React.FC = () => {
                 className="gap-1.5 ns-glass-hover transition-colors"
                 style={{ color: 'var(--ns-muted)' }}
               >
-                <Coins size={14} /> Morning Float
+                <Coins size={14} /> Float
               </Button>
             </>
           )}
         </div>
-      }
-    >
+      </div>
       {/* Date Navigator */}
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-glass-line)] p-3.5 shadow-sm glass-subtle"
@@ -622,47 +607,28 @@ export const CashRegisterPage: React.FC = () => {
         </div>
       )}
 
-      {/* Metric Tiles */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatTile
-          label="Morning Float"
-          value={formatCurrency(openingCash)}
-          note={openingCash > 0 ? 'Counted change float' : 'Started at zero'}
-          icon={Coins}
-        />
-        <StatTile
-          label="Cash Inflows"
-          value={formatCurrency(totalCollections)}
-          note="POS sales and recorded inflows"
-          icon={TrendingUp}
-          accent={totalCollections > 0}
-        />
-        <StatTile
-          label="Drawer Deductions"
-          value={formatCurrency(totalDeductions)}
-          note="Expenses and bank deposits"
-          icon={TrendingDown}
-        />
-        <StatTile
-          label="Handed Over"
-          value={formatCurrency(handovers)}
-          note={isHandedOver ? 'Closed and handed over' : 'Pending close of day'}
-          icon={UserCheck}
-          accent={isHandedOver}
-        />
-        <StatTile
-          label="Cash at Hand"
-          value={formatCurrency(cashAtHand)}
-          note={
-            cashAtHand === 0 && isHandedOver
-              ? 'Balanced after handover'
-              : cashAtHand > 0
-              ? 'Physical cash in till'
-              : 'Drawer empty'
-          }
-          icon={Wallet}
-          accent={cashAtHand > 0}
-        />
+      {/* KPI Ribbon */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Morning Float</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(openingCash)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash Inflows</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(totalCollections)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Deductions</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(totalDeductions)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Handed Over</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(handovers)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash at Hand</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: cashAtHand > 0 ? 'var(--ns-gold)' : 'var(--ns-ink)' }}>{formatCurrency(cashAtHand)}</div>
+        </div>
       </div>
 
       {/* ── Tabs Navigation ── */}
@@ -724,16 +690,16 @@ export const CashRegisterPage: React.FC = () => {
 
       {/* Tab Content: Drawer Cash Ledger */}
       {activeTab === 'ENTRIES' && (
-        <Section
-          title="Daily Drawer Activity Log"
-          action={
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
             <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: 'var(--ns-muted)' }}>
-                {displayEntries.length} movement{displayEntries.length !== 1 ? 's' : ''}
-              </span>
+              <Banknote size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Daily Drawer Activity Log</h2>
             </div>
-          }
-        >
+            <span className="text-xs" style={{ color: 'var(--ns-muted)' }}>
+              {displayEntries.length} movement{displayEntries.length !== 1 ? 's' : ''}
+            </span>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
@@ -864,20 +830,21 @@ export const CashRegisterPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </Section>
+        </div>
       )}
 
       {/* ── Tab Content: POS & Room Cash Payments ── */}
       {activeTab === 'PAYMENTS' && (
-        <Section
-          title="Direct Cash Revenue Today"
-          subtitle="Guest payments made in cash at Front Desk or dining POS. These automatically flow into drawer cash and must be handed over."
-          action={
-            <div className="text-xs font-bold text-[var(--ns-ink)]">
-              Total Cash Revenue: {formatCurrency(cashSales)}
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+            <div className="flex items-center gap-2">
+              <Receipt size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Direct Cash Revenue Today</h2>
             </div>
-          }
-        >
+            <div className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
+              Total: {formatCurrency(cashSales)}
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
@@ -925,15 +892,18 @@ export const CashRegisterPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </Section>
+        </div>
       )}
 
       {/* ── Tab Content: Expenses by Category ── */}
       {activeTab === 'CATEGORIES' && (
-        <Section
-          title="Operational Expense Breakdown"
-          subtitle="Summary of physical cash paid out from the reception till for villa operations."
-        >
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+            <div className="flex items-center gap-2">
+              <FileText size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Operational Expense Breakdown</h2>
+            </div>
+          </div>
           <div className="p-5">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Object.entries(summary?.byCategory ?? {}).map(([cat, amt]) => (
@@ -961,7 +931,7 @@ export const CashRegisterPage: React.FC = () => {
               </div>
             )}
           </div>
-        </Section>
+        </div>
       )}
 
       {/* ── Modal: Close-of-Day Handover ── */}
@@ -1218,7 +1188,7 @@ export const CashRegisterPage: React.FC = () => {
           </div>
         </form>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

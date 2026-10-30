@@ -6,7 +6,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ShieldCheck, Download, Clock, Filter, Eye } from 'lucide-react';
 import {
-  PageHeader,
   Button,
   DataTable,
   Pagination,
@@ -193,11 +192,21 @@ export const AuditLogsPage: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Audit Logs & System History"
-        subtitle="Immutable, timestamped audit trail of all security, operational and user actions"
-      />
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <ShieldCheck size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Audit Logs & System History</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Immutable, timestamped audit trail of all security, operational and user actions</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+        </div>
+      </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 glass border border-[var(--ns-glass-line)] rounded-md">
         <div className="flex items-center gap-2">

@@ -9,7 +9,6 @@ import { reportsApi, staysApi, roomsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import { Button, statusBadge, LoadingState } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import {
   Building2,
   TrendingUp,
@@ -126,11 +125,18 @@ export const ManagerPortalPage: React.FC = () => {
   }, []);
 
   return (
-    <ShellPage
-      eyebrow="Management"
-      title={greeting}
-      subtitle="Real-time occupancy oversight, departmental POS revenue, and operational audit."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Building2 size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Management · Operational Control Center</p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -149,42 +155,36 @@ export const ManagerPortalPage: React.FC = () => {
             <CalendarDays size={13} /> Manage Bookings
           </Button>
         </div>
-      }
-    >
-      {/* ── Key Performance Metrics ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Occupancy Rate"
-          value={`${metrics.occupancyRate}%`}
-          note={`${metrics.occupiedRooms} of ${metrics.totalRooms} rooms occupied`}
-          icon={Building2}
-          accent
-        />
-        <StatTile
-          label="Total Revenue Today"
-          value={formatCurrency(metrics.todayRevenue)}
-          note="Accommodations + Department POS"
-          icon={TrendingUp}
-        />
-        <StatTile
-          label="Arrivals & Departures"
-          value={`${metrics.todayArrivals} in / ${metrics.todayDepartures} out`}
-          note="Today's guest turnover"
-          icon={Clock}
-        />
-        <StatTile
-          label="Unsettled Folios"
-          value={formatCurrency(metrics.openFoliosBalance)}
-          note="Outstanding in-house guest balances"
-          icon={AlertCircle}
-        />
+      </div>
+
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{metrics.occupancyRate}%</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue Today</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(metrics.todayRevenue)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Arrivals & Departures</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{metrics.todayArrivals} in / {metrics.todayDepartures} out</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Unsettled Folios</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(metrics.openFoliosBalance)}</div>
+        </div>
       </div>
 
       {/* ── Departmental POS Sales Breakdown ── */}
-      <Section
-        title="Departmental Revenue"
-        subtitle="Live sales recorded across the property's dining, bar, and recreation outlets today."
-      >
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Departmental Revenue</h2>
+          </div>
+        </div>
         <div className="p-5 grid gap-4 sm:grid-cols-3">
           <div
             onClick={() => navigate('/restaurant/pos')}
@@ -234,16 +234,18 @@ export const ManagerPortalPage: React.FC = () => {
             <div className="text-[11px] text-[var(--ns-muted)]">Day passes, towels & poolside drinks</div>
           </div>
         </div>
-      </Section>
+      </div>
 
       {/* ── Operational Grid: Active Guests & Housekeeping ── */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Active In-House Guest Occupancy (2 cols) */}
         <div className="lg:col-span-2">
-          <Section
-            title="In-House Guest Stays"
-            subtitle="Currently checked-in guests and assigned room suites."
-            action={
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <UserCheck size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>In-House Guest Stays</h2>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -252,8 +254,7 @@ export const ManagerPortalPage: React.FC = () => {
               >
                 Front Desk Log <ArrowRight size={12} />
               </Button>
-            }
-          >
+            </div>
             {loading ? (
               <div className="p-10"><LoadingState /></div>
             ) : activeStays.length === 0 ? (
@@ -306,20 +307,21 @@ export const ManagerPortalPage: React.FC = () => {
                 </table>
               </div>
             )}
-          </Section>
+          </div>
         </div>
 
         {/* Housekeeping & Property Maintenance (1 col) */}
         <div>
-          <Section
-            title="Operational Alerts"
-            subtitle="Housekeeping room status and pending room turns."
-            action={
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Operational Alerts</h2>
+              </div>
               <span className="font-mono text-xs font-bold text-[var(--ns-warning)]">
                 {dirtyRooms.length} Dirty
               </span>
-            }
-          >
+            </div>
             <div className="p-4 space-y-3">
               {dirtyRooms.length === 0 ? (
                 <div className="py-8 text-center text-xs text-[var(--ns-success)] flex flex-col items-center gap-2">
@@ -363,15 +365,18 @@ export const ManagerPortalPage: React.FC = () => {
                 </Button>
               </div>
             </div>
-          </Section>
+          </div>
         </div>
       </div>
 
       {/* ── Admin: Post-Checkout Debt Clearance ── */}
-      <Section
-        title="Post-Checkout Debt Clearance"
-        subtitle="One-time admin action: clears all existing post-checkout outstanding balances, charging guests only for the nights they stayed. No late fees or extra charges."
-      >
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <div className="flex items-center gap-2">
+            <ShieldAlert size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Post-Checkout Debt Clearance</h2>
+          </div>
+        </div>
         <div className="p-5 space-y-4">
           <div className="rounded-xl border-2 border-[var(--ns-warning)] glass-subtle p-4 space-y-2">
             <div className="flex items-center gap-2 text-xs font-black text-[var(--ns-warning)] uppercase tracking-wide">
@@ -409,8 +414,8 @@ export const ManagerPortalPage: React.FC = () => {
             Clear All Post-Checkout Outstanding Balances
           </Button>
         </div>
-      </Section>
-    </ShellPage>
+      </div>
+    </div>
   );
 };
 

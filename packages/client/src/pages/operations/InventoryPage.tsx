@@ -11,8 +11,6 @@ import {
   RefreshCw,
   Trash2,
   Settings,
-  PackageCheck,
-  TrendingDown,
   Layers,
   ArrowUpDown,
   Search,
@@ -27,7 +25,6 @@ import {
   showToast,
   LoadingState,
 } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { categoriesApi, inventoryApi, InventoryItemRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, PERMISSIONS } from '@nslv/shared';
@@ -175,20 +172,31 @@ export const InventoryPage: React.FC = () => {
   }, [inventory]);
 
   return (
-    <ShellPage
-      eyebrow="Operations"
-      title="Inventory & Stock Levels"
-      subtitle="Track housekeeping amenities, food & beverage stock, maintenance supplies, and reorder levels."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Boxes size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Inventory & Stock Levels
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Housekeeping, F&B stock, maintenance supplies & reorder levels
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           {canManageCategories && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCategoryManagerOpen(true)}
-              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
+              className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold"
             >
-              <Settings size={13} /> Categories
+              <Settings size={12} /> Categories
             </Button>
           )}
           {canManage && (
@@ -199,71 +207,76 @@ export const InventoryPage: React.FC = () => {
                 setCategory(categoryOptions[0] ?? 'HOUSEKEEPING');
                 setCreateModalOpen(true);
               }}
-              className="gap-1.5 glass ns-glass-hover text-[var(--ns-ink)] shadow-sm font-semibold"
+              className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold ns-glass-hover"
             >
-              <Plus size={14} /> Add Stock Item
+              <Plus size={12} /> Add Stock Item
             </Button>
           )}
         </div>
-      }
-    >
-      {/* ── Stat Tiles ── */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile
-          label="Tracked Stock Items"
-          value={inventory.length}
-          note="Active inventory SKUs in catalog"
-          icon={Boxes}
-        />
-        <StatTile
-          label="Low Stock Alerts"
-          value={`${lowStockCount} items`}
-          note={lowStockCount > 0 ? 'Items below minimum reorder threshold' : 'All items sufficiently stocked'}
-          icon={AlertTriangle}
-          accent={lowStockCount > 0}
-        />
-        <StatTile
-          label="Total Inventory Value"
-          value={formatCurrency(totalValuation)}
-          note="Estimated on-hand stock cost valuation"
-          icon={PackageCheck}
-        />
+      </div>
+
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Tracked Items</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{inventory.length}</div>
+        </div>
+        <div className={`glass-subtle rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${lowStockCount > 0 ? 'border-[var(--ns-warning)] ring-1 ring-[var(--ns-warning)]/30' : 'border-[var(--ns-glass-line)]'}`}>
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Low Stock Alerts</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: lowStockCount > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>{lowStockCount} items</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Inventory Value</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{formatCurrency(totalValuation)}</div>
+        </div>
       </div>
 
       {/* ── Inventory Section Table ── */}
-      <Section
-        title="Stock Catalog & Inventory Movements"
-        subtitle="Live quantities, reorder thresholds, unit pricing, and quick level adjustments."
-        action={
-          <Button variant="ghost" size="sm" onClick={fetchInventory} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)]">
-            <RefreshCw size={13} /> Refresh
-          </Button>
-        }
-      >
-        <Toolbar search={searchQuery} onSearch={setSearchQuery} placeholder="Search item name or SKU code…">
-          <SelectInput
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-44 text-xs"
-          >
-            <option value="">All Categories</option>
-            {categoryOptions.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </SelectInput>
-          <Button
-            variant={lowStockOnly ? 'primary' : 'outline'}
-            size="sm"
-            onClick={() => setLowStockOnly((v) => !v)}
-            className={`h-9 gap-1.5 text-xs font-semibold ${
-              lowStockOnly ? 'ns-glass-selected ns-glass-hover text-[var(--ns-warning)] border-[var(--ns-warning)]' : 'border-[var(--ns-glass-line)]'
-            }`}
-          >
-            <AlertTriangle size={13} /> Low Stock Only
-          </Button>
-        </Toolbar>
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center sm:justify-between ns-glass-band">
+          <div className="flex items-center gap-2">
+            <Layers size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Stock Catalog & Inventory Movements</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={fetchInventory} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)]">
+              <RefreshCw size={13} /> Refresh
+            </Button>
+            <div className="relative">
+              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search item name or SKU code…"
+                className="ns-input h-9 pl-8 pr-3 text-xs glass-input border-[var(--ns-glass-line)] w-56"
+              />
+            </div>
+            <SelectInput
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-44 text-xs"
+            >
+              <option value="">All Categories</option>
+              {categoryOptions.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </SelectInput>
+            <Button
+              variant={lowStockOnly ? 'primary' : 'outline'}
+              size="sm"
+              onClick={() => setLowStockOnly((v) => !v)}
+              className={`h-9 gap-1.5 text-xs font-semibold ${
+                lowStockOnly ? 'ns-glass-selected ns-glass-hover text-[var(--ns-warning)] border-[var(--ns-warning)]' : 'border-[var(--ns-glass-line)]'
+              }`}
+            >
+              <AlertTriangle size={13} /> Low Stock Only
+            </Button>
+          </div>
+        </div>
+        <div className="p-4">
 
         {loading ? (
           <div className="p-12"><LoadingState /></div>
@@ -353,7 +366,8 @@ export const InventoryPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+        </div>
+      </div>
 
       {/* ── Modal: Add Stock Item ── */}
       <Modal
@@ -508,7 +522,7 @@ export const InventoryPage: React.FC = () => {
           }}
         />
       )}
-    </ShellPage>
+    </div>
   );
 };
 

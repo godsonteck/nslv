@@ -32,7 +32,6 @@ import {
   statusBadge,
   LoadingState,
 } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { usersApi, rolesApi, type UserRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
@@ -422,60 +421,81 @@ export const UsersPage: React.FC = () => {
   }, [users]);
 
   return (
-    <ShellPage
-      eyebrow="Administration"
-      title="Staff User Accounts"
-      subtitle="Manage employee access credentials, assign multi-role security tiers, and cross-functional operational authorizations."
-      actions={
-        canCreate && (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              setEditUser(null);
-              setModalOpen(true);
-            }}
-            className="gap-1.5 glass ns-glass-hover !border-[var(--ns-gold)] !text-[var(--ns-gold)] shadow-sm font-semibold"
-          >
-            <UserPlus size={14} /> Add Staff User
-          </Button>
-        )
-      }
-    >
-      {/* ── Stat Tiles ── */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile
-          label="Total Staff Users"
-          value={total}
-          note="Registered system accounts"
-          icon={Users}
-        />
-        <StatTile
-          label="Active Accounts"
-          value={activeCount}
-          note="Currently authorized to sign in"
-          icon={UserCheck}
-          accent
-        />
-        <StatTile
-          label="Configured Roles"
-          value={roles.length}
-          note="Security tiers & permission sets"
-          icon={KeyRound}
-        />
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Users size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Staff User Accounts</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage employee access credentials, assign multi-role security tiers, and cross-functional operational authorizations.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {canCreate && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                setEditUser(null);
+                setModalOpen(true);
+              }}
+              className="gap-1.5 glass ns-glass-hover !border-[var(--ns-gold)] !text-[var(--ns-gold)] shadow-sm font-semibold"
+            >
+              <UserPlus size={14} /> Add Staff User
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* ── KPI Ribbon ── */}
+      <div className="flex flex-wrap gap-3">
+        {[
+          { label: 'Total Staff Users', value: total, note: 'Registered system accounts', icon: Users },
+          { label: 'Active Accounts', value: activeCount, note: 'Currently authorized to sign in', icon: UserCheck },
+          { label: 'Configured Roles', value: roles.length, note: 'Security tiers & permission sets', icon: KeyRound },
+        ].map((kpi) => (
+          <div key={kpi.label} className="flex-1 min-w-[140px] rounded-xl border border-[var(--ns-glass-line)] glass px-4 py-3 flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg glass-subtle border border-[var(--ns-glass-line)] text-[var(--ns-gold)] shrink-0">
+              <kpi.icon size={14} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>{kpi.label}</div>
+              <div className="text-lg font-black" style={{ color: 'var(--ns-ink)' }}>{kpi.value}</div>
+              <div className="text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{kpi.note}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* ── Users Table Section ── */}
-      <Section
-        title="Authorized Personnel Directory"
-        subtitle="Staff member details, usernames, department roles, and account security states."
-        action={
-          <Button variant="ghost" size="sm" onClick={fetchUsers} className="h-8 gap-1.5 text-xs !text-[var(--ns-muted)]">
-            <RefreshCw size={13} /> Refresh
-          </Button>
-        }
-      >
-        <Toolbar search={search} onSearch={(v) => { setSearch(v); setPage(1); }} placeholder="Search staff by name, email, or username…">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass overflow-hidden">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-5 py-3 border-b border-[var(--ns-glass-line)] ns-glass-band">
+          <div>
+            <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Authorized Personnel Directory</h2>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Staff member details, usernames, department roles, and account security states.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={fetchUsers} className="h-8 gap-1.5 text-xs !text-[var(--ns-muted)]">
+              <RefreshCw size={13} /> Refresh
+            </Button>
+          </div>
+        </div>
+
+        {/* Inline Toolbar */}
+        <div className="px-5 py-3 border-b border-[var(--ns-glass-line)] flex flex-wrap items-center gap-2">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search staff by name, email, or username…"
+              className="w-full h-8 pl-8 pr-3 text-xs glass-input border border-[var(--ns-glass-line)] rounded text-[var(--ns-ink)] placeholder:text-[var(--ns-muted)] focus:border-[var(--ns-gold)] focus:outline-none"
+            />
+          </div>
           <SelectInput
             value={statusFilter}
             onChange={(e) => {
@@ -489,7 +509,7 @@ export const UsersPage: React.FC = () => {
             <option value="SUSPENDED">Suspended</option>
             <option value="DEACTIVATED">Deactivated</option>
           </SelectInput>
-        </Toolbar>
+        </div>
 
         {loading ? (
           <div className="p-12"><LoadingState /></div>
@@ -601,7 +621,7 @@ export const UsersPage: React.FC = () => {
             />
           </div>
         )}
-      </Section>
+      </div>
 
       {modalOpen && (
         <UserModal
@@ -612,7 +632,7 @@ export const UsersPage: React.FC = () => {
           onSaved={fetchUsers}
         />
       )}
-    </ShellPage>
+    </div>
   );
 };
 

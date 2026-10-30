@@ -5,7 +5,6 @@ import { useAuthStore } from '../../stores/authStore';
 import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronRight, ChevronsUpDown, ArrowUpDown } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { printPaymentReceipt } from '../../lib/company';
 
@@ -852,33 +851,88 @@ export const ReservationsPage: React.FC = () => {
   const singleEstimatedTotal = Math.max(0, (Number(singleSelectedRoom?.roomType?.basePrice || 0) * singleNights) - (Number(form.discountAmount) || 0));
 
   return (
-    <ShellPage
-      eyebrow="NS LUXURY VILLA · RESERVATIONS & BOOKINGS"
-      title="Reservations & Front Desk"
-      subtitle="Manage group bookings, individual room commitments, guest registration, and deposit settlements."
-      actions={
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
-            <RefreshCw size={14} /> Refresh
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <CalendarDays size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Reservations & Bookings
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Group bookings, individual commitments, deposits
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+            <RefreshCw size={12} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
-            <CreditCard size={14} className="text-[var(--ns-gold)]" /> Payments &amp; Receipts
+          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+            <CreditCard size={12} className="text-[var(--ns-gold)]" /> Payments
           </Button>
-          <Button size="sm" onClick={() => setOpen(true)} className="glass text-[var(--ns-teal)] shadow-md text-xs font-semibold gap-1.5 ns-glass-hover">
-            <Plus size={14} /> New Reservation
+          <Button size="sm" onClick={() => setOpen(true)} className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover">
+            <Plus size={12} /> New Reservation
           </Button>
         </div>
-      }
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Bookings in view" value={displayItems.length} icon={CalendarDays} onClick={() => scrollToTable('ALL')} />
-        <StatTile label="Confirmed / pending" value={confirmed} note={dateFilter ? 'On selected date' : 'Active commitments'} icon={CalendarDays} onClick={() => scrollToTable('CONFIRMED_PENDING')} accent />
-        <StatTile label="Checked in guests" value={active} note={dateFilter ? 'On selected date' : 'Active stays'} icon={BedDouble} onClick={() => scrollToTable('CHECKED_IN')} />
-        <StatTile label="Total property rooms" value={rooms.length} note={`${rooms.filter((r) => ['AVAILABLE', 'READY'].includes(r.status)).length} ready to sell`} icon={Users} onClick={() => navigate('/rooms')} />
       </div>
+
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <button
+          onClick={() => scrollToTable('ALL')}
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bookings</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{displayItems.length}</div>
+        </button>
+        <button
+          onClick={() => scrollToTable('CONFIRMED_PENDING')}
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-gold)]/40 transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Confirmed</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{confirmed}</div>
+        </button>
+        <button
+          onClick={() => scrollToTable('CHECKED_IN')}
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Checked In</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{active}</div>
+        </button>
+        <button
+          onClick={() => navigate('/rooms')}
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Rooms</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>
+        </button>
+      </div>
+
       <div ref={tableRef}>
-      <Section title="Booking ledger" subtitle="Search by guest, reservation or room">
-        <Toolbar search={q} onSearch={setQ} placeholder="Search guest, booking code or room…">
+      {/* ── Booking Ledger ── */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 ns-glass-band sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2">
+            <FileText size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Booking Ledger</h2>
+          </div>
+          <div className="relative sm:ml-auto w-full sm:w-64">
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search guest, booking code or room..."
+              className="ns-input glass-input w-full px-3 py-1.5 text-[11px]"
+            />
+          </div>
+        </div>
+
+        {/* Toolbar Controls */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--ns-glass-line)] p-3 ns-glass-band">
           {/* Prominent Date Filter with label & Today shortcut */}
           <div className="flex items-center gap-1.5 flex-wrap">
             <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-2.5 h-10 shadow-sm focus-within:border-[var(--ns-gold)] focus-within:ring-1 focus-within:ring-[var(--ns-gold)]">
@@ -961,7 +1015,7 @@ export const ReservationsPage: React.FC = () => {
             <option value="CHECKED_OUT">Status: CHECKED OUT</option>
             <option value="CANCELLED">Status: CANCELLED</option>
           </select>
-        </Toolbar>
+        </div>
 
         {/* Active Date Filter Banner */}
         {dateFilter && (
@@ -1322,7 +1376,7 @@ export const ReservationsPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+      </div>
       </div>
 
       <Modal open={open} onClose={closeModal} title="New reservation" size="lg">
@@ -2823,7 +2877,7 @@ export const ReservationsPage: React.FC = () => {
           </div>
         </div>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

@@ -288,160 +288,118 @@ export const FrontDeskPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-7 pb-16 animate-in fade-in duration-300">
-      {/* ── Editorial Front Desk Header ── */}
-      <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-9 text-[var(--ns-ink)]">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[10px] font-black tracking-widest text-[var(--ns-gold)] uppercase">
-                <Sparkles size={11} className="text-[var(--ns-gold)]" /> Reception Terminal
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-info)] glass-subtle px-3 py-1 text-[10px] font-bold text-[var(--ns-info)]">
-                <Clock size={11} /> Standard Checkout: {checkoutPolicy.checkoutTime}
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
-              Front Desk &amp; Reception
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Reception Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <ShieldCheck size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Front Desk & Reception
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
-              {nowFormatted}
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              {nowFormatted} &middot; Checkout: {checkoutPolicy.checkoutTime}
             </p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => navigate('/reception/report')}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all"
-            >
-              <BarChart3 size={14} className="text-[var(--ns-info)]" />
-              <span>Reception Report</span>
-            </button>
-            <button
-              onClick={() => navigate('/cash-at-hand')}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all"
-            >
-              <WalletCards size={14} className="text-[var(--ns-success)]" />
-              <span>Cash at Hand</span>
-            </button>
-            <button
-              onClick={refresh}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--ns-glass-line)] glass px-3.5 py-2 text-xs font-semibold text-[var(--ns-ink)] ns-glass-hover transition-all"
-            >
-              <RefreshCw size={13} />
-              <span>Refresh</span>
-            </button>
-          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/reception/report')}
+            className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] ns-glass-hover"
+          >
+            <BarChart3 size={12} className="text-[var(--ns-info)]" /> Reception Report
+          </button>
+          <button
+            onClick={() => navigate('/cash-at-hand')}
+            className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] ns-glass-hover"
+          >
+            <WalletCards size={12} className="text-[var(--ns-success)]" /> Cash
+          </button>
+          <button
+            onClick={refresh}
+            className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-secondary px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)]"
+          >
+            <RefreshCw size={12} /> Refresh
+          </button>
         </div>
       </div>
 
-      {/* ── Dynamic Room Availability Bar (Tallies 100% with Overview and Rooms Page) ── */}
-      <div className="ns-card glass p-5 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] pb-3">
+      {/* ── Room Rack Ribbon ── */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 space-y-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <DoorOpen size={16} className="text-[var(--ns-gold)]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[var(--ns-gold)]">
-              Room Rack Inventory
-            </span>
-          </div>
-          <span className="text-xs text-[var(--ns-muted)] font-medium">
-            Total property rooms: <strong className="text-[var(--ns-ink)]">{rooms.length}</strong>
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-          {/* Ready to Sell / Available Today */}
-          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-success)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Ready to Sell (Available)</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{availableRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Clean & available today</div>
-          </div>
-
-          {/* Reserved for Today */}
-          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-warning)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved Today</span>
-              <Calendar size={13} className="text-[var(--ns-warning)]" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{reservedRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Arrivals due / active bookings</div>
-          </div>
-
-          {/* In-House Occupied */}
-          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-info)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House Stays</span>
-              <UserCheck size={13} className="text-[var(--ns-info)]" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{occupiedRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Currently occupied rooms</div>
-          </div>
-
-          {/* Housekeeping Turnover */}
-          <div className="ns-card glass p-4 border-l-2 border-l-[var(--ns-danger)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Housekeeping Turnover</span>
-              <Building size={13} className="text-[var(--ns-danger)]" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-ink)]">{dirtyRoomsToday.length}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-muted)]">Dirty / cleaning in progress</div>
+            <DoorOpen size={14} className="text-[var(--ns-gold)]" />
+            <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--ns-gold)' }}>Room Rack</span>
+            <span className="text-[10px] font-bold" style={{ color: 'var(--ns-muted)' }}>{rooms.length} total rooms</span>
           </div>
         </div>
 
-        {/* Live Available Rooms Key Rack (Interactive walk-in selection) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-success)]">
+            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available</div>
+            <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{availableRoomsToday.length}</div>
+          </div>
+          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-warning)]">
+            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved</div>
+            <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{reservedRoomsToday.length}</div>
+          </div>
+          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-info)]">
+            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House</div>
+            <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{occupiedRoomsToday.length}</div>
+          </div>
+          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-danger)]">
+            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Turnover</div>
+            <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{dirtyRoomsToday.length}</div>
+          </div>
+        </div>
+
         {availableRoomsToday.length > 0 && (
           <div className="pt-2 border-t border-[var(--ns-glass-line)]">
-            <div className="text-[11px] font-bold text-[var(--ns-muted)] uppercase tracking-wider mb-2 flex items-center justify-between">
-              <span>Ready Rooms Available for Walk-Ins ({availableRoomsToday.length})</span>
-              <span className="text-[var(--ns-gold)] font-semibold lowercase">click room to view</span>
+            <div className="text-[10px] font-bold text-[var(--ns-muted)] uppercase tracking-wider mb-2">
+              Ready for Walk-Ins ({availableRoomsToday.length})
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {availableRoomsToday.map((room) => (
-                <div
+                <button
                   key={room.id}
                   onClick={() => navigate('/reservations')}
-                  className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-[var(--ns-success)] glass-subtle px-3 py-1.5 ns-glass-hover hover:border-[var(--ns-success)] transition-all shadow-xs"
-                  title="Click to book room in reservations"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ns-success)] glass-subtle px-2.5 py-1 ns-glass-hover transition-all"
+                  title="Click to book in reservations"
                 >
-                  <DoorOpen size={13} className="text-[var(--ns-success)]" />
-                  <span className="text-xs font-black text-[var(--ns-ink)]">Room {room.number}</span>
-                  <span className="text-[10px] text-[var(--ns-success)] font-semibold">
-                    {room.roomType?.name ? `(${room.roomType.name})` : ''}
-                  </span>
-                </div>
+                  <DoorOpen size={11} className="text-[var(--ns-success)]" />
+                  <span className="text-[10px] font-black text-[var(--ns-ink)]">Rm {room.number}</span>
+                  {room.roomType?.name && (
+                    <span className="text-[9px] text-[var(--ns-success)] font-semibold">{room.roomType.name}</span>
+                  )}
+                </button>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* ── Main Operations: Arrivals Queue & In-House Departures ── */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* ── Split: Arrivals + In-House ── */}
+      <div className="grid gap-5 lg:grid-cols-2">
         {/* Arrivals Due Desk */}
-        <div className="ns-card glass overflow-hidden flex flex-col justify-between">
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden flex flex-col">
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band gap-3">
-              <div>
-                <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-                  <LogIn size={16} className="text-[var(--ns-info)]" />
-                  Expected Arrivals Queue ({arrivals.length})
-                </h2>
-                <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">
-                  Guest check-in starts at 2:00 PM | Identity verification required
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3 ns-glass-band gap-2">
+              <div className="flex items-center gap-2">
+                <LogIn size={14} className="text-[var(--ns-info)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Arrivals Queue</h2>
+                <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>{arrivals.length}</span>
               </div>
 
-              <div className="relative w-full sm:w-56">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
+              <div className="relative w-full sm:w-48">
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
                 <input
                   type="text"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Filter arrivals..."
-                  className="ns-input glass-input w-full pl-8 pr-3 py-1 text-xs"
+                  className="ns-input glass-input w-full pl-7 pr-3 py-1 text-[11px]"
                 />
               </div>
             </div>
@@ -502,18 +460,17 @@ export const FrontDeskPage: React.FC = () => {
         </div>
 
         {/* In-House Guests & Departure Settlement Desk */}
-        <div className="ns-card glass overflow-hidden flex flex-col justify-between">
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden flex flex-col">
           <div>
-            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
-              <div>
-                <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-                  <LogOut size={16} className="text-[var(--ns-warning)]" />
-                  In-House Stays and Checkout ({stays.length})
-                </h2>
-                <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">
-                  Standard checkout deadline: 12:00 PM | Late departures: +GHS {checkoutPolicy.hourlyRate}/hr
-                </p>
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <LogOut size={14} className="text-[var(--ns-warning)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>In-House & Checkout</h2>
+                <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>{stays.length}</span>
               </div>
+              <span className="text-[10px] font-bold" style={{ color: 'var(--ns-muted)' }}>
+                Late: +GHS {checkoutPolicy.hourlyRate}/hr
+              </span>
             </div>
 
             {loading ? (

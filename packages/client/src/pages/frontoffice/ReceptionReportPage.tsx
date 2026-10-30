@@ -32,7 +32,6 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { Button, LoadingState, showToast, statusBadge } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 
 type PeriodMode = 'today' | 'yesterday' | 'week' | 'month' | 'custom';
 type ActiveTab = 'payments' | 'categories' | 'expenses' | 'reconciliation';
@@ -180,11 +179,18 @@ export default function ReceptionReportPage() {
   ];
 
   return (
-    <ShellPage
-      eyebrow="RECEPTION · FRONT DESK REPORTING"
-      title="Shift & Operations Report"
-      subtitle="MoMo collections, cash, bookings, room categories, expense payouts, and cash reconciliation."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <FileText size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Shift &amp; Operations Report</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Reception front desk reporting</p>
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={handlePrint}>
             <Printer size={14} /> Print
@@ -196,8 +202,7 @@ export default function ReceptionReportPage() {
             <RefreshCw size={14} /> Refresh
           </Button>
         </div>
-      }
-    >
+      </div>
       {/* ── Period Selector ── */}
       <div className="ns-card glass p-3 flex flex-wrap items-center gap-3 print:hidden">
         <div className="flex items-center gap-1 glass-subtle p-1 rounded-lg border border-[var(--ns-glass-line)]">
@@ -238,27 +243,32 @@ export default function ReceptionReportPage() {
         <div className="ns-card glass p-12 text-center text-[var(--ns-muted)] text-xs">No data found for this period.</div>
       ) : (
         <>
-          {/* ── KPI Strip ── */}
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {[
-              { label: 'Mobile Money', value: formatCurrency(fin.momo?.totalAmount || 0), sub: `${fin.momo?.count || 0} transactions`, icon: Smartphone, color: '#c59a58', ink: 'var(--ns-gold)' },
-              { label: 'Cash Received', value: formatCurrency(fin.cash?.totalAmount || 0), sub: `${fin.cash?.count || 0} receipts`, icon: Banknote, color: '#4ade80', ink: 'var(--ns-success)' },
-              { label: 'Card Payments', value: formatCurrency(fin.card?.totalAmount || 0), sub: `${fin.card?.count || 0} transactions`, icon: CreditCard, color: '#60a5fa', ink: 'var(--ns-info)' },
-              { label: 'People Booked', value: `${bkg.totalPeople || 0} guests`, sub: `${bkg.adults || 0} adults · ${bkg.children || 0} children`, icon: Users, color: '#a78bfa', ink: 'var(--ns-purple)' },
-              { label: 'Expenses Taken', value: formatCurrency(exp.totalTakenForExpenses || 0), sub: `${exp.disbursementsCount || 0} outflows`, icon: Receipt, color: '#f87171', ink: 'var(--ns-danger)' },
-              { label: 'Cash in Hand', value: formatCurrency(rec.expectedCashAtHand || 0), sub: 'Shift balance', icon: Wallet, color: '#34d399', ink: 'var(--ns-success)' },
-            ].map((tile) => (
-              <div key={tile.label} className="ns-card glass p-4" style={{ borderTop: `2px solid ${tile.color}20` }}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{tile.label}</span>
-                  <span className="glass-subtle flex h-6 w-6 items-center justify-center rounded-md">
-                    <tile.icon size={12} style={{ color: tile.ink }} />
-                  </span>
-                </div>
-                <div className="text-sm font-extrabold text-[var(--ns-ink)]">{tile.value}</div>
-                <div className="mt-0.5 text-[9px] text-[var(--ns-muted)]">{tile.sub}</div>
-              </div>
-            ))}
+          {/* KPI Ribbon */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Mobile Money</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{formatCurrency(fin.momo?.totalAmount || 0)}</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash Received</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(fin.cash?.totalAmount || 0)}</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Card Payments</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{formatCurrency(fin.card?.totalAmount || 0)}</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>People Booked</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-purple)' }}>{bkg.totalPeople || 0}</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Expenses</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-danger)' }}>{formatCurrency(exp.totalTakenForExpenses || 0)}</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash in Hand</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(rec.expectedCashAtHand || 0)}</div>
+            </div>
           </div>
 
           {/* ── Tabs ── */}
@@ -307,7 +317,13 @@ export default function ReceptionReportPage() {
               </div>
 
               {/* MoMo Ledger */}
-              <Section title={`Mobile Money Ledger (${fin.momo?.transactions?.length || 0})`} subtitle="All MoMo payments with references and guest details">
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <Smartphone size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Mobile Money Ledger ({fin.momo?.transactions?.length || 0})</h2>
+                  </div>
+                </div>
                 {!fin.momo?.transactions?.length ? (
                   <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No MoMo payments in this period.</div>
                 ) : (
@@ -356,10 +372,16 @@ export default function ReceptionReportPage() {
                     </table>
                   </div>
                 )}
-              </Section>
+              </div>
 
               {/* All Payments Audit Trail */}
-              <Section title={`All Payment Collections (${fin.allPaymentRecords?.length || 0})`} subtitle="Complete audit trail across all payment methods">
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <CreditCard size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>All Payment Collections ({fin.allPaymentRecords?.length || 0})</h2>
+                  </div>
+                </div>
                 {!fin.allPaymentRecords?.length ? (
                   <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No payment records found.</div>
                 ) : (
@@ -410,7 +432,7 @@ export default function ReceptionReportPage() {
                     </table>
                   </div>
                 )}
-              </Section>
+              </div>
             </div>
           )}
 
@@ -418,7 +440,13 @@ export default function ReceptionReportPage() {
           {activeTab === 'categories' && (
             <div className="space-y-5">
               {/* Category cards */}
-              <Section title="Room Category Breakdown" subtitle="Revenue and headcount by room type">
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <BedDouble size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Room Category Breakdown</h2>
+                  </div>
+                </div>
                 {!bkg.categories?.length ? (
                   <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No rooms booked in this period.</div>
                 ) : (
@@ -457,10 +485,16 @@ export default function ReceptionReportPage() {
                     ))}
                   </div>
                 )}
-              </Section>
+              </div>
 
               {/* Bookings list */}
-              <Section title={`Bookings (${bkg.bookingsList?.length || 0})`} subtitle="Guest reservations with headcounts and room assignments">
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <Layers size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Bookings ({bkg.bookingsList?.length || 0})</h2>
+                  </div>
+                </div>
                 {!bkg.bookingsList?.length ? (
                   <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No bookings in this period.</div>
                 ) : (
@@ -517,7 +551,7 @@ export default function ReceptionReportPage() {
                     </table>
                   </div>
                 )}
-              </Section>
+              </div>
             </div>
           )}
 
@@ -538,7 +572,13 @@ export default function ReceptionReportPage() {
               )}
 
               {/* Disbursements table */}
-              <Section title={`Expense Disbursements (${exp.disbursementsList?.length || 0})`} subtitle="Cash taken from reception for operational purposes">
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <Receipt size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Expense Disbursements ({exp.disbursementsList?.length || 0})</h2>
+                  </div>
+                </div>
                 {!exp.disbursementsList?.length ? (
                   <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No expense disbursements in this period.</div>
                 ) : (
@@ -575,7 +615,7 @@ export default function ReceptionReportPage() {
                     </table>
                   </div>
                 )}
-              </Section>
+              </div>
             </div>
           )}
 
@@ -637,8 +677,14 @@ export default function ReceptionReportPage() {
 
               {/* MoMo Deposits from Cash */}
               {rec.momoDepositsList?.length > 0 && (
-                <Section title={`MoMo Deposits from Cash (${rec.momoDepositsList.length})`} subtitle="Cash taken from drawer and sent via mobile money — reduces physical cash balance">
-                  <div className="overflow-x-auto">
+                <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                    <div className="flex items-center gap-2">
+                      <Smartphone size={14} className="text-[var(--ns-teal)]" />
+                      <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>MoMo Deposits from Cash ({rec.momoDepositsList.length})</h2>
+                    </div>
+                  </div>
+                  <div className="p-4 overflow-x-auto">
                     <table className="w-full text-left">
                       <thead className="border-b border-[var(--ns-glass-line)]">
                         <tr>
@@ -673,12 +719,12 @@ export default function ReceptionReportPage() {
                       </tfoot>
                     </table>
                   </div>
-                </Section>
+                </div>
               )}
             </div>
           )}
         </>
       )}
-    </ShellPage>
+    </div>
   );
 }

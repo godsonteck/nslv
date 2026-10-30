@@ -30,7 +30,6 @@ import {
 import { posApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { Button, FormField, TextInput, SelectInput, showToast, LoadingState, Modal } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
 import { receiptCompanyBlock } from '../../lib/company';
 import { villaAssets } from '../../assets';
@@ -631,11 +630,18 @@ export default function PoolPortalPage() {
   };
 
   return (
-    <ShellPage
-      eyebrow="POOL · RECEPTION DESK &amp; CASHIER"
-      title="Pool services"
-      subtitle="Sell pool passes, record visitor attendance, print official receipts, and manage entries."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Waves size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Pool Services</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Sell pool passes, record visitor attendance, print official receipts, and manage entries.</p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           {canAdjustPrices && (
             <Button
@@ -651,36 +657,30 @@ export default function PoolPortalPage() {
             <RefreshCw size={14} /> Refresh
           </Button>
         </div>
-      }
-    >
-      {/* 4 Summary Stat Cards with Accurate Reconciliation */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Total Swimmers Today"
-          value={`${totalVisitorsToday} Swimmers`}
-          note={`${todayAttendance.length} registered group${todayAttendance.length !== 1 ? 's' : ''}`}
-          icon={Users}
-          accent
-        />
-        <StatTile
-          label="Paid Swimmers / Sales"
-          value={`${totalPaidSwimmersToday} Swimmers`}
-          note={`${todayTransactions.length} transaction${todayTransactions.length !== 1 ? 's' : ''}`}
-          icon={ClipboardCheck}
-        />
-        <StatTile
-          label="Pool Sales Today"
-          value={formatCurrency(salesToday)}
-          note="Accrued from paid pool passes"
-          icon={Waves}
-          accent
-        />
-        <StatTile
-          label="Complimentary / Unpaid"
-          value={`${Math.max(0, totalVisitorsToday - totalPaidSwimmersToday)} Swimmers`}
-          note="Residents or uncollected entries"
-          icon={ReceiptText}
-        />
+      </div>
+
+      {/* KPI Ribbon */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Swimmers Today</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalVisitorsToday} Swimmers</div>
+          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{todayAttendance.length} registered group{todayAttendance.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Paid Swimmers / Sales</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalPaidSwimmersToday} Swimmers</div>
+          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{todayTransactions.length} transaction{todayTransactions.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pool Sales Today</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(salesToday)}</div>
+          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>Accrued from paid pool passes</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Complimentary / Unpaid</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{Math.max(0, totalVisitorsToday - totalPaidSwimmersToday)} Swimmers</div>
+          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>Residents or uncollected entries</div>
+        </div>
       </div>
 
       {loading ? (
@@ -689,7 +689,14 @@ export default function PoolPortalPage() {
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Left Column: Unified Record Entry & Cashier Form */}
           <div className="lg:col-span-5">
-            <Section title="Record Entry &amp; Charge" subtitle="Enter visitor details, select pass rate, and print receipt.">
+            <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                <div className="flex items-center gap-2">
+                  <ClipboardCheck size={14} className="text-[var(--ns-teal)]" />
+                  <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Record Entry & Charge</h2>
+                </div>
+                <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Enter visitor details, select pass rate, and print receipt.</p>
+              </div>
               <form onSubmit={(e) => handleSubmitEntry(e, true)} className="space-y-4 p-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField label="Visitor / Group Lead Name" required>
@@ -852,7 +859,7 @@ export default function PoolPortalPage() {
                     className="flex-1 glass text-[var(--ns-ink)] ns-glass-hover font-bold"
                     loading={busy}
                   >
-                    <Printer size={15} /> Record &amp; Print Receipt
+                    <Printer size={15} /> Record & Print Receipt
                   </Button>
                   <Button
                     type="button"
@@ -865,7 +872,7 @@ export default function PoolPortalPage() {
                   </Button>
                 </div>
               </form>
-            </Section>
+            </div>
           </div>
 
           {/* Right Column: Attendance & Entries Log + Cashier Transactions Tab */}
@@ -903,10 +910,14 @@ export default function PoolPortalPage() {
             </div>
 
             {activeTab === 'entries' ? (
-              <Section
-                title="Registered Swimmer Entries"
-                subtitle="All visitor entries. Re-print receipts, attach payments to unpaid entries, or edit."
-              >
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <Users size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Registered Swimmer Entries</h2>
+                  </div>
+                  <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>All visitor entries. Re-print receipts, attach payments to unpaid entries, or edit.</p>
+                </div>
                 {matchedAttendanceList.length === 0 ? (
                   <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
                     <Waves size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-gold)]" />
@@ -1042,12 +1053,16 @@ export default function PoolPortalPage() {
                     })}
                   </div>
                 )}
-              </Section>
+              </div>
             ) : (
-              <Section
-                title="Paid Pool Transactions &amp; Receipts"
-                subtitle="Official cashier payment ledger for pool passes and rentals."
-              >
+              <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                  <div className="flex items-center gap-2">
+                    <ReceiptText size={14} className="text-[var(--ns-teal)]" />
+                    <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Paid Pool Transactions & Receipts</h2>
+                  </div>
+                  <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Official cashier payment ledger for pool passes and rentals.</p>
+                </div>
                 {transactions.length === 0 ? (
                   <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
                     <ReceiptText size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-gold)]" />
@@ -1134,7 +1149,7 @@ export default function PoolPortalPage() {
                     ))}
                   </div>
                 )}
-              </Section>
+              </div>
             )}
           </div>
         </div>
@@ -1564,6 +1579,6 @@ export default function PoolPortalPage() {
           </div>
         </Modal>
       )}
-    </ShellPage>
+    </div>
   );
 }

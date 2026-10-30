@@ -6,9 +6,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { authApi } from '../services/apiService';
-import { ShellPage, Section } from '../components/common/WorkspaceUI';
 import { Button, FormField, TextInput, showToast } from '../components/ui';
-import { Camera, KeyRound, Lock, Save, ShieldCheck, UserCheck } from 'lucide-react';
+import { Camera, KeyRound, Lock, Save, ShieldCheck, UserCheck, User } from 'lucide-react';
 
 const readFileAsDataURL = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -121,14 +120,30 @@ export const AccountPage: React.FC = () => {
     `${(user?.firstName || '')[0] ?? ''}${(user?.lastName || '')[0] ?? ''}`.toUpperCase() || 'NS';
 
   return (
-    <ShellPage
-      eyebrow="Profile"
-      title="My profile"
-      subtitle="Manage your personal details, avatar, and account security for the villa team."
-    >
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <User size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>My Profile</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage your personal details, avatar, and account security for the villa team.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2"></div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* ── Avatar Profile Card ── */}
-        <Section title="Profile picture" subtitle="Appears across villa activity logs and receipts.">
+        {/* Avatar Profile Card */}
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+            <div className="flex items-center gap-2">
+              <Camera size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Profile Picture</h2>
+            </div>
+          </div>
           <div className="flex flex-col items-center gap-4 p-6">
             <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[var(--ns-gold)]/30 shadow-md ns-glass-band">
               {preview ? (
@@ -182,11 +197,19 @@ export const AccountPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </Section>
+        </div>
 
-        {/* ── Profile Details & Password ── */}
+        {/* Profile Details & Password */}
         <div className="space-y-6 lg:col-span-2">
-          <Section title="Personal Information" subtitle="Your name, username and contact details.">
+          {/* Personal Information */}
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <UserCheck size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Personal Information</h2>
+              </div>
+              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Your name, username and contact details.</p>
+            </div>
             <form onSubmit={saveProfile} className="grid gap-4 p-5 sm:grid-cols-2">
               <FormField label="Username" required>
                 <TextInput
@@ -241,12 +264,17 @@ export const AccountPage: React.FC = () => {
                 </Button>
               </div>
             </form>
-          </Section>
+          </div>
 
-          <Section
-            title="Account Password"
-            subtitle="Update your sign-in credentials. You will be automatically signed out upon successful change."
-          >
+          {/* Account Password */}
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <KeyRound size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Account Password</h2>
+              </div>
+              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Update your sign-in credentials. You will be automatically signed out upon successful change.</p>
+            </div>
             <form onSubmit={changePassword} className="space-y-4 p-5">
               <div className="grid gap-4 sm:grid-cols-3">
                 <FormField label="Current Password" required>
@@ -295,10 +323,10 @@ export const AccountPage: React.FC = () => {
                 </Button>
               </div>
             </form>
-          </Section>
+          </div>
         </div>
       </div>
-    </ShellPage>
+    </div>
   );
 };
 

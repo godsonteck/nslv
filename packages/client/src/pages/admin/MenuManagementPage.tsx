@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { posApi, categoriesApi } from '../../services/apiService';
-import { ShellPage, Section } from '../../components/common/WorkspaceUI';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState } from '../../components/ui';
 import { UtensilsCrossed, Wine, Waves, Plus, Pencil, Trash2, RefreshCw, Power } from 'lucide-react';
 import { formatCurrency } from '@nslv/shared';
@@ -187,21 +186,29 @@ const openEdit = (item: any) => {
   const domainLabel = DOMAINS.find((d) => d.id === domain)?.label || domain;
 
   return (
-    <ShellPage
-      eyebrow="ADMINISTRATION · MENU & POS"
-      title="Menu & point of sale"
-      subtitle="Full control over the restaurant, bar and pool menus, pricing, availability and posted orders."
-      actions={
-        <>
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <UtensilsCrossed size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Menu & Point of Sale</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Full control over the restaurant, bar and pool menus, pricing, availability and posted orders.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={load}>
             <RefreshCw size={14} /> Refresh
           </Button>
           <Button size="sm" onClick={openAdd}>
             <Plus size={14} /> Add item
           </Button>
-        </>
-      }
-    >
+        </div>
+      </div>
+
+      {/* Domain Tabs */}
       <div className="flex gap-1.5">
         {DOMAINS.map((d) => (
           <button
@@ -219,14 +226,13 @@ const openEdit = (item: any) => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <Section
-          title={`${domainLabel} menu`}
-          subtitle={
-            includeOff
-              ? 'Showing active and archived items.'
-              : 'Showing only items available for ordering.'
-          }
-          action={
+        {/* Menu Section */}
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center sm:justify-between ns-glass-band">
+            <div className="flex items-center gap-2">
+              <UtensilsCrossed size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>{domainLabel} menu</h2>
+            </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -239,8 +245,7 @@ const openEdit = (item: any) => {
                 Show archived
               </label>
             </div>
-          }
-        >
+          </div>
           <div className="border-b border-[var(--ns-glass-line)] ns-glass-band p-4">
             <input
               className="glass-input h-10 w-full text-xs text-[var(--ns-ink)] border-[var(--ns-glass-line)] placeholder:text-[var(--ns-muted)]"
@@ -305,10 +310,18 @@ const openEdit = (item: any) => {
               ))}
             </div>
           )}
-        </Section>
+        </div>
 
         <div className="space-y-6">
-          <Section title="Posted orders" subtitle={`Recent ${domainLabel.toLowerCase()} transactions`}>
+          {/* Posted Orders Section */}
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <RefreshCw size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Posted orders</h2>
+              </div>
+              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Recent {domainLabel.toLowerCase()} transactions</p>
+            </div>
             <div className="divide-y divide-[var(--ns-glass-line)]">
               {orders.length === 0 ? (
                 <div className="p-8 text-center text-xs text-[var(--ns-muted)]">No orders yet.</div>
@@ -331,9 +344,17 @@ const openEdit = (item: any) => {
                 ))
               )}
             </div>
-          </Section>
+          </div>
 
-          <Section title="Categories" subtitle={`Manage ${domainLabel.toLowerCase()} categories`}>
+          {/* Categories Section */}
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <Waves size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Categories</h2>
+              </div>
+              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage {domainLabel.toLowerCase()} categories</p>
+            </div>
             <div className="px-5 py-3">
               {categories.length === 0 ? (
                 <div className="text-[10px] text-[var(--ns-muted)] mb-3">
@@ -349,7 +370,7 @@ const openEdit = (item: any) => {
                 <Plus size={14} /> Manage categories
               </Button>
             </div>
-          </Section>
+          </div>
         </div>
       </div>
 
@@ -427,7 +448,7 @@ const openEdit = (item: any) => {
           />
         </div>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

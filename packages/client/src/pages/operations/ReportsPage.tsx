@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Download,
   RefreshCw,
-  TrendingUp,
   UtensilsCrossed,
   Waves,
   Wine,
@@ -15,7 +14,6 @@ import {
   Printer,
   FileSpreadsheet,
   AlertCircle,
-  Percent,
   CheckCircle2,
   XCircle,
   Receipt,
@@ -31,7 +29,6 @@ import {
   PartyPopper,
 } from 'lucide-react';
 import { Button, LoadingState, showToast } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { formatCurrency } from '@nslv/shared';
 
 type ReportMode = 'daily' | 'weekly' | 'monthly' | 'custom';
@@ -305,24 +302,34 @@ export default function ReportsPage() {
   const fnbData = data?.foodAndBeverage || {};
 
   return (
-    <ShellPage
-      eyebrow="MANAGEMENT · EXECUTIVE INTELLIGENCE"
-      title={periodLabel}
-      subtitle="Complete database-derived occupancy, people headcount, operations, departmental revenues, and cash movement."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <BarChart3 size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              {periodLabel}
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Occupancy, headcount, operations, revenues & cash movement
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={loadReport}>
-            <RefreshCw size={14} /> Refresh
+          <Button variant="outline" size="sm" onClick={loadReport} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+            <RefreshCw size={12} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handlePrint}>
-            <Printer size={14} /> Print
+          <Button variant="outline" size="sm" onClick={handlePrint} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+            <Printer size={12} /> Print
           </Button>
-          <Button variant="primary" size="sm" onClick={handleExportCSV}>
-            <Download size={14} /> Export CSV
+          <Button variant="primary" size="sm" onClick={handleExportCSV} className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover">
+            <Download size={12} /> Export CSV
           </Button>
         </div>
-      }
-    >
+      </div>
       {/* Mode Tabs */}
       <div className="glass-subtle border border-[var(--ns-glass-line)] rounded-xl p-3 shadow-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -510,37 +517,34 @@ export default function ReportsPage() {
         <LoadingState message={`Compiling ${mode.toUpperCase()} property report...`} />
       ) : (
         <div className="space-y-6">
-          {/* Executive Overview Metric Cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile
-              label="Occupancy Rate"
-              value={`${occ.occupancyRate ?? 0}%`}
-              icon={Percent}
-              accent
-            />
-            <StatTile
-              label="People Accommodated"
-              value={`${ppl.totalPeopleAccommodated ?? 0} Guests`}
-              icon={Users}
-            />
-            <StatTile
-              label="Total Revenue Collected"
-              value={formatCurrency(Number(fin.totalCollectedRevenue ?? data?.totalCollectedRevenue ?? 0))}
-              icon={TrendingUp}
-              accent
-            />
-            <StatTile
-              label="Net Operating Flow"
-              value={formatCurrency(Number(cash.netMovement ?? 0))}
-              icon={Wallet}
-            />
+          {/* ── KPI Ribbon ── */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-teal)' }}>{occ.occupancyRate ?? 0}%</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>People Accommodated</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{ppl.totalPeopleAccommodated ?? 0} Guests</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(Number(fin.totalCollectedRevenue ?? data?.totalCollectedRevenue ?? 0))}</div>
+            </div>
+            <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Net Operating Flow</div>
+              <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{formatCurrency(Number(cash.netMovement ?? 0))}</div>
+            </div>
           </div>
 
           {/* Section 1: Total Occupancy & Room Capacity */}
-          <Section
-            title="🏨 Room Capacity & Total Occupancy"
-            subtitle={`Room allocation, available stock & utilization for ${startDate} to ${endDate}`}
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <BedDouble size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Room Capacity & Total Occupancy</h2>
+              </div>
+            </div>
             <div className="p-5 space-y-4">
               {/* Progress bar visualizer */}
               <div>
@@ -578,13 +582,16 @@ export default function ReportsPage() {
                 </div>
               </div>
             </div>
-          </Section>
+          </div>
 
           {/* Section 2: Number of People & Guest Headcount */}
-          <Section
-            title="👥 Number of People & Guest Headcount"
-            subtitle="Detailed headcount of adults, children, and guest traffic"
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <Users size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Number of People & Guest Headcount</h2>
+              </div>
+            </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-[var(--ns-glass-line)] ns-glass-band p-4">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase text-[var(--ns-gold)]">
@@ -636,13 +643,16 @@ export default function ReportsPage() {
                 </div>
               </div>
             </div>
-          </Section>
+          </div>
 
           {/* Section 3: Operations & Stays Turnover */}
-          <Section
-            title="📋 Operations & Stays Turnover"
-            subtitle="Reservations, check-ins, check-outs, and late departures"
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Operations & Stays Turnover</h2>
+              </div>
+            </div>
             <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
                 <div className="text-xs font-bold uppercase text-[var(--ns-muted)]">Reservations</div>
@@ -684,13 +694,16 @@ export default function ReportsPage() {
                 )}
               </div>
             </div>
-          </Section>
+          </div>
 
           {/* Section 4a: Pool Facility Detail */}
-          <Section
-            title="Pool Facility: Swimmer Traffic & Revenue"
-            subtitle={`Pool attendance headcount, paid transactions, and revenue split by payment method`}
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <Waves size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Pool Facility: Swimmer Traffic & Revenue</h2>
+              </div>
+            </div>
             <div className="p-5 space-y-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
@@ -732,13 +745,16 @@ export default function ReportsPage() {
                 </div>
               )}
             </div>
-          </Section>
+          </div>
 
           {/* Section 4b: Restaurant & Bar Activity */}
-          <Section
-            title="🍽️ Restaurant & Bar Activity"
-            subtitle="Restaurant and bar order counts with revenue totals"
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <UtensilsCrossed size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Restaurant & Bar Activity</h2>
+              </div>
+            </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
                 <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Orders</div>
@@ -761,13 +777,16 @@ export default function ReportsPage() {
                 <div className="text-[10px] text-[var(--ns-muted)] mt-1">Beverage POS sales</div>
               </div>
             </div>
-          </Section>
+          </div>
 
           {/* Section 4c: Payment Method Breakdown */}
-          <Section
-            title="💳 Revenue by Payment Method"
-            subtitle="Payment methods breakdown"
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <Wallet size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Revenue by Payment Method</h2>
+              </div>
+            </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 { label: 'Cash', key: 'CASH', color: 'text-[var(--ns-success)]' },
@@ -788,13 +807,16 @@ export default function ReportsPage() {
                 </div>
               ))}
             </div>
-          </Section>
+          </div>
 
           {/* Section 4: Department Revenue Breakdown */}
-          <Section
-            title="💰 Department Revenue Breakdown"
-            subtitle={`Earned and accrued revenues during ${startDate} to ${endDate}`}
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <DollarSign size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Department Revenue Breakdown</h2>
+              </div>
+            </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
               <DeptCard
                 icon={BedDouble}
@@ -838,13 +860,16 @@ export default function ReportsPage() {
                 </div>
               </div>
             </div>
-          </Section>
+          </div>
 
           {/* Section 5: Financial Metrics & Cash Flow */}
-          <Section
-            title="💵 Financial Health, Cash Flow & Balances"
-            subtitle="Ledger collections, disbursements, expenses, and outstanding receivables"
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <DollarSign size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Financial Health, Cash Flow & Balances</h2>
+              </div>
+            </div>
             <div className="p-5 space-y-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
@@ -938,14 +963,17 @@ export default function ReportsPage() {
                 </div>
               )}
             </div>
-          </Section>
+          </div>
 
 
           {/* Section 6: Events & Event Spaces */}
-          <Section
-            title="🎉 Events & Event Spaces"
-            subtitle={`Event bookings, guest counts, and space utilization for ${startDate} to ${endDate}`}
-          >
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <PartyPopper size={14} className="text-[var(--ns-teal)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Events & Event Spaces</h2>
+              </div>
+            </div>
             <div className="p-5 space-y-5">
               {/* Event Stat Tiles */}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -1042,14 +1070,17 @@ export default function ReportsPage() {
                 </div>
               )}
             </div>
-          </Section>
+          </div>
 
           {/* Section 7: Daily Timeline Breakdown Table (for Weekly/Monthly/Custom reports) */}
           {dailyTimeline.length > 1 && (
-            <Section
-              title="📅 Day-by-Day Timeline Audit"
-              subtitle={`Complete day-by-day revenue, headcount, arrivals, and expense ledger`}
-            >
+            <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+                <div className="flex items-center gap-2">
+                  <Calendar size={14} className="text-[var(--ns-teal)]" />
+                  <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Day-by-Day Timeline Audit</h2>
+                </div>
+              </div>
               <div className="p-4 overflow-x-auto">
                 <table className="w-full text-xs text-left text-[var(--ns-muted)]">
                   <thead className="text-[10px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
@@ -1092,11 +1123,11 @@ export default function ReportsPage() {
                   </tbody>
                 </table>
               </div>
-            </Section>
+            </div>
           )}
         </div>
       )}
-    </ShellPage>
+    </div>
   );
 }
 

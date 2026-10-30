@@ -14,12 +14,8 @@ import {
   X,
   Pencil,
   Settings,
-  TrendingDown,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
   FileText,
-  Filter,
+  Search,
 } from 'lucide-react';
 import {
   Button,
@@ -31,7 +27,6 @@ import {
   statusBadge,
   LoadingState,
 } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { categoriesApi, expensesApi, ExpenseRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { CategoryManager } from '../../components/admin/CategoryManager';
@@ -222,18 +217,29 @@ export const ExpensesPage: React.FC = () => {
   }, [expenses]);
 
   return (
-    <ShellPage
-      eyebrow="Finance"
-      title="Property Expenditures"
-      subtitle="Operational expense vouchers, supplier payments, utility bills, and department disbursements."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Receipt size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Property Expenditures
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Expense vouchers, supplier payments &amp; department disbursements
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           {canManageCategories && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCategoryManagerOpen(true)}
-              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
+              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover text-[11px] font-semibold"
             >
               <Settings size={13} /> Categories
             </Button>
@@ -243,71 +249,88 @@ export const ExpensesPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={openCreate}
-              className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold"
+              className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold text-[11px]"
             >
-              <Plus size={14} /> New Expense Voucher
+              <Plus size={12} /> New Expense Voucher
             </Button>
           )}
         </div>
-      }
-    >
-      {/* ── Stat Tiles ── */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile
-          label="Total Approved Expenses"
-          value={formatCurrency(totalApproved)}
-          note="Verified operational disbursements"
-          icon={TrendingDown}
-          accent
-        />
-        <StatTile
-          label="Pending Approvals"
-          value={`${pendingCount} vouchers`}
-          note={pendingCount > 0 ? formatCurrency(pendingTotal) + ' pending review' : 'No vouchers awaiting approval'}
-          icon={Clock}
-        />
-        <StatTile
-          label="Total Recorded"
-          value={expenses.length}
-          note="All historical & active vouchers"
-          icon={FileText}
-        />
       </div>
 
-      {/* ── Section Table ── */}
-      <Section
-        title="Expenditure Vouchers"
-        subtitle="Review, approve, and track all property operational payments and vendor invoices."
-        action={
-          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)] glass-subtle ns-glass-hover">
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Approved Expenses</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(totalApproved)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Approvals</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: pendingCount > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>
+            {pendingCount} <span className="text-xs font-bold" style={{ color: 'var(--ns-muted)' }}>vouchers</span>
+          </div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Value</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(pendingTotal)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Recorded</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{expenses.length}</div>
+        </div>
+      </div>
+
+      {/* ── Expenditure Vouchers Table ── */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <div className="flex items-center gap-2">
+            <FileText size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Expenditure Vouchers</h2>
+            <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
+              {filteredExpenses.length}
+            </span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-[11px] text-[var(--ns-muted)] glass-subtle ns-glass-hover">
             <RefreshCw size={13} /> Refresh
           </Button>
-        }
-      >
-        <Toolbar search={searchQuery} onSearch={setSearchQuery} placeholder="Search by description, vendor, or voucher #…">
-          <SelectInput
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-40 text-xs glass-input"
-          >
-            <option value="">All Categories</option>
-            {categoryOptions.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </SelectInput>
-          <SelectInput
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-36 text-xs glass-input"
-          >
-            <option value="">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-          </SelectInput>
-        </Toolbar>
+        </div>
+
+        {/* Compact Filter Bar */}
+        <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center">
+          <div className="relative w-full sm:w-72">
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by description, vendor, or voucher #..."
+              className="ns-input glass-input w-full pl-7 pr-3 py-1.5 text-[11px]"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2 sm:ml-auto">
+            <SelectInput
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-40 text-xs glass-input"
+            >
+              <option value="">All Categories</option>
+              {categoryOptions.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </SelectInput>
+            <SelectInput
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-36 text-xs glass-input"
+            >
+              <option value="">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+            </SelectInput>
+          </div>
+        </div>
 
         {loading ? (
           <div className="p-12"><LoadingState /></div>
@@ -403,7 +426,7 @@ export const ExpensesPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+      </div>
 
       {/* ── Modal: Create / Edit Expenditure ── */}
       <Modal
@@ -497,7 +520,7 @@ export const ExpensesPage: React.FC = () => {
           }}
         />
       )}
-    </ShellPage>
+    </div>
   );
 };
 

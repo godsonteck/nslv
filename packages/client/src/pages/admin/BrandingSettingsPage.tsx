@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Palette, Save, RefreshCw, AlertTriangle } from 'lucide-react';
-import { PageHeader, Button, FormField, TextInput, SelectInput, showToast, Modal } from '../../components/ui';
+import { Button, FormField, TextInput, SelectInput, showToast, Modal } from '../../components/ui';
 import { useThemeStore } from '../../stores/themeStore';
 import type { ThemeConfig } from '../../services/apiService';
 
@@ -136,29 +136,37 @@ export const BrandingSettingsPage: React.FC = () => {
   const loginBgValue = getValue('loginBgUrl') || '';
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Branding & Theme"
-        subtitle="Customize your villa identity and brand colors"
-        actions={
-          dirty ? (
-            <div className="flex items-center gap-2">
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Palette size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Branding & Theme</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Customize your villa identity and brand colors</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {dirty && (
+            <>
               <Button variant="ghost" size="sm" onClick={() => { setDraft({}); setDirty(false); }}>
                 Discard
               </Button>
               <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
                 <Save size={14} /> Save Changes
               </Button>
-            </div>
-          ) : undefined
-        }
-      />
+            </>
+          )}
+        </div>
+      </div>
 
-      <div className="space-y-6">
-        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-6 space-y-5">
+      <div className="space-y-5">
+        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-5 space-y-5">
           <div className="flex items-center gap-2 mb-2">
-            <Palette size={18} className="text-[var(--ns-gold)]" />
-            <h2 className="text-base font-bold text-[var(--ns-ink)]">Brand identity</h2>
+            <Palette size={16} className="text-[var(--ns-gold)]" />
+            <h2 className="text-sm font-bold text-[var(--ns-ink)]">Brand identity</h2>
           </div>
 
           <FormField label="Villa Name">
@@ -221,8 +229,8 @@ export const BrandingSettingsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-6 space-y-4">
-          <h2 className="text-base font-bold text-[var(--ns-ink)]">Typography</h2>
+        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-5 space-y-4">
+          <h2 className="text-sm font-bold text-[var(--ns-ink)]">Typography</h2>
 
           <FormField label="Body font">
             <SelectInput
@@ -247,8 +255,8 @@ export const BrandingSettingsPage: React.FC = () => {
           </FormField>
         </div>
 
-        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-6 space-y-4">
-          <h2 className="text-base font-bold text-[var(--ns-ink)]">Display</h2>
+        <div className="glass border border-[var(--ns-glass-line)] rounded-lg p-5 space-y-4">
+          <h2 className="text-sm font-bold text-[var(--ns-ink)]">Display</h2>
 
           <label className="flex items-center justify-between gap-3 rounded border border-[var(--ns-glass-line)] glass-subtle p-3">
             <span className="text-sm text-[var(--ns-ink)]">Enable dark mode</span>
@@ -261,11 +269,11 @@ export const BrandingSettingsPage: React.FC = () => {
           </label>
         </div>
 
-        <div className="glass border border-[var(--ns-danger)]/40 rounded-lg p-6">
+        <div className="glass border border-[var(--ns-danger)]/40 rounded-lg p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 glass-subtle rounded text-[var(--ns-danger)]">
-                <AlertTriangle size={18} />
+                <AlertTriangle size={16} />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-[var(--ns-ink)]">Reset to default branding</h3>

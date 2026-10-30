@@ -11,7 +11,6 @@ import {
   CreditCard,
   Plus,
   RefreshCw,
-  WalletCards,
   Receipt,
   ReceiptText,
   Undo2,
@@ -24,20 +23,15 @@ import {
   Smartphone,
   Landmark,
   Search,
-  Filter,
-  Sparkles,
   BedDouble,
   UserRound,
-  ArrowDownLeft,
   ArrowUpRight,
-  ShieldCheck,
   AlertCircle,
   Pencil,
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { printPaymentReceipt } from '../../lib/company';
 import { computeBillSummary } from '../frontoffice/GuestBillsPage';
@@ -580,12 +574,19 @@ export const PaymentsPage: React.FC = () => {
   });
 
   return (
-    <ShellPage
-      eyebrow="NS LUXURY VILLA · AUDIT & FINANCIAL SETTLEMENTS"
-      title="Payments Ledger & Cashiering"
-      subtitle="Direct collections, group deposits, part-payment settlement verification, and manager refund approvals."
-      actions={
-        <div className="flex flex-wrap items-center gap-2.5">
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Receipt size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Payments Ledger &amp; Cashiering</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Audit &amp; financial settlements</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => void load()} className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -593,57 +594,24 @@ export const PaymentsPage: React.FC = () => {
             <Plus size={14} /> Record Payment
           </Button>
         </div>
-      }
-    >
-      {/* KPI Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-success)] glass p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Net Revenue Collected</span>
-            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-success)]">
-              <CreditCard size={18} />
-            </div>
-          </div>
-          <div className="mt-2 text-2xl font-black text-[var(--ns-success)]">{formatCurrency(totalNet)}</div>
-          <p className="mt-1 text-[11px] text-[var(--ns-success)] font-medium">Immutable ledger balance</p>
+      </div>
+      {/* KPI Ribbon */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-success)' }}>Net Revenue</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(totalNet)}</div>
         </div>
-
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Total Collections</span>
-            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-teal)]">
-              <WalletCards size={18} />
-            </div>
-          </div>
-          <div className="mt-2 text-2xl font-black text-[var(--ns-ink)]">{completedPayments.length}</div>
-          <p className="mt-1 text-[11px] text-[var(--ns-muted)]">
-            <span className="font-bold text-[var(--ns-success)]">{fullPayments.length} Full</span> ·{' '}
-            <span className="font-bold text-[var(--ns-warning)]">{partPayments.length} Part / Deposit</span>
-          </p>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Collections</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{completedPayments.length}</div>
         </div>
-
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--ns-danger)] glass-subtle p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Refunds Issued</span>
-            <div className="rounded-xl glass-subtle p-2 text-[var(--ns-danger)]">
-              <Undo2 size={18} />
-            </div>
-          </div>
-          <div className="mt-2 text-2xl font-black text-[var(--ns-danger)]">{formatCurrency(refundedTotal)}</div>
-          <p className="mt-1 text-[11px] text-[var(--ns-muted)]">{completedRefunds.length} ledger reversal{completedRefunds.length === 1 ? '' : 's'}</p>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Refunds Issued</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-danger)' }}>{formatCurrency(refundedTotal)}</div>
         </div>
-
-        <div className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-colors ${pendingRefunds.length > 0 ? 'border-[var(--ns-warning)] glass-subtle' : 'border-[var(--ns-glass-line)] glass-subtle'}`}>
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Pending Approvals</span>
-            <div className={`rounded-xl p-2 ${pendingRefunds.length > 0 ? 'glass-subtle text-[var(--ns-warning)] animate-pulse' : 'glass-subtle text-[var(--ns-muted)]'}`}>
-              <Clock size={18} />
-            </div>
-          </div>
-          <div className="mt-2 text-2xl font-black text-[var(--ns-ink)]">{pendingRefunds.length}</div>
-          <p className="mt-1 text-[11px] text-[var(--ns-muted)]">
-            {pendingRefunds.length > 0 ? 'Awaiting Manager / Admin review' : 'All transactions cleared'}
-          </p>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Approvals</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: pendingRefunds.length > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>{pendingRefunds.length}</div>
         </div>
       </div>
 
@@ -683,10 +651,13 @@ export const PaymentsPage: React.FC = () => {
       )}
 
       {/* Main Section */}
-      <Section
-        title="Transaction Ledger"
-        subtitle="Complete chronological record of receipts, collections, and reversals."
-      >
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <div className="flex items-center gap-2">
+            <ReceiptText size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Transaction Ledger</h2>
+          </div>
+        </div>
         {/* Filter Bar */}
         <div className="border-b border-[var(--ns-glass-line)] ns-glass-band p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1059,7 +1030,7 @@ export const PaymentsPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+      </div>
 
       {/* Record Payment Modal */}
       <Modal open={open} onClose={() => setOpen(false)} title="Record guest payment" size="lg">
@@ -1736,7 +1707,7 @@ export const PaymentsPage: React.FC = () => {
           </form>
         )}
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

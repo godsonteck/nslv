@@ -21,7 +21,6 @@ import {
   X,
 } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, TextareaInput, showToast, LoadingState, statusBadge } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 
 export const GuestsPage: React.FC = () => {
@@ -226,110 +225,125 @@ export const GuestsPage: React.FC = () => {
     });
 
   return (
-    <ShellPage
-      eyebrow="Front Office"
-      title="Guest Directory"
-      subtitle="Manage guest profiles, contact records, VIP status, and stay history."
-      actions={
-        <>
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Users size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Guest Directory
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Profiles, contacts, VIP status & stay history
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={load}
-            className="gap-1.5 glass-subtle ns-glass-hover"
-            title="Refresh guest records"
+            className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
           >
-            <RefreshCw size={14} /> Refresh
+            <RefreshCw size={12} /> Refresh
           </Button>
           {canCreate && (
             <Button
               variant="primary"
               size="sm"
               onClick={() => setCreateOpen(true)}
-              className="gap-1.5 font-bold glass-subtle ns-glass-hover"
+              className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover"
             >
-              <Plus size={14} /> Register Guest
+              <Plus size={12} /> Register Guest
             </Button>
           )}
-        </>
-      }
-    >
-      {/* ── Stat Tiles ── */}
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-        <StatTile
-          label="Total Guests"
-          value={data.length}
-          note="Registered in directory"
-          icon={Users}
-          onClick={() => { setVipFilter('ALL'); setQ(''); }}
-        />
-        <StatTile
-          label="VIP Profiles"
-          value={vipCount}
-          note="Preferred luxury guests"
-          icon={Sparkles}
-          accent={vipFilter === 'VIP'}
-          onClick={() => setVipFilter(vipFilter === 'VIP' ? 'ALL' : 'VIP')}
-        />
-        <StatTile
-          label="Repeat Guests"
-          value={repeatGuestsCount}
-          note="Stayed 2 or more times"
-          icon={UserCheck}
-        />
-        <StatTile
-          label="Total Stays"
-          value={totalStaysCount}
-          note="Cumulative guest bookings"
-          icon={BedDouble}
-        />
+        </div>
       </div>
 
-      {/* ── Main Section ── */}
-      <Section
-        title="Guest Records"
-        subtitle={`Showing ${filteredGuests.length} guest${filteredGuests.length === 1 ? '' : 's'}`}
-      >
-        <Toolbar
-          search={q}
-          onSearch={setQ}
-          placeholder="Search by name, phone, email, document #..."
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <button
+          onClick={() => { setVipFilter('ALL'); setQ(''); }}
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          {/* VIP Filter */}
-          <select
-            value={vipFilter}
-            onChange={(e) => setVipFilter(e.target.value as any)}
-            className="ns-input glass-input h-10 px-3 text-xs font-semibold"
-            title="Filter by guest tier"
-          >
-            <option value="ALL">All Guests</option>
-            <option value="VIP">VIP Guests Only</option>
-            <option value="STANDARD">Standard Guests</option>
-          </select>
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Guests</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{data.length}</div>
+        </button>
+        <button
+          onClick={() => setVipFilter(vipFilter === 'VIP' ? 'ALL' : 'VIP')}
+          className={`glass-subtle rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${
+            vipFilter === 'VIP' ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]/40' : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)]'
+          }`}
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>VIP</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{vipCount}</div>
+        </button>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Repeat</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{repeatGuestsCount}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Stays</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalStaysCount}</div>
+        </div>
+      </div>
 
-          {/* Sort By */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="ns-input glass-input h-10 px-3 text-xs font-semibold"
-            title="Sort guest directory"
-          >
-            <option value="name_asc">Sort: Name (A to Z)</option>
-            <option value="stays_desc">Sort: Most Stays</option>
-            <option value="newest">Sort: Recently Registered</option>
-          </select>
+      {/* ── Guest Records Table ── */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <div className="flex items-center gap-2">
+            <Users size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Guest Records</h2>
+            <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
+              {filteredGuests.length}
+            </span>
+          </div>
+        </div>
 
-          {q && (
-            <button
-              type="button"
-              onClick={() => setQ('')}
-              className="inline-flex items-center gap-1 rounded-xl px-2.5 py-2 text-xs font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-ink)] glass-subtle ns-glass-hover"
-              title="Clear search"
+        <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center">
+          <div className="relative w-full sm:w-72">
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search by name, phone, email, document #..."
+              className="ns-input glass-input w-full pl-7 pr-3 py-1.5 text-[11px]"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2 sm:ml-auto">
+            <select
+              value={vipFilter}
+              onChange={(e) => setVipFilter(e.target.value as any)}
+              className="ns-input glass-input h-9 px-2.5 text-[11px] font-semibold"
             >
-              <X size={14} /> Clear
-            </button>
-          )}
-        </Toolbar>
+              <option value="ALL">All Guests</option>
+              <option value="VIP">VIP Only</option>
+              <option value="STANDARD">Standard</option>
+            </select>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="ns-input glass-input h-9 px-2.5 text-[11px] font-semibold"
+            >
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="stays_desc">Most Stays</option>
+              <option value="newest">Newest</option>
+            </select>
+            {q && (
+              <button
+                type="button"
+                onClick={() => setQ('')}
+                className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-ink)] glass-subtle ns-glass-hover"
+              >
+                <X size={12} /> Clear
+              </button>
+            )}
+          </div>
+        </div>
 
         {loading ? (
           <LoadingState />
@@ -488,7 +502,7 @@ export const GuestsPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+      </div>
 
       {/* ── Brief & Simple Guest View Modal ── */}
       <Modal
@@ -1008,7 +1022,7 @@ export const GuestsPage: React.FC = () => {
           </div>
         </form>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { staysApi } from '../../services/apiService';
 import { Button, LoadingState, showToast, Modal, FormField, TextInput } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 
 interface LateCheckoutRecord {
   id: string;
@@ -231,11 +230,18 @@ export const LateCheckoutsPage: React.FC = () => {
   const records = data?.records || [];
 
   return (
-    <ShellPage
-      eyebrow="ADMINISTRATION · AUDIT & REVENUE RECOVERY"
-      title="Late Check-Outs Audit"
-      subtitle="Complete ledger of delayed departures, automated hourly fees, delay durations, and staff attributions."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Clock size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Late Check-Outs Audit</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Complete ledger of delayed departures, automated hourly fees, delay durations, and staff attributions.</p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={exportCsv} disabled={!records.length}>
             <Download size={14} /> Export CSV
@@ -244,37 +250,40 @@ export const LateCheckoutsPage: React.FC = () => {
             <RefreshCw size={14} /> Refresh
           </Button>
         </div>
-      }
-    >
-      {/* 4 Summary Stat Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Total Late Departures"
-          value={`${summary.totalLateCheckouts} Stays`}
-          icon={AlertTriangle}
-          accent
-        />
-        <StatTile
-          label="Late Fees Recovered"
-          value={formatCurrency(summary.totalFeesCollected)}
-          note={`${formatCurrency(summary.totalFeesBilled)} billed · ${formatCurrency(summary.totalRefunded)} refunded${(summary.totalFeesWaived || 0) > 0 ? ` · ${formatCurrency(summary.totalFeesWaived || 0)} waived` : ''}`}
-          icon={DollarSign}
-          accent
-        />
-        <StatTile
-          label="Avg Delay Duration"
-          value={`${summary.avgDelayHours} Hours`}
-          icon={Clock}
-        />
-        <StatTile
-          label="Active Late Policy"
-          value={`GHS ${policy.hourlyRate}/hr`}
-          icon={SlidersHorizontal}
-        />
       </div>
 
-      {/* Filter Toolbar */}
-      <Section title="Late Departures Ledger" subtitle="Filter by date range or search guest name, room, staff, or confirmation code.">
+      {/* KPI Ribbon */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Late Departures</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{summary.totalLateCheckouts} Stays</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Late Fees Recovered</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(summary.totalFeesCollected)}</div>
+          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{formatCurrency(summary.totalFeesBilled)} billed · {formatCurrency(summary.totalRefunded)} refunded{(summary.totalFeesWaived || 0) > 0 ? ` · ${formatCurrency(summary.totalFeesWaived || 0)} waived` : ''}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Avg Delay Duration</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{summary.avgDelayHours} Hours</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Active Late Policy</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>GHS {policy.hourlyRate}/hr</div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center sm:justify-between ns-glass-band">
+          <div className="flex items-center gap-2">
+            <Clock size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Late Departures Ledger</h2>
+          </div>
+          <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Filter by date range or search guest name, room, staff, or confirmation code.</p>
+        </div>
+
+        {/* Filter Toolbar */}
         <div className="p-4 border-b border-[var(--ns-glass-line)] flex flex-wrap items-center justify-between gap-3 ns-glass-band">
           {/* Preset Date Filter Buttons */}
           <div className="flex flex-wrap items-center gap-1.5 glass-subtle p-1 rounded-lg border border-[var(--ns-glass-line)]">
@@ -471,7 +480,7 @@ export const LateCheckoutsPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+      </div>
 
       {/* Stay & Fee Inspection Modal */}
       {selectedRecord && (
@@ -645,7 +654,7 @@ export const LateCheckoutsPage: React.FC = () => {
           </form>
         </Modal>
       )}
-    </ShellPage>
+    </div>
   );
 };
 

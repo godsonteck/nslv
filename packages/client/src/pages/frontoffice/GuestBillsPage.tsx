@@ -22,7 +22,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Button, Modal, LoadingState, showToast, statusBadge, FormField, TextInput, SelectInput } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { staysApi, foliosApi, paymentsApi } from '../../services/apiService';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { villaAssets } from '../../assets';
@@ -456,72 +455,83 @@ export const GuestBillsPage: React.FC = () => {
   };
 
   return (
-    <ShellPage
-      eyebrow="Front Office"
-      title="Guest Bills & Folios"
-      subtitle="Live room accounts for checked-in guests. Room charges from the restaurant, bar, pool, and front desk accumulate automatically."
-      actions={
-        <Button variant="outline" size="sm" onClick={load} className="gap-1.5 border-[var(--ns-glass-line)] ns-glass-hover">
-          <RefreshCw size={13} /> Refresh
-        </Button>
-      }
-    >
-      {/* ── Metric Cards ── */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile
-          label="In-House Guests"
-          value={stays.length}
-          note="Active checked-in reservations"
-          icon={UserRound}
-        />
-        <StatTile
-          label="Open Folios"
-          value={openFolios.length}
-          note="Live guest room billing accounts"
-          icon={ReceiptText}
-        />
-        <StatTile
-          label="Total Balance Due"
-          value={formatCurrency(outstandingTotal)}
-          note={outstandingTotal > 0 ? 'Pending payment before departure' : 'All accounts settled'}
-          icon={WalletCards}
-          accent={outstandingTotal > 0}
-        />
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <ReceiptText size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Guest Bills &amp; Folios</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Live room accounts for in-house guests</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={load} className="gap-1.5 border-[var(--ns-glass-line)] ns-glass-hover">
+            <RefreshCw size={13} /> Refresh
+          </Button>
+        </div>
+      </div>
+      {/* KPI Ribbon */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>In-House Guests</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{stays.length}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Open Folios</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{openFolios.length}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Balance Due</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: outstandingTotal > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>{formatCurrency(outstandingTotal)}</div>
+        </div>
       </div>
 
       {/* ── Table Section ── */}
-      <Section
-        title="Guest Room Folios & Billing Ledger"
-        subtitle="Click any row or 'View Bill' to inspect breakdown, posted items, payments, settle balances, or print official slips."
-      >
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] ns-glass-band p-4">
-          <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-1">
-            <button
-              type="button"
-              onClick={() => setFilterTab('ALL')}
-              className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'ALL' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
-            >
-              All Folios ({stays.length + unsettledStays.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterTab('IN_HOUSE')}
-              className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'IN_HOUSE' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
-            >
-              In-House ({stays.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterTab('CHECKED_OUT')}
-              className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${filterTab === 'CHECKED_OUT' ? 'glass text-[var(--ns-ink)] shadow-sm font-black ns-glass-selected' : unsettledStays.length > 0 ? 'text-[var(--ns-warning)] font-extrabold glass' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
-            >
-              Checked Out (Owing: {unsettledStays.length})
-            </button>
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center sm:justify-between ns-glass-band">
+          <div className="flex items-center gap-2">
+            <ReceiptText size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Guest Room Folios</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap gap-1.5 rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-1">
+              <button
+                type="button"
+                onClick={() => setFilterTab('ALL')}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'ALL' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+              >
+                All ({stays.length + unsettledStays.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterTab('IN_HOUSE')}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition ${filterTab === 'IN_HOUSE' ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+              >
+                In-House ({stays.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterTab('CHECKED_OUT')}
+                className={`glass-subtle ns-glass-hover rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${filterTab === 'CHECKED_OUT' ? 'glass text-[var(--ns-ink)] shadow-sm font-black ns-glass-selected' : unsettledStays.length > 0 ? 'text-[var(--ns-warning)] font-extrabold glass' : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'}`}
+              >
+                Checked Out ({unsettledStays.length})
+              </button>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" size={13} />
+              <input
+                type="text"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search guest or room…"
+                className="w-full rounded-lg border border-[var(--ns-glass-line)] glass-input py-1.5 pl-7 pr-3 text-[11px] font-medium text-[var(--ns-ink)] placeholder-[var(--ns-muted)] focus:border-[var(--ns-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--ns-gold)]"
+              />
+            </div>
           </div>
         </div>
-
-        <Toolbar search={q} onSearch={setQ} placeholder="Search by guest name or room number…" />
 
         {loading ? (
           <div className="p-12"><LoadingState /></div>
@@ -712,7 +722,7 @@ export const GuestBillsPage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
+      </div>
 
       {/* ── Guest Bill Modal ── */}
       <Modal
@@ -1074,7 +1084,7 @@ export const GuestBillsPage: React.FC = () => {
           </form>
         )}
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

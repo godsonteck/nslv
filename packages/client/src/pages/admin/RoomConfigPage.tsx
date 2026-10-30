@@ -205,19 +205,17 @@ export const RoomConfigPage: React.FC = () => {
   if (loading) return <LoadingState message="Loading room configuration..." />;
 
   return (
-    <div className="space-y-6 select-none pb-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-muted)]">
-            <Building size={13} className="text-[var(--ns-gold)]" /> Administration · Room Configuration
+    <div className="space-y-5 select-none pb-8">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Building size={15} />
           </div>
-          <h1 className="mt-1 font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em] text-[var(--ns-ink)]">
-            Room Configuration
-          </h1>
-          <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-[var(--ns-muted)]">
-            Manage room types, rate defaults, occupancy, and the property room inventory.
-          </p>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Room Configuration</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage room types, rate defaults, occupancy, and the property room inventory.</p>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => void loadAll()} loading={refreshing}>

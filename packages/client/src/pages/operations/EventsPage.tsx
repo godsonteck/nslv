@@ -19,7 +19,7 @@ import {
   Phone,
   UserCheck,
   CheckCircle2,
-  Sparkles,
+  Search,
 } from 'lucide-react';
 import {
   Button,
@@ -31,7 +31,6 @@ import {
   statusBadge,
   LoadingState,
 } from '../../components/ui';
-import { ShellPage, Section, StatTile, Toolbar } from '../../components/common/WorkspaceUI';
 import { eventsApi, EventBookingRecord, EventSpaceRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
@@ -245,11 +244,22 @@ export const EventsPage: React.FC = () => {
   }, [events]);
 
   return (
-    <ShellPage
-      eyebrow="Events"
-      title="Events & Venues"
-      subtitle="Manage function spaces, banquets, private villa parties, weddings, and corporate gatherings."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <CalendarClock size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Events & Venues
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Function spaces, banquets, private parties & corporate gatherings
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           {canCreate && (
             <>
@@ -257,44 +267,43 @@ export const EventsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setSpaceModalOpen(true)}
-                className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
+                className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold"
               >
-                <Building2 size={13} /> Add Venue Space
+                <Building2 size={12} /> Add Venue
               </Button>
               <Button
                 variant="primary"
                 size="sm"
                 onClick={openCreate}
-                className="gap-1.5 glass ns-glass-hover text-[var(--ns-ink)] shadow-sm font-semibold"
+                className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold ns-glass-hover"
               >
-                <Plus size={14} /> Book Event
+                <Plus size={12} /> Book Event
               </Button>
             </>
           )}
         </div>
-      }
-    >
-      {/* ── Metric Cards ── */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile
-          label="Upcoming Functions"
-          value={upcomingCount}
-          note="Confirmed future bookings"
-          icon={CalendarClock}
-          accent={upcomingCount > 0}
-        />
-        <StatTile
-          label="Events Today"
-          value={todayCount}
-          note={todayCount > 0 ? 'Active event on property today' : 'No events scheduled today'}
-          icon={Sparkles}
-        />
-        <StatTile
-          label="Expected Event Guests"
-          value={expectedGuests}
-          note="Attendees across upcoming events"
-          icon={Users}
-        />
+      </div>
+
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <button
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Upcoming Functions</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{upcomingCount}</div>
+        </button>
+        <button
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Events Today</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: todayCount > 0 ? 'var(--ns-gold)' : 'var(--ns-ink)' }}>{todayCount}</div>
+        </button>
+        <button
+          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+        >
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Expected Guests</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{expectedGuests}</div>
+        </button>
       </div>
 
       {/* ── Segmented Navigation ── */}
@@ -331,29 +340,41 @@ export const EventsPage: React.FC = () => {
 
       {/* ── Tab: Events ── */}
       {activeTab === 'EVENTS' && (
-        <Section
-          title="Scheduled Functions"
-          subtitle="All confirmed, planned, and past private functions and property events."
-          action={
-            <Button variant="ghost" size="sm" onClick={fetchAll} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)]">
-              <RefreshCw size={13} /> Refresh
-            </Button>
-          }
-        >
-          <Toolbar search={searchQuery} onSearch={setSearchQuery} placeholder="Search by title, organizer, or venue…">
-            <SelectInput
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-40 text-xs"
-            >
-              <option value="">All Statuses</option>
-              {EVENT_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </SelectInput>
-          </Toolbar>
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex flex-col gap-2.5 border-b border-[var(--ns-glass-line)] p-4 sm:flex-row sm:items-center sm:justify-between ns-glass-band">
+            <div className="flex items-center gap-2">
+              <Calendar size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Scheduled Functions</h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={fetchAll} className="h-8 gap-1.5 text-xs text-[var(--ns-muted)]">
+                <RefreshCw size={13} /> Refresh
+              </Button>
+              <div className="relative">
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ns-muted)]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by title, organizer, or venue…"
+                  className="ns-input h-9 pl-8 pr-3 text-xs glass-input border-[var(--ns-glass-line)] w-56"
+                />
+              </div>
+              <SelectInput
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-40 text-xs"
+              >
+                <option value="">All Statuses</option>
+                {EVENT_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </SelectInput>
+            </div>
+          </div>
+          <div className="p-4">
 
           {loading ? (
             <div className="p-12"><LoadingState /></div>
@@ -445,15 +466,19 @@ export const EventsPage: React.FC = () => {
               </table>
             </div>
           )}
-        </Section>
+          </div>
+        </div>
       )}
 
       {/* ── Tab: Spaces ── */}
       {activeTab === 'SPACES' && (
-        <Section
-          title="Villa Event Spaces & Venues"
-          subtitle="Dedicated properties, poolside terraces, dining halls, and garden lawns."
-        >
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+            <div className="flex items-center gap-2">
+              <Building2 size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Villa Event Spaces & Venues</h2>
+            </div>
+          </div>
           <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {spaces.map((sp) => (
               <div
@@ -497,7 +522,7 @@ export const EventsPage: React.FC = () => {
               </div>
             )}
           </div>
-        </Section>
+        </div>
       )}
 
       {/* ── Modal: Book / Edit Event ── */}
@@ -648,7 +673,7 @@ export const EventsPage: React.FC = () => {
           </div>
         </form>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };
 

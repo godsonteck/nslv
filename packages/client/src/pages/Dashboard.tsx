@@ -33,6 +33,7 @@ import {
 import { villaAssets } from '../assets';
 import { receiptCompanyBlock } from '../lib/company';
 import { Button, LoadingState, statusBadge } from '../components/ui';
+import { KpiRibbon } from '../components/common/WorkspaceUI';
 
 const empty = {
   occupancyRate: 0,
@@ -92,7 +93,6 @@ const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
   win.document.close();
 };
 
-/** Full property command centre — used by roles that manage rooms & guests. */
 const PropertyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -145,55 +145,47 @@ const PropertyDashboard: React.FC = () => {
     Number(m.restaurantRevenueToday || 0) + Number(m.barRevenueToday || 0) + Number(m.poolRevenueToday || 0);
 
   return (
-    <div className="space-y-7 pb-16 animate-in fade-in duration-300">
-      {/* ── Editorial Villa Header ── */}
-      <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-9 border text-[var(--ns-ink)]">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[10px] font-black tracking-widest text-[var(--ns-gold)] uppercase">
-                <Sparkles size={11} className="text-[var(--ns-gold)]" /> Home
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-success)] glass-subtle px-3 py-1 text-[10px] font-bold text-[var(--ns-success)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Today
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
-              Your place, in one view
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Command Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Sparkles size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Command Center
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
-              Lokoe, Ho, Ghana · {nowFormatted}
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              {nowFormatted}
             </p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => void load()}
+            disabled={refreshing}
+            className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-secondary px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] disabled:opacity-50"
+          >
+            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+          {canFrontDesk && (
             <button
-              onClick={() => void load()}
-              disabled={refreshing}
-              className="inline-flex items-center gap-2 rounded-xl clay-btn clay-btn-secondary px-3.5 py-2 text-xs font-bold text-[var(--ns-ink)] disabled:opacity-50"
+              onClick={() => navigate('/frontdesk')}
+              className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-primary px-3.5 py-2 text-[11px] font-black text-white shadow-md"
             >
-              <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
-              <span>Refresh</span>
+              <LogIn size={12} /> Front Desk
             </button>
-            {canFrontDesk && (
-              <button
-                onClick={() => navigate('/frontdesk')}
-                className="inline-flex items-center gap-2 rounded-xl clay-btn clay-btn-primary px-4 py-2 text-xs font-black text-white shadow-md transition-all"
-              >
-                <LogIn size={14} />
-                <span>Front desk</span>
-              </button>
-            )}
-            {canReserve && (
-              <button
-                onClick={() => navigate('/reservations')}
-                className="inline-flex items-center gap-2 rounded-xl clay-btn clay-btn-accent px-4 py-2 text-xs font-black text-white shadow-md transition-all"
-              >
-                <CalendarCheck size={14} />
-                <span>New stay</span>
-              </button>
-            )}
-          </div>
+          )}
+          {canReserve && (
+            <button
+              onClick={() => navigate('/reservations')}
+              className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-accent px-3.5 py-2 text-[11px] font-black text-white shadow-md"
+            >
+              <CalendarCheck size={12} /> New Stay
+            </button>
+          )}
         </div>
       </div>
 
@@ -204,216 +196,122 @@ const PropertyDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ── Authoritative Room Availability Ledger ── */}
-      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass p-6 shadow-md space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] pb-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--ns-teal)]">
-              <BedDouble size={16} />
-              <span>Room status today</span>
-            </div>
-            <p className="mt-0.5 text-xs text-[var(--ns-muted)]">
-              Rooms booked for later dates stay <strong>available today</strong> until their arrival date begins.
-            </p>
+      {/* ── KPI Ribbon ── */}
+      <KpiRibbon
+        items={[
+          {
+            label: 'Revenue Today',
+            value: formatCurrency(m.revenueToday),
+            accent: 'var(--ns-success)',
+            onClick: () => navigate('/payments'),
+          },
+          {
+            label: 'Occupancy',
+            value: `${m.occupancyRate}%`,
+            accent: 'var(--ns-teal)',
+            onClick: () => navigate('/rooms'),
+          },
+          {
+            label: 'Available',
+            value: m.availableRooms,
+            accent: 'var(--ns-success)',
+            onClick: () => navigate('/rooms'),
+          },
+          {
+            label: 'Reserved',
+            value: m.reservedRooms,
+            accent: 'var(--ns-warning)',
+            onClick: () => navigate('/reservations'),
+          },
+          {
+            label: 'Checked In',
+            value: m.occupiedRooms,
+            accent: 'var(--ns-info)',
+            onClick: () => navigate('/frontdesk'),
+          },
+          {
+            label: 'Check-ins',
+            value: m.checkInsToday,
+            onClick: () => navigate('/frontdesk'),
+          },
+          {
+            label: 'Check-outs',
+            value: m.checkOutsToday,
+            onClick: () => navigate('/frontdesk'),
+          },
+          {
+            label: 'Open Folios',
+            value: formatCurrency(m.outstandingBalanceTotal),
+            accent: 'var(--ns-warning)',
+            onClick: () => navigate('/guest-bills'),
+          },
+        ]}
+      />
+
+      {/* ── Room Distribution Bar ── */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BedDouble size={14} className="text-[var(--ns-teal)]" />
+            <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--ns-ink)' }}>
+              Room Status
+            </span>
           </div>
           <button
             onClick={() => navigate('/rooms')}
-            className="text-xs font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors self-start sm:self-auto"
+            className="text-[11px] font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
           >
-            <span>Open room board</span>
-            <ChevronRight size={14} />
+            Room Board <ChevronRight size={12} />
           </button>
         </div>
-
-        {/* 4-Sector Dynamic Availability Matrix */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-          {/* Available Rooms */}
+        <div className="h-3 w-full ns-glass-band rounded-full overflow-hidden flex border border-[var(--ns-glass-line)]">
           <div
-            onClick={() => navigate('/rooms')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-success)] glass p-4 shadow-2xs hover:border-[var(--ns-success)] hover:shadow-xs transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-success)]">{m.availableRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-success)] font-medium">Ready for check-in</div>
-          </div>
-
-          {/* Reserved Rooms */}
+            className="bg-emerald-500 transition-all duration-500"
+            style={{ width: `${m.totalRooms ? (m.availableRooms / m.totalRooms) * 100 : 0}%` }}
+            title={`Available: ${m.availableRooms}`}
+          />
           <div
-            onClick={() => navigate('/reservations')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-warning)] glass p-4 shadow-2xs hover:border-[var(--ns-warning)] hover:shadow-xs transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Booked today</span>
-              <CalendarCheck size={14} className="text-[var(--ns-warning)]" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-warning)]">{m.reservedRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-warning)] font-medium">Arrivals and active stays</div>
-          </div>
-
-          {/* Occupied Rooms */}
+            className="bg-amber-500 transition-all duration-500"
+            style={{ width: `${m.totalRooms ? (m.reservedRooms / m.totalRooms) * 100 : 0}%` }}
+            title={`Reserved: ${m.reservedRooms}`}
+          />
           <div
-            onClick={() => navigate('/frontdesk')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-info)] glass p-4 shadow-2xs hover:border-[var(--ns-info)] hover:shadow-xs transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-info)]">Checked in</span>
-              <Users size={14} className="text-[var(--ns-info)]" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-info)]">{m.occupiedRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-info)] font-medium">Guests currently in-house</div>
-          </div>
-
-          {/* Housekeeping / Dirty */}
+            className="bg-sky-500 transition-all duration-500"
+            style={{ width: `${m.totalRooms ? (m.occupiedRooms / m.totalRooms) * 100 : 0}%` }}
+            title={`Occupied: ${m.occupiedRooms}`}
+          />
           <div
-            onClick={() => navigate('/rooms')}
-            className="group cursor-pointer rounded-2xl border border-[var(--ns-danger)] glass p-4 shadow-2xs hover:border-[var(--ns-danger)] hover:shadow-xs transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Needs turnover</span>
-              <DoorOpen size={14} className="text-[var(--ns-danger)]" />
-            </div>
-            <div className="mt-2 text-3xl font-black text-[var(--ns-danger)]">{m.dirtyRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-danger)] font-medium">Awaiting housekeeping</div>
-          </div>
+            className="bg-rose-500 transition-all duration-500"
+            style={{ width: `${m.totalRooms ? (m.dirtyRooms / m.totalRooms) * 100 : 0}%` }}
+            title={`Dirty: ${m.dirtyRooms}`}
+          />
         </div>
-
-        {/* Visual Room Distribution Ribbon */}
-        <div className="space-y-1.5 pt-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-[var(--ns-muted)]">
-            <span>Room mix ({m.totalRooms} total rooms)</span>
-            <span className="text-[var(--ns-teal)] font-black">{m.occupancyRate}% occupancy</span>
-          </div>
-          <div className="h-2.5 w-full ns-glass-band rounded-full overflow-hidden flex border border-[var(--ns-glass-line)]">
-            <div
-              className="bg-emerald-500 transition-all duration-500"
-              style={{ width: `${m.totalRooms ? (m.availableRooms / m.totalRooms) * 100 : 0}%` }}
-              title={`Available: ${m.availableRooms}`}
-            />
-            <div
-              className="bg-amber-500 transition-all duration-500"
-              style={{ width: `${m.totalRooms ? (m.reservedRooms / m.totalRooms) * 100 : 0}%` }}
-              title={`Reserved: ${m.reservedRooms}`}
-            />
-            <div
-              className="bg-sky-500 transition-all duration-500"
-              style={{ width: `${m.totalRooms ? (m.occupiedRooms / m.totalRooms) * 100 : 0}%` }}
-              title={`Occupied: ${m.occupiedRooms}`}
-            />
-            <div
-              className="bg-rose-500 transition-all duration-500"
-              style={{ width: `${m.totalRooms ? (m.dirtyRooms / m.totalRooms) * 100 : 0}%` }}
-              title={`Dirty: ${m.dirtyRooms}`}
-            />
-          </div>
+        <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold">
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Available ({m.availableRooms})</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Reserved ({m.reservedRooms})</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-sky-500" /> Occupied ({m.occupiedRooms})</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-rose-500" /> Needs turnover ({m.dirtyRooms})</span>
         </div>
       </div>
 
-      {/* ── Financial & Operations Command Suite ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Collections */}
-        <div
-          onClick={() => navigate('/payments')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-success)] hover:shadow-md transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Collected Today</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-success)] group-hover:scale-105 transition-transform">
-              <CreditCard size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">{formatCurrency(m.revenueToday)}</div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-success)]">
-            <span>Posted ledger receipts</span>
-            <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
-              View <ChevronRight size={11} />
-            </span>
-          </div>
-        </div>
-
-        {/* Open Folios */}
-        <div
-          onClick={() => navigate('/guest-bills')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-warning)] hover:shadow-md transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Open Folio Balance</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-warning)] group-hover:scale-105 transition-transform">
-              <Users size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">
-            {formatCurrency(m.outstandingBalanceTotal)}
-          </div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-warning)]">
-            <span>Across in-house guest folios</span>
-            <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
-              View <ChevronRight size={11} />
-            </span>
-          </div>
-        </div>
-
-        {/* Arrivals Today */}
-        <div
-          onClick={() => navigate('/frontdesk')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-info)] hover:shadow-md transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Today's Arrivals</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-info)] group-hover:scale-105 transition-transform">
-              <LogIn size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">{m.checkInsToday}</div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-info)]">
-            <span>Processed check-ins today</span>
-            <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
-              View <ChevronRight size={11} />
-            </span>
-          </div>
-        </div>
-
-        {/* Departures Today */}
-        <div
-          onClick={() => navigate('/frontdesk')}
-          className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-xs hover:border-[var(--ns-glass-line)] hover:shadow-md transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Today's Departures</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl ns-glass-band text-[var(--ns-muted)] group-hover:scale-105 transition-transform">
-              <LogOut size={18} />
-            </div>
-          </div>
-          <div className="mt-3 text-2xl font-black text-[var(--ns-ink)]">{m.checkOutsToday}</div>
-          <div className="mt-1 flex items-center justify-between text-xs font-semibold text-[var(--ns-muted)]">
-            <span>Completed checkouts today</span>
-            <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
-              View <ChevronRight size={11} />
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Active In-House Stays & Department Pulse ── */}
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-        {/* In-House Guests Concierge Ledger */}
-        <div className="rounded-2xl border border-[var(--ns-glass-line)] glass shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
-            <div>
-              <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-                <Users size={16} className="text-[var(--ns-teal)]" />
-                In-House Active Stays
-              </h2>
-              <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">Checked-in guests currently occupying villa rooms</p>
+      {/* ── Main Split: Stays + Revenue ── */}
+      <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+        {/* In-House Active Stays */}
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+            <div className="flex items-center gap-2">
+              <Users size={15} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>In-House Active Stays</h2>
+              <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
+                {stays.length}
+              </span>
             </div>
             {canFrontDesk && (
               <button
                 onClick={() => navigate('/frontdesk')}
-                className="text-xs font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
+                className="text-[11px] font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
               >
-                Front Desk Terminal &rarr;
+                Front Desk <ChevronRight size={12} />
               </button>
             )}
           </div>
@@ -424,7 +322,7 @@ const PropertyDashboard: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-[var(--ns-glass-line)]">
-              {stays.slice(0, 6).map((s) => {
+              {stays.slice(0, 8).map((s) => {
                 const guestFullName =
                   [s.guest?.firstName, s.guest?.lastName].filter(Boolean).join(' ') || 'Guest';
                 const initials =
@@ -432,35 +330,35 @@ const PropertyDashboard: React.FC = () => {
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center justify-between gap-4 px-6 py-4 ns-glass-hover transition-colors"
+                    className="flex items-center justify-between gap-4 px-5 py-3.5 ns-glass-hover transition-colors"
                   >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ns-glass-band text-xs font-black text-[var(--ns-ink)] shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ns-glass-band text-[10px] font-black text-[var(--ns-ink)] shadow-xs border border-[var(--ns-glass-line)]">
                         {initials}
                       </div>
                       <div className="min-w-0">
                         <div className="truncate text-xs font-bold text-[var(--ns-ink)] flex items-center gap-2">
                           <span>{guestFullName}</span>
-                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-gold)]">
-                            Room {s.room?.number || '—'}
+                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-gold)]">
+                            Rm {s.room?.number || '—'}
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[var(--ns-muted)] flex items-center gap-2">
-                          <span>Departure: {s.checkOutDate ? new Date(s.checkOutDate).toLocaleDateString() : '—'}</span>
-                          <span>&bull;</span>
-                          <span>Checked in: {s.actualCheckIn ? new Date(s.actualCheckIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
+                        <div className="mt-0.5 text-[10px] text-[var(--ns-muted)] flex items-center gap-2">
+                          <span>Out: {s.checkOutDate ? new Date(s.checkOutDate).toLocaleDateString() : '—'}</span>
+                          <span>&middot;</span>
+                          <span>In: {s.actualCheckIn ? new Date(s.actualCheckIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       {statusBadge(s.status || 'CHECKED_IN')}
                       <button
                         onClick={() => navigate('/guest-bills')}
                         className="rounded-lg border border-[var(--ns-glass-line)] p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-ink)] transition-colors"
                         title="View Folio / Bill"
                       >
-                        <Receipt size={14} />
+                        <Receipt size={13} />
                       </button>
                     </div>
                   </div>
@@ -470,104 +368,133 @@ const PropertyDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Department Revenue Pulse */}
-        <div className="rounded-2xl border border-[var(--ns-glass-line)] glass shadow-xs overflow-hidden flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
-              <div>
-                <h2 className="text-sm font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
-                  <TrendingUp size={16} className="text-[var(--ns-gold)]" />
-                  Department Pulse
-                </h2>
-                <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">Live revenue across property outlets</p>
+        {/* Right Column: Department Pulse + Dirty Rooms */}
+        <div className="space-y-5">
+          {/* Department Revenue Pulse */}
+          <div className="glass rounded-2xl border border-[var(--ns-glass-line)] shadow-xs overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={14} className="text-[var(--ns-gold)]" />
+                <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Outlet Revenue</h2>
               </div>
               <span className="text-xs font-black text-[var(--ns-success)] glass-subtle px-2.5 py-1 rounded-full border border-[var(--ns-success)]">
                 {formatCurrency(totalDeptRevenue)}
               </span>
             </div>
 
-            <div className="p-5 space-y-3.5">
-              {/* Restaurant */}
+            <div className="p-4 space-y-2.5">
               <div
                 onClick={() => navigate('/restaurant/pos')}
-                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-4 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
+                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-3.5 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-warning)]">
-                      <UtensilsCrossed size={16} />
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-warning)]">
+                      <UtensilsCrossed size={14} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Restaurant Station</div>
-                      <div className="text-[10px] text-[var(--ns-muted)]">Fine dining, breakfasts & orders</div>
+                      <div className="text-[11px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Restaurant</div>
+                      <div className="text-[9px] text-[var(--ns-muted)]">Dining & orders</div>
                     </div>
                   </div>
-                  <strong className="text-sm font-extrabold text-[var(--ns-ink)]">
+                  <strong className="text-xs font-extrabold text-[var(--ns-ink)]">
                     {formatCurrency(Number(m.restaurantRevenueToday || 0))}
                   </strong>
                 </div>
               </div>
 
-              {/* Bar */}
               <div
                 onClick={() => navigate('/bar/pos')}
-                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-4 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
+                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-3.5 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-purple)]">
-                      <Wine size={16} />
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-purple)]">
+                      <Wine size={14} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Bar &amp; Lounge</div>
-                      <div className="text-[10px] text-[var(--ns-muted)]">Cocktails, wines & beverages</div>
+                      <div className="text-[11px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Bar & Lounge</div>
+                      <div className="text-[9px] text-[var(--ns-muted)]">Cocktails & beverages</div>
                     </div>
                   </div>
-                  <strong className="text-sm font-extrabold text-[var(--ns-ink)]">
+                  <strong className="text-xs font-extrabold text-[var(--ns-ink)]">
                     {formatCurrency(Number(m.barRevenueToday || 0))}
                   </strong>
                 </div>
               </div>
 
-              {/* Pool */}
               <div
                 onClick={() => navigate('/pool/services')}
-                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-4 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
+                className="group cursor-pointer rounded-xl border border-[var(--ns-glass-line)] p-3.5 hover:border-[var(--ns-teal)] ns-glass-hover transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-info)]">
-                      <Waves size={16} />
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg ns-glass-band text-[var(--ns-info)]">
+                      <Waves size={14} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Swimming Pool</div>
-                      <div className="text-[10px] text-[var(--ns-muted)]">Pool passes, towels & leisure</div>
+                      <div className="text-[11px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Pool</div>
+                      <div className="text-[9px] text-[var(--ns-muted)]">Passes & leisure</div>
                     </div>
                   </div>
-                  <strong className="text-sm font-extrabold text-[var(--ns-ink)]">
+                  <strong className="text-xs font-extrabold text-[var(--ns-ink)]">
                     {formatCurrency(Number(m.poolRevenueToday || 0))}
                   </strong>
                 </div>
               </div>
             </div>
+
+            <div className="border-t border-[var(--ns-glass-line)] ns-glass-band px-5 py-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Daily outlet performance</span>
+              <button
+                onClick={() => navigate('/reports')}
+                className="text-[10px] font-bold text-[var(--ns-teal)] hover:underline flex items-center gap-1"
+              >
+                Analytics <ChevronRight size={10} />
+              </button>
+            </div>
           </div>
 
-          <div className="border-t border-[var(--ns-glass-line)] ns-glass-band p-4 flex items-center justify-between text-xs">
-            <span className="text-[var(--ns-muted)] font-medium">Daily outlets performance</span>
-            <button
-              onClick={() => navigate('/reports')}
-              className="text-[var(--ns-teal)] font-bold hover:underline flex items-center gap-1"
-            >
-              Outlets Analytics &rarr;
-            </button>
-          </div>
+          {/* Dirty Rooms Alert */}
+          {dirty.length > 0 && (
+            <div className="glass rounded-2xl border border-[var(--ns-danger)]/40 shadow-xs overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3 ns-glass-band">
+                <div className="flex items-center gap-2">
+                  <DoorOpen size={14} className="text-[var(--ns-danger)]" />
+                  <h2 className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>Housekeeping Alert</h2>
+                </div>
+                <span className="text-[10px] font-black text-[var(--ns-danger)] glass-subtle px-2 py-0.5 rounded-full border border-[var(--ns-danger)]/30">
+                  {dirty.length} room{dirty.length === 1 ? '' : 's'}
+                </span>
+              </div>
+              <div className="p-3 space-y-1.5">
+                {dirty.slice(0, 4).map((r) => (
+                  <div
+                    key={r.id}
+                    onClick={() => navigate('/rooms')}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer ns-glass-hover transition-colors"
+                  >
+                    <span className="text-[11px] font-bold text-[var(--ns-ink)]">Room {r.number}</span>
+                    <span className="text-[9px] font-bold text-[var(--ns-danger)]">{r.status}</span>
+                  </div>
+                ))}
+                {dirty.length > 4 && (
+                  <button
+                    onClick={() => navigate('/rooms')}
+                    className="w-full text-center text-[10px] font-bold text-[var(--ns-gold)] py-1.5 hover:underline"
+                  >
+                    +{dirty.length - 4} more
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-/** Department workstation dashboard — for Restaurant / Bar / Pool roles. */
 const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = ({ kind }) => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -616,38 +543,41 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
 
   if (loading) return <LoadingState message={`Connecting to ${deptLabel} workstation...`} />;
 
-  return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[11px] font-bold tracking-wider text-[var(--ns-gold)] uppercase shadow-xs">
-            <Sparkles size={13} className="text-[var(--ns-gold)]" />
-            {deptLabel} Workstation
-          </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ns-ink)]">
-            {deptLabel} Operations
-          </h1>
-          <p className="mt-1 text-xs text-[var(--ns-muted)]">
-            Real-time orders, receipts, and revenue reconciliation for this outlet.
-          </p>
-        </div>
+  const Icon = icon;
 
-        <div className="flex items-center gap-2.5">
+  return (
+    <div className="space-y-5 pb-12 animate-in fade-in duration-200">
+      {/* ── Compact Workstation Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Icon size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              {deptLabel} Workstation
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Orders, receipts & revenue
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold"
           >
-            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </Button>
           <Button
             size="sm"
             onClick={() => navigate(toPOS)}
-            className="glass ns-glass-hover text-[var(--ns-ink)] shadow-md text-xs font-semibold gap-1.5"
+            className="glass ns-glass-hover text-[var(--ns-ink)] shadow-md text-[11px] font-bold gap-1.5"
           >
-            <ArrowRight size={14} /> Open {deptLabel} POS
+            <ArrowRight size={12} /> Open POS
           </Button>
         </div>
       </div>
@@ -658,57 +588,44 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
         </div>
       )}
 
-      {/* Hero Sales Card */}
-      <section className="glass-subtle relative overflow-hidden rounded-3xl text-[var(--ns-ink)] p-6 sm:p-8">
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 items-center">
-          <div>
-            <div className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--ns-gold)]">
-              Today's {deptLabel} Revenue
-            </div>
-            <div className="mt-2 text-3xl sm:text-4xl font-black text-[var(--ns-ink)]">
-              {formatCurrency(Number(todayRevenue || 0))}
-            </div>
-            <p className="mt-2 text-xs text-[var(--ns-muted)] max-w-md">
-              Cumulative department sales processed across active guest folios, card, cash, and MoMo.
-            </p>
-            <div className="mt-5">
-              <Button
-                size="sm"
-                onClick={() => navigate(toPOS)}
-                className="glass text-[var(--ns-ink)] font-bold text-xs shadow-md"
-              >
-                <ArrowRight size={14} /> Take New Order
-              </Button>
-            </div>
+      {/* ── Revenue Hero + Stats Row ── */}
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] p-6 space-y-2">
+          <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
+            Today's {deptLabel} Revenue
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl glass-subtle border border-[var(--ns-glass-line)] p-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Orders Today</div>
-              <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{todayOrders.length}</div>
-            </div>
-            <div className="rounded-xl glass-subtle border border-[var(--ns-glass-line)] p-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Items Sold</div>
-              <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">
-                {todayOrders.reduce((s, o) => s + (o.orderItems?.length || 1), 0)}
-              </div>
+          <div className="text-3xl font-black" style={{ color: 'var(--ns-ink)' }}>
+            {formatCurrency(Number(todayRevenue || 0))}
+          </div>
+          <p className="text-[11px] text-[var(--ns-muted)] max-w-md">
+            Cumulative department sales across guest folios, card, cash, and MoMo.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <div className="glass-subtle rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[100px]">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Orders</div>
+            <div className="mt-1 text-2xl font-black" style={{ color: 'var(--ns-ink)' }}>{todayOrders.length}</div>
+          </div>
+          <div className="glass-subtle rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[100px]">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Items</div>
+            <div className="mt-1 text-2xl font-black" style={{ color: 'var(--ns-ink)' }}>
+              {todayOrders.reduce((s, o) => s + (o.orderItems?.length || 1), 0)}
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Recent Transactions Table */}
-      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-6 py-4 ns-glass-band">
-          <div>
-            <h2 className="text-sm font-extrabold text-[var(--ns-ink)]">Recent {deptLabel} Transactions</h2>
-            <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">Orders and receipts posted today</p>
-          </div>
+      {/* ── Recent Transactions ── */}
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>
+            Recent Transactions
+          </h2>
           <button
             onClick={() => navigate(toPOS)}
-            className="text-xs font-bold text-[var(--ns-teal)] hover:underline"
+            className="text-[11px] font-bold text-[var(--ns-teal)] hover:underline flex items-center gap-1"
           >
-            New Order &rarr;
+            New Order <ChevronRight size={11} />
           </button>
         </div>
 
@@ -719,27 +636,27 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             <table className="w-full text-left">
               <thead className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] uppercase font-bold tracking-wider text-[var(--ns-muted)]">
                 <tr>
-                  <th className="px-6 py-3.5">Order No.</th>
-                  <th className="px-6 py-3.5">Payment</th>
-                  <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5 text-right">Amount</th>
-                  <th className="px-6 py-3.5 text-right">Receipt</th>
+                  <th className="px-5 py-3">Order No.</th>
+                  <th className="px-5 py-3">Payment</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3 text-right">Amount</th>
+                  <th className="px-5 py-3 text-right">Receipt</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {orders.slice(0, 10).map((o) => (
                   <tr key={o.id} className="ns-glass-hover transition-colors">
-                    <td className="px-6 py-3.5 font-mono text-xs font-bold text-[var(--ns-ink)]">
+                    <td className="px-5 py-3 font-mono text-xs font-bold text-[var(--ns-ink)]">
                       {o.orderNo || o.transactionNo}
                     </td>
-                    <td className="px-6 py-3.5 text-xs text-[var(--ns-muted)]">{o.paymentMethod}</td>
-                    <td className="px-6 py-3.5">{statusBadge(o.paymentStatus || o.status || 'COMPLETED')}</td>
-                    <td className="px-6 py-3.5 text-right font-extrabold text-xs text-[var(--ns-ink)]">
+                    <td className="px-5 py-3 text-xs text-[var(--ns-muted)]">{o.paymentMethod}</td>
+                    <td className="px-5 py-3">{statusBadge(o.paymentStatus || o.status || 'COMPLETED')}</td>
+                    <td className="px-5 py-3 text-right font-extrabold text-xs text-[var(--ns-ink)]">
                       {formatCurrency(Number(o.totalAmount || 0))}
                     </td>
-                    <td className="px-6 py-3.5 text-right">
-                      <Button variant="outline" size="sm" onClick={() => printReceipt(o, kind)} className="gap-1 text-xs border-[var(--ns-glass-line)] text-[var(--ns-ink)]">
-                        <Printer size={13} /> Print
+                    <td className="px-5 py-3 text-right">
+                      <Button variant="outline" size="sm" onClick={() => printReceipt(o, kind)} className="gap-1 text-[10px] border-[var(--ns-glass-line)] text-[var(--ns-ink)]">
+                        <Printer size={11} /> Print
                       </Button>
                     </td>
                   </tr>
@@ -773,4 +690,3 @@ export const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-

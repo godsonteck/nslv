@@ -37,7 +37,6 @@ import {
   FileJson,
 } from 'lucide-react';
 import {
-  PageHeader,
   Button,
   FormField,
   TextInput,
@@ -641,35 +640,41 @@ export const SettingsPage: React.FC = () => {
   const displaySettings = settings.filter((s) => currentTabKeys.includes(s.key));
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Property & System Settings"
-        subtitle="Configure villa business rules, tax rates, checkout policies, snapshots & data recovery"
-        actions={
-          <div className="flex items-center gap-2">
-            {activeTab === 'financial' && (
-              <Button variant="outline" size="sm" loading={syncingLateFees} onClick={handleSyncLateFees}>
-                <RefreshCw size={14} /> Recalculate Past Late Fees
-              </Button>
-            )}
-            {activeTab === 'backups' && (
-              <Button variant="primary" size="sm" loading={creatingBackup} onClick={handleCreateManualBackup}>
-                <Plus size={14} /> Create System Snapshot
-              </Button>
-            )}
-            {dirty && (
-              <>
-                <Button variant="ghost" size="sm" onClick={() => { setDraft({}); setDirty(false); }}>
-                  Discard
-                </Button>
-                <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
-                  <Save size={14} /> Save Changes
-                </Button>
-              </>
-            )}
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Building2 size={15} />
           </div>
-        }
-      />
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Property & System Settings</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure villa business rules, tax rates, checkout policies, snapshots & data recovery</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {activeTab === 'financial' && (
+            <Button variant="outline" size="sm" loading={syncingLateFees} onClick={handleSyncLateFees}>
+              <RefreshCw size={14} /> Recalculate Past Late Fees
+            </Button>
+          )}
+          {activeTab === 'backups' && (
+            <Button variant="primary" size="sm" loading={creatingBackup} onClick={handleCreateManualBackup}>
+              <Plus size={14} /> Create System Snapshot
+            </Button>
+          )}
+          {dirty && (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => { setDraft({}); setDirty(false); }}>
+                Discard
+              </Button>
+              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
+                <Save size={14} /> Save Changes
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Navigation Tabs */}

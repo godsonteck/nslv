@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { Button, SelectInput, TextInput, showToast, LoadingState, statusBadge, Modal, FormField } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
-import { ShellPage, Section } from '../../components/common/WorkspaceUI';
 import { formatCurrency, PERMISSIONS } from '@nslv/shared';
 import { useAuthStore } from '../../stores/authStore';
 import { villaAssets } from '../../assets';
@@ -254,11 +253,18 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
   };
 
   return (
-    <ShellPage
-      eyebrow={`${kind === 'restaurant' ? 'RESTAURANT' : 'BAR & LOUNGE'} · POINT OF SALE`}
-      title={`${kind === 'restaurant' ? 'Restaurant' : 'Bar'} POS`}
-      subtitle="Select items, choose payment method, and complete order."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* Compact Header */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Icon size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{kind === 'restaurant' ? 'Restaurant' : 'Bar'} POS</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Select items, choose payment method, and complete order.</p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           {canManage && (
             <Button size="sm" variant="outline" onClick={openAddItem}>
@@ -269,8 +275,8 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             <RefreshCw size={14} /> Refresh
           </Button>
         </div>
-      }
-    >
+      </div>
+
       {loading ? (
         <LoadingState />
       ) : (
@@ -477,7 +483,14 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
       )}
 
       {/* ── Posted Orders ──────────────────────────────── */}
-      <Section title="Posted Orders" subtitle="Recent transactions at this workstation">
+      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+          <div className="flex items-center gap-2">
+            <Receipt size={14} className="text-[var(--ns-teal)]" />
+            <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Posted Orders</h2>
+          </div>
+          <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Recent transactions at this workstation</p>
+        </div>
         <div className="overflow-x-auto">
           {orders.length === 0 ? (
             <div className="p-10 text-center text-xs text-[var(--ns-muted)]">No orders posted yet.</div>
@@ -512,7 +525,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
             </table>
           )}
         </div>
-      </Section>
+      </div>
 
       {/* ── Menu Item Modal ──────────────────────────────── */}
       <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={editingItem ? `Edit item` : `New menu item`}>
@@ -541,6 +554,6 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
           </div>
         </form>
       </Modal>
-    </ShellPage>
+    </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { PageHeader, DataTable, Button, FormField, TextInput, Modal, showToast, SelectInput, Badge } from '../../components/ui';
-import { Plus, Trash2, Edit2, RefreshCw } from 'lucide-react';
+import { DataTable, Button, FormField, TextInput, Modal, showToast, SelectInput, Badge } from '../../components/ui';
+import { Plus, Trash2, Edit2, RefreshCw, Tags } from 'lucide-react';
 import { categoriesApi, type ItemCategory } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { PERMISSIONS } from '@nslv/shared';
@@ -140,23 +140,31 @@ export const CategoriesPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Category Management"
-        subtitle="Organize and manage system categories"
-        actions={
-          canManage ? (
-            <div className="flex items-center gap-2">
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Tags size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Category Management</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Organize and manage system categories</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <>
               <Button variant="ghost" size="sm" onClick={() => void fetchCategories()} loading={refreshing}>
                 <RefreshCw size={14} /> Refresh
               </Button>
               <Button variant="primary" size="sm" onClick={handleOpenCreate}>
                 <Plus size={14} /> New Category
               </Button>
-            </div>
-          ) : undefined
-        }
-      />
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="flex gap-3 items-center">
         <SelectInput value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as CategoryType | '')}>

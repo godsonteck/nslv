@@ -11,7 +11,6 @@ import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, formatUserGreeting } from '@nslv/shared';
 import { Wine, RefreshCw, ArrowRight, ClipboardCheck, TrendingUp, ShoppingBag } from 'lucide-react';
 import { Button, showToast, LoadingState } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import { statusBadge } from '../../components/ui';
 
 export const BarPortalPage: React.FC = () => {
@@ -51,11 +50,18 @@ export const BarPortalPage: React.FC = () => {
   useEffect(() => { void load(true); }, []);
 
   return (
-    <ShellPage
-      eyebrow="BAR & LOUNGE · BEVERAGE SERVICE WORKSPACE"
-      title={greeting}
-      subtitle="Manage bar orders and drink service."
-      actions={
+    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Wine size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Bar & Lounge · Beverage Service Workspace</p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" loading={refreshing} onClick={() => load(false)}>
             <RefreshCw size={14} /> Refresh
@@ -69,43 +75,38 @@ export const BarPortalPage: React.FC = () => {
             <Wine size={14} /> Open Bar POS <ArrowRight size={14} />
           </Button>
         </div>
-      }
-    >
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile
-          label="Bar Sales Today"
-          value={formatCurrency(revenue)}
-          note="Completed & served orders"
-          icon={TrendingUp}
-          accent
-        />
-        <StatTile
-          label="Bar Orders Today"
-          value={`${orders.filter(o => {
+      </div>
+
+      {/* ── KPI Ribbon ── */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bar Sales Today</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(revenue)}</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bar Orders Today</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{orders.filter(o => {
             const d = new Date(o.createdAt);
             const today = new Date();
             return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
-          }).length} Orders`}
-          note="From bar POS"
-          icon={ClipboardCheck}
-        />
-        <StatTile
-          label="Open Bar Orders"
-          value={`${orders.filter(o => !['COMPLETED', 'SERVED', 'CANCELLED'].includes(o.status)).length} Active`}
-          note="Pending / in progress"
-          icon={ShoppingBag}
-          accent
-        />
+          }).length} Orders</div>
+        </div>
+        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Open Bar Orders</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{orders.filter(o => !['COMPLETED', 'SERVED', 'CANCELLED'].includes(o.status)).length} Active</div>
+        </div>
       </div>
 
       {loading ? (
         <LoadingState message="Loading bar workspace..." />
       ) : (
-        <Section
-          title="Recent Bar Orders"
-          subtitle="Live feed from bar and lounge."
-        >
+        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3.5 ns-glass-band">
+            <div className="flex items-center gap-2">
+              <Wine size={14} className="text-[var(--ns-teal)]" />
+              <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Recent Bar Orders</h2>
+            </div>
+          </div>
           {orders.length === 0 ? (
             <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
               <Wine size={32} className="mx-auto mb-2 opacity-30 text-[var(--ns-purple)]" />
@@ -155,9 +156,9 @@ export const BarPortalPage: React.FC = () => {
               <Wine size={15} /> Open Full Bar POS <ArrowRight size={14} />
             </Button>
           </div>
-        </Section>
+        </div>
       )}
-    </ShellPage>
+    </div>
   );
 };
 

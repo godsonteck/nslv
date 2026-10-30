@@ -305,38 +305,39 @@ export const RoomsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      {/* ── Page Header ── */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[11px] font-bold tracking-wider text-[var(--ns-gold)] uppercase shadow-xs">
-            <Sparkles size={13} className="text-[var(--ns-gold)]" />
-            Room Inventory
+    <div className="space-y-5 pb-12 animate-in fade-in duration-200">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <BedDouble size={15} />
           </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ns-ink)]">
-            Room Board &amp; Inventory
-          </h1>
-          <p className="mt-1 text-xs text-[var(--ns-muted)]">
-            Real-time physical room statuses, reservation date commitments, and housekeeping conditions.
-          </p>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+              Room Board & Inventory
+            </h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+              Real-time statuses, reservations & housekeeping
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate('/reservations')}
-            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
           >
-            <CalendarDays size={14} className="text-[var(--ns-teal)]" /> Reservations
+            <CalendarDays size={12} className="text-[var(--ns-teal)]" /> Reservations
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => { clearGetCache(); void load(); }}
-            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
           >
-            <RefreshCw size={14} /> Refresh
+            <RefreshCw size={12} /> Refresh
           </Button>
           {canStatus && (
             <Button
@@ -344,35 +345,35 @@ export const RoomsPage: React.FC = () => {
               size="sm"
               loading={saving}
               onClick={syncBookingStatuses}
-              className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5"
+              className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
             >
-              <RefreshCw size={14} className="text-[var(--ns-gold)]" /> Sync Statuses
+              <RefreshCw size={12} className="text-[var(--ns-gold)]" /> Sync
             </Button>
           )}
           {canManage && (
             <Button
               size="sm"
               onClick={() => navigate('/admin/rooms')}
-              className="glass text-[var(--ns-teal)] shadow-md text-xs font-semibold gap-1.5 ns-glass-hover"
+              className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover"
             >
-              <Layers size={14} /> Room Config
+              <Layers size={12} /> Config
             </Button>
           )}
         </div>
       </div>
 
       {/* ── Status Counts Ribbon ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+      <div className="flex gap-2 overflow-x-auto pb-2">
         <button
           onClick={() => setStatus('ALL')}
-          className={`glass-subtle ns-glass-hover rounded-xl p-3 text-left border transition-all ${
+          className={`glass-subtle ns-glass-hover rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${
             status === 'ALL'
               ? 'glass text-[var(--ns-ink)] border-[var(--ns-gold)] shadow-xs ns-glass-selected'
-              : 'glass border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
+              : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
           }`}
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">All Rooms</div>
-          <div className="text-xl font-black mt-1 text-[var(--ns-ink)]">{rooms.length}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>All</div>
+          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>
         </button>
 
         {statuses.slice(1).map((s) => {
@@ -382,7 +383,7 @@ export const RoomsPage: React.FC = () => {
             <button
               key={s}
               onClick={() => setStatus(s)}
-              className={`glass-subtle ns-glass-hover rounded-xl p-3 text-left border transition-all ${
+              className={`glass-subtle ns-glass-hover rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${
                 isSelected
                   ? 'glass text-[var(--ns-teal)] border-[var(--ns-gold)] shadow-xs ns-glass-selected'
                   : 'glass border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
@@ -391,7 +392,7 @@ export const RoomsPage: React.FC = () => {
               <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)] truncate">
                 {s.replaceAll('_', ' ')}
               </div>
-              <div className="text-xl font-black mt-1 text-[var(--ns-ink)]">{count}</div>
+              <div className="text-xl font-black mt-0.5 text-[var(--ns-ink)]">{count}</div>
             </button>
           );
         })}

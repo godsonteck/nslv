@@ -6,7 +6,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Shield, Lock, Unlock, ChevronDown, ChevronRight, Pencil } from 'lucide-react';
 import {
-  PageHeader, Button, Spinner, Badge, showToast, Modal, FormField, TextInput,
+  Button, Spinner, Badge, showToast, Modal, FormField, TextInput,
 } from '../../components/ui';
 import { rolesApi, type RoleRecord, type PermissionRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
@@ -168,12 +168,21 @@ export const RolesPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Roles & Access Control"
-        subtitle="Structured role definitions and permission matrix across all villa modules"
-        actions={undefined}
-      />
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <Shield size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Roles & Access Control</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Structured role definitions and permission matrix across all villa modules</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+        </div>
+      </div>
 
       {/* Role Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

@@ -9,7 +9,6 @@ import { usersApi, rolesApi, auditApi, type AuditLogRecord } from '../../service
 import { useAuthStore } from '../../stores/authStore';
 import { formatUserGreeting } from '@nslv/shared';
 import { Button, statusBadge, LoadingState } from '../../components/ui';
-import { ShellPage, Section, StatTile } from '../../components/common/WorkspaceUI';
 import {
   ShieldCheck,
   Users,
@@ -105,11 +104,18 @@ export const AdminConsolePage: React.FC = () => {
   }, []);
 
   return (
-    <ShellPage
-      eyebrow="Administration"
-      title="System Administration"
-      subtitle="Staff accounts, roles, access permissions, room configurations, menu catalogs, and immutable security audit logs."
-      actions={
+    <div className="space-y-5">
+      {/* ── Compact Header ── */}
+      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
+            <ShieldCheck size={15} />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>System Administration</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Staff accounts, roles, access permissions, room configurations, menu catalogs, and immutable security audit logs.</p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -129,48 +135,43 @@ export const AdminConsolePage: React.FC = () => {
             <ShieldCheck size={14} /> Staff Accounts
           </Button>
         </div>
-      }
-    >
+      </div>
+
       {error && (
         <div className="rounded-2xl border border-[var(--ns-danger)] glass-subtle p-4 text-xs font-semibold text-[var(--ns-danger)]">
           {error}
         </div>
       )}
 
-      {/* ── Key Security Stats ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Staff Accounts"
-          value={metrics.totalUsers}
-          note={`${metrics.activeUsers} active system users`}
-          icon={Users}
-          accent
-        />
-        <StatTile
-          label="Configured Roles"
-          value={metrics.totalRoles}
-          note="Granular permission access tiers"
-          icon={KeyRound}
-        />
-        <StatTile
-          label="Tracked Permissions"
-          value={metrics.totalPermissions}
-          note="Module security grants"
-          icon={ShieldCheck}
-        />
-        <StatTile
-          label="Recent Audit Records"
-          value={logs.length}
-          note="Immutable security events"
-          icon={Activity}
-        />
+      {/* ── KPI Ribbon ── */}
+      <div className="flex flex-wrap gap-3">
+        {[
+          { label: 'Staff Accounts', value: metrics.totalUsers, note: `${metrics.activeUsers} active system users`, icon: Users },
+          { label: 'Configured Roles', value: metrics.totalRoles, note: 'Granular permission access tiers', icon: KeyRound },
+          { label: 'Tracked Permissions', value: metrics.totalPermissions, note: 'Module security grants', icon: ShieldCheck },
+          { label: 'Recent Audit Records', value: logs.length, note: 'Immutable security events', icon: Activity },
+        ].map((kpi) => (
+          <div key={kpi.label} className="flex-1 min-w-[140px] rounded-xl border border-[var(--ns-glass-line)] glass px-4 py-3 flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg glass-subtle border border-[var(--ns-glass-line)] text-[var(--ns-gold)] shrink-0">
+              <kpi.icon size={14} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>{kpi.label}</div>
+              <div className="text-lg font-black" style={{ color: 'var(--ns-ink)' }}>{kpi.value}</div>
+              <div className="text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{kpi.note}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* ── Administration Modules Grid ── */}
-      <Section
-        title="Administration Modules"
-        subtitle="Manage underlying property configuration, users, permissions, and audit trails."
-      >
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--ns-glass-line)] ns-glass-band">
+          <div>
+            <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Administration Modules</h2>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage underlying property configuration, users, permissions, and audit trails.</p>
+          </div>
+        </div>
         <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {QUICK_LINKS.map((tile) => (
             <button
@@ -191,13 +192,15 @@ export const AdminConsolePage: React.FC = () => {
             </button>
           ))}
         </div>
-      </Section>
+      </div>
 
       {/* ── Audit Trail Preview ── */}
-      <Section
-        title="Recent Security & System Events"
-        subtitle="Live snapshot from the immutable audit trail."
-        action={
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--ns-glass-line)] ns-glass-band">
+          <div>
+            <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Recent Security & System Events</h2>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Live snapshot from the immutable audit trail.</p>
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -206,8 +209,7 @@ export const AdminConsolePage: React.FC = () => {
           >
             Full Audit Log <ArrowRight size={12} />
           </Button>
-        }
-      >
+        </div>
         {loading ? (
           <div className="p-10"><LoadingState /></div>
         ) : logs.length === 0 ? (
@@ -252,8 +254,8 @@ export const AdminConsolePage: React.FC = () => {
             </table>
           </div>
         )}
-      </Section>
-    </ShellPage>
+      </div>
+    </div>
   );
 };
 
