@@ -2,17 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
-import { useThemeStore, type ThemePreference } from '../../stores/themeStore';
+import { useThemeStore } from '../../stores/themeStore';
 import { useUIStore } from '../../stores/uiStore';
 import { villaAssets } from '../../assets';
-import { Bell, ChevronDown, LogOut, Search, Settings2, Sun, Moon, Monitor, PanelLeft, PanelLeftClose } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Search, Settings2, Sun, Moon, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { NotificationPanel } from './NotificationPanel';
-
-const THEME_OPTIONS: { value: ThemePreference; label: string; icon: React.ComponentType<{ size?: number | string }> }[] = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'Device', icon: Monitor },
-];
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +16,6 @@ export const Header: React.FC = () => {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const [openDropdown, setOpenDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
-  const [showThemeMenu, setShowThemeMenu] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
@@ -98,38 +91,18 @@ export const Header: React.FC = () => {
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Theme Switcher */}
-          <div className="relative">
-            <button
-              onClick={() => { setShowThemeMenu(v => !v); setShowNotifications(false); }}
-              className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
-              aria-label="Theme"
-              title={`Theme: ${themePreference}`}
-            >
-              {themePreference === 'dark' ? <Moon size={16} /> : themePreference === 'light' ? <Sun size={16} /> : <Monitor size={16} />}
-            </button>
-            {showThemeMenu && (
-              <div
-                className="glass-strong absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
-              >
-                <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
-                {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => { setThemePreference(value); setShowThemeMenu(false); }}
-                    className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold transition-colors ${
-                      themePreference === value ? 'ns-glass-selected text-[var(--ns-gold)]' : 'ns-glass-hover'
-                    }`}
-                    style={{ color: themePreference === value ? 'var(--ns-gold)' : 'var(--ns-ink)' }}
-                  >
-                    <Icon size={14} />
-                    {label}
-                    {themePreference === value && <span className="ml-auto text-[9px] font-extrabold uppercase">On</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Theme Toggle - Simple Light/Dark Switch */}
+          <button
+            onClick={() => {
+              const newTheme = themePreference === 'dark' ? 'light' : 'dark';
+              setThemePreference(newTheme);
+            }}
+            className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-all hover:scale-110"
+            aria-label={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {themePreference === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
 
           {/* Notifications */}
           <div className="relative">
