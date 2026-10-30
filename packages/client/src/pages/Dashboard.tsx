@@ -243,7 +243,7 @@ const PropertyDashboard: React.FC = () => {
             label: 'Open Folios',
             value: formatCurrency(m.outstandingBalanceTotal),
             accent: 'var(--ns-warning)',
-            onClick: () => navigate('/guest-bills'),
+            onClick: () => navigate('/bills'),
           },
         ]}
       />
@@ -354,7 +354,7 @@ const PropertyDashboard: React.FC = () => {
                     <div className="flex items-center gap-2 shrink-0">
                       {statusBadge(s.status || 'CHECKED_IN')}
                       <button
-                        onClick={() => navigate('/guest-bills')}
+                        onClick={() => navigate('/bills')}
                         className="rounded-lg border border-[var(--ns-glass-line)] p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-ink)] transition-colors"
                         title="View Folio / Bill"
                       >

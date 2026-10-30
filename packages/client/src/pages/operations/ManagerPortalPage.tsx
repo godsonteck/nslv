@@ -295,7 +295,7 @@ export const ManagerPortalPage: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigate('/guest-bills')}
+                            onClick={() => navigate('/bills')}
                             className="h-7 text-xs font-semibold border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover"
                           >
                             Inspect Folio

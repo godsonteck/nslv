@@ -118,6 +118,7 @@ export const App: React.FC = () => {
           <Route path="reception/report" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view', 'checkin.perform', 'cash_register.view', 'reservations.view']}><ReceptionReportPage /></RequirePermission></Suspense>} />
           <Route path="frontdesk/report" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['reports.view', 'checkin.perform', 'cash_register.view', 'reservations.view']}><ReceptionReportPage /></RequirePermission></Suspense>} />
           <Route path="bills" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['folios.view']}><GuestBillsPage /></RequirePermission></Suspense>} />
+          <Route path="guest-bills" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['folios.view']}><GuestBillsPage /></RequirePermission></Suspense>} />
 
           {/* Department POS Routes */}
           <Route path="restaurant/pos" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.view']}><RestaurantPOSPage /></RequirePermission></Suspense>} />
