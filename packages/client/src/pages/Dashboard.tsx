@@ -147,7 +147,7 @@ const PropertyDashboard: React.FC = () => {
   return (
     <div className="space-y-7 pb-16 animate-in fade-in duration-300">
       {/* ── Editorial Villa Header ── */}
-      <div className="glass skeuo-card relative overflow-hidden rounded-3xl p-7 sm:p-9 border text-[var(--ns-ink)]">
+      <div className="glass clay-card relative overflow-hidden rounded-3xl p-7 sm:p-9 border text-[var(--ns-ink)]">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -170,7 +170,7 @@ const PropertyDashboard: React.FC = () => {
             <button
               onClick={() => void load()}
               disabled={refreshing}
-              className="inline-flex items-center gap-2 rounded-xl skeuo-btn skeuo-btn-secondary px-3.5 py-2 text-xs font-bold text-[var(--ns-ink)] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl clay-btn clay-btn-secondary px-3.5 py-2 text-xs font-bold text-[var(--ns-ink)] disabled:opacity-50"
             >
               <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
               <span>Refresh</span>
@@ -178,7 +178,7 @@ const PropertyDashboard: React.FC = () => {
             {canFrontDesk && (
               <button
                 onClick={() => navigate('/frontdesk')}
-                className="inline-flex items-center gap-2 rounded-xl skeuo-btn skeuo-btn-primary px-4 py-2 text-xs font-black text-white shadow-md transition-all"
+                className="inline-flex items-center gap-2 rounded-xl clay-btn clay-btn-primary px-4 py-2 text-xs font-black text-white shadow-md transition-all"
               >
                 <LogIn size={14} />
                 <span>Front desk</span>
@@ -187,7 +187,7 @@ const PropertyDashboard: React.FC = () => {
             {canReserve && (
               <button
                 onClick={() => navigate('/reservations')}
-                className="inline-flex items-center gap-2 rounded-xl skeuo-btn skeuo-btn-accent px-4 py-2 text-xs font-black text-white shadow-md transition-all"
+                className="inline-flex items-center gap-2 rounded-xl clay-btn clay-btn-accent px-4 py-2 text-xs font-black text-white shadow-md transition-all"
               >
                 <CalendarCheck size={14} />
                 <span>New stay</span>
@@ -205,7 +205,7 @@ const PropertyDashboard: React.FC = () => {
       )}
 
       {/* ── Authoritative Room Availability Ledger ── */}
-      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass skeuo-card p-6 shadow-md space-y-4">
+      <div className="rounded-2xl border border-[var(--ns-glass-line)] glass clay-card p-6 shadow-md space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--ns-glass-line)] pb-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--ns-teal)]">

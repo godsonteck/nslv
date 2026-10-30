@@ -68,7 +68,7 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
   return (
     <div
       onClick={onClick}
-      className="glass skeuo-card relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none border"
+      className="glass clay-card relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 text-[var(--ns-ink)] select-none border"
       style={{ borderColor: accent }}
     >
       {/* Tile Body */}
@@ -101,7 +101,7 @@ export const QuickLinkTile: React.FC<QuickLinkTileProps> = ({
 };
 
 // ──────────────────────────────────────────
-// Button (Tactile Skeuomorphic Clear Glass)
+// Button (Tactile Claymorphic Clear Glass)
 // ──────────────────────────────────────────
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'accent';
@@ -120,12 +120,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'skeuo-btn skeuo-btn-primary',
-    secondary: 'skeuo-btn skeuo-btn-secondary',
-    accent: 'skeuo-btn skeuo-btn-accent',
-    danger: 'skeuo-btn skeuo-btn-danger',
-    ghost: 'skeuo-btn skeuo-btn-ghost',
-    outline: 'skeuo-btn skeuo-btn-outline',
+    primary: 'clay-btn clay-btn-primary',
+    secondary: 'clay-btn clay-btn-secondary',
+    accent: 'clay-btn clay-btn-accent',
+    danger: 'clay-btn clay-btn-danger',
+    ghost: 'clay-btn clay-btn-ghost',
+    outline: 'clay-btn clay-btn-outline',
   };
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-xs rounded-md gap-1.5',
@@ -169,7 +169,7 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral' }) => {
     neutral: 'bg-transparent text-[var(--ns-muted)] border-slate-400/55',
   };
   return (
-    <span className={`glass-subtle skeuo-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wide border ${cls[variant]}`}>
+    <span className={`glass-subtle clay-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wide border ${cls[variant]}`}>
       {label}
     </span>
   );
@@ -390,7 +390,7 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
       <button
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="skeuo-btn skeuo-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="clay-btn clay-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft size={16} />
       </button>
@@ -400,7 +400,7 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
       <button
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="skeuo-btn skeuo-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="clay-btn clay-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight size={16} />
       </button>

@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
           onClick={toggleSidebar}
           aria-label={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           title={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
-          className="flex h-9 w-9 items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] hover:text-[var(--ns-ink)] transition-all shrink-0"
+          className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] hover:text-[var(--ns-ink)] transition-all shrink-0"
         >
           {sidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeft size={17} />}
         </button>
@@ -102,7 +102,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => { setShowThemeMenu(v => !v); setShowNotifications(false); }}
-              className="flex h-9 w-9 items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
+              className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
               aria-label="Theme"
               title={`Theme: ${themePreference}`}
             >
@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
             </button>
             {showThemeMenu && (
               <div
-                className="glass-strong skeuo-card absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
+                className="glass-strong clay-card absolute right-0 top-12 z-50 w-44 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
               >
                 <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Theme</div>
                 {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
@@ -135,13 +135,13 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative h-9 w-9 flex items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
+              className="relative h-9 w-9 flex items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
               aria-label="Notifications"
               title="Notifications"
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass skeuo-badge bg-rose-500/25 text-[var(--ns-danger)] text-[9px] font-black border border-rose-400/70">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge bg-rose-500/25 text-[var(--ns-danger)] text-[9px] font-black border border-rose-400/70">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -151,7 +151,7 @@ export const Header: React.FC = () => {
 
           {canSettings && (
             <button
-              className="hidden h-9 w-9 items-center justify-center skeuo-btn skeuo-btn-secondary rounded-xl text-[var(--ns-ink)] sm:flex transition-colors"
+              className="hidden h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] sm:flex transition-colors"
               onClick={() => navigate('/admin/settings')}
               aria-label="Settings"
             >
@@ -163,9 +163,9 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setOpenDropdown(v => !v)}
-              className="flex items-center gap-2 rounded-xl p-1 skeuo-btn skeuo-btn-secondary transition-colors"
+              className="flex items-center gap-2 rounded-xl p-1 clay-btn clay-btn-secondary transition-colors"
             >
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full skeuo-badge text-[11px] font-black text-white bg-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full clay-badge text-[11px] font-black text-white bg-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}
               </span>
               <span className="hidden text-left lg:block">
@@ -180,7 +180,7 @@ export const Header: React.FC = () => {
             </button>
             {openDropdown && (
               <div
-                className="glass-strong skeuo-card absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
+                className="glass-strong clay-card absolute right-0 top-12 z-50 w-52 rounded-2xl p-1.5 shadow-2xl border border-[var(--ns-glass-line)]"
               >
                 <div className="border-b border-[var(--ns-glass-line)] px-3 py-2.5">
                   <div className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>

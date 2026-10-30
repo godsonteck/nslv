@@ -32,7 +32,7 @@ export const ShellPage: React.FC<{
 
 export const StatTile: React.FC<{label:string; value:string|number; note?:string; icon?:LucideIcon; accent?:boolean; onClick?:()=>void}> = ({label,value,note,icon:Icon,accent,onClick}) => (
   <div
-    className={`glass skeuo-card group relative overflow-hidden rounded-2xl p-5 transition-all duration-200 ${
+    className={`glass clay-card group relative overflow-hidden rounded-2xl p-5 transition-all duration-200 ${
       accent ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]/40' : ''
     } ${onClick ? 'cursor-pointer select-none hover:-translate-y-1' : ''}`}
     onClick={onClick}
@@ -49,7 +49,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
       </span>
       {Icon && (
         <span
-          className="skeuo-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] bg-white/15 dark:bg-black/10 border border-[var(--ns-glass-line)]"
+          className="clay-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] bg-white/15 dark:bg-black/10 border border-[var(--ns-glass-line)]"
           style={{ color: 'var(--ns-teal)' }}
         >
           <Icon size={16} />
@@ -79,7 +79,7 @@ export const StatTile: React.FC<{label:string; value:string|number; note?:string
 );
 
 export const Section: React.FC<{title:string; subtitle?:string; action?:React.ReactNode; children:React.ReactNode; className?:string}> = ({title,subtitle,action,children,className=''}) => (
-  <section className={`glass skeuo-card overflow-hidden rounded-2xl ${className}`}>
+  <section className={`glass clay-card overflow-hidden rounded-2xl ${className}`}>
     <div
       className="ns-glass-band flex flex-col gap-2 border-b border-[var(--ns-glass-line)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
     >
@@ -111,7 +111,7 @@ export const EmptyTable: React.FC<{title:string; subtitle:string; action?:React.
 export const IconButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({className='',children,...props}) => (
   <button
     {...props}
-    className={`skeuo-btn skeuo-btn-secondary flex h-9 w-9 items-center justify-center rounded-xl transition ${className}`}
+    className={`clay-btn clay-btn-secondary flex h-9 w-9 items-center justify-center rounded-xl transition ${className}`}
     style={{ color: 'var(--ns-ink)' }}
   >
     {children}

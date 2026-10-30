@@ -211,9 +211,9 @@ export const Sidebar: React.FC = () => {
           {sidebarOpen ? (
             <div className="space-y-3">
               <div
-                className="skeuo-card glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
+                className="clay-card glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl skeuo-badge bg-[var(--ns-teal)] text-white text-[10px] font-black border border-white/40">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl clay-badge bg-[var(--ns-teal)] text-white text-[10px] font-black border border-white/40">
                   {initials}
                 </div>
                 <div className="min-w-0">
@@ -239,7 +239,7 @@ export const Sidebar: React.FC = () => {
             </div>
           ) : (
             <div
-              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl skeuo-badge bg-[var(--ns-teal)] text-white text-[10px] font-black cursor-pointer hover:opacity-90 transition border border-white/40"
+              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl clay-badge bg-[var(--ns-teal)] text-white text-[10px] font-black cursor-pointer hover:opacity-90 transition border border-white/40"
               title={`${fullName} (${roleName})`}
             >
               {initials}

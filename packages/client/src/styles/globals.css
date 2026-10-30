@@ -5,10 +5,10 @@
 :root {
   color-scheme: light;
   /* Clear coastal-glass palette — quiet enough for operational work. */
-  --ns-ink: #112a38;
-  --ns-ink-2: #234252;
-  --ns-muted: #48616f;
-  --ns-teal: #16768c;
+  --ns-ink: #082531;
+  --ns-ink-2: #163d4b;
+  --ns-muted: #294e5c;
+  --ns-teal: #075f76;
   --ns-teal-deep: #0d5062;
   --ns-gold: #2b7f97;
   --ns-gold-soft: rgba(43, 127, 151, 0.12);
@@ -48,12 +48,12 @@
   --glass-text-muted: var(--ns-muted);
   --glass-shadow: var(--ns-glass-shadow);
 
-  /* Skeuomorphic Tactile Specs (Light Mode) */
-  --skeuo-specular: inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  --skeuo-bevel-bottom: inset 0 -1px 0 rgba(12, 24, 32, 0.06);
-  --skeuo-well-shadow: inset 0 2px 5px rgba(17, 71, 87, 0.16), inset 0 1px 1px rgba(17, 71, 87, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9);
-  --skeuo-btn-shadow: 0 3px 7px -1px rgba(13, 66, 82, 0.18), 0 1px 2px rgba(13, 66, 82, 0.10);
-  --skeuo-card-shadow: 0 16px 34px -14px rgba(13, 66, 82, 0.30), 0 2px 7px -2px rgba(13, 66, 82, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
+  /* Claymorphic Tactile Specs (Light Mode) */
+  --clay-specular: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --clay-bevel-bottom: inset 0 -1px 0 rgba(12, 24, 32, 0.06);
+  --clay-well-shadow: inset 0 2px 5px rgba(17, 71, 87, 0.16), inset 0 1px 1px rgba(17, 71, 87, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9);
+  --clay-btn-shadow: 0 3px 7px -1px rgba(13, 66, 82, 0.18), 0 1px 2px rgba(13, 66, 82, 0.10);
+  --clay-card-shadow: 0 16px 34px -14px rgba(13, 66, 82, 0.30), 0 2px 7px -2px rgba(13, 66, 82, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
 }
 
 html[data-theme="dark"], html.dark {
@@ -99,12 +99,12 @@ html[data-theme="dark"], html.dark {
   --glass-text-muted: var(--ns-muted);
   --glass-shadow: var(--ns-glass-shadow);
 
-  /* Skeuomorphic Tactile Specs (Dark Mode) */
-  --skeuo-specular: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  --skeuo-bevel-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.45);
-  --skeuo-well-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.10);
-  --skeuo-btn-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --skeuo-card-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.28), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  /* Claymorphic Tactile Specs (Dark Mode) */
+  --clay-specular: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --clay-bevel-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+  --clay-well-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.10);
+  --clay-btn-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --clay-card-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.28), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
 
 @layer base {
@@ -120,6 +120,7 @@ html[data-theme="dark"], html.dark {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.62);
     overflow-x: hidden;
   }
   #root, .ns-page, .app-shell { background: transparent; }
@@ -130,15 +131,18 @@ html[data-theme="dark"], html.dark {
     color: var(--ns-ink);
     font-weight: 800;
     letter-spacing: -0.025em;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78), 0 1px 8px rgba(185, 231, 238, 0.32);
   }
 
   p {
     color: var(--ns-ink);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
   label {
     font-weight: 700;
     color: var(--ns-ink);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
   }
 
   button, input, select, textarea {
@@ -159,6 +163,7 @@ html[data-theme="dark"], html.dark {
   input, select, textarea {
     color: var(--ns-ink);
     font-weight: 600;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
   option {
@@ -177,6 +182,21 @@ html[data-theme="dark"], html.dark {
   }
   ::-webkit-scrollbar-thumb:hover { background-color: var(--ns-gold); }
   ::selection { background: var(--ns-teal); color: #ffffff; }
+}
+
+html[data-theme="dark"] body, html.dark body {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.82);
+}
+html[data-theme="dark"] h1, html[data-theme="dark"] h2, html[data-theme="dark"] h3,
+html[data-theme="dark"] h4, html[data-theme="dark"] h5, html[data-theme="dark"] h6,
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(33, 164, 187, 0.24);
+}
+html[data-theme="dark"] p, html[data-theme="dark"] label,
+html.dark p, html.dark label,
+html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea,
+html.dark input, html.dark select, html.dark textarea {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.82);
 }
 
 @layer components {
@@ -238,31 +258,31 @@ html[data-theme="dark"], html.dark {
   .glass {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.02));
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--skeuo-card-shadow), var(--skeuo-bevel-bottom);
+    box-shadow: var(--clay-card-shadow), var(--clay-bevel-bottom);
   }
 
   .glass-strong {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), var(--ns-glass-2) 48%, rgba(135, 211, 224, 0.03));
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--skeuo-card-shadow);
+    box-shadow: var(--clay-card-shadow);
   }
 
   .glass-subtle {
     background: color-mix(in srgb, var(--ns-glass-1) 54%, transparent);
     border: 1px solid var(--ns-glass-line-soft);
-    box-shadow: 0 4px 16px -2px rgba(12, 24, 32, 0.05), var(--skeuo-specular);
+    box-shadow: 0 4px 16px -2px rgba(12, 24, 32, 0.05), var(--clay-specular);
   }
 
   .glass-dark {
     background: rgba(8, 27, 38, 0.10);
     border: 1px solid rgba(255, 255, 255, 0.24);
-    box-shadow: 0 16px 40px rgba(0, 42, 55, 0.25), var(--skeuo-specular);
+    box-shadow: 0 16px 40px rgba(0, 42, 55, 0.25), var(--clay-specular);
   }
 
   .glass-warm {
     background: rgba(198, 237, 241, 0.07);
     border: 1px solid rgba(31, 116, 139, 0.30);
-    box-shadow: 0 8px 24px rgba(18, 94, 112, 0.12), var(--skeuo-specular);
+    box-shadow: 0 8px 24px rgba(18, 94, 112, 0.12), var(--clay-specular);
   }
   html[data-theme="dark"] .glass-warm, html.dark .glass-warm {
     background: rgba(9, 44, 57, 0.10);
@@ -273,14 +293,14 @@ html[data-theme="dark"], html.dark {
     border-radius: 20px;
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.02));
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--skeuo-card-shadow);
+    box-shadow: var(--clay-card-shadow);
   }
 
   .ns-card-soft {
     border-radius: 16px;
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), var(--ns-glass-1) 55%, rgba(135, 211, 224, 0.015));
     border: 1px solid var(--ns-glass-line-soft);
-    box-shadow: var(--skeuo-card-shadow);
+    box-shadow: var(--clay-card-shadow);
   }
 
   .ns-glass-bar {
@@ -288,7 +308,7 @@ html[data-theme="dark"], html.dark {
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     border-bottom: 1px solid var(--ns-glass-line);
-    box-shadow: 0 5px 18px -9px rgba(10, 64, 80, 0.35), var(--skeuo-specular), var(--skeuo-bevel-bottom);
+    box-shadow: 0 5px 18px -9px rgba(10, 64, 80, 0.35), var(--clay-specular), var(--clay-bevel-bottom);
   }
 
   .ns-glass-bar-soft {
@@ -296,7 +316,7 @@ html[data-theme="dark"], html.dark {
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     border-right: 1px solid var(--ns-glass-line);
-    box-shadow: 5px 0 22px -12px rgba(10, 64, 80, 0.42), var(--skeuo-specular), inset -1px 0 rgba(7, 65, 82, 0.12);
+    box-shadow: 5px 0 22px -12px rgba(10, 64, 80, 0.42), var(--clay-specular), inset -1px 0 rgba(7, 65, 82, 0.12);
   }
 
   /* The application rail is a single frosted, raised object rather than a flat column. */
@@ -344,17 +364,17 @@ html[data-theme="dark"], html.dark {
   }
 
   /* ──────────────────────────────────────────
-     Skeuomorphic Elements on Background
+     Claymorphic Elements on Background
      ────────────────────────────────────────── */
 
-  /* Tactile Skeuomorphic Push Buttons */
-  .skeuo-btn, button:not([class*="text-"]):not([class*="p-0"]):not([class*="h-full"]) {
+  /* Tactile Claymorphic Push Buttons */
+  .clay-btn, button:not([class*="text-"]):not([class*="p-0"]):not([class*="h-full"]) {
     position: relative;
     transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* Primary Tactile Button */
-  .skeuo-btn-primary {
+  .clay-btn-primary {
     background: linear-gradient(180deg, rgba(50, 154, 176, 0.30) 0%, rgba(23, 111, 132, 0.22) 48%, rgba(16, 91, 110, 0.28) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #0b4c5d !important;
@@ -366,7 +386,7 @@ html[data-theme="dark"], html.dark {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
     font-weight: 700 !important;
   }
-  .skeuo-btn-primary:hover:not(:disabled) {
+  .clay-btn-primary:hover:not(:disabled) {
     background: linear-gradient(180deg, rgba(70, 171, 192, 0.42) 0%, rgba(27, 125, 147, 0.32) 48%, rgba(18, 103, 123, 0.38) 100%) !important;
     transform: translateY(-1px);
     box-shadow:
@@ -374,14 +394,14 @@ html[data-theme="dark"], html.dark {
       0 5px 12px -1px rgba(11, 47, 57, 0.4),
       0 2px 4px rgba(0, 0, 0, 0.15) !important;
   }
-  .skeuo-btn-primary:active:not(:disabled) {
+  .clay-btn-primary:active:not(:disabled) {
     transform: translateY(1px);
     box-shadow:
       inset 0 2px 4px rgba(0, 0, 0, 0.35),
       0 1px 1px rgba(0, 0, 0, 0.1) !important;
   }
 
-  html[data-theme="dark"] .skeuo-btn-primary, html.dark .skeuo-btn-primary {
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary {
     background: linear-gradient(180deg, rgba(14, 165, 233, 0.30) 0%, rgba(3, 105, 161, 0.22) 52%, rgba(7, 89, 133, 0.28) 100%) !important;
     border: 1px solid #0284c7 !important;
     box-shadow:
@@ -390,8 +410,8 @@ html[data-theme="dark"], html.dark {
       0 4px 10px rgba(2, 132, 199, 0.35) !important;
   }
 
-  /* Secondary Skeuomorphic Frosted Glass Button */
-  .skeuo-btn-secondary {
+  /* Secondary Claymorphic Frosted Glass Button */
+  .clay-btn-secondary {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(233, 246, 248, 0.08) 52%, rgba(207, 232, 236, 0.14) 100%) !important;
     color: var(--ns-ink) !important;
     border: 1px solid rgba(25, 87, 104, 0.28) !important;
@@ -401,7 +421,7 @@ html[data-theme="dark"], html.dark {
       0 2px 5px rgba(12, 24, 32, 0.07) !important;
     font-weight: 700 !important;
   }
-  .skeuo-btn-secondary:hover:not(:disabled) {
+  .clay-btn-secondary:hover:not(:disabled) {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(231, 245, 247, 0.18) 100%) !important;
     border-color: var(--ns-teal) !important;
     transform: translateY(-1px);
@@ -409,14 +429,14 @@ html[data-theme="dark"], html.dark {
       inset 0 1px 0 rgba(255, 255, 255, 1),
       0 4px 10px rgba(12, 24, 32, 0.1) !important;
   }
-  .skeuo-btn-secondary:active:not(:disabled) {
+  .clay-btn-secondary:active:not(:disabled) {
     transform: translateY(1px);
     box-shadow:
       inset 0 2px 4px rgba(12, 24, 32, 0.14),
       0 1px 1px rgba(0, 0, 0, 0.04) !important;
   }
 
-  html[data-theme="dark"] .skeuo-btn-secondary, html.dark .skeuo-btn-secondary {
+  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary {
     background: linear-gradient(180deg, rgba(65, 112, 126, 0.16) 0%, rgba(26, 70, 84, 0.10) 52%, rgba(18, 55, 68, 0.16) 100%) !important;
     color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -426,8 +446,8 @@ html[data-theme="dark"], html.dark {
       0 3px 8px rgba(0, 0, 0, 0.35) !important;
   }
 
-  /* Accent Luxury Gold Skeuomorphic Button */
-  .skeuo-btn-accent {
+  /* Accent Luxury Gold Claymorphic Button */
+  .clay-btn-accent {
     background: linear-gradient(180deg, rgba(59, 156, 175, 0.30) 0%, rgba(34, 127, 149, 0.22) 52%, rgba(23, 104, 124, 0.28) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #125568 !important;
@@ -439,22 +459,22 @@ html[data-theme="dark"], html.dark {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
     font-weight: 700 !important;
   }
-  .skeuo-btn-accent:hover:not(:disabled) {
+  .clay-btn-accent:hover:not(:disabled) {
     background: linear-gradient(180deg, rgba(81, 175, 192, 0.42) 0%, rgba(40, 141, 164, 0.32) 52%, rgba(26, 113, 134, 0.38) 100%) !important;
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.65),
       0 5px 12px rgba(18, 85, 104, 0.4) !important;
   }
-  .skeuo-btn-accent:active:not(:disabled) {
+  .clay-btn-accent:active:not(:disabled) {
     transform: translateY(1px);
     box-shadow:
       inset 0 2px 4px rgba(0, 0, 0, 0.35),
       0 1px 1px rgba(0, 0, 0, 0.1) !important;
   }
 
-  /* Danger Crimson Skeuomorphic Button */
-  .skeuo-btn-danger {
+  /* Danger Crimson Claymorphic Button */
+  .clay-btn-danger {
     background: linear-gradient(180deg, rgba(220, 38, 38, 0.30) 0%, rgba(185, 28, 28, 0.22) 52%, rgba(153, 27, 27, 0.28) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #7f1d1d !important;
@@ -466,30 +486,30 @@ html[data-theme="dark"], html.dark {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
     font-weight: 700 !important;
   }
-  .skeuo-btn-danger:hover:not(:disabled) {
+  .clay-btn-danger:hover:not(:disabled) {
     background: linear-gradient(180deg, rgba(239, 68, 68, 0.42) 0%, rgba(220, 38, 38, 0.32) 52%, rgba(185, 28, 28, 0.38) 100%) !important;
     transform: translateY(-1px);
   }
-  .skeuo-btn-danger:active:not(:disabled) {
+  .clay-btn-danger:active:not(:disabled) {
     transform: translateY(1px);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35) !important;
   }
 
   /* Outline / Ghost Tactile Buttons */
-  .skeuo-btn-outline, .skeuo-btn-ghost {
+  .clay-btn-outline, .clay-btn-ghost {
     background: rgba(255, 255, 255, 0.08) !important;
     color: var(--ns-ink) !important;
     border: 1px solid var(--ns-glass-line) !important;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 4px rgba(12, 24, 32, 0.04) !important;
     font-weight: 700 !important;
   }
-  .skeuo-btn-outline:hover:not(:disabled), .skeuo-btn-ghost:hover:not(:disabled) {
+  .clay-btn-outline:hover:not(:disabled), .clay-btn-ghost:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.16) !important;
     border-color: var(--ns-gold) !important;
     transform: translateY(-1px);
   }
-  html[data-theme="dark"] .skeuo-btn-outline, html.dark .skeuo-btn-outline,
-  html[data-theme="dark"] .skeuo-btn-ghost, html.dark .skeuo-btn-ghost {
+  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
+  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
     background: rgba(255, 255, 255, 0.06) !important;
     color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
@@ -500,7 +520,7 @@ html[data-theme="dark"], html.dark {
   .glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
     background-color: rgba(255, 255, 255, 0.035) !important;
     border: 1px solid rgba(28, 46, 56, 0.22) !important;
-    box-shadow: var(--skeuo-well-shadow) !important;
+    box-shadow: var(--clay-well-shadow) !important;
     color: var(--ns-ink) !important;
     font-weight: 600 !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -513,7 +533,7 @@ html[data-theme="dark"], html.dark {
   html[data-theme="dark"] textarea {
     background-color: rgba(8, 28, 38, 0.04) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    box-shadow: var(--skeuo-well-shadow) !important;
+    box-shadow: var(--clay-well-shadow) !important;
     color: #f8fafc !important;
   }
 
@@ -544,7 +564,7 @@ html[data-theme="dark"], html.dark {
   }
 
   /* Tactile Raised Enamel Badges & Status Chips */
-  .skeuo-badge {
+  .clay-badge {
     position: relative;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.75),
@@ -553,7 +573,7 @@ html[data-theme="dark"], html.dark {
     font-weight: 800;
     letter-spacing: 0.04em;
   }
-  html[data-theme="dark"] .skeuo-badge, html.dark .skeuo-badge {
+  html[data-theme="dark"] .clay-badge, html.dark .clay-badge {
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.25),
       inset 0 -1px 0 rgba(0, 0, 0, 0.4),
@@ -561,21 +581,21 @@ html[data-theme="dark"], html.dark {
   }
 
   /* Tactile Raised Quick Link & Stat Cards */
-  .skeuo-card {
+  .clay-card {
     border-radius: 18px;
     background: var(--ns-glass-1);
     border: 1px solid var(--ns-glass-line);
-    box-shadow: var(--skeuo-card-shadow);
+    box-shadow: var(--clay-card-shadow);
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .skeuo-card:hover {
+  .clay-card:hover {
     transform: translateY(-2px);
     box-shadow:
       0 18px 36px -4px rgba(12, 24, 32, 0.12),
       0 4px 10px -1px rgba(12, 24, 32, 0.06),
       inset 0 1px 0 0 rgba(255, 255, 255, 1);
   }
-  html[data-theme="dark"] .skeuo-card:hover, html.dark .skeuo-card:hover {
+  html[data-theme="dark"] .clay-card:hover, html.dark .clay-card:hover {
     box-shadow:
       0 22px 48px -4px rgba(0, 0, 0, 0.8),
       0 6px 14px -1px rgba(0, 0, 0, 0.6),
@@ -611,7 +631,7 @@ html[data-theme="dark"], html.dark {
   .ns-glass-hover:hover {
     background-color: var(--ns-glass-hover);
     border-color: var(--ns-glass-line);
-    box-shadow: 0 4px 12px rgba(12, 73, 91, 0.12), var(--skeuo-specular);
+    box-shadow: 0 4px 12px rgba(12, 73, 91, 0.12), var(--clay-specular);
   }
 
   .ns-glass-selected {
@@ -668,19 +688,157 @@ html[data-theme="dark"], html.dark {
     background: transparent !important;
     background-color: transparent !important;
   }
-  .skeuo-btn-primary, .skeuo-btn-secondary, .skeuo-btn-accent,
-  .skeuo-btn-danger, .skeuo-btn-outline, .skeuo-btn-ghost {
+  .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
+  .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
     background: transparent !important;
   }
-  .skeuo-btn-primary, .skeuo-btn-secondary, .skeuo-btn-accent {
+  .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent {
     color: var(--ns-ink) !important;
     text-shadow: none;
   }
-  .skeuo-btn-primary, .skeuo-btn-accent { border-color: var(--ns-teal) !important; }
-  .skeuo-btn-danger { color: var(--ns-danger) !important; border-color: var(--ns-danger) !important; text-shadow: none; }
+  .clay-btn-primary, .clay-btn-accent { border-color: var(--ns-teal) !important; }
+  .clay-btn-danger { color: var(--ns-danger) !important; border-color: var(--ns-danger) !important; text-shadow: none; }
   .ns-glass-hover:hover, .ns-table tbody tr:hover {
     background: transparent !important;
     background-color: transparent !important;
+  }
+
+  /* A clear pane needs a faint refractive sheet to read as glass. These stay
+     transparent enough for the watermark to remain visible underneath. */
+  .glass, .ns-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(228, 247, 250, 0.055) 52%, rgba(104, 190, 207, 0.075)) !important;
+    border-color: rgba(255, 255, 255, 0.72);
+  }
+  .glass-strong, .ns-card-soft, .ns-glass-band {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(228, 247, 250, 0.075) 52%, rgba(104, 190, 207, 0.09)) !important;
+    border-color: rgba(255, 255, 255, 0.76);
+  }
+  .ns-glass-bar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(222, 244, 248, 0.07) 58%, rgba(92, 184, 202, 0.10)) !important;
+    border-color: rgba(255, 255, 255, 0.78);
+  }
+  .ns-glass-bar-soft, aside.ns-glass-bar-soft {
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0.16), rgba(222, 244, 248, 0.065) 60%, rgba(92, 184, 202, 0.085)) !important;
+    border-color: rgba(255, 255, 255, 0.76);
+  }
+  .glass-input, .ns-input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
+    background: rgba(255, 255, 255, 0.075) !important;
+    border-color: rgba(255, 255, 255, 0.68) !important;
+  }
+  .ns-glass-selected {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(213, 242, 247, 0.08)) !important;
+  }
+  .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
+  .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(202, 239, 245, 0.055)) !important;
+    border-color: rgba(255, 255, 255, 0.72) !important;
+  }
+  .clay-btn-primary, .clay-btn-accent { border-color: rgba(5, 95, 118, 0.72) !important; }
+  .clay-btn-danger { border-color: rgba(185, 28, 28, 0.72) !important; }
+  html[data-theme="dark"] .glass, html.dark .glass,
+  html[data-theme="dark"] .ns-card, html.dark .ns-card {
+    background: linear-gradient(135deg, rgba(197, 242, 248, 0.12), rgba(19, 81, 95, 0.055) 52%, rgba(34, 143, 161, 0.08)) !important;
+    border-color: rgba(204, 245, 250, 0.42);
+  }
+  html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
+  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
+  html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
+  html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
+  html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
+    background: linear-gradient(135deg, rgba(197, 242, 248, 0.15), rgba(19, 81, 95, 0.07) 52%, rgba(34, 143, 161, 0.10)) !important;
+    border-color: rgba(204, 245, 250, 0.46);
+  }
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
+  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger,
+  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
+  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
+    background: linear-gradient(180deg, rgba(202, 243, 249, 0.14), rgba(20, 83, 97, 0.05)) !important;
+    border-color: rgba(204, 245, 250, 0.42) !important;
+  }
+
+  /* Claymorphism: soft, rounded, tactile forms replace hard bevels. */
+  .clay-card, .ns-card, .ns-card-soft, .glass, .glass-strong {
+    border-radius: 24px;
+    box-shadow:
+      12px 14px 28px -18px rgba(7, 61, 77, 0.42),
+      -8px -8px 20px -14px rgba(255, 255, 255, 0.92),
+      inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      inset 0 -1px 1px rgba(10, 82, 99, 0.08);
+  }
+  .clay-card:hover {
+    transform: translateY(-1px) scale(1.002);
+    box-shadow:
+      14px 18px 32px -18px rgba(7, 61, 77, 0.48),
+      -8px -8px 20px -14px rgba(255, 255, 255, 0.96),
+      inset 0 1px 0 rgba(255, 255, 255, 0.66),
+      inset 0 -1px 1px rgba(10, 82, 99, 0.08);
+  }
+  .clay-btn, .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
+  .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
+    border-radius: 14px;
+    box-shadow:
+      5px 6px 12px -7px rgba(7, 61, 77, 0.42),
+      -4px -4px 10px -7px rgba(255, 255, 255, 0.90),
+      inset 0 1px 0 rgba(255, 255, 255, 0.52) !important;
+  }
+  .clay-btn:hover:not(:disabled), .clay-btn-primary:hover:not(:disabled),
+  .clay-btn-secondary:hover:not(:disabled), .clay-btn-accent:hover:not(:disabled),
+  .clay-btn-danger:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled),
+  .clay-btn-ghost:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.015);
+    box-shadow:
+      7px 9px 16px -8px rgba(7, 61, 77, 0.46),
+      -4px -4px 11px -7px rgba(255, 255, 255, 0.94),
+      inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+  }
+  .clay-btn:active:not(:disabled), .clay-btn-primary:active:not(:disabled),
+  .clay-btn-secondary:active:not(:disabled), .clay-btn-accent:active:not(:disabled),
+  .clay-btn-danger:active:not(:disabled), .clay-btn-outline:active:not(:disabled),
+  .clay-btn-ghost:active:not(:disabled) {
+    transform: translateY(1px) scale(0.985);
+    box-shadow:
+      inset 3px 3px 8px rgba(7, 61, 77, 0.16),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.46) !important;
+  }
+  .glass-input, .ns-input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
+    border-radius: 14px;
+    box-shadow:
+      inset 3px 3px 8px rgba(7, 61, 77, 0.13),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.42),
+      1px 1px 3px rgba(255, 255, 255, 0.40) !important;
+  }
+  .clay-badge {
+    border-radius: 999px;
+    box-shadow:
+      2px 3px 7px -4px rgba(7, 61, 77, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
+  }
+  html[data-theme="dark"] .clay-card, html.dark .clay-card,
+  html[data-theme="dark"] .ns-card, html.dark .ns-card,
+  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
+  html[data-theme="dark"] .glass, html.dark .glass,
+  html[data-theme="dark"] .glass-strong, html.dark .glass-strong {
+    box-shadow:
+      12px 14px 30px -17px rgba(0, 0, 0, 0.72),
+      -7px -7px 18px -16px rgba(161, 237, 248, 0.22),
+      inset 0 1px 0 rgba(220, 249, 253, 0.28),
+      inset 0 -1px 1px rgba(0, 0, 0, 0.28);
+  }
+  html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
+  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger,
+  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
+  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
+    box-shadow:
+      5px 6px 13px -7px rgba(0, 0, 0, 0.74),
+      -3px -3px 9px -7px rgba(161, 237, 248, 0.24),
+      inset 0 1px 0 rgba(220, 249, 253, 0.25) !important;
   }
 
   @media (max-width: 1023px) { .ns-card { border-radius: 16px; } }

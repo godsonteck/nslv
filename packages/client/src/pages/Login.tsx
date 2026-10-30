@@ -128,7 +128,7 @@ export default function Login() {
             onClick={() => setThemePreference('light')}
             className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
               themePreference === 'light'
-                ? 'skeuo-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
+                ? 'clay-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
                 : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
             }`}
             title="Light mode"
@@ -141,7 +141,7 @@ export default function Login() {
             onClick={() => setThemePreference('dark')}
             className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
               themePreference === 'dark'
-                ? 'skeuo-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
+                ? 'clay-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
                 : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
             }`}
             title="Dark mode"
@@ -154,7 +154,7 @@ export default function Login() {
             onClick={() => setThemePreference('system')}
             className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
               themePreference === 'system'
-                ? 'skeuo-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
+                ? 'clay-btn-secondary text-[var(--ns-gold)] font-bold shadow-xs'
                 : 'text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
             }`}
             title="System theme"
@@ -169,7 +169,7 @@ export default function Login() {
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden glass skeuo-card border border-[var(--ns-glass-line)] p-10 xl:p-12 min-h-[560px]">
+          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden glass clay-card border border-[var(--ns-glass-line)] p-10 xl:p-12 min-h-[560px]">
             {/* Background Photography Vignette */}
             <div className="absolute inset-0 z-0">
               <img
@@ -222,7 +222,7 @@ export default function Login() {
           </div>
 
           <div className="w-full lg:col-span-5 max-w-md mx-auto flex flex-col justify-center">
-            <div className="glass-strong skeuo-card rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden">
+            <div className="glass-strong clay-card rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden">
               
               <div className="absolute top-0 left-0 right-0 h-px bg-[linear-gradient(90deg,transparent,rgba(76,169,188,.85),transparent)]" />
 
@@ -349,7 +349,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl skeuo-btn skeuo-btn-primary px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl clay-btn clay-btn-primary px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                 >
                   {busy ? (
                     <div className="flex items-center gap-2">
