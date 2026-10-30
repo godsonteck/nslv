@@ -19,15 +19,15 @@ export const NotFoundPage: React.FC = () => {
           <Compass size={30} />
         </div>
         <h1 className="mt-5 text-xl font-bold" style={{ color: 'var(--ns-ink)' }}>
-          Page Not Found
+          Page unavailable
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6" style={{ color: 'var(--ns-muted)' }}>
-          The workspace route or resource you are looking for could not be found or has moved.
+          The page you are looking for could not be found or has moved.
         </p>
         <div className="pt-5">
           <Link to="/">
             <Button variant="secondary" size="sm">
-              <ArrowLeft size={14} /> Return to Dashboard
+              <ArrowLeft size={14} /> Back to home
             </Button>
           </Link>
         </div>

@@ -122,13 +122,13 @@ export const AccountPage: React.FC = () => {
 
   return (
     <ShellPage
-      eyebrow="Account"
-      title="My Account"
-      subtitle="Manage your personal staff credentials, avatar, contact details, and account security."
+      eyebrow="Profile"
+      title="My profile"
+      subtitle="Manage your personal details, avatar, and account security for the villa team."
     >
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ── Avatar Profile Card ── */}
-        <Section title="Profile Picture" subtitle="Appears across system activity logs & receipts.">
+        <Section title="Profile picture" subtitle="Appears across villa activity logs and receipts.">
           <div className="flex flex-col items-center gap-4 p-6">
             <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[var(--ns-gold)]/30 shadow-md ns-glass-band">
               {preview ? (
@@ -178,7 +178,7 @@ export const AccountPage: React.FC = () => {
             <div className="rounded-xl border border-[var(--ns-glass-line)] ns-glass-band p-3 text-center text-xs text-[var(--ns-muted)] space-y-1 w-full">
               <div className="font-bold text-[var(--ns-ink)]">{user?.firstName} {user?.lastName}</div>
               <div className="text-[11px] text-[var(--ns-gold)] font-semibold uppercase tracking-wider">
-                {user?.roles?.map((r: any) => (typeof r === 'string' ? r : r?.name)).join(' • ') || 'Staff Member'}
+                {user?.roles?.map((r: any) => (typeof r === 'string' ? r : r?.name)).join(' • ') || 'Villa team'}
               </div>
             </div>
           </div>

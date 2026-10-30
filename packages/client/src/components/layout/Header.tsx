@@ -11,7 +11,7 @@ import { NotificationPanel } from './NotificationPanel';
 const THEME_OPTIONS: { value: ThemePreference; label: string; icon: React.ComponentType<{ size?: number | string }> }[] = [
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
+  { value: 'system', label: 'Device', icon: Monitor },
 ];
 
 export const Header: React.FC = () => {
@@ -170,7 +170,7 @@ export const Header: React.FC = () => {
               </span>
               <span className="hidden text-left lg:block">
                 <span className="block max-w-[120px] truncate text-[11px] font-extrabold" style={{ color: 'var(--ns-ink)' }}>
-                  {user ? `${user.firstName} ${user.lastName}` : 'Staff'}
+                  {user ? `${user.firstName} ${user.lastName}` : 'Team member'}
                 </span>
                 <span className="block text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                   {user?.roles?.[0]?.name ?? 'User'}
@@ -184,7 +184,7 @@ export const Header: React.FC = () => {
               >
                 <div className="border-b border-[var(--ns-glass-line)] px-3 py-2.5">
                   <div className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>
-                    {user ? `${user.firstName} ${user.lastName}` : 'Staff'}
+                    {user ? `${user.firstName} ${user.lastName}` : 'Team member'}
                   </div>
                   <div className="mt-0.5 text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
                     {user?.roles?.[0]?.name ?? 'User'} access
@@ -195,13 +195,13 @@ export const Header: React.FC = () => {
                   className="mt-1 w-full rounded-xl px-3 py-2 text-left text-xs font-bold hover:bg-[var(--ns-surface-2)] transition-colors"
                   style={{ color: 'var(--ns-ink)' }}
                 >
-                  Account & Profile
+                  My account
                 </button>
                 <button
                   onClick={() => void logout()}
                   className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-[var(--ns-danger)] ns-glass-hover transition-colors"
                 >
-                  <LogOut size={14} /> Sign out
+                  <LogOut size={14} /> Log out
                 </button>
               </div>
             )}

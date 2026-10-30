@@ -184,27 +184,27 @@ export default function Login() {
             <div className="relative z-10 flex items-center gap-2">
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[10.5px] font-semibold tracking-wider uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--ns-gold)]" />
-                Operations workspace
+                Staff portal
               </span>
             </div>
 
             {/* Editorial Centerpiece — Uncluttered & Poetic */}
             <div className="relative z-10 space-y-4 my-auto py-8">
               <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-sm">
-                Your property, <br />
-                <span className="text-[#9de0ea] italic font-light">in clear view.</span>
+                Your place, <br />
+                <span className="text-[#9de0ea] italic font-light">all in one view.</span>
               </h1>
               <p className="text-sm xl:text-base text-slate-300 font-medium max-w-md leading-relaxed">
-                A focused workspace for reservations, guests, rooms, and daily service—designed for the people running the villa.
+                See bookings, guests, room status, and daily work from one place.
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
               <div className="pt-6 flex items-center gap-3 text-xs text-slate-300 font-medium">
-                <span>12 Luxury Suites</span>
+                <span>12 guest rooms</span>
                 <span className="text-slate-500">·</span>
-                <span>Poolside Lounge</span>
+                <span>Pool area</span>
                 <span className="text-slate-500">·</span>
-                <span>Front Desk & Dining</span>
+                <span>Front desk & dining</span>
               </div>
             </div>
 
@@ -216,7 +216,7 @@ export default function Login() {
               </div>
               <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span>System Operational</span>
+                <span>Live</span>
               </div>
             </div>
           </div>
@@ -232,15 +232,15 @@ export default function Login() {
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
-                  {two ? 'Two-Factor Verification' : 'Staff Access'}
+                  {two ? 'Two-step check' : 'Staff login'}
                 </div>
                 <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
-                  {two ? 'Confirm Identity' : 'Welcome Back'}
+                  {two ? 'Confirm it’s you' : 'Welcome'}
                 </h2>
                 <p className="mt-1 text-xs font-medium" style={{ color: 'var(--ns-muted)' }}>
                   {two
-                    ? 'Enter the 6-digit authentication token from your device'
-                    : 'Sign in to access your hotel workstation'}
+                    ? 'Enter the 6-digit code from your device'
+                    : 'Use your login details to continue'}
                 </p>
               </div>
 
@@ -259,7 +259,7 @@ export default function Login() {
                     {/* Username / Email */}
                     <div>
                       <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
-                        Username or Email
+                        Username or email
                       </label>
                       <div className="relative">
                         <UserIcon
@@ -315,7 +315,7 @@ export default function Login() {
                 ) : (
                   <div>
                     <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
-                      6-Digit Security Token
+                      Verification code
                     </label>
                     <div className="relative">
                       <KeyRound
@@ -340,7 +340,7 @@ export default function Login() {
                       className="mt-2 text-[11px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
                     >
                       <ArrowLeft size={12} />
-                      Back to password login
+                      Back to sign in
                     </button>
                   </div>
                 )}
@@ -354,11 +354,11 @@ export default function Login() {
                   {busy ? (
                     <div className="flex items-center gap-2">
                       <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Authenticating…</span>
+                      <span>Signing in…</span>
                     </div>
                   ) : (
                     <>
-                      <span>{two ? 'Verify & Continue' : 'Sign In to Workstation'}</span>
+                      <span>{two ? 'Continue' : 'Sign in'}</span>
                       <ArrowRight size={14} />
                     </>
                   )}
@@ -369,18 +369,18 @@ export default function Login() {
               <div className="mt-6 pt-4 border-t border-[var(--ns-glass-line)] flex items-center justify-between text-[10px] font-medium" style={{ color: 'var(--ns-muted)' }}>
                 <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                   <CheckCircle2 size={12} />
-                  <span>Encrypted TLS 1.3</span>
+                  <span>Secure</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Building2 size={11} />
-                  <span>NS Villa Server</span>
+                  <span>NS Luxury Villa</span>
                 </div>
               </div>
             </div>
 
             {/* Calm Footer Footnote */}
             <p className="text-center mt-3 text-[10.5px] font-medium text-[var(--ns-muted)]">
-              Authorized personnel only. All access is audited.
+              Staff access only.
             </p>
           </div>
         </div>

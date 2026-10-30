@@ -13,11 +13,11 @@ type PortalDefinition = {
 };
 
 const portals: Record<string, PortalDefinition> = {
-  Admin: { name: 'Administration', summary: 'System access, people, settings and traceability.', icon: <ShieldCheck size={22} />, available: [{ label: 'Users', to: '/admin/users' }, { label: 'Roles & permissions', to: '/admin/roles' }, { label: 'Audit logs', to: '/admin/audit' }, { label: 'Settings', to: '/admin/settings' }], pending: ['Operational reporting', 'Financial oversight'] },
-  Manager: { name: 'Operations management', summary: 'A single place to supervise the villa’s daily operations.', icon: <Building2 size={22} />, available: [], pending: ['Live occupancy and arrivals', 'Department performance', 'Operational reports'] },
-  Reception: { name: 'Reception', summary: 'Front-office workflows built for fast, accurate guest service.', icon: <Users size={22} />, available: [{ label: 'Front desk', to: '/frontdesk' }, { label: 'Pool services', to: '/pool/services' }], pending: ['Reservations and availability', 'Check-in and check-out', 'Guest folios and payments'] },
-  Restaurant: { name: 'Restaurant', summary: 'Dining and kitchen operations with the restaurant POS.', icon: <UtensilsCrossed size={22} />, available: [{ label: 'Restaurant workspace', to: '/restaurant' }, { label: 'Restaurant POS', to: '/restaurant/pos' }], pending: [] },
-  Bar: { name: 'Bar', summary: 'Bar and lounge service with the bar POS.', icon: <Wine size={22} />, available: [{ label: 'Bar workspace', to: '/bar' }, { label: 'Bar POS', to: '/bar/pos' }], pending: [] },
+  Admin: { name: 'Admin', summary: 'Manage staff, permissions, settings, and daily records in one place.', icon: <ShieldCheck size={22} />, available: [{ label: 'People', to: '/admin/users' }, { label: 'Roles', to: '/admin/roles' }, { label: 'Audit trail', to: '/admin/audit' }, { label: 'Settings', to: '/admin/settings' }], pending: ['Reports', 'Finance'] },
+  Manager: { name: 'Manager', summary: 'Keep an eye on rooms, guests, and daily work across the property.', icon: <Building2 size={22} />, available: [], pending: ['Room view', 'Team performance', 'Daily reports'] },
+  Reception: { name: 'Front desk', summary: 'Handle guest arrivals, billing, and check-out in one place.', icon: <Users size={22} />, available: [{ label: 'Front desk', to: '/frontdesk' }, { label: 'Pool service', to: '/pool/services' }], pending: ['Bookings', 'Check-in and check-out', 'Guest bills'] },
+  Restaurant: { name: 'Restaurant', summary: 'Run orders and service for the restaurant team.', icon: <UtensilsCrossed size={22} />, available: [{ label: 'Restaurant desk', to: '/restaurant' }, { label: 'Restaurant POS', to: '/restaurant/pos' }], pending: [] },
+  Bar: { name: 'Bar', summary: 'Handle drinks and bar sales from the till.', icon: <Wine size={22} />, available: [{ label: 'Bar desk', to: '/bar' }, { label: 'Bar POS', to: '/bar/pos' }], pending: [] },
 };
 
 export const PortalHome: React.FC = () => {
@@ -45,7 +45,7 @@ export const PortalHome: React.FC = () => {
       </section>
       {portal.available.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Available now</h2>
+          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Quick links</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {portal.available.map((item) => (
               <Link
@@ -65,9 +65,9 @@ export const PortalHome: React.FC = () => {
         <div className="flex gap-3">
           <AlertCircle size={18} className="mt-0.5 shrink-0 text-[var(--ns-gold)]" />
           <div>
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Operational data is not connected yet</h2>
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--ns-ink)' }}>Live data is not connected yet</h2>
             <p className="mt-1 text-sm" style={{ color: 'var(--ns-muted)' }}>
-              These workflows stay unavailable until their server APIs, permissions, and persistence are implemented. No sample figures are shown here.
+              These sections will stay unavailable until the system is fully connected. No sample numbers are shown here.
             </p>
           </div>
         </div>

@@ -152,17 +152,17 @@ const PropertyDashboard: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-gold)] glass-subtle px-3 py-1 text-[10px] font-black tracking-widest text-[var(--ns-gold)] uppercase">
-                <Sparkles size={11} className="text-[var(--ns-gold)]" /> NS Luxury Villa
+                <Sparkles size={11} className="text-[var(--ns-gold)]" /> Home
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ns-success)] glass-subtle px-3 py-1 text-[10px] font-bold text-[var(--ns-success)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live System Sync
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Today
               </span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--ns-ink)] font-serif">
-              Operations &amp; Overview
+              Your place, in one view
             </h1>
             <p className="text-xs sm:text-sm text-[var(--ns-muted)] max-w-xl font-medium leading-relaxed">
-              Lokoe, Ho, Ghana | {nowFormatted}
+              Lokoe, Ho, Ghana · {nowFormatted}
             </p>
           </div>
 
@@ -181,7 +181,7 @@ const PropertyDashboard: React.FC = () => {
                 className="inline-flex items-center gap-2 rounded-xl skeuo-btn skeuo-btn-primary px-4 py-2 text-xs font-black text-white shadow-md transition-all"
               >
                 <LogIn size={14} />
-                <span>Front Desk Terminal</span>
+                <span>Front desk</span>
               </button>
             )}
             {canReserve && (
@@ -190,7 +190,7 @@ const PropertyDashboard: React.FC = () => {
                 className="inline-flex items-center gap-2 rounded-xl skeuo-btn skeuo-btn-accent px-4 py-2 text-xs font-black text-white shadow-md transition-all"
               >
                 <CalendarCheck size={14} />
-                <span>New Booking</span>
+                <span>New stay</span>
               </button>
             )}
           </div>
@@ -210,17 +210,17 @@ const PropertyDashboard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--ns-teal)]">
               <BedDouble size={16} />
-              <span>Room Availability Today</span>
+              <span>Room status today</span>
             </div>
             <p className="mt-0.5 text-xs text-[var(--ns-muted)]">
-              Rooms reserved for future dates remain strictly <strong>Available today</strong> until their arrival date arrives.
+              Rooms booked for later dates stay <strong>available today</strong> until their arrival date begins.
             </p>
           </div>
           <button
             onClick={() => navigate('/rooms')}
             className="text-xs font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors self-start sm:self-auto"
           >
-            <span>Open Room Board</span>
+            <span>Open room board</span>
             <ChevronRight size={14} />
           </button>
         </div>
@@ -233,11 +233,11 @@ const PropertyDashboard: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-success)] glass p-4 shadow-2xs hover:border-[var(--ns-success)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available Today</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available</span>
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
             <div className="mt-2 text-3xl font-black text-[var(--ns-success)]">{m.availableRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-success)] font-medium">Ready for immediate check-in</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-success)] font-medium">Ready for check-in</div>
           </div>
 
           {/* Reserved Rooms */}
@@ -246,11 +246,11 @@ const PropertyDashboard: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-warning)] glass p-4 shadow-2xs hover:border-[var(--ns-warning)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved for Today</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Booked today</span>
               <CalendarCheck size={14} className="text-[var(--ns-warning)]" />
             </div>
             <div className="mt-2 text-3xl font-black text-[var(--ns-warning)]">{m.reservedRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-warning)] font-medium">Arrivals due / active bookings</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-warning)] font-medium">Arrivals and active stays</div>
           </div>
 
           {/* Occupied Rooms */}
@@ -259,11 +259,11 @@ const PropertyDashboard: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-info)] glass p-4 shadow-2xs hover:border-[var(--ns-info)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House Occupied</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-info)]">Checked in</span>
               <Users size={14} className="text-[var(--ns-info)]" />
             </div>
             <div className="mt-2 text-3xl font-black text-[var(--ns-info)]">{m.occupiedRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-info)] font-medium">Checked-in guest stays</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-info)] font-medium">Guests currently in-house</div>
           </div>
 
           {/* Housekeeping / Dirty */}
@@ -272,19 +272,19 @@ const PropertyDashboard: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-danger)] glass p-4 shadow-2xs hover:border-[var(--ns-danger)] hover:shadow-xs transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Housekeeping Dirty</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Needs turnover</span>
               <DoorOpen size={14} className="text-[var(--ns-danger)]" />
             </div>
             <div className="mt-2 text-3xl font-black text-[var(--ns-danger)]">{m.dirtyRooms}</div>
-            <div className="mt-1 text-[11px] text-[var(--ns-danger)] font-medium">Awaiting turnover inspection</div>
+            <div className="mt-1 text-[11px] text-[var(--ns-danger)] font-medium">Awaiting housekeeping</div>
           </div>
         </div>
 
         {/* Visual Room Distribution Ribbon */}
         <div className="space-y-1.5 pt-2">
           <div className="flex items-center justify-between text-xs font-semibold text-[var(--ns-muted)]">
-            <span>Overall Room Distribution ({m.totalRooms} Total Rooms)</span>
-            <span className="text-[var(--ns-teal)] font-black">{m.occupancyRate}% Occupancy</span>
+            <span>Room mix ({m.totalRooms} total rooms)</span>
+            <span className="text-[var(--ns-teal)] font-black">{m.occupancyRate}% occupancy</span>
           </div>
           <div className="h-2.5 w-full ns-glass-band rounded-full overflow-hidden flex border border-[var(--ns-glass-line)]">
             <div
