@@ -80,10 +80,10 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className="ns-glass-bar sticky top-0 z-50 border-b border-[var(--ns-glass-line)] bg-[rgba(255,255,255,0.05)] backdrop-blur-[20px]"
+      className="ns-glass-bar sticky top-0 z-50 border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.015)] backdrop-blur-[26px] backdrop-saturate-[160%]"
       style={{
-        background: 'rgba(255,255,255,0.05)',
-        boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.24), 0 8px 24px rgba(15,60,72,0.06)',
+        background: 'rgba(255,255,255,0.015)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.32), 0 10px 26px rgba(15,60,72,0.04)',
       }}
     >
       <div className="flex h-[70px] items-center gap-3 px-4 sm:px-6 lg:px-7">

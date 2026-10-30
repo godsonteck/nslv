@@ -111,12 +111,12 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`relative z-10 flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden rounded-[26px] border border-[rgba(255,255,255,0.28)] bg-[rgba(255,255,255,0.03)] shadow-[0_12px_30px_rgba(15,60,72,0.08),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-[18px] transition-all duration-300 ease-in-out ${
+      className={`relative z-10 flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden rounded-[28px] border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.012)] shadow-[0_12px_32px_rgba(15,60,72,0.06),inset_0_1px_0_rgba(255,255,255,0.34)] backdrop-blur-[24px] backdrop-saturate-[155%] transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'w-[268px] px-3 py-4' : 'w-[72px] px-2.5 py-4'
       }`}
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        boxShadow: '0 12px 30px rgba(15, 60, 72, 0.08), inset 0 1px 0 rgba(255,255,255,0.42)',
+        background: 'rgba(255,255,255,0.012)',
+        boxShadow: '0 12px 32px rgba(15, 60, 72, 0.06), inset 0 1px 0 rgba(255,255,255,0.34)',
       }}
     >
       <div className="flex min-h-full flex-col">
