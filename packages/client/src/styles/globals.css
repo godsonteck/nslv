@@ -23,15 +23,15 @@
   --font-body: "DM Sans", system-ui, sans-serif;
 
   /* Frosted Glass Foundation (Light Mode) */
-  --ns-glass-1: rgba(240, 253, 255, 0.07);
-  --ns-glass-2: rgba(249, 254, 255, 0.12);
-  --ns-glass-3: rgba(255, 255, 255, 0.18);
+  --ns-glass-1: rgba(240, 253, 255, 0.025);
+  --ns-glass-2: rgba(249, 254, 255, 0.045);
+  --ns-glass-3: rgba(255, 255, 255, 0.08);
   --ns-glass-line: rgba(255, 255, 255, 0.62);
   --ns-glass-line-soft: rgba(24, 79, 96, 0.18);
   --ns-glass-border-outer: rgba(24, 79, 96, 0.30);
   --ns-glass-blur: 32px;
   --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(145%) brightness(1.1);
-  --ns-glass-hover: rgba(255, 255, 255, 0.16);
+  --ns-glass-hover: rgba(255, 255, 255, 0.09);
   --ns-glass-shadow:
     0 14px 32px -14px rgba(13, 66, 82, 0.30),
     0 2px 6px -1px rgba(13, 66, 82, 0.10),
@@ -74,15 +74,15 @@ html[data-theme="dark"], html.dark {
   --ns-purple: #c084fc;
 
   /* Frosted Glass Foundation (Dark Mode) */
-  --ns-glass-1: rgba(7, 33, 45, 0.08);
-  --ns-glass-2: rgba(8, 39, 53, 0.14);
-  --ns-glass-3: rgba(12, 48, 62, 0.20);
+  --ns-glass-1: rgba(7, 33, 45, 0.03);
+  --ns-glass-2: rgba(8, 39, 53, 0.06);
+  --ns-glass-3: rgba(12, 48, 62, 0.10);
   --ns-glass-line: rgba(211, 245, 250, 0.36);
   --ns-glass-line-soft: rgba(211, 245, 250, 0.16);
   --ns-glass-border-outer: rgba(0, 0, 0, 0.5);
   --ns-glass-blur: 34px;
   --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(145%) brightness(1.08);
-  --ns-glass-hover: rgba(176, 229, 240, 0.14);
+  --ns-glass-hover: rgba(176, 229, 240, 0.08);
   --ns-glass-shadow:
     0 14px 40px -4px rgba(0, 0, 0, 0.6),
     0 4px 10px -2px rgba(0, 0, 0, 0.4),
@@ -218,12 +218,12 @@ html[data-theme="dark"], html.dark {
     width: clamp(420px, 54vw, 1000px);
     max-width: 150vw;
     height: auto;
-    opacity: 0.028;
+    opacity: 0.115;
     user-select: none;
-    -webkit-mask-image: radial-gradient(ellipse, #000 38%, transparent 72%);
-    mask-image: radial-gradient(ellipse, #000 38%, transparent 72%);
+    -webkit-mask-image: radial-gradient(ellipse, #000 52%, transparent 84%);
+    mask-image: radial-gradient(ellipse, #000 52%, transparent 84%);
   }
-  html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img { opacity: 0.045; }
+  html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img { opacity: 0.15; }
 
   /* ──────────────────────────────────────────
      Glassy Backgrounds (Frosted Glassmorphism)
@@ -236,13 +236,13 @@ html[data-theme="dark"], html.dark {
   }
 
   .glass {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.05));
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.02));
     border: 1px solid var(--ns-glass-line);
     box-shadow: var(--skeuo-card-shadow), var(--skeuo-bevel-bottom);
   }
 
   .glass-strong {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), var(--ns-glass-2) 48%, rgba(135, 211, 224, 0.08));
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), var(--ns-glass-2) 48%, rgba(135, 211, 224, 0.03));
     border: 1px solid var(--ns-glass-line);
     box-shadow: var(--skeuo-card-shadow);
   }
@@ -271,20 +271,20 @@ html[data-theme="dark"], html.dark {
 
   .ns-card {
     border-radius: 20px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.05));
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 48%, rgba(135, 211, 224, 0.02));
     border: 1px solid var(--ns-glass-line);
     box-shadow: var(--skeuo-card-shadow);
   }
 
   .ns-card-soft {
     border-radius: 16px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), var(--ns-glass-1) 55%, rgba(135, 211, 224, 0.04));
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), var(--ns-glass-1) 55%, rgba(135, 211, 224, 0.015));
     border: 1px solid var(--ns-glass-line-soft);
     box-shadow: var(--skeuo-card-shadow);
   }
 
   .ns-glass-bar {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), var(--ns-glass-2) 55%, rgba(129, 205, 219, 0.06));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), var(--ns-glass-2) 55%, rgba(129, 205, 219, 0.025));
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     border-bottom: 1px solid var(--ns-glass-line);
@@ -292,7 +292,7 @@ html[data-theme="dark"], html.dark {
   }
 
   .ns-glass-bar-soft {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), var(--ns-glass-1) 62%, rgba(106, 191, 208, 0.04));
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.055), var(--ns-glass-1) 62%, rgba(106, 191, 208, 0.018));
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     border-right: 1px solid var(--ns-glass-line);
@@ -313,17 +313,17 @@ html[data-theme="dark"], html.dark {
   html.dark .glass,
   html[data-theme="dark"] .ns-card,
   html.dark .ns-card {
-    background: linear-gradient(145deg, rgba(202, 243, 249, 0.12), var(--ns-glass-1) 48%, rgba(38, 146, 166, 0.05));
+    background: linear-gradient(145deg, rgba(202, 243, 249, 0.055), var(--ns-glass-1) 48%, rgba(38, 146, 166, 0.02));
   }
   html[data-theme="dark"] .glass-strong,
   html.dark .glass-strong,
   html[data-theme="dark"] .ns-glass-bar,
   html.dark .ns-glass-bar {
-    background: linear-gradient(180deg, rgba(202, 243, 249, 0.14), var(--ns-glass-2) 55%, rgba(38, 146, 166, 0.07));
+    background: linear-gradient(180deg, rgba(202, 243, 249, 0.07), var(--ns-glass-2) 55%, rgba(38, 146, 166, 0.025));
   }
   html[data-theme="dark"] .ns-glass-bar-soft,
   html.dark .ns-glass-bar-soft {
-    background: linear-gradient(90deg, rgba(202, 243, 249, 0.10), var(--ns-glass-1) 62%, rgba(38, 146, 166, 0.05));
+    background: linear-gradient(90deg, rgba(202, 243, 249, 0.05), var(--ns-glass-1) 62%, rgba(38, 146, 166, 0.018));
   }
 
   .ns-glass-band {
@@ -333,12 +333,12 @@ html[data-theme="dark"], html.dark {
   }
 
   .ns-scrim {
-    background: rgba(12, 24, 36, 0.22);
+    background: rgba(12, 24, 36, 0.10);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
   html[data-theme="dark"] .ns-scrim, html.dark .ns-scrim {
-    background: rgba(3, 7, 12, 0.30);
+    background: rgba(3, 7, 12, 0.14);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
@@ -498,7 +498,7 @@ html[data-theme="dark"], html.dark {
 
   /* Tactile Debossed / Sunken Form Inputs & Wells */
   .glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background-color: rgba(255, 255, 255, 0.08) !important;
+    background-color: rgba(255, 255, 255, 0.035) !important;
     border: 1px solid rgba(28, 46, 56, 0.22) !important;
     box-shadow: var(--skeuo-well-shadow) !important;
     color: var(--ns-ink) !important;
@@ -511,7 +511,7 @@ html[data-theme="dark"], html.dark {
   html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
   html[data-theme="dark"] select,
   html[data-theme="dark"] textarea {
-    background-color: rgba(8, 28, 38, 0.09) !important;
+    background-color: rgba(8, 28, 38, 0.04) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
     box-shadow: var(--skeuo-well-shadow) !important;
     color: #f8fafc !important;
@@ -615,7 +615,7 @@ html[data-theme="dark"], html.dark {
   }
 
   .ns-glass-selected {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), var(--ns-glass-2) 65%, rgba(111, 203, 218, 0.06)) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), var(--ns-glass-2) 65%, rgba(111, 203, 218, 0.025)) !important;
     border-color: color-mix(in srgb, var(--ns-teal) 70%, white) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.72),
@@ -623,7 +623,7 @@ html[data-theme="dark"], html.dark {
       0 3px 8px rgba(10, 76, 93, 0.16) !important;
   }
   html[data-theme="dark"] .ns-glass-selected, html.dark .ns-glass-selected {
-    background: linear-gradient(180deg, rgba(202, 243, 249, 0.16), var(--ns-glass-2) 65%, rgba(38, 146, 166, 0.06)) !important;
+    background: linear-gradient(180deg, rgba(202, 243, 249, 0.07), var(--ns-glass-2) 65%, rgba(38, 146, 166, 0.025)) !important;
     border-color: rgba(112, 218, 237, 0.72) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.2),
@@ -632,7 +632,7 @@ html[data-theme="dark"], html.dark {
 
   /* Tactile Tables */
   .ns-table thead th {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 248, 0.08) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(240, 245, 248, 0.03) 100%);
     color: var(--ns-ink);
     border-bottom: 2px solid var(--ns-glass-line);
     font-size: 11px;
@@ -642,7 +642,7 @@ html[data-theme="dark"], html.dark {
     box-shadow: 0 1px 2px rgba(12, 24, 32, 0.04);
   }
   html[data-theme="dark"] .ns-table thead th, html.dark .ns-table thead th {
-    background: linear-gradient(180deg, rgba(28, 42, 58, 0.14) 0%, rgba(18, 28, 42, 0.09) 100%);
+    background: linear-gradient(180deg, rgba(28, 42, 58, 0.06) 0%, rgba(18, 28, 42, 0.035) 100%);
     color: #f8fafc;
     border-bottom: 2px solid var(--ns-glass-line);
   }
@@ -657,6 +657,30 @@ html[data-theme="dark"], html.dark {
   .ns-table tbody tr:hover {
     background: var(--ns-glass-hover);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  /* Crystal-clear mode: surfaces are actual glass, not translucent paint. */
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft,
+  .glass-input, .ns-input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea,
+  .ns-table thead th, .ns-glass-selected {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  .skeuo-btn-primary, .skeuo-btn-secondary, .skeuo-btn-accent,
+  .skeuo-btn-danger, .skeuo-btn-outline, .skeuo-btn-ghost {
+    background: transparent !important;
+  }
+  .skeuo-btn-primary, .skeuo-btn-secondary, .skeuo-btn-accent {
+    color: var(--ns-ink) !important;
+    text-shadow: none;
+  }
+  .skeuo-btn-primary, .skeuo-btn-accent { border-color: var(--ns-teal) !important; }
+  .skeuo-btn-danger { color: var(--ns-danger) !important; border-color: var(--ns-danger) !important; text-shadow: none; }
+  .ns-glass-hover:hover, .ns-table tbody tr:hover {
+    background: transparent !important;
+    background-color: transparent !important;
   }
 
   @media (max-width: 1023px) { .ns-card { border-radius: 16px; } }
