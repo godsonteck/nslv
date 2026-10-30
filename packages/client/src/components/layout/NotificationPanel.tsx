@@ -58,10 +58,10 @@ const NotificationItem: React.FC<{
 
   return (
     <div
-      className={`border-l-2 rounded-xl transition-all ${
+      className={`rounded-2xl border border-[rgba(255,255,255,0.18)] transition-all ${
         notification.isRead
-          ? 'border-[var(--ns-glass-line-soft)] border-l-transparent bg-[var(--ns-glass-1)]'
-          : 'border-[var(--ns-glass-line)] border-l-[var(--ns-gold)] bg-[var(--ns-glass-2)] shadow-sm'
+          ? 'border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)]'
+          : 'border-[rgba(118,196,214,0.35)] bg-[rgba(255,255,255,0.09)] shadow-[0_6px_18px_rgba(15,60,72,0.06)]'
       }`}
     >
       <button
@@ -145,9 +145,9 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="glass-strong relative z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-3xl border border-[var(--ns-glass-line)] bg-[rgba(15,21,30,0.78)] shadow-[0_18px_42px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+    <div className="relative z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.32)] bg-[rgba(255,255,255,0.12)] shadow-[0_22px_56px_rgba(12,42,52,0.18)] ring-1 ring-[rgba(255,255,255,0.14)] backdrop-blur-[26px] backdrop-saturate-[160%]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] px-4 py-3.5">
+      <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.03)] px-4 py-3.5">
         <div className="flex items-center gap-2.5">
           <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Notifications</h2>
           {unreadCount > 0 && (
