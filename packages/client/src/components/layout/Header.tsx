@@ -80,7 +80,11 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className="ns-glass-bar sticky top-0 z-40 border-b border-[var(--ns-glass-line)]"
+      className="ns-glass-bar sticky top-0 z-50 border-b border-[var(--ns-glass-line)] bg-[rgba(255,255,255,0.05)] backdrop-blur-[20px]"
+      style={{
+        background: 'rgba(255,255,255,0.05)',
+        boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.24), 0 8px 24px rgba(15,60,72,0.06)',
+      }}
     >
       <div className="flex h-[70px] items-center gap-3 px-4 sm:px-6 lg:px-7">
         {/* Sidebar Toggle Button */}
@@ -137,7 +141,10 @@ export const Header: React.FC = () => {
           {/* Notifications */}
           <div className="relative" ref={notificationsRef}>
             <button 
-              onClick={() => setShowNotifications(!showNotifications)}
+              onClick={() => {
+                setOpenDropdown(false);
+                setShowNotifications(!showNotifications);
+              }}
               aria-expanded={showNotifications}
               className="relative h-9 w-9 flex items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
               aria-label="Notifications"
@@ -150,7 +157,13 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </button>
-            {showNotifications && <NotificationPanel onClose={() => setShowNotifications(false)} />}
+            {showNotifications && (
+              <div className="pointer-events-none fixed inset-x-0 top-0 z-[80] flex justify-end pr-4 pt-[78px] sm:pr-6 lg:pr-8">
+                <div className="pointer-events-auto">
+                  <NotificationPanel onClose={() => setShowNotifications(false)} />
+                </div>
+              </div>
+            )}
           </div>
 
           {canSettings && (

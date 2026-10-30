@@ -340,19 +340,19 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   .ns-glass-bar {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22);
     box-shadow:
-      0 4px 20px rgba(0, 0, 0, 0.06),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+      0 6px 22px rgba(0, 0, 0, 0.04),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.18);
   }
 
   .ns-glass-bar-soft {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.025) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
     box-shadow:
-      4px 0 20px rgba(0, 0, 0, 0.05),
-      inset -1px 0 0 rgba(255, 255, 255, 0.22);
+      4px 0 18px rgba(0, 0, 0, 0.04),
+      inset -1px 0 0 rgba(255, 255, 255, 0.14);
   }
 
   aside.ns-glass-bar-soft {

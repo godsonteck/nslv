@@ -111,9 +111,13 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden ns-glass-bar-soft border-r border-[var(--ns-glass-line)] transition-all duration-300 ease-in-out ${
+      className={`relative z-10 flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden rounded-[26px] border border-[rgba(255,255,255,0.28)] bg-[rgba(255,255,255,0.03)] shadow-[0_12px_30px_rgba(15,60,72,0.08),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-[18px] transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'w-[268px] px-3 py-4' : 'w-[72px] px-2.5 py-4'
       }`}
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+        boxShadow: '0 12px 30px rgba(15, 60, 72, 0.08), inset 0 1px 0 rgba(255,255,255,0.42)',
+      }}
     >
       <div className="flex min-h-full flex-col">
         {/* Brand Header */}
@@ -162,13 +166,13 @@ export const Sidebar: React.FC = () => {
                   to={to}
                   title={label}
                   className={({ isActive }) =>
-                    `group relative flex items-center rounded-xl text-[11px] font-bold transition-all ${
+                    `group relative z-0 flex items-center rounded-xl text-[11px] font-bold transition-all ${
                       sidebarOpen
                         ? 'gap-3 px-3 py-2.5 w-full'
                         : 'justify-center h-11 w-11 mx-auto'
                     } ${
                       isActive
-                        ? 'ns-glass-selected'
+                        ? 'ns-glass-selected border border-[color-mix(in_srgb,var(--ns-teal)_65%,white)]'
                         : 'border border-transparent ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
                     }`
                   }

@@ -41,11 +41,11 @@ export const MainLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="app-workspace flex h-[100dvh] min-h-screen flex-col overflow-hidden" style={{ color: 'var(--ns-ink)', background: 'transparent' }}>
+    <div className="app-workspace relative isolate flex h-[100dvh] min-h-screen flex-col overflow-hidden" style={{ color: 'var(--ns-ink)', background: 'transparent' }}>
       <Header />
-      <div className="app-workspace__body flex min-h-0 flex-1 overflow-hidden">
+      <div className="app-workspace__body relative z-0 flex min-h-0 flex-1 overflow-hidden">
         <Sidebar />
-        <main className="app-workspace__main min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain" style={{ background: 'transparent' }}>
+        <main className="app-workspace__main relative z-0 min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain" style={{ background: 'transparent' }}>
           <div
             key={location.pathname}
             className="ns-page app-workspace__canvas mx-auto min-h-full w-full max-w-[1800px] px-4 py-5 sm:px-6 sm:py-7 lg:px-9 lg:py-8"

@@ -145,7 +145,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="glass-strong absolute right-0 top-12 z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-3xl border border-[var(--ns-glass-line)] bg-[rgba(15,21,30,0.78)] shadow-[0_18px_42px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+    <div className="glass-strong relative z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-3xl border border-[var(--ns-glass-line)] bg-[rgba(15,21,30,0.78)] shadow-[0_18px_42px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] px-4 py-3.5">
         <div className="flex items-center gap-2.5">
