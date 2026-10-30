@@ -66,10 +66,10 @@ export const KpiRibbon: React.FC<{
           item.onClick ? 'cursor-pointer' : ''
         }`}
       >
-        <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+        <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
           {item.label}
         </div>
-        <div className="text-xl font-black mt-0.5" style={{ color: item.accent || 'var(--ns-ink)' }}>
+        <div className="text-2xl font-black mt-0.5" style={{ color: item.accent || 'var(--ns-ink)' }}>
           {item.value}
         </div>
       </button>
@@ -89,7 +89,7 @@ export const SummaryStrip: React.FC<{
         <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
           {item.label}
         </span>
-        <span className="text-lg font-black" style={{ color: item.color || 'var(--ns-ink)' }}>
+        <span className="text-xl font-black" style={{ color: item.color || 'var(--ns-ink)' }}>
           {item.value}
         </span>
       </div>
@@ -241,10 +241,10 @@ export const CompactStat: React.FC<{
   color?: string;
 }> = ({ label, value, color }) => (
   <div className="text-center">
-    <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+    <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
       {label}
     </div>
-    <div className="text-lg font-black mt-0.5" style={{ color: color || 'var(--ns-ink)' }}>
+    <div className="text-xl font-black mt-0.5" style={{ color: color || 'var(--ns-ink)' }}>
       {value}
     </div>
   </div>

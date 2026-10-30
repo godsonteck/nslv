@@ -886,29 +886,29 @@ export const ReservationsPage: React.FC = () => {
           onClick={() => scrollToTable('ALL')}
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bookings</div>
-          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{displayItems.length}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bookings</div>
+          <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{displayItems.length}</div>
         </button>
         <button
           onClick={() => scrollToTable('CONFIRMED_PENDING')}
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-gold)]/40 transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Confirmed</div>
-          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{confirmed}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Confirmed</div>
+          <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{confirmed}</div>
         </button>
         <button
           onClick={() => scrollToTable('CHECKED_IN')}
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Checked In</div>
-          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{active}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Checked In</div>
+          <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{active}</div>
         </button>
         <button
           onClick={() => navigate('/rooms')}
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Rooms</div>
-          <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Rooms</div>
+          <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>
         </button>
       </div>
 
@@ -1066,7 +1066,7 @@ export const ReservationsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="ns-glass-band text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)]">
+              <thead className="ns-glass-band text-[11px] uppercase tracking-[.14em] text-[var(--ns-ink)] border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="px-5 py-3">Reservation / Group</th>
                   <th className="px-5 py-3">Guests</th>
@@ -1145,11 +1145,11 @@ export const ReservationsPage: React.FC = () => {
                           </td>
                           <td className="px-5 py-4 text-xs text-[var(--ns-muted)]">
                             <div className="font-bold text-[var(--ns-ink)]">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
-                            <div className="text-[10px] text-[var(--ns-muted)]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
+                            <div className="text-[11px] text-[var(--ns-ink-2)]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
                           </td>
-                          <td className="px-5 py-4 text-[11px] text-[var(--ns-muted)]">
+                          <td className="px-5 py-4 text-[12px] text-[var(--ns-ink)]">
                             <div>{new Date(item.checkInDate).toLocaleDateString()} → {new Date(item.checkOutDate).toLocaleDateString()}</div>
-                            <div className="text-[10px] text-[var(--ns-muted)]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
+                            <div className="text-[11px] text-[var(--ns-ink-2)]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
                           </td>
                           <td className="px-5 py-4 text-xs font-extrabold text-[var(--ns-ink)]">
                             <div>{formatCurrency(item.totalAmount)}</div>
@@ -1167,7 +1167,7 @@ export const ReservationsPage: React.FC = () => {
                                     Paid in full (Group)
                                   </span>
                                 ) : (
-                                  <div className="mt-0.5 text-[10px] font-bold text-[var(--ns-muted)]">
+                                  <div className="mt-0.5 text-[11px] font-bold text-[var(--ns-ink)]">
                                     Balance due {formatCurrency(item.balance)}
                                   </div>
                                 )}
@@ -1286,11 +1286,11 @@ export const ReservationsPage: React.FC = () => {
                           '-'
                         )}
                       </td>
-                      <td className="px-5 py-4 text-xs text-[var(--ns-muted)]">
+                      <td className="px-5 py-4 text-xs text-[var(--ns-ink)]">
                         {r.room ? `Room ${r.room.number}` : 'Unassigned'}
-                        <div className="text-[10px] text-[var(--ns-muted)]">{r.room?.roomType?.name || '-'}</div>
+                        <div className="text-[11px] text-[var(--ns-ink-2)]">{r.room?.roomType?.name || '-'}</div>
                       </td>
-                      <td className="px-5 py-4 text-[11px] text-[var(--ns-muted)]">
+                      <td className="px-5 py-4 text-[12px] text-[var(--ns-ink)]">
                         {new Date(r.checkInDate).toLocaleDateString()} → {new Date(r.checkOutDate).toLocaleDateString()}
                       </td>
                       <td className="px-5 py-4 text-xs font-extrabold text-[var(--ns-ink)]">
@@ -1312,7 +1312,7 @@ export const ReservationsPage: React.FC = () => {
                                 {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
                                   <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">{formatCurrency(r.depositAmount)} expected</div>
                                 )}
-                                <div className="mt-0.5 text-[10px] font-bold text-[var(--ns-muted)]">
+                                <div className="mt-0.5 text-[11px] font-bold text-[var(--ns-ink)]">
                                   Balance due {formatCurrency(reservationBalance(r))}
                                 </div>
                               </>

@@ -7,7 +7,7 @@
   /* Clear coastal-glass palette — high contrast enough for operational work. */
   --ns-ink: #0b1d28;
   --ns-ink-2: #153b49;
-  --ns-muted: #365d6f;
+  --ns-muted: #2a4f5f;
   --ns-teal: #075f76;
   --ns-teal-deep: #0d5062;
   --ns-gold: #2b7f97;
@@ -235,31 +235,31 @@ html[data-theme="dark"] body, html.dark body {
      ────────────────────────────────────────── */
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    background: rgba(255, 255, 255, 0.18) !important;
+    background: rgba(255, 255, 255, 0.28) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     color: var(--ns-ink);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.45);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  }
-
-  .glass {
-    background: rgba(255, 255, 255, 0.15) !important;
-  }
-
-  .glass-strong {
-    background: rgba(255, 255, 255, 0.22) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.1),
       inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 
+  .glass {
+    background: rgba(255, 255, 255, 0.22) !important;
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.32) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
   .glass-subtle {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35);
   }
 
   .glass-dark {
@@ -275,20 +275,20 @@ html[data-theme="dark"] body, html.dark body {
 
   .ns-card {
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 
   .ns-card-soft {
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.12) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
 
   .ns-glass-bar {
@@ -315,8 +315,8 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   .ns-glass-band {
-    background: rgba(255, 255, 255, 0.12) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.20) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4);
   }
 
   .ns-scrim {
