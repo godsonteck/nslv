@@ -58,10 +58,10 @@ const NotificationItem: React.FC<{
 
   return (
     <div
-      className={`border rounded-xl transition-all ${
+      className={`border-l-2 rounded-xl transition-all ${
         notification.isRead
-          ? 'border-[var(--ns-glass-line-soft)] bg-[var(--ns-glass-1)]'
-          : 'border-[var(--ns-glass-line)] bg-[var(--ns-glass-2)]'
+          ? 'border-[var(--ns-glass-line-soft)] border-l-transparent bg-[var(--ns-glass-1)]'
+          : 'border-[var(--ns-glass-line)] border-l-[var(--ns-gold)] bg-[var(--ns-glass-2)] shadow-sm'
       }`}
     >
       <button
@@ -73,8 +73,8 @@ const NotificationItem: React.FC<{
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <h4 className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>{notification.title}</h4>
-              <p className="mt-0.5 line-clamp-2 text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{notification.message}</p>
+              <h4 className="text-xs font-black leading-snug" style={{ color: 'var(--ns-ink)' }}>{notification.title}</h4>
+              <p className="mt-0.5 line-clamp-2 text-[11px] font-semibold leading-5" style={{ color: 'var(--ns-muted)' }}>{notification.message}</p>
             </div>
             {!notification.isRead && (
               <span className={`inline-block whitespace-nowrap rounded px-2 py-1 text-[10px] font-black uppercase clay-badge border ${priorityColor(notification.priority)}`}>
@@ -145,13 +145,15 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="glass-strong absolute right-0 top-12 z-50 w-96 max-w-[calc(100vw-2rem)] max-h-[min(600px,calc(100dvh-6rem))] rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[var(--ns-glass-line)]">
+    <div className="glass-strong absolute right-0 top-12 z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-3xl border border-[var(--ns-glass-line)] bg-[rgba(15,21,30,0.78)] shadow-[0_18px_42px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] p-4">
-        <div>
-          <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Notifications</h2>
+      <div className="flex items-center justify-between border-b border-[var(--ns-glass-line-soft)] px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Notifications</h2>
           {unreadCount > 0 && (
-            <p className="mt-0.5 text-[11px]" style={{ color: 'var(--ns-muted)' }}>{unreadCount} unread</p>
+            <span className="rounded-full border border-[var(--ns-gold)]/50 bg-[var(--ns-glass-1)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[var(--ns-gold)]">
+              {unreadCount} unread
+            </span>
           )}
         </div>
         <div className="flex items-center gap-1">
@@ -161,7 +163,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
                 await markAllAsRead();
                 showToast('success', 'All notifications marked as read');
               }}
-              className="rounded-lg p-1.5 text-xs font-semibold transition-colors hover:bg-[var(--ns-glass-1)]"
+              className="rounded-lg border border-[var(--ns-glass-line)] bg-[var(--ns-glass-1)] px-2.5 py-1.5 text-[10px] font-bold transition-colors hover:bg-[rgba(255,255,255,0.06)]"
               style={{ color: 'var(--ns-ink)' }}
               title="Mark all as read"
             >

@@ -59,8 +59,18 @@ export const Header: React.FC = () => {
       }
     };
 
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowNotifications(false);
+      }
+    };
+
     document.addEventListener('mousedown', handlePointerDown);
-    return () => document.removeEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, [showNotifications]);
 
   const submitSearch = (e: React.FormEvent) => {
@@ -128,6 +138,7 @@ export const Header: React.FC = () => {
           <div className="relative" ref={notificationsRef}>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
+              aria-expanded={showNotifications}
               className="relative h-9 w-9 flex items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
               aria-label="Notifications"
               title="Notifications"
