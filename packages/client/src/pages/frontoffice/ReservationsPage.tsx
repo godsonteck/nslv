@@ -851,23 +851,23 @@ export const ReservationsPage: React.FC = () => {
   const singleEstimatedTotal = Math.max(0, (Number(singleSelectedRoom?.roomType?.basePrice || 0) * singleNights) - (Number(form.discountAmount) || 0));
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* ── Compact Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <CalendarDays size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="workspace-page__eyebrow">Reservations desk</div>
+            <h1 className="workspace-page__title text-xl">
               Reservations & Bookings
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="workspace-page__subtitle text-[11px]">
               Group bookings, individual commitments, deposits
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
             <RefreshCw size={12} /> Refresh
           </Button>
@@ -878,34 +878,34 @@ export const ReservationsPage: React.FC = () => {
             <Plus size={12} /> New Reservation
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <button
           onClick={() => scrollToTable('ALL')}
-          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+          className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
           <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bookings</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{displayItems.length}</div>
         </button>
         <button
           onClick={() => scrollToTable('CONFIRMED_PENDING')}
-          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-gold)]/40 transition-all hover:border-[var(--ns-teal)] shrink-0"
+          className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-gold)]/40 transition-all hover:border-[var(--ns-teal)]"
         >
           <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Confirmed</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{confirmed}</div>
         </button>
         <button
           onClick={() => scrollToTable('CHECKED_IN')}
-          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+          className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
           <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Checked In</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{active}</div>
         </button>
         <button
           onClick={() => navigate('/rooms')}
-          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+          className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
           <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Rooms</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>

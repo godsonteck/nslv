@@ -288,23 +288,23 @@ export const FrontDeskPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* ── Compact Reception Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <ShieldCheck size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="workspace-page__eyebrow">Live guest service</div>
+            <h1 className="workspace-page__title text-xl">
               Front Desk & Reception
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="workspace-page__subtitle text-[11px]">
               {nowFormatted} &middot; Checkout: {checkoutPolicy.checkoutTime}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <button
             onClick={() => navigate('/reception/report')}
             className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] ns-glass-hover"
@@ -324,10 +324,10 @@ export const FrontDeskPage: React.FC = () => {
             <RefreshCw size={12} /> Refresh
           </button>
         </div>
-      </div>
+      </header>
 
       {/* ── Room Rack Ribbon ── */}
-      <div className="glass rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 space-y-3">
+      <div className="glass clay-card rounded-3xl border border-[var(--ns-glass-line)] px-5 py-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <DoorOpen size={14} className="text-[var(--ns-gold)]" />
@@ -337,19 +337,19 @@ export const FrontDeskPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-success)]">
+          <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-success)]">
             <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{availableRoomsToday.length}</div>
           </div>
-          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-warning)]">
+          <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-warning)]">
             <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{reservedRoomsToday.length}</div>
           </div>
-          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-info)]">
+          <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-info)]">
             <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{occupiedRoomsToday.length}</div>
           </div>
-          <div className="glass-subtle rounded-xl p-3 border-l-2 border-l-[var(--ns-danger)]">
+          <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-danger)]">
             <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Turnover</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{dirtyRoomsToday.length}</div>
           </div>

@@ -217,23 +217,23 @@ export const ExpensesPage: React.FC = () => {
   }, [expenses]);
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* ── Compact Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Receipt size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="workspace-page__eyebrow">Expense control</div>
+            <h1 className="workspace-page__title text-xl">
               Property Expenditures
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="workspace-page__subtitle text-[11px]">
               Expense vouchers, supplier payments &amp; department disbursements
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           {canManageCategories && (
             <Button
               variant="outline"
@@ -255,7 +255,7 @@ export const ExpensesPage: React.FC = () => {
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* ── KPI Ribbon ── */}
       <div className="flex gap-2 overflow-x-auto pb-2">

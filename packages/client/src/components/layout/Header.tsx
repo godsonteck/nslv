@@ -114,7 +114,7 @@ export const Header: React.FC = () => {
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge bg-rose-500/25 text-[var(--ns-danger)] text-[9px] font-black border border-rose-400/70">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge text-[var(--ns-danger)] text-[9px] font-black border border-rose-400/70">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -138,7 +138,7 @@ export const Header: React.FC = () => {
               onClick={() => setOpenDropdown(v => !v)}
               className="flex items-center gap-2 rounded-xl p-1 clay-btn clay-btn-secondary transition-colors"
             >
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full clay-badge text-[11px] font-black text-white bg-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
+              <span className="glass flex h-9 w-9 items-center justify-center overflow-hidden rounded-full clay-badge text-[11px] font-black text-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}
               </span>
               <span className="hidden text-left lg:block">

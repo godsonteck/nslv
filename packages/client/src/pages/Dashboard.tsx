@@ -145,23 +145,23 @@ const PropertyDashboard: React.FC = () => {
     Number(m.restaurantRevenueToday || 0) + Number(m.barRevenueToday || 0) + Number(m.poolRevenueToday || 0);
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* ── Compact Command Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Sparkles size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="workspace-page__eyebrow">Property operations</div>
+            <h1 className="workspace-page__title text-xl">
               Command Center
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="workspace-page__subtitle text-[11px]">
               {nowFormatted}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <button
             onClick={() => void load()}
             disabled={refreshing}
@@ -187,7 +187,7 @@ const PropertyDashboard: React.FC = () => {
             </button>
           )}
         </div>
-      </div>
+      </header>
 
       {error && (
         <div className="rounded-2xl border border-[var(--ns-danger)] glass-subtle px-4 py-3 text-xs font-semibold text-[var(--ns-danger)] shadow-xs flex items-center gap-2">
@@ -546,23 +546,23 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
   const Icon = icon;
 
   return (
-    <div className="space-y-5 pb-12 animate-in fade-in duration-200">
-      {/* ── Compact Workstation Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-12 animate-in fade-in duration-200">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Icon size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="workspace-page__eyebrow">Department operations</div>
+            <h1 className="workspace-page__title text-xl">
               {deptLabel} Workstation
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="workspace-page__subtitle text-[11px]">
               Orders, receipts & revenue
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <Button
             variant="outline"
             size="sm"
@@ -580,7 +580,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             <ArrowRight size={12} /> Open POS
           </Button>
         </div>
-      </div>
+      </header>
 
       {error && (
         <div className="rounded-xl border border-[var(--ns-danger)] glass-subtle px-4 py-3 text-xs font-semibold text-[var(--ns-danger)] shadow-xs">
@@ -590,7 +590,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
 
       {/* ── Revenue Hero + Stats Row ── */}
       <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-        <div className="glass rounded-2xl border border-[var(--ns-glass-line)] p-6 space-y-2">
+        <div className="glass clay-card rounded-3xl border border-[var(--ns-glass-line)] p-6 space-y-2">
           <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
             Today's {deptLabel} Revenue
           </div>
@@ -602,11 +602,11 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="glass-subtle rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[100px]">
+          <div className="glass-subtle clay-card rounded-3xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[112px]">
             <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Orders</div>
             <div className="mt-1 text-2xl font-black" style={{ color: 'var(--ns-ink)' }}>{todayOrders.length}</div>
           </div>
-          <div className="glass-subtle rounded-2xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[100px]">
+          <div className="glass-subtle clay-card rounded-3xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[112px]">
             <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Items</div>
             <div className="mt-1 text-2xl font-black" style={{ color: 'var(--ns-ink)' }}>
               {todayOrders.reduce((s, o) => s + (o.orderItems?.length || 1), 0)}

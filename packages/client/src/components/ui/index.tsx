@@ -230,17 +230,17 @@ interface PageHeaderProps {
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, badge, actions }) => (
-  <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <header className="workspace-page__header mb-5">
     <div>
-      <div className="ns-eyebrow">NSVilla operations</div>
-      <div className="mt-1 flex items-center gap-3">
-        <h1 className="font-[Manrope] text-[26px] font-extrabold tracking-[-0.04em]" style={{ color: 'var(--ns-ink)' }}>{title}</h1>
-        {badge && <span className="glass rounded-full border border-[var(--ns-gold)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em]" style={{ color: 'var(--ns-gold)' }}>{badge}</span>}
+      <div className="workspace-page__eyebrow">Property operations</div>
+      <div className="mt-1 flex flex-wrap items-center gap-2.5">
+        <h1 className="workspace-page__title">{title}</h1>
+        {badge && <span className="glass clay-badge rounded-full border border-[var(--ns-teal)]/55 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em]" style={{ color: 'var(--ns-teal)' }}>{badge}</span>}
       </div>
-      {subtitle && <p className="mt-1.5 max-w-2xl text-[12px] leading-5" style={{ color: 'var(--ns-muted)' }}>{subtitle}</p>}
+      {subtitle && <p className="workspace-page__subtitle">{subtitle}</p>}
     </div>
-    {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
-  </div>
+    {actions && <div className="workspace-page__actions">{actions}</div>}
+  </header>
 );
 
 // ──────────────────────────────────────────
@@ -273,7 +273,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, subtitle, action }) => (
-  <div className="glass flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--ns-glass-line)] px-5 py-12 text-center">
+  <div className="glass clay-card flex min-h-48 flex-col items-center justify-center rounded-3xl border border-dashed border-[var(--ns-glass-line)] px-5 py-12 text-center">
     {icon && <div className="glass-subtle mb-4 flex h-11 w-11 items-center justify-center rounded-2xl text-[var(--ns-muted)]">{icon}</div>}
     <h3 className="text-sm font-extrabold text-[var(--ns-ink)]">{title}</h3>
     {subtitle && <p className="mt-1 max-w-sm text-[11px] leading-5 text-[var(--ns-muted)]">{subtitle}</p>}
@@ -313,7 +313,7 @@ export function DataTable<T>({
   onRowClick,
 }: DataTableProps<T>) {
   return (
-    <div className="glass ns-table border border-[var(--ns-glass-line)] rounded-2xl overflow-hidden shadow-md">
+    <div className="glass clay-card ns-table border border-[var(--ns-glass-line)] rounded-3xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-xs text-left">
           <thead>
@@ -384,7 +384,7 @@ interface PaginationProps {
 }
 
 export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total, onPageChange }) => (
-  <div className="flex items-center justify-between mt-4 text-xs text-[var(--ns-muted)]">
+  <div className="glass-subtle flex items-center justify-between mt-4 rounded-2xl border border-[var(--ns-glass-line)] px-3 py-2.5 text-xs text-[var(--ns-muted)]">
     <span>Showing {total.toLocaleString()} total entries</span>
     <div className="flex items-center gap-1.5">
       <button

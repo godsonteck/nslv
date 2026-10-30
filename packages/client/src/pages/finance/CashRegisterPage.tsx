@@ -364,16 +364,16 @@ export const CashRegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* Compact Header */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Wallet size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Cash at Hand</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Daily drawer reconciliation &amp; close-of-day handover</p>
+            <div className="workspace-page__eyebrow">Cash control</div>
+            <h1 className="workspace-page__title text-xl">Cash at Hand</h1>
+            <p className="workspace-page__subtitle text-[11px]">Daily drawer reconciliation, cash movements, and handover control.</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -447,7 +447,7 @@ export const CashRegisterPage: React.FC = () => {
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-glass-line)] p-3.5 shadow-sm glass-subtle"
         style={{ backgroundColor: 'var(--ns-glass-1)' }}
       >
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <Button
             variant="outline"
             size="sm"
@@ -515,7 +515,7 @@ export const CashRegisterPage: React.FC = () => {
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Status Banner */}
       {isHandedOver ? (

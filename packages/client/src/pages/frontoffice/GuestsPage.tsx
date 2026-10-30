@@ -225,23 +225,23 @@ export const GuestsPage: React.FC = () => {
     });
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* ── Compact Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Users size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+            <div className="workspace-page__eyebrow">Guest relationship desk</div>
+            <h1 className="workspace-page__title text-xl">
               Guest Directory
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="workspace-page__subtitle text-[11px]">
               Profiles, contacts, VIP status & stay history
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <Button
             variant="outline"
             size="sm"
@@ -261,31 +261,31 @@ export const GuestsPage: React.FC = () => {
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <button
           onClick={() => { setVipFilter('ALL'); setQ(''); }}
-          className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
+          className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Guests</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{data.length}</div>
         </button>
         <button
           onClick={() => setVipFilter(vipFilter === 'VIP' ? 'ALL' : 'VIP')}
-          className={`glass-subtle rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${
+          className={`glass-subtle clay-card rounded-2xl px-4 py-3 text-left border transition-all ${
             vipFilter === 'VIP' ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]/40' : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)]'
           }`}
         >
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>VIP</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{vipCount}</div>
         </button>
-        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+        <div className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Repeat</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{repeatGuestsCount}</div>
         </div>
-        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+        <div className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Stays</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalStaysCount}</div>
         </div>

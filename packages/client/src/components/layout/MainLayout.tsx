@@ -41,14 +41,14 @@ export const MainLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex h-[100dvh] min-h-screen flex-col overflow-hidden" style={{ color: 'var(--ns-ink)', background: 'transparent' }}>
+    <div className="app-workspace flex h-[100dvh] min-h-screen flex-col overflow-hidden" style={{ color: 'var(--ns-ink)', background: 'transparent' }}>
       <Header />
-      <div className="flex min-h-0 flex-1 overflow-hidden">
+      <div className="app-workspace__body flex min-h-0 flex-1 overflow-hidden">
         <Sidebar />
-        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain" style={{ background: 'transparent' }}>
+        <main className="app-workspace__main min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain" style={{ background: 'transparent' }}>
           <div
             key={location.pathname}
-            className="ns-page mx-auto min-h-full w-full max-w-[1720px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7"
+            className="ns-page app-workspace__canvas mx-auto min-h-full w-full max-w-[1800px] px-4 py-5 sm:px-6 sm:py-7 lg:px-9 lg:py-8"
           >
             <Outlet />
           </div>

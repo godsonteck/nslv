@@ -5,27 +5,15 @@ import { SearchInput, EmptyState } from '../ui';
 export const ShellPage: React.FC<{
   eyebrow?: string; title: string; subtitle?: string; actions?: React.ReactNode; children: React.ReactNode;
 }> = ({eyebrow,title,subtitle,actions,children}) => (
-  <div className="ns-page relative space-y-6 pb-12">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        {eyebrow && <div className="text-[11px] font-black uppercase tracking-[.18em] text-[var(--ns-gold)] drop-shadow-xs">{eyebrow}</div>}
-        <h1
-          className="mt-1 text-[26px] sm:text-[32px] font-black tracking-tight font-serif"
-          style={{ color: 'var(--ns-ink)' }}
-        >
-          {title}
-        </h1>
-        {subtitle && (
-          <p
-            className="mt-1 max-w-2xl text-[13px] font-semibold leading-relaxed"
-            style={{ color: 'var(--ns-muted)' }}
-          >
-            {subtitle}
-          </p>
-        )}
+  <div className="ns-page workspace-page relative space-y-5 pb-12">
+    <header className="workspace-page__header">
+      <div className="min-w-0">
+        {eyebrow && <div className="workspace-page__eyebrow">{eyebrow}</div>}
+        <h1 className="workspace-page__title">{title}</h1>
+        {subtitle && <p className="workspace-page__subtitle">{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap gap-2.5">{actions}</div>}
-    </div>
+      {actions && <div className="workspace-page__actions">{actions}</div>}
+    </header>
     {children}
   </div>
 );
@@ -39,11 +27,11 @@ export const CompactHeader: React.FC<{
   actions?: React.ReactNode;
   children?: React.ReactNode;
 }> = ({ title, subtitle, actions, children }) => (
-  <div className="ns-page">
-    <div className="ns-glass-band flex items-center justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3 mb-4">
+  <div className="ns-page workspace-page">
+    <div className="workspace-page__header mb-4">
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{title}</h1>
-        {subtitle && <span className="text-xs font-semibold" style={{ color: 'var(--ns-muted)' }}>{subtitle}</span>}
+        <h1 className="workspace-page__title text-lg">{title}</h1>
+        {subtitle && <span className="workspace-page__subtitle m-0 text-xs">{subtitle}</span>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
@@ -57,12 +45,12 @@ export const CompactHeader: React.FC<{
 export const KpiRibbon: React.FC<{
   items: Array<{ label: string; value: string | number; accent?: string; onClick?: () => void }>;
 }> = ({ items }) => (
-  <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+  <div className="grid grid-flow-col auto-cols-[minmax(150px,1fr)] gap-3 overflow-x-auto pb-2 mb-4 sm:auto-cols-fr sm:grid-flow-row sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
     {items.map((item, i) => (
       <button
         key={i}
         onClick={item.onClick}
-        className={`glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] ${
+        className={`glass-subtle clay-card min-h-[82px] rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] ${
           item.onClick ? 'cursor-pointer' : ''
         }`}
       >
@@ -83,7 +71,7 @@ export const KpiRibbon: React.FC<{
 export const SummaryStrip: React.FC<{
   items: Array<{ label: string; value: string | number; color?: string }>;
 }> = ({ items }) => (
-  <div className="ns-glass-band rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3 mb-4 flex items-center justify-between gap-4 overflow-x-auto">
+  <div className="ns-glass-band rounded-3xl border border-[var(--ns-glass-line)] px-5 py-3.5 mb-4 grid grid-flow-col auto-cols-max items-center gap-x-6 gap-y-2 overflow-x-auto sm:grid-flow-row sm:grid-cols-2 lg:grid-cols-4">
     {items.map((item, i) => (
       <div key={i} className="flex items-center gap-2 whitespace-nowrap">
         <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
@@ -105,9 +93,9 @@ export const SplitLayout: React.FC<{
   right: React.ReactNode;
   leftWidth?: string;
   gap?: string;
-}> = ({ left, right, leftWidth = 'w-2/3', gap = 'gap-6' }) => (
-  <div className={`flex ${gap}`}>
-    <div className={`${leftWidth} min-w-0`}>{left}</div>
+}> = ({ left, right, leftWidth = 'lg:w-2/3', gap = 'gap-6' }) => (
+  <div className={`flex flex-col lg:flex-row ${gap}`}>
+    <div className={`${leftWidth} w-full min-w-0`}>{left}</div>
     <div className="flex-1 min-w-0">{right}</div>
   </div>
 );
@@ -119,7 +107,7 @@ export const FilterSidebar: React.FC<{
   children: React.ReactNode;
   width?: string;
 }> = ({ children, width = 'w-80' }) => (
-  <div className={`${width} shrink-0 glass rounded-2xl border border-[var(--ns-glass-line)] p-4 h-fit sticky top-4`}>
+  <div className={`${width} w-full shrink-0 glass clay-card rounded-3xl border border-[var(--ns-glass-line)] p-4 h-fit lg:sticky lg:top-4`}>
     {children}
   </div>
 );
@@ -138,7 +126,7 @@ export const DetailDrawer: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="ns-scrim absolute inset-0" onClick={onClose} />
-      <div className={`glass-strong relative ${width} w-full h-full border-l border-[var(--ns-glass-line)] flex flex-col`}>
+      <div className={`glass-strong clay-card relative ${width} w-full h-full border-l border-[var(--ns-glass-line)] flex flex-col`}>
         <div className="ns-glass-band flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3">
           <h2 className="text-base font-bold" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
           <button onClick={onClose} className="clay-btn clay-btn-secondary rounded-lg p-1.5">
@@ -159,7 +147,7 @@ export const SegmentedTabs: React.FC<{
   active: string;
   onChange: (value: string) => void;
 }> = ({ tabs, active, onChange }) => (
-  <div className="flex gap-1 p-1 glass-subtle rounded-xl border border-[var(--ns-glass-line)] w-fit">
+  <div className="flex max-w-full gap-1 overflow-x-auto p-1.5 glass-subtle rounded-2xl border border-[var(--ns-glass-line)] w-fit">
     {tabs.map((tab) => (
       <button
         key={tab.value}
@@ -275,7 +263,7 @@ export const StatTile: React.FC<{
         {label}
       </span>
       {Icon && (
-        <span className="clay-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] bg-white/15 dark:bg-black/10 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-teal)' }}>
+        <span className="glass-subtle clay-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-teal)' }}>
           <Icon size={16} />
         </span>
       )}

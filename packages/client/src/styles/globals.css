@@ -8,6 +8,8 @@
   --ns-ink: #0b1d28;
   --ns-ink-2: #153b49;
   --ns-muted: #3f6073;
+  --ns-panel: rgba(255, 255, 255, 0.14);
+  --ns-panel-strong: rgba(255, 255, 255, 0.18);
   --ns-teal: #075f76;
   --ns-teal-deep: #0d5062;
   --ns-gold: #2b7f97;
@@ -62,6 +64,8 @@ html[data-theme="dark"], html.dark {
   --ns-ink: #f8fafc;
   --ns-ink-2: #e2e8f0;
   --ns-muted: #edf6fb;
+  --ns-panel: rgba(8, 22, 31, 0.22);
+  --ns-panel-strong: rgba(8, 22, 31, 0.28);
   --ns-teal: #38bdf8;
   --ns-teal-deep: #7dd3fc;
   --ns-gold: #fbbf24;
@@ -187,6 +191,28 @@ html[data-theme="dark"], html.dark {
   .ns-card *, .ns-card-soft *, .ns-glass-band *, .ns-glass-bar *, .ns-glass-bar-soft * {
     color: var(--ns-ink) !important;
   }
+
+  /* Override remaining utility classes using muted glass text with a high-contrast fallback */
+  .text-\[var\(--ns-muted\)\],
+  .text-\[var\(--ns-ink\)\],
+  .placeholder-\[var\(--ns-muted\)\] {
+    color: var(--ns-ink) !important;
+  }
+
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500,
+  .text-zinc-300,
+  .text-zinc-400,
+  .text-zinc-500,
+  .text-neutral-300,
+  .text-neutral-400,
+  .text-neutral-500 {
+    color: var(--ns-muted) !important;
+  }
 }
 
 html[data-theme="dark"] body, html.dark body {
@@ -244,18 +270,18 @@ html[data-theme="dark"] body, html.dark body {
      ────────────────────────────────────────── */
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    background: rgba(255, 255, 255, 0.38) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    background: var(--ns-panel) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(1.06);
+    backdrop-filter: blur(30px) saturate(180%) brightness(1.06);
     color: var(--ns-ink);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.46);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      inset 0 1px 0 rgba(255, 255, 255, 0.58);
   }
 
   .glass {
-    background: rgba(255, 255, 255, 0.28) !important;
+    background: var(--ns-panel) !important;
   }
 
   html[data-theme="dark"] .glass, html.dark .glass,
@@ -266,7 +292,7 @@ html[data-theme="dark"] body, html.dark body {
   html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
   html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
   html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
-    background: rgba(8, 22, 31, 0.72) !important;
+    background: var(--ns-panel) !important;
     border-color: rgba(209, 235, 242, 0.38) !important;
     color: #f8fafc !important;
   }
@@ -280,53 +306,53 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   .glass-subtle {
-    background: rgba(255, 255, 255, 0.18) !important;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28);
   }
 
   .glass-dark {
-    background: rgba(15, 25, 35, 0.28) !important;
+    background: rgba(15, 25, 35, 0.12) !important;
     border: 1px solid rgba(255, 255, 255, 0.18);
     color: #f0f0f0;
   }
 
   .glass-warm {
-    background: rgba(255, 248, 240, 0.18) !important;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 248, 240, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28);
   }
 
   .ns-card {
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.24) !important;
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.38);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
   .ns-card-soft {
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.18) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.32);
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
   }
 
   .ns-glass-bar {
-    background: rgba(255, 255, 255, 0.18) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.06),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .ns-glass-bar-soft {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.24);
     box-shadow:
       4px 0 20px rgba(0, 0, 0, 0.05),
-      inset -1px 0 0 rgba(255, 255, 255, 0.3);
+      inset -1px 0 0 rgba(255, 255, 255, 0.22);
   }
 
   aside.ns-glass-bar-soft {
@@ -337,8 +363,8 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   .ns-glass-band {
-    background: rgba(255, 255, 255, 0.20) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28);
   }
 
   .ns-scrim {
@@ -502,7 +528,7 @@ html[data-theme="dark"] body, html.dark body {
 
   /* Tactile Debossed / Sunken Form Inputs & Wells */
   .glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background-color: rgba(255, 255, 255, 0.035) !important;
+    background-color: rgba(255, 255, 255, 0.06) !important;
     border: 1px solid rgba(28, 46, 56, 0.22) !important;
     box-shadow: var(--clay-well-shadow) !important;
     color: var(--ns-ink) !important;
@@ -636,7 +662,7 @@ html[data-theme="dark"] body, html.dark body {
 
   /* Tactile Tables */
   .ns-table thead th {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(240, 245, 248, 0.03) 100%);
+    background: transparent;
     color: var(--ns-ink);
     border-bottom: 2px solid var(--ns-glass-line);
     font-size: 11px;
@@ -736,6 +762,109 @@ html[data-theme="dark"] body, html.dark body {
       5px 6px 13px -7px rgba(0, 0, 0, 0.74),
       -3px -3px 9px -7px rgba(161, 237, 248, 0.24),
       inset 0 1px 0 rgba(220, 249, 253, 0.25) !important;
+  }
+
+  /* ──────────────────────────────────────────
+     Property Operations Console — layout v2
+     A calm, consistent work surface for every route.
+     ────────────────────────────────────────── */
+  .app-workspace__main {
+    position: relative;
+    scrollbar-gutter: stable;
+  }
+  .app-workspace__main::before {
+    content: "";
+    position: fixed;
+    top: 70px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: -1;
+    background: linear-gradient(115deg, rgba(255,255,255,.06), transparent 30%, rgba(90,183,202,.045) 72%, transparent);
+  }
+  .app-workspace__canvas {
+    display: flow-root;
+  }
+  .workspace-page__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 98px;
+    padding: 18px 20px;
+    border: 1px solid var(--ns-glass-line);
+    border-radius: 24px;
+    background: linear-gradient(115deg, rgba(255,255,255,.16), rgba(221,246,250,.055) 52%, rgba(92,184,202,.09));
+    box-shadow: 10px 12px 26px -20px rgba(7,61,77,.48), inset 0 1px 0 rgba(255,255,255,.72);
+  }
+  .workspace-page__eyebrow {
+    color: var(--ns-teal);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+  .workspace-page__title {
+    margin: 3px 0 0;
+    color: var(--ns-ink);
+    font-family: var(--font-heading);
+    font-size: clamp(1.35rem, 2vw, 2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -.045em;
+  }
+  .workspace-page__subtitle {
+    max-width: 760px;
+    margin: 7px 0 0;
+    color: var(--ns-muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.55;
+  }
+  .workspace-page__actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .workspace-page .glass, .workspace-page .ns-card, .workspace-page .ns-card-soft {
+    box-shadow: 10px 14px 28px -21px rgba(7,61,77,.48), -4px -4px 13px -12px rgba(255,255,255,.92), inset 0 1px 0 rgba(255,255,255,.62), inset 0 -1px 0 rgba(7,61,77,.06);
+  }
+  .workspace-page .ns-glass-band {
+    border-color: var(--ns-glass-line);
+  }
+  .ns-page > .grid { align-items: start; }
+  .ns-page .glass > .ns-glass-band:first-child,
+  .ns-page .glass-strong > .ns-glass-band:first-child {
+    min-height: 52px;
+  }
+  @media (max-width: 900px) {
+    .workspace-page__header { align-items: flex-start; flex-direction: column; min-height: 0; padding: 16px; }
+    .workspace-page__actions { justify-content: flex-start; width: 100%; }
+  }
+  html[data-theme="dark"] .workspace-page__header, html.dark .workspace-page__header {
+    background: linear-gradient(115deg, rgba(202,243,249,.13), rgba(19,81,95,.065) 52%, rgba(34,143,161,.10));
+    box-shadow: 10px 12px 28px -18px rgba(0,0,0,.65), inset 0 1px 0 rgba(220,249,253,.32);
+  }
+  header.ns-glass-bar {
+    box-shadow: 0 8px 24px -18px rgba(7,61,77,.45), inset 0 1px 0 rgba(255,255,255,.65);
+  }
+  header.ns-glass-bar > div { min-height: 76px; height: 76px; }
+  aside.ns-glass-bar-soft a {
+    min-height: 42px;
+    border-radius: 16px;
+  }
+  aside.ns-glass-bar-soft a.ns-glass-selected {
+    box-shadow: 5px 7px 15px -10px rgba(7,61,77,.42), inset 0 1px 0 rgba(255,255,255,.68), inset 0 -1px 1px rgba(7,61,77,.09);
+  }
+  aside.ns-glass-bar-soft a:not(.ns-glass-selected):hover {
+    transform: translateX(2px);
+  }
+  .workspace-page .clay-btn-primary, .workspace-page .clay-btn-accent {
+    min-height: 38px;
+    padding-inline: 15px;
   }
 
   @media (max-width: 1023px) { .ns-card { border-radius: 16px; } }

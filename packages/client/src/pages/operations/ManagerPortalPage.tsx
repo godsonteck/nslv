@@ -125,19 +125,19 @@ export const ManagerPortalPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* ── Compact Header ── */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Building2 size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Management · Operational Control Center</p>
+            <div className="workspace-page__eyebrow">Management overview</div>
+            <h1 className="workspace-page__title text-xl">{greeting}</h1>
+            <p className="workspace-page__subtitle text-[11px]">Property performance, service pressure, and cash position at a glance.</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <Button
             variant="outline"
             size="sm"
@@ -155,23 +155,23 @@ export const ManagerPortalPage: React.FC = () => {
             <CalendarDays size={13} /> Manage Bookings
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{metrics.occupancyRate}%</div>
         </div>
-        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+        <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(metrics.todayRevenue)}</div>
         </div>
-        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+        <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Arrivals & Departures</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{metrics.todayArrivals} in / {metrics.todayDepartures} out</div>
         </div>
-        <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
+        <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
           <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Unsettled Folios</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(metrics.openFoliosBalance)}</div>
         </div>

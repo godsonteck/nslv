@@ -164,23 +164,23 @@ export default function Login() {
                 Your place, <br />
                 <span className="text-[#9de0ea] italic font-light">all in one view.</span>
               </h1>
-              <p className="text-sm xl:text-base text-slate-300 font-medium max-w-md leading-relaxed">
+              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed" style={{ color: 'var(--ns-ink)' }}>
                 See bookings, guests, room status, and daily work from one place.
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
-              <div className="pt-6 flex items-center gap-3 text-xs text-slate-300 font-medium">
+              <div className="pt-6 flex items-center gap-3 text-xs font-medium" style={{ color: 'var(--ns-ink)' }}>
                 <span>12 guest rooms</span>
-                <span className="text-slate-500">·</span>
+                <span className="text-[var(--ns-muted)]">·</span>
                 <span>Pool area</span>
-                <span className="text-slate-500">·</span>
+                <span className="text-[var(--ns-muted)]">·</span>
                 <span>Front desk & dining</span>
               </div>
             </div>
 
             {/* Bottom Property Signature */}
-            <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-4 font-medium">
-              <div className="flex items-center gap-1.5 text-slate-300">
+            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/10 pt-4 font-medium" style={{ color: 'var(--ns-muted)' }}>
+              <div className="flex items-center gap-1.5" style={{ color: 'var(--ns-ink)' }}>
                 <MapPin size={13} className="text-[#9de0ea]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
@@ -216,7 +216,7 @@ export default function Login() {
 
               {/* Error Notice */}
               {err && (
-                <div className="mb-4 rounded-xl border border-[var(--ns-danger)]/40 bg-rose-500/10 p-3 text-xs font-semibold text-[var(--ns-danger)] flex items-start gap-2.5">
+                <div className="glass-subtle clay-card mb-4 rounded-xl border border-[var(--ns-danger)]/60 p-3 text-xs font-semibold text-[var(--ns-danger)] flex items-start gap-2.5">
                   <AlertCircle size={15} className="shrink-0 mt-0.5" />
                   <span className="leading-snug">{err}</span>
                 </div>

@@ -574,19 +574,19 @@ export const PaymentsPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-5 pb-16 animate-in fade-in duration-300">
-      {/* Compact Header */}
-      <div className="ns-glass-band flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--ns-glass-line)] px-5 py-3">
+    <div className="workspace-page space-y-5 pb-16 animate-in fade-in duration-300">
+      <header className="workspace-page__header">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass border border-[var(--ns-gold)]/40 text-[var(--ns-gold)]">
             <Receipt size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Payments Ledger &amp; Cashiering</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Audit &amp; financial settlements</p>
+            <div className="workspace-page__eyebrow">Finance control</div>
+            <h1 className="workspace-page__title text-xl">Payments Ledger &amp; Cashiering</h1>
+            <p className="workspace-page__subtitle text-[11px]">Receipts, payment status, refunds, and settlement review.</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="workspace-page__actions">
           <Button variant="outline" size="sm" onClick={() => void load()} className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-xs font-semibold gap-1.5">
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -594,7 +594,7 @@ export const PaymentsPage: React.FC = () => {
             <Plus size={14} /> Record Payment
           </Button>
         </div>
-      </div>
+      </header>
       {/* KPI Ribbon */}
       <div className="flex gap-2 overflow-x-auto pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">

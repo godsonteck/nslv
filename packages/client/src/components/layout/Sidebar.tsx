@@ -112,13 +112,13 @@ export const Sidebar: React.FC = () => {
   return (
     <aside
       className={`flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden ns-glass-bar-soft border-r border-[var(--ns-glass-line)] transition-all duration-300 ease-in-out ${
-        sidebarOpen ? 'w-[246px] px-3.5 py-4' : 'w-[68px] px-2 py-4'
+        sidebarOpen ? 'w-[268px] px-3 py-4' : 'w-[72px] px-2.5 py-4'
       }`}
     >
       <div className="flex min-h-full flex-col">
         {/* Brand Header */}
         <div
-          className={`mb-5 flex items-center ${
+          className={`mb-6 flex items-center ${
             sidebarOpen ? 'gap-3 px-1' : 'justify-center'
           }`}
         >
@@ -148,7 +148,7 @@ export const Sidebar: React.FC = () => {
         {sections.map((section, sIdx) => (
           <div key={section.title} className={sidebarOpen ? 'mb-4' : 'mb-2.5'}>
             {sidebarOpen ? (
-              <div className="px-3 pb-1.5 text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)] opacity-95">
+              <div className="px-3 pb-2 text-[9px] font-black uppercase tracking-[.16em] text-[var(--ns-muted)] opacity-100">
                 {section.title}
               </div>
             ) : sIdx > 0 ? (
@@ -164,8 +164,8 @@ export const Sidebar: React.FC = () => {
                   className={({ isActive }) =>
                     `group relative flex items-center rounded-xl text-[11px] font-bold transition-all ${
                       sidebarOpen
-                        ? 'gap-2.5 px-3 py-2 w-full'
-                        : 'justify-center h-10 w-10 mx-auto'
+                        ? 'gap-3 px-3 py-2.5 w-full'
+                        : 'justify-center h-11 w-11 mx-auto'
                     } ${
                       isActive
                         ? 'ns-glass-selected'
@@ -178,7 +178,7 @@ export const Sidebar: React.FC = () => {
                       {sidebarOpen && (
                         <span
                           className={`absolute left-0 top-1/2 h-3.5 w-[2.5px] -translate-y-1/2 rounded-full transition-all ${
-                            isActive ? 'bg-[var(--ns-gold)]' : 'bg-transparent'
+                            isActive ? 'bg-[var(--ns-teal)]' : 'bg-transparent'
                           }`}
                         />
                       )}
@@ -186,8 +186,8 @@ export const Sidebar: React.FC = () => {
                         size={sidebarOpen ? 15 : 18}
                         className={`shrink-0 transition-all ${
                           isActive
-                            ? 'text-[var(--ns-gold)] drop-shadow-xs'
-                            : 'text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)]'
+                            ? 'text-[var(--ns-teal)] drop-shadow-xs'
+                            : 'text-[var(--ns-muted)] group-hover:text-[var(--ns-teal)]'
                         }`}
                       />
                       {sidebarOpen && (
@@ -213,7 +213,7 @@ export const Sidebar: React.FC = () => {
               <div
                 className="glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl clay-badge bg-[var(--ns-teal)] text-white text-[10px] font-black border border-white/40">
+                <div className="glass clay-badge flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[var(--ns-teal)] text-[10px] font-black border border-[var(--ns-teal)]/55">
                   {initials}
                 </div>
                 <div className="min-w-0">
@@ -239,7 +239,7 @@ export const Sidebar: React.FC = () => {
             </div>
           ) : (
             <div
-              className="flex h-9 w-9 mx-auto items-center justify-center rounded-xl clay-badge bg-[var(--ns-teal)] text-white text-[10px] font-black cursor-pointer hover:opacity-90 transition border border-white/40"
+              className="glass flex h-9 w-9 mx-auto items-center justify-center rounded-xl clay-badge text-[var(--ns-teal)] text-[10px] font-black cursor-pointer hover:opacity-90 transition border border-[var(--ns-teal)]/55"
               title={`${fullName} (${roleName})`}
             >
               {initials}
