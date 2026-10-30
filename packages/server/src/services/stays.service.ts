@@ -214,12 +214,31 @@ export class StayService {
       const primaryGuest = res.guests[0]?.guest;
       const folio = res.folios.find((f) => Number(f.balance) > 0.005) || res.folios.find((f) => f.status === 'OPEN') || res.folios[0];
 
-      // 1. Gather all valid payments (excluding voided, refunded, or failed)
-      const rawPayments = folio?.payments || [];
-      const validPayments = rawPayments.filter(
+      // 1. Gather all valid payments (excluding voided, refunded, or failed).
+      // Legacy folios predate Payment records: the cash lives only in the folio
+      // ledger as PAYMENT/DEPOSIT items. Without this fallback those stays get
+      // reported as owing money that was already collected at the desk.
+      const rawPayments = (folio?.payments || []).filter(
         (p: any) => (!p.status || p.status === 'COMPLETED') && !p.voidedAt && p.type !== 'REFUND',
       );
-      const totalPaid = validPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const ledgerPayments = (folio?.items || [])
+        .filter((i: any) => !i.voidedAt && ['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()))
+        .map((i: any) => {
+          const description = String(i.description || '');
+          const method = /momo|mobile/i.test(description)
+            ? 'MOBILE_MONEY'
+            : /card/i.test(description)
+              ? 'CARD'
+              : /bank|transfer/i.test(description)
+                ? 'BANK_TRANSFER'
+                : 'CASH';
+          return { amount: Math.abs(Number(i.amount)), method, processedAt: i.postedAt, id: i.id };
+        });
+      const sumPayments = (rows: any[]) => rows.reduce((sum, p) => sum + Number(p.amount), 0);
+      // The ledger is the fuller record of money taken; Payment rows win only
+      // when they hold more than the ledger (e.g. rows without folio items).
+      const validPayments = sumPayments(ledgerPayments) > sumPayments(rawPayments) ? ledgerPayments : rawPayments;
+      const totalPaid = sumPayments(validPayments);
 
       // Method breakdown
       let cashPaid = 0;
