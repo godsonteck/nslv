@@ -4,10 +4,10 @@
 
 :root {
   color-scheme: light;
-  /* Clear coastal-glass palette — quiet enough for operational work. */
-  --ns-ink: #082531;
-  --ns-ink-2: #163d4b;
-  --ns-muted: #294e5c;
+  /* Clear coastal-glass palette — high contrast enough for operational work. */
+  --ns-ink: #0b1d28;
+  --ns-ink-2: #153b49;
+  --ns-muted: #365d6f;
   --ns-teal: #075f76;
   --ns-teal-deep: #0d5062;
   --ns-gold: #2b7f97;
@@ -61,7 +61,7 @@ html[data-theme="dark"], html.dark {
   /* Ultra-Visible High-Contrast Palette (Dark Mode) */
   --ns-ink: #f8fafc;
   --ns-ink-2: #e2e8f0;
-  --ns-muted: #a4b8c6;
+  --ns-muted: #d7e5ee;
   --ns-teal: #38bdf8;
   --ns-teal-deep: #7dd3fc;
   --ns-gold: #fbbf24;
@@ -116,11 +116,12 @@ html[data-theme="dark"], html.dark {
     background: transparent;
     color: var(--ns-ink);
     font-family: var(--font-body);
-    font-weight: 500;
+    font-weight: 600;
+    line-height: 1.5;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.62);
+    text-shadow: none;
     overflow-x: hidden;
   }
   #root, .ns-page, .app-shell { background: transparent; }
@@ -131,18 +132,18 @@ html[data-theme="dark"], html.dark {
     color: var(--ns-ink);
     font-weight: 800;
     letter-spacing: -0.025em;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78), 0 1px 8px rgba(185, 231, 238, 0.32);
+    text-shadow: none;
   }
 
   p {
     color: var(--ns-ink);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+    text-shadow: none;
   }
 
   label {
     font-weight: 700;
     color: var(--ns-ink);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    text-shadow: none;
   }
 
   button, input, select, textarea {
@@ -163,7 +164,7 @@ html[data-theme="dark"], html.dark {
   input, select, textarea {
     color: var(--ns-ink);
     font-weight: 600;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+    text-shadow: none;
   }
 
   option {
@@ -185,18 +186,18 @@ html[data-theme="dark"], html.dark {
 }
 
 html[data-theme="dark"] body, html.dark body {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.82);
+  text-shadow: none;
 }
 html[data-theme="dark"] h1, html[data-theme="dark"] h2, html[data-theme="dark"] h3,
 html[data-theme="dark"] h4, html[data-theme="dark"] h5, html[data-theme="dark"] h6,
 html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(33, 164, 187, 0.24);
+  text-shadow: none;
 }
 html[data-theme="dark"] p, html[data-theme="dark"] label,
 html.dark p, html.dark label,
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea,
 html.dark input, html.dark select, html.dark textarea {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.82);
+  text-shadow: none;
 }
 
 @layer components {
