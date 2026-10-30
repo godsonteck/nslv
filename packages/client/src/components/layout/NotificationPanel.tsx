@@ -58,10 +58,10 @@ const NotificationItem: React.FC<{
 
   return (
     <div
-      className={`rounded-2xl border border-[rgba(255,255,255,0.18)] transition-all ${
+      className={`rounded-2xl border border-[rgba(255,255,255,0.28)] transition-all ${
         notification.isRead
-          ? 'border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.12)]'
-          : 'border-[rgba(118,196,214,0.38)] bg-[rgba(255,255,255,0.18)] shadow-[0_6px_18px_rgba(15,60,72,0.08)]'
+          ? 'border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.2)]'
+          : 'border-[rgba(118,196,214,0.38)] bg-[rgba(255,255,255,0.28)] shadow-[0_6px_18px_rgba(15,60,72,0.08)]'
       }`}
     >
       <button
@@ -145,9 +145,9 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="relative z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.28)] bg-[rgba(255,255,255,0.26)] shadow-[0_22px_56px_rgba(12,42,52,0.18)] ring-1 ring-[rgba(255,255,255,0.16)] backdrop-blur-[24px] backdrop-saturate-[150%]">
+    <div className="relative z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] origin-top-right overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.4)] bg-[rgba(248,250,252,0.9)] shadow-[0_22px_56px_rgba(12,42,52,0.2)] ring-1 ring-[rgba(255,255,255,0.3)] backdrop-blur-[22px] backdrop-saturate-[140%]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.08)] px-4 py-3.5">
+      <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.12)] px-4 py-3.5">
         <div className="flex items-center gap-2.5">
           <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Notifications</h2>
           {unreadCount > 0 && (
