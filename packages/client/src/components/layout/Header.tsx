@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
 import { useThemeStore } from '../../stores/themeStore';
@@ -10,10 +10,12 @@ import { NotificationPanel } from './NotificationPanel';
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuthStore();
   const { unreadCount, getUnreadCount } = useNotificationStore();
   const { theme, themePreference, setThemePreference } = useThemeStore();
   const { sidebarOpen, toggleSidebar } = useUIStore();
+  const notificationsRef = React.useRef<HTMLDivElement | null>(null);
   const [openDropdown, setOpenDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [query, setQuery] = React.useState('');
@@ -24,6 +26,10 @@ export const Header: React.FC = () => {
   const villaName = theme?.villaName || 'NS Luxury Villa';
   const villaTagline = theme?.villaTagline || 'Lokoe, Ho, Ghana';
   const villaLogo = theme?.logoUrl || villaAssets.logo;
+
+  React.useEffect(() => {
+    setShowNotifications(false);
+  }, [location.pathname]);
 
   React.useEffect(() => {
     void getUnreadCount();
@@ -42,6 +48,20 @@ export const Header: React.FC = () => {
       document.removeEventListener('visibilitychange', onVisible);
     };
   }, [getUnreadCount]);
+
+  React.useEffect(() => {
+    if (!showNotifications) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (notificationsRef.current && target && !notificationsRef.current.contains(target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [showNotifications]);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +125,7 @@ export const Header: React.FC = () => {
           </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative" ref={notificationsRef}>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative h-9 w-9 flex items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
