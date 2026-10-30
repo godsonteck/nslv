@@ -7,7 +7,7 @@
   /* Clear coastal-glass palette — high contrast enough for operational work. */
   --ns-ink: #0b1d28;
   --ns-ink-2: #153b49;
-  --ns-muted: #2a4f5f;
+  --ns-muted: #3f6073;
   --ns-teal: #075f76;
   --ns-teal-deep: #0d5062;
   --ns-gold: #2b7f97;
@@ -61,7 +61,7 @@ html[data-theme="dark"], html.dark {
   /* Ultra-Visible High-Contrast Palette (Dark Mode) */
   --ns-ink: #f8fafc;
   --ns-ink-2: #e2e8f0;
-  --ns-muted: #d7e5ee;
+  --ns-muted: #edf6fb;
   --ns-teal: #38bdf8;
   --ns-teal-deep: #7dd3fc;
   --ns-gold: #fbbf24;
@@ -178,6 +178,15 @@ html[data-theme="dark"], html.dark {
   }
   ::-webkit-scrollbar-thumb:hover { background-color: var(--ns-gold); }
   ::selection { background: var(--ns-teal); color: #ffffff; }
+
+  /* Force readable text across all glass surfaces and theme variants */
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft,
+  .clay-card, .clay-badge, .clay-btn, .ns-input, .glass-input,
+  .glass *, .glass-strong *, .glass-subtle *, .glass-dark *, .glass-warm *,
+  .ns-card *, .ns-card-soft *, .ns-glass-band *, .ns-glass-bar *, .ns-glass-bar-soft * {
+    color: var(--ns-ink) !important;
+  }
 }
 
 html[data-theme="dark"] body, html.dark body {
@@ -235,18 +244,31 @@ html[data-theme="dark"] body, html.dark body {
      ────────────────────────────────────────── */
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    background: rgba(255, 255, 255, 0.28) !important;
+    background: rgba(255, 255, 255, 0.38) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     color: var(--ns-ink);
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 
   .glass {
-    background: rgba(255, 255, 255, 0.22) !important;
+    background: rgba(255, 255, 255, 0.28) !important;
+  }
+
+  html[data-theme="dark"] .glass, html.dark .glass,
+  html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
+  html[data-theme="dark"] .glass-subtle, html.dark .glass-subtle,
+  html[data-theme="dark"] .ns-card, html.dark .ns-card,
+  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
+  html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
+  html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
+  html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
+    background: rgba(8, 22, 31, 0.72) !important;
+    border-color: rgba(209, 235, 242, 0.38) !important;
+    color: #f8fafc !important;
   }
 
   .glass-strong {
@@ -501,9 +523,9 @@ html[data-theme="dark"] body, html.dark body {
 
   .glass-input::placeholder, .ns-input::placeholder,
   input::placeholder, textarea::placeholder {
-    color: var(--ns-muted) !important;
-    opacity: 0.85 !important;
-    font-weight: 500 !important;
+    color: color-mix(in srgb, var(--ns-ink) 72%, var(--ns-muted) 28%) !important;
+    opacity: 1 !important;
+    font-weight: 600 !important;
   }
 
   .glass-input:focus, .ns-input:focus,
