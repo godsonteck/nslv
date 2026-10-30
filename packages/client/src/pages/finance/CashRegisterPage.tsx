@@ -441,7 +441,7 @@ export const CashRegisterPage: React.FC = () => {
             </>
           )}
         </div>
-      </div>
+      </header>
       {/* Date Navigator */}
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--ns-glass-line)] p-3.5 shadow-sm glass-subtle"
@@ -515,7 +515,7 @@ export const CashRegisterPage: React.FC = () => {
             </Button>
           )}
         </div>
-      </header>
+      </div>
 
       {/* Status Banner */}
       {isHandedOver ? (
