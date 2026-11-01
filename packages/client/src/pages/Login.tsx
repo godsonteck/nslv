@@ -137,7 +137,17 @@ export default function Login() {
 
       {/* ── Main Content Showcase Area ── */}
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8" style={{ background: 'var(--ns-bg)' }}>
-        <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
+        {/* Logo Watermark Background */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <img
+            src={logo}
+            alt=""
+            className="w-[600px] h-[600px] object-contain opacity-[0.08] dark:opacity-[0.10]"
+            style={{ filter: themePreference === 'dark' ? 'brightness(0) invert(1)' : 'none' }}
+          />
+        </div>
+
+        <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch relative">
           
           <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden border border-white/15 p-10 xl:p-12 min-h-[560px]" style={{ background: 'transparent' }}>
             {/* Background Photography Vignette */}
@@ -192,7 +202,17 @@ export default function Login() {
           </div>
 
           <div className="w-full lg:col-span-5 max-w-md mx-auto flex flex-col justify-center">
-            <div className="rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(32px) saturate(180%)', WebkitBackdropFilter: 'blur(32px) saturate(180%)', boxShadow: '0 20px 60px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
+            <div
+              className="rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden"
+              style={{
+                background: themePreference === 'dark' ? 'rgba(15,30,38,0.72)' : 'rgba(255,255,255,0.68)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                boxShadow: themePreference === 'dark'
+                  ? '0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)'
+                  : '0 20px 60px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+              }}
+            >
               
               <div className="absolute top-0 left-0 right-0 h-px bg-[linear-gradient(90deg,transparent,rgba(76,169,188,.85),transparent)]" />
 
