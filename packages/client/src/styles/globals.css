@@ -122,7 +122,8 @@ html[data-theme="dark"], html.dark {
   --ns-glass-3: rgba(18, 58, 76, 0.56);
   --ns-glass-line: rgba(214, 244, 250, 0.34);
   --ns-glass-line-soft: rgba(214, 244, 250, 0.14);
-  --ns-glass-border-outer: rgba(0, 0, 0, 0.52);
+  /* Smoked glass still catches light on its rim — a black edge reads as a hole. */
+  --ns-glass-border-outer: rgba(186, 232, 244, 0.22);
   --ns-glass-blur: 42px;
   --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(165%) brightness(1.12);
   --ns-glass-hover: rgba(190, 236, 246, 0.14);
