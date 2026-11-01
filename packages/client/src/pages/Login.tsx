@@ -136,10 +136,10 @@ export default function Login() {
       </header>
 
       {/* ── Main Content Showcase Area ── */}
-      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8" style={{ background: 'var(--ns-bg)' }}>
         <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden glass border border-[var(--ns-glass-line)] p-10 xl:p-12 min-h-[560px]">
+          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden border border-white/15 p-10 xl:p-12 min-h-[560px]" style={{ background: 'transparent' }}>
             {/* Background Photography Vignette */}
             <div className="absolute inset-0 z-0">
               <img
@@ -164,12 +164,12 @@ export default function Login() {
                 Your place, <br />
                 <span className="text-[#9de0ea] italic font-light">all in one view.</span>
               </h1>
-              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed" style={{ color: 'var(--ns-ink)' }}>
+              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-white/90">
                 See bookings, guests, room status, and daily work from one place.
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
-              <div className="pt-6 flex items-center gap-3 text-xs font-medium" style={{ color: 'var(--ns-ink)' }}>
+              <div className="pt-6 flex items-center gap-3 text-xs font-medium text-white/80">
                 <span>12 guest rooms</span>
                 <span className="text-[var(--ns-muted)]">·</span>
                 <span>Pool area</span>
@@ -179,8 +179,8 @@ export default function Login() {
             </div>
 
             {/* Bottom Property Signature */}
-            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/10 pt-4 font-medium" style={{ color: 'var(--ns-muted)' }}>
-              <div className="flex items-center gap-1.5" style={{ color: 'var(--ns-ink)' }}>
+            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/10 pt-4 font-medium text-white/70">
+              <div className="flex items-center gap-1.5 text-white/80">
                 <MapPin size={13} className="text-[#9de0ea]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
@@ -192,7 +192,7 @@ export default function Login() {
           </div>
 
           <div className="w-full lg:col-span-5 max-w-md mx-auto flex flex-col justify-center">
-            <div className="glass-strong rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden">
+            <div className="rounded-3xl p-8 sm:p-9 border border-[var(--ns-glass-line)] relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(32px) saturate(180%)', WebkitBackdropFilter: 'blur(32px) saturate(180%)', boxShadow: '0 20px 60px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
               
               <div className="absolute top-0 left-0 right-0 h-px bg-[linear-gradient(90deg,transparent,rgba(76,169,188,.85),transparent)]" />
 
