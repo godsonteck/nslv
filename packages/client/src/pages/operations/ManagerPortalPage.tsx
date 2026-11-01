@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportsApi, staysApi, roomsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, formatUserGreeting } from '@nslv/shared';
+import { formatCurrency } from '@nslv/shared';
 import { Button, statusBadge, LoadingState } from '../../components/ui';
 import {
   Building2,
@@ -33,7 +33,6 @@ import { showToast } from '../../components/ui';
 export const ManagerPortalPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
 
   const [metrics, setMetrics] = useState({
@@ -133,7 +132,7 @@ export const ManagerPortalPage: React.FC = () => {
           </div>
           <div>
             <div className="workspace-page__eyebrow">Management overview</div>
-            <h1 className="workspace-page__title text-xl">{greeting}</h1>
+            <h1 className="workspace-page__title text-xl">Manager Workstation</h1>
             <p className="workspace-page__subtitle text-[11px]">Property performance, service pressure, and cash position at a glance.</p>
           </div>
         </div>

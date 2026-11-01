@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { posApi, reportsApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, formatUserGreeting } from '@nslv/shared';
+import { formatCurrency } from '@nslv/shared';
 import { UtensilsCrossed, RefreshCw, ArrowRight, ClipboardCheck, TrendingUp, ShoppingBag } from 'lucide-react';
 import { Button, showToast, LoadingState } from '../../components/ui';
 import { statusBadge } from '../../components/ui';
@@ -16,7 +16,6 @@ import { statusBadge } from '../../components/ui';
 export const RestaurantPortalPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [revenue, setRevenue] = useState(0);
@@ -58,8 +57,8 @@ export const RestaurantPortalPage: React.FC = () => {
             <UtensilsCrossed size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Restaurant · Kitchen & Dining Workspace</p>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Restaurant Operations</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Restaurant · Kitchen &amp; Dining Workspace</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

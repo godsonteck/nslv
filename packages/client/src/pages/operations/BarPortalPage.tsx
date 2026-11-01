@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { posApi, reportsApi } from '../../services/apiService';
 import { clearGetCache } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, formatUserGreeting } from '@nslv/shared';
+import { formatCurrency } from '@nslv/shared';
 import { Wine, RefreshCw, ArrowRight, ClipboardCheck, TrendingUp, ShoppingBag } from 'lucide-react';
 import { Button, showToast, LoadingState } from '../../components/ui';
 import { statusBadge } from '../../components/ui';
@@ -16,7 +16,6 @@ import { statusBadge } from '../../components/ui';
 export const BarPortalPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [revenue, setRevenue] = useState(0);
@@ -58,8 +57,8 @@ export const BarPortalPage: React.FC = () => {
             <Wine size={15} />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Bar & Lounge · Beverage Service Workspace</p>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Bar &amp; Lounge Operations</h1>
+            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Bar &amp; Lounge · Beverage Service Workspace</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

@@ -320,29 +320,17 @@ html[data-theme="dark"] body, html.dark body {
       linear-gradient(145deg, #cfe5e9 0%, #e6f1f2 48%, #c9e2e7 100%);
   }
 
-  /* Structure behind the panes: the grid is what visibly bends under glass. */
-  .ns-ambient::before {
-    content: "";
-    position: absolute;
-    inset: -10%;
-    background-image:
-      linear-gradient(rgba(16, 72, 88, 0.10) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(16, 72, 88, 0.10) 1px, transparent 1px);
-    background-size: 54px 54px, 54px 54px;
-    -webkit-mask-image: radial-gradient(120% 92% at 50% 28%, #000 10%, transparent 72%);
-    mask-image: radial-gradient(120% 92% at 50% 28%, #000 10%, transparent 72%);
-  }
+  /* No grid: the orbs carry the structure the glass refracts. */
+  .ns-ambient::before { content: none; }
 
   .ns-ambient::after {
     content: "";
     position: absolute;
     inset: 0;
-    opacity: .12;
-    background-image:
-      radial-gradient(rgba(15, 71, 86, .22) .55px, transparent .75px),
-      linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .36) 47%, transparent 60%);
-    background-size: 5px 5px, 100% 100%;
+    opacity: .08;
+    background-image: linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .28) 47%, transparent 60%);
     mix-blend-mode: soft-light;
+    pointer-events: none;
   }
 
   .ns-orb {
@@ -386,16 +374,9 @@ html[data-theme="dark"] body, html.dark body {
       radial-gradient(1100px 800px at 50% 118%, rgba(20, 96, 124, 0.46), transparent 60%),
       linear-gradient(145deg, #061a25 0%, #082631 48%, #061a25 100%);
   }
-  html[data-theme="dark"] .ns-ambient::before, html.dark .ns-ambient::before {
-    background-image:
-      linear-gradient(rgba(214, 244, 250, 0.075) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(214, 244, 250, 0.075) 1px, transparent 1px);
-  }
   html[data-theme="dark"] .ns-ambient::after, html.dark .ns-ambient::after {
-    opacity: .10;
-    background-image:
-      radial-gradient(rgba(255, 255, 255, .16) .55px, transparent .75px),
-      linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .10) 47%, transparent 60%);
+    opacity: .06;
+    background-image: linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .12) 47%, transparent 60%);
   }
 
   .ns-watermark { position: absolute; inset: 0; display: grid; place-items: center; }
@@ -403,14 +384,14 @@ html[data-theme="dark"] body, html.dark body {
     width: clamp(420px, 54vw, 1000px);
     max-width: 150vw;
     height: auto;
-    opacity: 0.09;
+    opacity: 0.05;
     mix-blend-mode: multiply;
     user-select: none;
     -webkit-mask-image: radial-gradient(ellipse at center, #000 26%, transparent 64%);
     mask-image: radial-gradient(ellipse at center, #000 26%, transparent 64%);
   }
   html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img {
-    opacity: 0.10;
+    opacity: 0.05;
     mix-blend-mode: screen;
     filter: invert(1);
   }

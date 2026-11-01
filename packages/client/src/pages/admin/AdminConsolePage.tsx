@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usersApi, rolesApi, auditApi, type AuditLogRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { formatUserGreeting } from '@nslv/shared';
 import { Button, statusBadge, LoadingState } from '../../components/ui';
 import {
   ShieldCheck,
@@ -64,7 +63,6 @@ const QUICK_LINKS: QuickTile[] = [
 export const AdminConsolePage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const greeting = formatUserGreeting(user);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [metrics, setMetrics] = useState<ConsoleMetrics>(emptyMetrics);

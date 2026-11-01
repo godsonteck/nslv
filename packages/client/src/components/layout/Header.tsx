@@ -152,8 +152,11 @@ export const Header: React.FC = () => {
               )}
             </button>
             {showNotifications && (
-              <div className="pointer-events-none fixed inset-0 z-[80]">
-                <div className="absolute inset-0 bg-[rgba(9,20,28,0.16)] backdrop-blur-[2px]" />
+              <div className="fixed inset-0 z-[80]">
+                <div 
+                  className="absolute inset-0 bg-slate-950/20 backdrop-blur-[2px] cursor-pointer" 
+                  onClick={() => setShowNotifications(false)} 
+                />
                 <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-end pr-4 pt-[78px] sm:pr-6 lg:pr-8">
                   <div className="pointer-events-auto">
                     <NotificationPanel onClose={() => setShowNotifications(false)} />

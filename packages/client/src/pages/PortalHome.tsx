@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle, ArrowRight, Building2, ClipboardList, ShieldCheck, Users, UtensilsCrossed, Wine } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
-import { formatUserGreeting } from '@nslv/shared';
 
 type PortalDefinition = {
   name: string;
@@ -22,7 +21,6 @@ const portals: Record<string, PortalDefinition> = {
 
 export const PortalHome: React.FC = () => {
   const user = useAuthStore((state) => state.user);
-  const greeting = formatUserGreeting(user);
   const role = user?.roles[0]?.name || 'Reception';
   const portal = portals[role] || portals.Reception;
 
@@ -38,7 +36,7 @@ export const PortalHome: React.FC = () => {
           </div>
           <div>
             <p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[var(--ns-gold)]">{role} portal</p>
-            <h1 className="mt-1 text-2xl font-bold" style={{ color: 'var(--ns-ink)' }}>{greeting}</h1>
+            <h1 className="mt-1 text-2xl font-bold" style={{ color: 'var(--ns-ink)' }}>{portal.name} Workstation</h1>
             <p className="mt-2 text-sm" style={{ color: 'var(--ns-muted)' }}>{portal.summary}</p>
           </div>
         </div>

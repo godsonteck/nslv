@@ -7,7 +7,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { reportsApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
-import { formatCurrency, formatUserGreeting } from '@nslv/shared';
+import { formatCurrency } from '@nslv/shared';
 import {
   Smartphone,
   Banknote,
@@ -40,7 +40,6 @@ export default function ReceptionReportPage() {
   const user = useAuthStore((s) => s.user);
   const { theme } = useThemeStore();
   const villaName = theme?.villaName || 'NS Luxury Villa';
-  const greeting = formatUserGreeting(user);
 
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [mode, setMode] = useState<PeriodMode>('today');
