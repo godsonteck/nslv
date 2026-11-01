@@ -8,6 +8,9 @@ export const AmbientBackdrop: React.FC = () => {
 
   return (
     <div className="ns-ambient" aria-hidden="true">
+      <div className="ns-orb ns-orb-1" />
+      <div className="ns-orb ns-orb-2" />
+      <div className="ns-orb ns-orb-3" />
       <div className="ns-watermark">
         <img src={logo} alt="" />
       </div>
