@@ -77,8 +77,16 @@ const NotificationItem: React.FC<{
         boxShadow: '0 2px 10px -4px color-mix(in srgb, var(--ns-teal) 40%, transparent)',
       };
 
+  const itemClassName = [
+    'ns-notif-item',
+    'rounded-2xl',
+    'transition-all',
+    'overflow-hidden',
+    notification.isRead ? '' : 'ns-notif-item--unread',
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className="rounded-2xl transition-all overflow-hidden" style={itemStyle}>
+    <div className={itemClassName} style={itemStyle}>
       <button
         onClick={() => onOpen(notification)}
         className="group flex w-full items-start gap-3 p-3.5 text-left transition"
