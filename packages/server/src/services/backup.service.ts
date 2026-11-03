@@ -9,7 +9,9 @@ import { prisma } from '../config';
 import { AppError } from '../middleware/error';
 import { AuditService } from './audit.service';
 
-const BACKUP_DIR = path.resolve(process.cwd(), 'backups');
+// Snapshots must never live inside the repository: the repo is public, and on
+// Vercel the working directory is read-only. Allow an explicit destination.
+const BACKUP_DIR = path.resolve(process.env.BACKUP_DIR || path.join(process.cwd(), '.backups'));
 
 export interface BackupMetadata {
   id: string;
@@ -193,13 +195,12 @@ export class BackupService {
    */
   static getSnapshot(id: string): BackupPayload {
     this.ensureBackupDir();
-    const cleanId = decodeURIComponent(id).trim();
+    const wanted = decodeURIComponent(id).trim().replace(/\.json$/, '');
     const allFiles = fs.readdirSync(BACKUP_DIR).filter((f) => f.endsWith('.json'));
 
-    const match = allFiles.find((f) => {
-      const base = f.replace(/\.json$/, '');
-      return f === cleanId || base === cleanId || f.includes(cleanId) || cleanId.includes(base);
-    });
+    // Exact filename match only. `includes()` matched unrelated snapshots whose
+    // id happened to be a substring, which could act on the wrong backup.
+    const match = allFiles.find((f) => f.replace(/\.json$/, '') === wanted);
 
     if (!match) {
       throw new AppError('Snapshot not found.', 404, 'SNAPSHOT_NOT_FOUND');
@@ -218,6 +219,7 @@ export class BackupService {
     const data = payload.data;
     const modelsRestored: Record<string, number> = {};
     let totalRestored = 0;
+    const failures: string[] = [];
 
     await prisma.$transaction(
       async (tx) => {
@@ -266,16 +268,30 @@ export class BackupService {
                 });
                 count++;
               } else {
-                await client.create({ data: cleanRecord }).catch(() => null);
-                count++;
+                try {
+                  await client.create({ data: cleanRecord });
+                  count++;
+                } catch (createErr) {
+                  failures.push(`${model}:${cleanRecord.id ?? 'unknown'} — ${(createErr as Error).message}`);
+                }
               }
             } catch (insertErr) {
-              // Continue restoring subsequent records
+              failures.push(`${model}:${(record as { id?: string }).id ?? 'unknown'} — ${(insertErr as Error).message}`);
             }
           }
 
           modelsRestored[model] = count;
           totalRestored += count;
+        }
+
+        if (failures.length > 0) {
+          // Roll the whole restore back. Reporting success while silently
+          // dropping rows is worse than refusing the restore.
+          throw new AppError(
+            `Restore incomplete: ${failures.length} record(s) could not be written. First: ${failures[0]}`,
+            422,
+            'RESTORE_INCOMPLETE',
+          );
         }
       },
       { timeout: 30000 }
@@ -300,13 +316,12 @@ export class BackupService {
    */
   static deleteSnapshot(userId: string, id: string): boolean {
     this.ensureBackupDir();
-    const cleanId = decodeURIComponent(id).trim();
+    const wanted = decodeURIComponent(id).trim().replace(/\.json$/, '');
     const allFiles = fs.readdirSync(BACKUP_DIR).filter((f) => f.endsWith('.json'));
 
-    const match = allFiles.find((f) => {
-      const base = f.replace(/\.json$/, '');
-      return f === cleanId || base === cleanId || f.includes(cleanId) || cleanId.includes(base);
-    });
+    // Exact filename match only. `includes()` matched unrelated snapshots whose
+    // id happened to be a substring, which could act on the wrong backup.
+    const match = allFiles.find((f) => f.replace(/\.json$/, '') === wanted);
 
     if (!match) {
       throw new AppError(`Snapshot "${id}" not found.`, 404, 'SNAPSHOT_NOT_FOUND');

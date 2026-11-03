@@ -89,3 +89,10 @@ Thumbs.db
 
 .vercel
 .env*
+
+# Local backups and captured auth/debug dumps (must never be committed)
+backups/
+.backups/
+token.txt
+login.json
+

@@ -16,8 +16,8 @@ export const prisma =
     log: config.isDev ? ['query', 'warn', 'error'] : ['warn', 'error'],
   });
 
-if (config.isDev) {
-  globalForPrisma.prisma = prisma;
-}
+// Cache in every environment. Creating a fresh client per cold lambda opens a
+// new pool against Neon and exhausts the connection limit under load.
+globalForPrisma.prisma = prisma;
 
 export default prisma;

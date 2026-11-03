@@ -3,6 +3,7 @@
 // ============================================
 
 import { Router } from 'express';
+import { z } from 'zod';
 import { PaymentService } from '../services/payments.service';
 import { authenticate, requireAdmin, requirePermission, requireAnyPermission, requireManagerOrAdmin, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
@@ -10,6 +11,12 @@ import { processPaymentSchema, refundPaymentSchema } from '@nslv/shared';
 
 const router = Router();
 router.use(authenticate, verifyActiveUser);
+
+const correctPaymentSchema = z.object({
+  amount: z.coerce.number().positive(),
+  method: z.string().trim().min(1).max(40).optional(),
+  reason: z.string().trim().max(500).optional(),
+});
 
 // Get Payments
 router.get('/', requirePermission('payments.view'), async (req, res, next) => {
@@ -76,7 +83,7 @@ router.post('/:id/reject-refund', requireManagerOrAdmin, async (req, res, next) 
 });
 
 // Correct payment amount / method (flexible mistake correction)
-router.patch('/:id/correct', requireAnyPermission('payments.adjust', 'payments.create'), async (req, res, next) => {
+router.patch('/:id/correct', requireAnyPermission('payments.adjust', 'payments.create'), validateBody(correctPaymentSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const paymentId = Array.isArray(req.params.id) ? req.params.id[0]! : req.params.id!;
