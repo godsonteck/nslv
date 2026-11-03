@@ -99,6 +99,7 @@ const NotificationItem: React.FC<{
             {!notification.isRead && (
               <span
                 className="shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide whitespace-nowrap"
+                data-accent=""
                 style={priorityBadgeStyle(notification.priority)}
               >
                 {notification.priority}
@@ -107,7 +108,7 @@ const NotificationItem: React.FC<{
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[10px] font-medium" style={{ color: 'var(--ns-muted)' }}>
             <span>{new Date(notification.createdAt).toLocaleString()}</span>
-            <ArrowUpRight size={11} className="opacity-0 transition group-hover:opacity-100" style={{ color: 'var(--ns-teal)' }} />
+            <ArrowUpRight size={11} className="opacity-0 transition group-hover:opacity-100" data-accent="" style={{ color: 'var(--ns-teal)' }} />
           </div>
         </div>
       </button>
@@ -120,7 +121,7 @@ const NotificationItem: React.FC<{
             style={{ color: 'var(--ns-ink)' }}
             title="Mark as read"
           >
-            <Check size={12} style={{ color: 'var(--ns-teal)' }} /> Mark read
+            <Check size={12} data-accent="" style={{ color: 'var(--ns-teal)' }} /> Mark read
           </button>
         )}
         <button
@@ -134,6 +135,7 @@ const NotificationItem: React.FC<{
           }}
           disabled={deleting}
           className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold transition-colors disabled:opacity-50"
+          data-accent=""
           style={{ color: 'var(--ns-danger)' }}
           title="Delete notification"
         >
@@ -194,6 +196,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
           {unreadCount > 0 && (
             <span
               className="rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide"
+              data-accent=""
               style={{
                 border: '1px solid var(--ns-gold)',
                 background: 'var(--ns-gold-soft)',
