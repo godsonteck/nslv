@@ -20,9 +20,10 @@ export async function lockBusinessDay(tx: { $executeRaw?: (query: TemplateString
 }
 
 export class DailyCloseService {
-  static async assertBusinessDayOpen(value: Date | string) {
+  static async assertBusinessDayOpen(value: Date | string, tx?: Prisma.TransactionClient) {
     const { start } = dayRange(typeof value === 'string' ? value : value.toISOString());
-    const closed = prisma.dailyClose?.findUnique ? await prisma.dailyClose.findUnique({ where: { businessDate: start }, select: { id: true } }) : null;
+    const client = tx ?? prisma;
+    const closed = client.dailyClose?.findUnique ? await client.dailyClose.findUnique({ where: { businessDate: start }, select: { id: true } }) : null;
     if (closed) throw new AppError('This business day is closed; record a correcting entry on an open day instead.', 409, 'BUSINESS_DAY_CLOSED');
   }
 
@@ -33,8 +34,12 @@ export class DailyCloseService {
     }
     return {
       businessDate: cashRegisterSummary.businessDate,
-      openingCash: new Prisma.Decimal(cashRegisterSummary.carriedIntoToday),
-      cashPayments: new Prisma.Decimal(cashRegisterSummary.cashSales),
+      // `carriedIntoToday` is always 0 (no overnight float). The float that
+      // actually applies to this date is `openingCash`.
+      openingCash: new Prisma.Decimal(cashRegisterSummary.openingCash),
+      // Manual inflows are cash received too. Folding them in keeps the stored
+      // components reconcilable: opening + payments - refunds - expenses = expected.
+      cashPayments: new Prisma.Decimal(cashRegisterSummary.cashSales + cashRegisterSummary.manualInflows),
       cashRefunds: new Prisma.Decimal(cashRegisterSummary.cashRefunds),
       cashExpenses: new Prisma.Decimal(cashRegisterSummary.manualOutflows),
       expectedCash: new Prisma.Decimal(cashRegisterSummary.expectedCash),

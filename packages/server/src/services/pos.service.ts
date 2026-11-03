@@ -87,12 +87,12 @@ async function recordDirectTenders(
     }
   }
 
-  // Fire-and-forget: record cash payments in cash register AFTER transaction commits
-  // This avoids transaction timeout issues
+  // Record cash in the same transaction as the sale. A detached call could be
+  // lost after the sale commits, leaving the drawer short with no error.
   if (cashTenders.length > 0) {
     const businessDate = new Date().toISOString().slice(0, 10);
     for (const ct of cashTenders) {
-      CashRegisterService.recordCashPayment({
+      await CashRegisterService.recordCashPayment({
         businessDate,
         amount: ct.tender.amount,
         description: data.description,
@@ -100,7 +100,7 @@ async function recordDirectTenders(
         sourceId: ct.payment.id,
         reference: ct.tender.reference,
         processedBy: data.processedBy,
-      }).catch((err) => console.error('Failed to record cash payment in cash register:', err));
+      }, tx);
     }
   }
 
@@ -525,7 +525,7 @@ export class POSService {
             source: 'POOL',
             sourceId: payment.id,
             processedBy: data.processedBy,
-          });
+          }, tx);
         }
       }
       return tx.poolTransaction.findUniqueOrThrow({ where: { id: transaction.id }, include: { service: true } });

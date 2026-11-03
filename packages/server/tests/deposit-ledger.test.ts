@@ -18,6 +18,8 @@ describe('deposit collection invariants', () => {
       reservation: { findUnique: vi.fn().mockResolvedValue({ id: 'reservation-1', totalAmount: 500, guests: [{ guestId: 'guest-1' }] }) },
       payment: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 100 } }), create: paymentCreate },
       folioItem: { create: vi.fn() },
+      cashRegister: { findUnique: vi.fn().mockResolvedValue({ id: 'reg-1' }), create: vi.fn() },
+      cashRegisterEntry: { findFirst: vi.fn().mockResolvedValue(null), create: vi.fn().mockResolvedValue({ id: 'entry-1' }) },
     };
     mocks.findUnique.mockResolvedValue(null);
     mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
@@ -56,6 +58,8 @@ describe('deposit collection invariants', () => {
       reservation: { findUnique: vi.fn().mockResolvedValue({ id: 'reservation-1', totalAmount: 500, guests: [{ guestId: 'guest-1' }] }) },
       payment: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 100 } }), create: paymentCreate },
       folioItem: { create: vi.fn() },
+      cashRegister: { findUnique: vi.fn().mockResolvedValue({ id: 'reg-1' }), create: vi.fn() },
+      cashRegisterEntry: { findFirst: vi.fn().mockResolvedValue(null), create: vi.fn().mockResolvedValue({ id: 'entry-1' }) },
     };
     mocks.findUnique.mockResolvedValue(null);
     mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));

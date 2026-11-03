@@ -288,14 +288,16 @@ export class PaymentService {
     }
     const payment = createdPayments[0];
 
-    // Fire-and-forget: auto-record cash payments in cash register AFTER transaction commits
-    const cashTenderIndices = tenders.map((t, i) => t.method === 'CASH' ? i : -1).filter(i => i !== -1);
+    // Record cash tenders in the same transaction as the payment rows. A
+    // detached, fire-and-forget call can lose the drawer entry while the payment
+    // commits, or leave a phantom entry when the payment rolls back.
+    const cashTenderIndices = tenders.map((t, i) => (t.method === 'CASH' ? i : -1)).filter((i) => i !== -1);
     if (cashTenderIndices.length > 0) {
       const businessDate = new Date().toISOString().slice(0, 10);
       for (const idx of cashTenderIndices) {
         const t = tenders[idx];
         const p = createdPayments[idx];
-        CashRegisterService.recordCashPayment({
+        await CashRegisterService.recordCashPayment({
           businessDate,
           amount: t.amount,
           description: p.description
@@ -305,7 +307,7 @@ export class PaymentService {
           sourceId: p.id,
           reference: t.reference,
           processedBy: data.processedBy,
-        }).catch((err) => console.error('Failed to record cash payment in cash register:', err));
+        }, tx);
       }
     }
 
@@ -867,20 +869,24 @@ export class PaymentService {
         });
         if (!latestRefund) throw new AppError('Refund record not found.', 404, 'PAYMENT_NOT_FOUND');
 
+        // A refund changes the cash position of the day it was processed on, so
+        // deleting one from a closed day would silently rewrite a signed-off total.
+        await lockBusinessDay(tx, latestRefund.processedAt);
+        await DailyCloseService.assertBusinessDayOpen(latestRefund.processedAt, tx);
+
         const original = latestRefund.originalPayment;
 
         // 2. Remove or void any FolioItem associated with this refund
         const targetFolioId = latestRefund.folioId || original?.folioId;
         if (targetFolioId) {
-          // Delete any folio item referencing this refund
+          // Delete only the folio line this refund created. Matching on a
+          // description substring could remove unrelated lines whose text
+          // happened to contain the id.
           await tx.folioItem.deleteMany({
             where: {
               folioId: targetFolioId,
-              OR: [
-                { referenceId: latestRefund.id },
-                { id: latestRefund.id },
-                { description: { contains: latestRefund.id } },
-              ],
+              referenceType: 'REFUND',
+              referenceId: latestRefund.id,
             },
           });
 
@@ -981,6 +987,11 @@ export class PaymentService {
       if (!payment) {
         throw new AppError('Payment record not found.', 404, 'PAYMENT_NOT_FOUND');
       }
+
+      // Corrections move money, so they belong to the open day the payment was
+      // taken on. Without this, a closed day's totals can be rewritten later.
+      await lockBusinessDay(tx, payment.processedAt);
+      await DailyCloseService.assertBusinessDayOpen(payment.processedAt, tx);
 
       if (payment.type === 'REFUND') {
         throw new AppError('Cannot edit refund transactions directly. Adjust the original payment or delete the refund.', 422, 'CANNOT_EDIT_REFUND');

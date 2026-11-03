@@ -25,8 +25,10 @@ describe('daily cash reconciliation', () => {
     vi.clearAllMocks();
     mocks.getSummary.mockResolvedValue({
       businessDate: '2026-08-14',
-      carriedIntoToday: 100,
+      carriedIntoToday: 0,
+      openingCash: 100,
       cashSales: 120,
+      manualInflows: 0,
       cashRefunds: 20,
       manualOutflows: 30,
       expectedCash: 170,

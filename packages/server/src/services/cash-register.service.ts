@@ -58,6 +58,7 @@ export class CashRegisterService {
 
     // Standalone mode (no transaction) - used for fire-and-forget background recording
     if (!tx) {
+      await DailyCloseService.assertBusinessDayOpen(input.businessDate);
       // Ensure register exists
       await this.ensureRegisterInitialized(input.businessDate, input.processedBy);
       
@@ -91,7 +92,7 @@ export class CashRegisterService {
     // Transactional mode - runs within provided transaction
     const execute = async (client: Prisma.TransactionClient) => {
       await CashRegisterService.lockRegister(client, date);
-      await DailyCloseService.assertBusinessDayOpen(date);
+      await DailyCloseService.assertBusinessDayOpen(date, client);
 
       // Ensure today's register exists with carried-forward balance
       const register = await this.ensureRegisterInitialized(input.businessDate, input.processedBy, client);
@@ -149,7 +150,7 @@ export class CashRegisterService {
 
     const execute = async (client: Prisma.TransactionClient) => {
       await CashRegisterService.lockRegister(client, date);
-      await DailyCloseService.assertBusinessDayOpen(date);
+      await DailyCloseService.assertBusinessDayOpen(date, client);
 
       const register = await this.ensureRegisterInitialized(input.businessDate, input.processedBy, client);
 
@@ -190,6 +191,7 @@ export class CashRegisterService {
 
     return prisma.$transaction(async (tx) => {
       await CashRegisterService.lockRegister(tx, date);
+      await DailyCloseService.assertBusinessDayOpen(date, tx);
       const register = await tx.cashRegister.upsert({
         where: { businessDate: date },
         create: { businessDate: date, openingCash: amount, notes: input.notes?.trim() || null },
@@ -269,7 +271,7 @@ export class CashRegisterService {
     // Transactional mode
     const execute = async (client: Prisma.TransactionClient) => {
       await CashRegisterService.lockRegister(client, date);
-      await DailyCloseService.assertBusinessDayOpen(date);
+      await DailyCloseService.assertBusinessDayOpen(date, client);
 
       const register = await this.ensureRegisterInitialized(input.businessDate, input.processedBy, client);
 
@@ -332,6 +334,7 @@ export class CashRegisterService {
     // Transactional mode
     return prisma.$transaction(async (tx) => {
       await CashRegisterService.lockRegister(tx, date);
+      await DailyCloseService.assertBusinessDayOpen(date, tx);
       const register = await tx.cashRegister.upsert({
         where: { businessDate: date },
         create: { businessDate: date, openingCash: 0 },
@@ -387,7 +390,9 @@ export class CashRegisterService {
       where: {
         processedAt: { gte: date, lt: end },
         method: 'CASH',
-        type: 'PAYMENT',
+        // Deposits are cash received into the same drawer, and refunds are cash
+        // paid out of it. Omitting either makes the physical count unreconcilable.
+        type: { in: ['PAYMENT', 'DEPOSIT', 'REFUND'] },
         status: 'COMPLETED',
         voidedAt: null,
       },
@@ -407,9 +412,14 @@ export class CashRegisterService {
 
     const entries = (register?.entries ?? []).filter((e) => e.category !== 'REFUND');
 
+    // The Payment ledger is the source of truth for cash refunds. Register
+    // entries with category REFUND are excluded above so the two can never
+    // double-count if a refund entry is written as well.
     let todayCashSales = 0;
+    let cashRefunds = 0;
     for (const p of payments) {
-      todayCashSales += Number(p.amount);
+      if (p.type === 'REFUND') cashRefunds += Number(p.amount);
+      else todayCashSales += Number(p.amount); // PAYMENT + DEPOSIT
     }
 
     let manualInflows = 0;
@@ -446,8 +456,9 @@ export class CashRegisterService {
     // Total cash collected today
     const totalCashCollected = todayCashSales + manualInflows;
 
-    // Expected cash in drawer before end-of-day handover
-    const totalExpectedCash = openingCash + totalCashCollected - manualOutflows;
+    // Expected cash in drawer before end-of-day handover. Refunds leave the
+    // drawer, so they reduce what should physically be there.
+    const totalExpectedCash = openingCash + totalCashCollected - manualOutflows - cashRefunds;
 
     // Physical cash remaining in drawer right now after any handovers
     const availableCashAtHand = Math.max(0, totalExpectedCash - handovers);
@@ -471,7 +482,7 @@ export class CashRegisterService {
       outflows: manualOutflows,
       manualOutflows,
       momoDeposits,
-      cashRefunds: 0,
+      cashRefunds,
 
       // Handover to Management (End of Day Close)
       handovers,
@@ -506,6 +517,7 @@ export class CashRegisterService {
 
     return prisma.$transaction(async (tx) => {
       await CashRegisterService.lockRegister(tx, date);
+      await DailyCloseService.assertBusinessDayOpen(date, tx);
       const register = await tx.cashRegister.upsert({
         where: { businessDate: date },
         create: { businessDate: date, openingCash: 0 },
@@ -548,6 +560,7 @@ export class CashRegisterService {
       if (!entry) throw new AppError('Entry not found.', 404, 'NOT_FOUND');
       const register = await tx.cashRegister.findUnique({ where: { id: entry.cashRegisterId }, select: { businessDate: true } });
       await CashRegisterService.lockRegister(tx, register?.businessDate || new Date());
+      await DailyCloseService.assertBusinessDayOpen(register?.businessDate || new Date(), tx);
 
       // Deleting a mistaken opening also clears its stored register value so it
       // can never become a future carry-forward anchor.
@@ -572,6 +585,7 @@ export class CashRegisterService {
     
     return prisma.$transaction(async (tx) => {
       await CashRegisterService.lockRegister(tx, date);
+      await DailyCloseService.assertBusinessDayOpen(date, tx);
       const register = await tx.cashRegister.findUnique({ where: { businessDate: date } });
       if (!register) return { deleted: 0, message: 'No register found for this date' };
 

@@ -80,6 +80,14 @@ describe('Surgical Reservation Fixes', () => {
       folioItem: {
         create: mocks.folioItemCreate,
       },
+      cashRegister: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'register-1' }),
+        create: vi.fn(),
+      },
+      cashRegisterEntry: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'cash-entry-1' }),
+      },
       auditLog: {
         create: mocks.auditLogCreate,
       },

@@ -12,23 +12,46 @@ vi.mock('../src/services/categories.service', () => ({ CategoryService: { assert
 import { CashRegisterService } from '../src/services/cash-register.service';
 
 describe('cash-register carry-forward', () => {
-  it('carries the last counted balance and includes cash sales and manual movements, not refunds', async () => {
+  it('counts deposits in and subtracts refunds from expected cash', async () => {
     const day = new Date('2026-08-23T00:00:00.000Z');
-    mocks.registerFindUnique.mockResolvedValue(null);
-    mocks.registerFindFirst.mockResolvedValue({ businessDate: new Date('2026-08-22T00:00:00.000Z'), openingCash: { toNumber: () => 100 }, notes: 'Night handover' });
-    mocks.entryFindMany.mockResolvedValue([
-      { type: 'INFLOW', amount: { toNumber: () => 25 }, cashRegister: { businessDate: day } },
-      { type: 'OUTFLOW', amount: { toNumber: () => 10 }, category: 'FUEL', cashRegister: { businessDate: day } },
-      { type: 'OUTFLOW', amount: { toNumber: () => 50 }, category: 'REFUND', cashRegister: { businessDate: day } },
-    ]);
+    mocks.registerFindUnique.mockResolvedValue({
+      id: 'register-1',
+      businessDate: day,
+      openingCash: 100,
+      notes: 'Night handover',
+      entries: [
+        { type: 'INFLOW', amount: 25, category: null, cashRegister: { businessDate: day } },
+        { type: 'OUTFLOW', amount: 10, category: 'FUEL', cashRegister: { businessDate: day } },
+        { type: 'OUTFLOW', amount: 50, category: 'REFUND', cashRegister: { businessDate: day } },
+      ],
+    });
+    mocks.entryFindMany.mockResolvedValue([]);
     mocks.paymentFindMany.mockResolvedValue([
-      { id: 'sale', amount: { toNumber: () => 80 }, type: 'PAYMENT', processedAt: day },
+      { id: 'sale', amount: 80, type: 'PAYMENT', processedAt: day },
+      { id: 'deposit', amount: 40, type: 'DEPOSIT', processedAt: day },
+      { id: 'refund', amount: 30, type: 'REFUND', processedAt: day },
     ]);
 
     const result = await CashRegisterService.getSummary('2026-08-23');
-    expect(result).toMatchObject({ carriedIntoToday: 100, cashSales: 80, manualInflows: 25, manualOutflows: 10, expectedCash: 195 });
-    expect(result.cashPayments).toHaveLength(1);
-    expect(mocks.paymentFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ type: 'PAYMENT' }) }));
+
+    // 100 opening + 120 cash in (80 sale + 40 deposit) + 25 manual
+    // - 10 expense - 30 refund = 205.
+    expect(result).toMatchObject({
+      openingCash: 100,
+      cashSales: 120,
+      manualInflows: 25,
+      manualOutflows: 10,
+      cashRefunds: 30,
+      expectedCash: 205,
+    });
+    expect(result.cashPayments).toHaveLength(3);
+    // Refund register entries are excluded from the outflow total so a refund is
+    // never subtracted twice (the Payment ledger already carries it).
+    expect(mocks.paymentFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: { in: ['PAYMENT', 'DEPOSIT', 'REFUND'] } }),
+      }),
+    );
   });
 
   it('resets the opening and every manual cash movement for the selected date', async () => {
