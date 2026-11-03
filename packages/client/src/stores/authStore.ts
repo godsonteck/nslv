@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { AuthUser, AuthTokens, PermissionCode } from '@nslv/shared';
-import { apiFetch } from '../services/api';
+import { apiFetch, clearGetCache } from '../services/api';
 
 interface AuthState {
   user: AuthUser | null;
@@ -34,17 +34,23 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         const { tokens } = get();
+        // Clear local state first. If the server call fails (or returns 401),
+        // the API client must not be able to refresh and re-authenticate a
+        // session the user just ended.
+        set({ user: null, tokens: null, isAuthenticated: false });
+        // Cached GET responses are keyed by token, but drop them anyway so the
+        // next sign-in never reads a previous user's data.
+        clearGetCache();
         if (tokens?.refreshToken) {
           try {
             await apiFetch('/auth/logout', {
               method: 'POST',
               body: JSON.stringify({ refreshToken: tokens.refreshToken }),
-            });
+            }, tokens.accessToken);
           } catch {
             // Ignore server logout errors on local state clear
           }
         }
-        set({ user: null, tokens: null, isAuthenticated: false });
       },
 
       hasPermission: (permission) => {

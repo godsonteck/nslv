@@ -157,7 +157,7 @@ export async function apiFetch<T>(
       }
 
       // ── Access token expired → refresh once and retry the original request ──
-      if (response.status === 401 && _retry) {
+      if (response.status === 401 && _retry && !endpoint.startsWith('/auth/')) {
         const refreshed = await refreshAccessToken();
         if (refreshed) {
           const { useAuthStore } = await import('../stores/authStore');

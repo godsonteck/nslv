@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+import { portalPathFor } from './PortalGuard';
 import type { PermissionCode } from '@nslv/shared';
 
 /**
@@ -19,8 +20,7 @@ export const RequirePermission: React.FC<{
   const okAny = isAdmin || !any || any.some((p) => perms.includes(p));
   const okAll = isAdmin || !all || all.every((p) => perms.includes(p));
   if (!okAny || !okAll) {
-    const portal = user.roles?.[0]?.name ?? 'Reception';
-    return <Navigate to={`/${portal.toLowerCase()}`} replace />;
+    return <Navigate to={portalPathFor(user.roles ?? [])} replace />;
   }
   return <>{children}</>;
 };

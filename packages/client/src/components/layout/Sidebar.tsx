@@ -100,13 +100,16 @@ export const Sidebar: React.FC = () => {
 
   const perms = user?.permissions ?? [];
   const roleName = user?.roles?.[0]?.name ?? 'Staff';
+  // Administrators bypass the permission list everywhere else in the app; the
+  // sidebar must agree, otherwise an admin with no explicit grants sees no nav.
+  const isAdmin = user?.roles?.some((role) => role.name.toLowerCase() === 'admin') ?? false;
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Staff member';
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const villaLogo = theme?.logoUrl || villaAssets.logo;
 
   const sections = ALL_SECTIONS.map((section) => ({
     ...section,
-    items: section.items.filter((item) => item.perms.some((p) => perms.includes(p))),
+    items: section.items.filter((item) => item.perms.some((p) => isAdmin || perms.includes(p))),
   })).filter((section) => section.items.length > 0);
 
   return (
