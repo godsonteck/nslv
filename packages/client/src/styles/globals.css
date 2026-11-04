@@ -335,7 +335,12 @@ html[data-theme="dark"] body, html.dark body {
       radial-gradient(1100px 760px at 4% -12%, rgba(24, 118, 142, 0.30), transparent 58%),
       radial-gradient(900px 640px at 102% 2%, rgba(198, 158, 92, 0.26), transparent 56%),
       radial-gradient(1100px 800px at 50% 118%, rgba(58, 170, 196, 0.30), transparent 60%),
-      linear-gradient(145deg, #cfe5e9 0%, #e6f1f2 48%, #c9e2e7 100%);
+      /* The configured brand background, lifted at the head and shaded at the
+         foot so the canvas still reads as a lit surface rather than flat paint. */
+      linear-gradient(145deg,
+        color-mix(in srgb, var(--ns-bg) 86%, #ffffff) 0%,
+        var(--ns-bg) 48%,
+        color-mix(in srgb, var(--ns-bg) 94%, #0b1d28) 100%);
   }
 
   /* No grid: the orbs carry the structure the glass refracts. */
