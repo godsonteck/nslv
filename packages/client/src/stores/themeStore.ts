@@ -63,7 +63,7 @@ function resolveDark(theme: ThemeConfig | null, preference: ThemePreference | nu
 const initialTheme = getInitialTheme();
 const initialPreference = getInitialPreference();
 
-type RGB = { r: number; g: number; b: number };
+export type RGB = { r: number; g: number; b: number };
 
 const DARK_BG = '#070d14';
 const LIGHT_BG = '#f5f6f4';
@@ -93,7 +93,7 @@ const channelLuminance = (value: number) => {
 const luminance = ({ r, g, b }: RGB) =>
   0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
 
-function contrastRatio(a: RGB, b: RGB) {
+export function contrastRatio(a: RGB, b: RGB) {
   const la = luminance(a);
   const lb = luminance(b);
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
@@ -127,11 +127,71 @@ function readableBrand(color: string | undefined, background: string, fallback: 
   return toHex(candidate);
 }
 
+/**
+ * Body text must stay crisp, not merely legal. AA (4.5:1) still reads as grey
+ * for a light-mode ink colour rendered on a near-black canvas, so dark mode
+ * requires AAA-ish contrast before the configured colour is kept.
+ */
+export function readableText(
+  color: string | undefined,
+  background: string,
+  fallback: string,
+  minimum = 7,
+): string {
+  const fg = parseHex(color);
+  const bg = parseHex(background);
+  if (!fg || !bg) return fallback;
+  return contrastRatio(fg, bg) >= minimum ? toHex(fg) : fallback;
+}
+
 function shade(color: string, amount: number, fallback: string): string {
   const rgb = parseHex(color);
   if (!rgb) return fallback;
   const target: RGB = amount < 0 ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 };
   return toHex(mix(rgb, target, Math.abs(amount)));
+}
+
+/**
+ * Lift a light-mode brand colour into a vivid dark-mode tone. Mixing a deep
+ * teal towards white only produces grey, so raise lightness and saturation in
+ * HSL space instead and keep the hue the admin chose.
+ */
+export function vividForDark(color: string, fallback: string): string {
+  const rgb = parseHex(color);
+  if (!rgb) return fallback;
+
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+
+  const nextS = Math.max(s, 0.58);
+  const nextL = Math.max(l, 0.64);
+  const c = (1 - Math.abs(2 * nextL - 1)) * nextS;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = nextL - c / 2;
+  const [r1, g1, b1] =
+    h < 60 ? [c, x, 0] :
+    h < 120 ? [x, c, 0] :
+    h < 180 ? [0, c, x] :
+    h < 240 ? [0, x, c] :
+    h < 300 ? [x, 0, c] :
+    [c, 0, x];
+
+  return toHex({ r: (r1 + m) * 255, g: (g1 + m) * 255, b: (b1 + m) * 255 });
 }
 
 function rgba(color: string, alpha: number, fallback: string): string {
@@ -153,15 +213,31 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
   // written here. Keep the old names as aliases for any custom CSS an admin has
   // pasted in, and drive the real tokens from the same values.
   const surface = dark ? DARK_BG : parseHex(theme.bgColor) ? theme.bgColor : LIGHT_BG;
-  const primary = readableBrand(theme.primaryColor, surface, dark ? '#38bdf8' : '#075f76');
-  const secondary = readableBrand(theme.secondaryColor, surface, dark ? '#fbbf24' : '#2b7f97');
-  const accent = parseHex(theme.accentColor) ? theme.accentColor : secondary;
-  const ink = readableBrand(theme.textColor, surface, dark ? '#f8fafc' : '#0b1d28');
-  const muted = readableBrand(theme.textMuted, surface, dark ? '#edf6fb' : '#3f6073');
-  const success = readableBrand(theme.successColor, surface, dark ? '#34d399' : '#0d6b51');
-  const warning = readableBrand(theme.warningColor, surface, dark ? '#fbbf24' : '#92400e');
-  const danger = readableBrand(theme.errorColor, surface, dark ? '#f87171' : '#b91c1c');
-  const info = readableBrand(theme.infoColor, surface, dark ? '#60a5fa' : '#0369a1');
+
+  // In dark mode a light-mode brand colour cannot simply be mixed towards
+  // white — that yields grey. Lift it in HSL space first, then clamp.
+  const brand = (value: string | undefined, fallbackDark: string, fallbackLight: string) =>
+    dark
+      ? readableBrand(vividForDark(value ?? fallbackDark, fallbackDark), surface, fallbackDark)
+      : readableBrand(value, surface, fallbackLight);
+
+  const primary = brand(theme.primaryColor, '#38bdf8', '#075f76');
+  const secondary = brand(theme.secondaryColor, '#fbbf24', '#2b7f97');
+  const accent = parseHex(theme.accentColor)
+    ? dark
+      ? vividForDark(theme.accentColor, secondary)
+      : theme.accentColor
+    : secondary;
+  const ink = dark
+    ? readableText(theme.textColor, surface, '#f8fafc')
+    : readableBrand(theme.textColor, surface, '#0b1d28');
+  const muted = dark
+    ? readableText(theme.textMuted, surface, '#edf6fb')
+    : readableBrand(theme.textMuted, surface, '#3f6073');
+  const success = brand(theme.successColor, '#34d399', '#0d6b51');
+  const warning = brand(theme.warningColor, '#fbbf24', '#92400e');
+  const danger = brand(theme.errorColor, '#f87171', '#b91c1c');
+  const info = brand(theme.infoColor, '#60a5fa', '#0369a1');
 
   root.style.setProperty('--color-primary', theme.primaryColor);
   root.style.setProperty('--color-secondary', theme.secondaryColor);
@@ -181,7 +257,7 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
   root.style.setProperty('--ns-gold-soft', rgba(accent, dark ? 0.16 : 0.12, 'rgba(43, 127, 151, 0.12)'));
   root.style.setProperty('--ns-bg', surface);
   root.style.setProperty('--ns-ink', ink);
-  root.style.setProperty('--ns-ink-2', toHex(mix(parseHex(ink)!, parseHex(surface)!, 0.18)));
+  root.style.setProperty('--ns-ink-2', toHex(mix(parseHex(ink)!, parseHex(surface)!, dark ? 0.12 : 0.18)));
   root.style.setProperty('--ns-muted', muted);
   root.style.setProperty('--ns-success', success);
   root.style.setProperty('--ns-warning', warning);

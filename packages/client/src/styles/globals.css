@@ -1216,22 +1216,24 @@ html[data-theme="dark"] body, html.dark body {
 }
 
 @media print {
+  /* Theme tokens are written as inline styles on <html>, so only !important
+     here can force a dark-mode session to print black-on-white. */
   :root, html[data-theme="dark"], html.dark {
-    --ns-ink: #000000;
-    --ns-ink-2: #222222;
-    --ns-muted: #444444;
-    --ns-gold: #79551f;
-    --ns-teal: #194a5a;
-    --ns-success: #16634b;
-    --ns-warning: #87500c;
-    --ns-danger: #a92e39;
-    --ns-info: #185b8c;
-    --ns-purple: #684391;
-    --ns-bg: #fff;
-    --ns-glass-1: transparent;
-    --ns-glass-2: transparent;
-    --ns-glass-3: transparent;
-    color-scheme: light;
+    --ns-ink: #000000 !important;
+    --ns-ink-2: #222222 !important;
+    --ns-muted: #444444 !important;
+    --ns-gold: #79551f !important;
+    --ns-teal: #194a5a !important;
+    --ns-success: #16634b !important;
+    --ns-warning: #87500c !important;
+    --ns-danger: #a92e39 !important;
+    --ns-info: #185b8c !important;
+    --ns-purple: #684391 !important;
+    --ns-bg: #fff !important;
+    --ns-glass-1: transparent !important;
+    --ns-glass-2: transparent !important;
+    --ns-glass-3: transparent !important;
+    color-scheme: light !important;
   }
   .ns-ambient, .ns-watermark { display: none !important; }
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
