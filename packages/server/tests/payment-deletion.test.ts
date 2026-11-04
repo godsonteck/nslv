@@ -14,8 +14,14 @@ const txMock = {
   payment: {
     findUnique: mocks.txPaymentFindUnique,
     delete: mocks.paymentDelete,
+    update: vi.fn(),
   },
-  folioItem: { findFirst: mocks.txFolioItemFindFirst },
+  folioItem: {
+    findFirst: mocks.txFolioItemFindFirst,
+    deleteMany: vi.fn(),
+    aggregate: vi.fn(),
+  },
+  folio: { update: vi.fn() },
 };
 
 vi.mock('../src/config', () => ({
@@ -138,7 +144,14 @@ describe('PaymentService.deletePayment — single payment', () => {
   });
 });
 
-describe('PaymentService.deletePayment — paired refund delete', () => {
+describe('PaymentService.deletePayment — refund removal', () => {
+  // The query inside the transaction filters the refund being deleted out of
+  // `originalPayment.refunds`, so a surviving original has no remaining refunds.
+  const refundWith = (original: Record<string, unknown> = {}, otherRefunds: unknown[] = []) => ({
+    ...cleanRefundPair,
+    originalPayment: { ...basePayment, refunds: otherRefunds, ...original },
+  });
+
   beforeEach(() => {
     mocks.paymentFindUnique.mockReset();
     mocks.folioItemFindFirst.mockReset();
@@ -147,76 +160,67 @@ describe('PaymentService.deletePayment — paired refund delete', () => {
     mocks.txPaymentFindUnique.mockReset();
     mocks.txFolioItemFindFirst.mockReset();
     mocks.dailyCloseFindUnique.mockReset();
+    (txMock.payment.update as any).mockReset();
+    (txMock.folioItem.deleteMany as any).mockReset();
+    (txMock.folioItem.aggregate as any).mockReset().mockResolvedValue({ _sum: { amount: 0 } });
+    (txMock.folio.update as any).mockReset();
     mocks.transaction.mockImplementation(async (cb: any) => cb(txMock));
+    mocks.folioItemFindFirst.mockResolvedValue(null);
+    mocks.paymentDelete.mockResolvedValue({ id: 'refund-1' });
   });
 
-  it('deletes a refund together with the clean payment it reversed', async () => {
-    mocks.paymentFindUnique.mockResolvedValue(cleanRefundPair);
-    mocks.folioItemFindFirst.mockResolvedValue(null);
-    mocks.txPaymentFindUnique.mockResolvedValue(cleanRefundPair);
-    mocks.txFolioItemFindFirst.mockResolvedValue(null);
-    mocks.paymentDelete.mockResolvedValue({ id: 'x' });
+  it('deletes only the refund and restores the original payment', async () => {
+    mocks.paymentFindUnique.mockResolvedValue(refundWith());
+    mocks.txPaymentFindUnique.mockResolvedValue(refundWith());
 
     const result = await PaymentService.deletePayment('refund-1', 'admin-1');
 
-    expect(result).toMatchObject({ id: 'refund-1', type: 'REFUND', deletedOriginalPaymentId: 'pay-1' });
-    expect(mocks.paymentDelete.mock.calls.map((c: any[]) => c[0].where.id)).toEqual(['refund-1', 'pay-1']);
+    expect(result).toMatchObject({ id: 'refund-1', type: 'REFUND', restoredOriginalPaymentId: 'pay-1' });
+    expect(mocks.paymentDelete.mock.calls.map((c: any[]) => c[0].where.id)).toEqual(['refund-1']);
+    expect(txMock.payment.update).toHaveBeenCalledWith({ where: { id: 'pay-1' }, data: { status: 'COMPLETED' } });
   });
 
-  it('refuses a refund whose original payment is posted to a folio', async () => {
-    mocks.paymentFindUnique.mockResolvedValue({
-      ...cleanRefundPair,
-      originalPayment: { ...basePayment, folioId: 'folio-1', refunds: [{ id: 'refund-1' }] },
-    });
+  it('never deletes the original payment, even when it was posted to a folio', async () => {
+    mocks.paymentFindUnique.mockResolvedValue(refundWith({ folioId: 'folio-1' }));
+    mocks.txPaymentFindUnique.mockResolvedValue(refundWith({ folioId: 'folio-1' }));
 
-    await expect(PaymentService.deletePayment('refund-1', 'admin-1'))
-      .rejects.toMatchObject({ code: 'REFUND_ORIGINAL_POSTED', statusCode: 409 });
-    expect(mocks.transaction).not.toHaveBeenCalled();
+    await PaymentService.deletePayment('refund-1', 'admin-1');
+
+    expect(mocks.paymentDelete).toHaveBeenCalledTimes(1);
+    expect(mocks.paymentDelete).toHaveBeenCalledWith({ where: { id: 'refund-1' } });
+    expect(txMock.folioItem.deleteMany).toHaveBeenCalled();
+    expect(txMock.folio.update).toHaveBeenCalled();
+    expect(txMock.payment.update).toHaveBeenCalled();
   });
 
-  it('refuses a refund whose original payment has other refunds', async () => {
-    mocks.paymentFindUnique.mockResolvedValue({
-      ...cleanRefundPair,
-      originalPayment: { ...basePayment, refunds: [{ id: 'refund-1' }, { id: 'refund-2' }] },
-    });
+  it('restores PARTIALLY_REFUNDED when other refunds remain', async () => {
+    const other = [{ id: 'refund-2', amount: 50 }];
+    mocks.paymentFindUnique.mockResolvedValue(refundWith({}, other));
+    mocks.txPaymentFindUnique.mockResolvedValue(refundWith({}, other));
 
-    await expect(PaymentService.deletePayment('refund-1', 'admin-1'))
-      .rejects.toMatchObject({ code: 'REFUND_ORIGINAL_MULTI_REFUND', statusCode: 409 });
-    expect(mocks.transaction).not.toHaveBeenCalled();
+    await PaymentService.deletePayment('refund-1', 'admin-1');
+
+    expect(txMock.payment.update).toHaveBeenCalledWith({ where: { id: 'pay-1' }, data: { status: 'PARTIALLY_REFUNDED' } });
   });
 
-  it('refuses a refund whose original payment settles a POS order', async () => {
-    mocks.paymentFindUnique.mockResolvedValue({
-      ...cleanRefundPair,
-      originalPayment: {
-        ...basePayment,
-        source: 'RESTAURANT_ORDER',
-        sourceId: 'order-9',
-        refunds: [{ id: 'refund-1' }],
-      },
-    });
+  it('restores REFUNDED when the remaining refunds cover the original', async () => {
+    const other = [{ id: 'refund-2', amount: 250 }];
+    mocks.paymentFindUnique.mockResolvedValue(refundWith({}, other));
+    mocks.txPaymentFindUnique.mockResolvedValue(refundWith({}, other));
 
-    await expect(PaymentService.deletePayment('refund-1', 'admin-1'))
-      .rejects.toMatchObject({ code: 'REFUND_ORIGINAL_POS_LINKED', statusCode: 409 });
-    expect(mocks.transaction).not.toHaveBeenCalled();
+    await PaymentService.deletePayment('refund-1', 'admin-1');
+
+    expect(txMock.payment.update).toHaveBeenCalledWith({ where: { id: 'pay-1' }, data: { status: 'REFUNDED' } });
   });
 
-  it('refuses a refund whose original payment is itself a refund', async () => {
-    mocks.paymentFindUnique.mockResolvedValue({
-      ...cleanRefundPair,
-      originalPayment: { ...basePayment, type: 'REFUND', refunds: [{ id: 'refund-1' }] },
-    });
-
-    await expect(PaymentService.deletePayment('refund-1', 'admin-1'))
-      .rejects.toMatchObject({ code: 'REFUND_ORIGINAL_IS_REFUND', statusCode: 409 });
-    expect(mocks.transaction).not.toHaveBeenCalled();
-  });
-
-  it('refuses a refund whose original payment cannot be resolved', async () => {
+  it('handles a refund whose original cannot be resolved without deleting anything else', async () => {
     mocks.paymentFindUnique.mockResolvedValue({ ...cleanRefundPair, originalPayment: null });
+    mocks.txPaymentFindUnique.mockResolvedValue({ ...cleanRefundPair, originalPayment: null });
 
-    await expect(PaymentService.deletePayment('refund-1', 'admin-1'))
-      .rejects.toMatchObject({ code: 'REFUND_ORIGINAL_MISSING', statusCode: 409 });
-    expect(mocks.transaction).not.toHaveBeenCalled();
+    const result = await PaymentService.deletePayment('refund-1', 'admin-1');
+
+    expect(result).toMatchObject({ id: 'refund-1', restoredOriginalPaymentId: null });
+    expect(mocks.paymentDelete).toHaveBeenCalledTimes(1);
+    expect(txMock.payment.update).not.toHaveBeenCalled();
   });
 });

@@ -848,10 +848,11 @@ export class PaymentService {
   }
 
   /**
-   * Admin-only deletion of a refund payment record regardless of folio posting,
-   * business day status, or POS linkages.
+   * Admin-only deletion of a refund payment record.
    * Cleans up any associated refund folio items, reconciles the folio balance,
-   * restores the original payment's status on the ledger, and permanently removes the refund.
+   * restores the original payment's status on the ledger, and removes the refund.
+   * The original payment is never deleted here: if it was also a mistake the
+   * admin removes it separately once no refund references it.
    */
   private static async deleteRefundPayment(refund: any, deletedBy: string) {
     try {

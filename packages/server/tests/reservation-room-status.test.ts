@@ -41,9 +41,19 @@ describe('reservation room status', () => {
     mocks.notificationCreateMany.mockResolvedValue({ count: 0 });
   });
 
-  it('marks a room reserved as soon as a future reservation is confirmed', async () => {
+  it('leaves the room available for a future reservation but reserves it for today', async () => {
     await ReservationService.createReservation({
       guestId: 'guest-1', roomId: 'room-1', checkInDate: '2030-10-10', checkOutDate: '2030-10-12',
+    });
+
+    // A future booking must not take the room out of today's sellable pool;
+    // availability is computed from overlapping reservations instead.
+    expect(mocks.roomUpdate).not.toHaveBeenCalled();
+
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    await ReservationService.createReservation({
+      guestId: 'guest-1', roomId: 'room-1', checkInDate: today, checkOutDate: tomorrow,
     });
 
     expect(mocks.roomUpdate).toHaveBeenCalledWith({

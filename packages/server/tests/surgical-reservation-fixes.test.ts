@@ -721,7 +721,9 @@ describe('Surgical Reservation Fixes', () => {
 
       expect(res.id).toBe('res-1');
       expect(res.totalAmount).toBe(500);
-      expect(mocks.roomUpdate).toHaveBeenCalledWith({ where: { id: 'room-1' }, data: { status: 'RESERVED' } });
+      // Future booking: the room stays sellable today; availability comes from
+      // overlapping reservations, not from the room's current status.
+      expect(mocks.roomUpdate).not.toHaveBeenCalled();
     });
 
     it('creates the reservation even when the notification insert fails', async () => {

@@ -22,7 +22,7 @@ vi.mock('../src/config', () => ({
     notification: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
     systemSetting: { findUnique: mocks.settingFindUnique },
     checkOut: { findMany: mocks.checkOutFindMany },
-    folioItem: { aggregate: mocks.folioAggregate, create: mocks.folioItemCreate, update: mocks.folioItemUpdate },
+    folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: mocks.folioAggregate, create: mocks.folioItemCreate, update: mocks.folioItemUpdate },
     cashRegister: {
       findUnique: vi.fn().mockResolvedValue({ id: 'register-1', openingCash: 0 }),
       create: vi.fn().mockResolvedValue({ id: 'register-1', openingCash: 0 }),
@@ -43,12 +43,14 @@ describe('stay ledger invariants', () => {
     vi.clearAllMocks();
     const tx = {
       reservation: { findUnique: mocks.reservationFindUnique, update: mocks.reservationUpdate },
-      folioItem: { aggregate: mocks.folioAggregate, create: mocks.folioItemCreate },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: mocks.folioAggregate, create: mocks.folioItemCreate },
       payment: { create: mocks.paymentCreate },
       systemSetting: { findUnique: mocks.settingFindUnique },
       checkOut: { create: mocks.checkOutCreate },
       room: { update: mocks.roomUpdate },
       folio: { update: mocks.folioUpdate },
+      cashRegister: { findUnique: vi.fn().mockResolvedValue({ id: 'register-1' }) },
+      cashRegisterEntry: { findFirst: vi.fn().mockResolvedValue(null), create: vi.fn().mockResolvedValue({ id: 'entry-1' }) },
     };
     mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
     mocks.reservationFindUnique.mockResolvedValue({
@@ -99,11 +101,14 @@ describe('stay ledger invariants', () => {
     expect(mocks.folioItemCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'PAYMENT', amount: expect.anything() }) }));
   });
 
-  it('adds the admin-configured late checkout fee before settlement after noon', async () => {
+  it('adds the admin-configured late checkout fee when staff opt in after noon', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2030-10-12T13:00:00.000Z')); // 1 hour past 12:00 PM deadline
     mockLateFeeSettings();
-    await StayService.checkOutGuest({ reservationId: 'reservation-1', checkedOutBy: 'user-1', paymentMethod: 'CASH' });
+    await StayService.checkOutGuest({
+      reservationId: 'reservation-1', checkedOutBy: 'user-1', paymentMethod: 'CASH',
+      chargeLateCheckoutFee: true,
+    });
     expect(mocks.folioItemCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -115,15 +120,14 @@ describe('stay ledger invariants', () => {
     );
   });
 
-  it('still charges the fee when the waiver flag is omitted by legacy clients', async () => {
+  it('does not charge the fee when the flag is omitted', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2030-10-12T13:00:00.000Z'));
     mockLateFeeSettings();
     await StayService.checkOutGuest({ reservationId: 'reservation-1', checkedOutBy: 'user-1', paymentMethod: 'CASH' });
-    const created = mocks.folioItemCreate.mock.calls[0]?.[0]?.data;
-    expect(created).toMatchObject({ description: expect.stringContaining('Late checkout fee') });
-    expect(created.voidedAt).toBeUndefined();
-    expect(created.voidReason).toBeUndefined();
+    // Opt-in by design: an older client that does not send the flag must not be
+    // charged, and no waiver record is written either.
+    expect(mocks.folioItemCreate).not.toHaveBeenCalled();
   });
 
   it('persists a waived late checkout fee as an audited voided ledger item', async () => {

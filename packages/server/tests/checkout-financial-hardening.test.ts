@@ -60,7 +60,7 @@ describe('Checkout Financial Settlement Hardening', () => {
         update: vi.fn().mockResolvedValue({}),
       },
       systemSetting: { findUnique: vi.fn().mockResolvedValue(null) },
-      folioItem: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 0 } }) },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 0 } }) },
       checkOut: { create: vi.fn().mockResolvedValue({ id: 'co-1', reservationId, finalBalance: 0 }) },
       room: { update: vi.fn().mockResolvedValue({}) },
       folio: { update: vi.fn().mockResolvedValue({}) },
@@ -88,7 +88,7 @@ describe('Checkout Financial Settlement Hardening', () => {
         update: vi.fn().mockResolvedValue({}),
       },
       systemSetting: { findUnique: vi.fn().mockResolvedValue(null) },
-      folioItem: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 450 } }) },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 450 } }) },
       checkOut: { create: vi.fn().mockResolvedValue({ id: 'co-2', reservationId, finalBalance: 0 }) },
       room: { update: vi.fn().mockResolvedValue({}) },
       folio: { update: vi.fn().mockResolvedValue({}) },
@@ -121,7 +121,7 @@ describe('Checkout Financial Settlement Hardening', () => {
         }),
       },
       systemSetting: { findUnique: vi.fn().mockResolvedValue(null) },
-      folioItem: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: -150 } }) },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: vi.fn().mockResolvedValue({ _sum: { amount: -150 } }) },
     };
     mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
 
@@ -142,7 +142,7 @@ describe('Checkout Financial Settlement Hardening', () => {
         }),
       },
       systemSetting: { findUnique: vi.fn().mockResolvedValue(null) },
-      folioItem: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 300 } }) },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 300 } }) },
       checkOut: { create: vi.fn() },
     };
     mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
@@ -191,7 +191,7 @@ describe('Checkout Financial Settlement Hardening', () => {
         update: vi.fn().mockRejectedValue(new Error('Database write failure during reservation update')),
       },
       systemSetting: { findUnique: vi.fn().mockResolvedValue(null) },
-      folioItem: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 200 } }) },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 200 } }) },
       checkOut: { create: vi.fn().mockResolvedValue({ id: 'co-failed' }) },
     };
     mocks.transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
@@ -210,7 +210,7 @@ describe('Checkout Financial Settlement Hardening', () => {
         update: vi.fn().mockResolvedValue({}),
       },
       systemSetting: { findUnique: vi.fn().mockResolvedValue(null) },
-      folioItem: { aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 0 } }) },
+      folioItem: { findMany: vi.fn().mockResolvedValue([]), aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 0 } }) },
       checkOut: { create: vi.fn().mockResolvedValue({ id: 'co-12', reservationId, finalBalance: 0 }) },
       room: { update: vi.fn().mockResolvedValue({}) },
       folio: { update: vi.fn().mockResolvedValue({}) },
