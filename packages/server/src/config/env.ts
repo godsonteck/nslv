@@ -65,6 +65,12 @@ export const config = {
   rateLimitWindowMs: parseInt(requireEnv('RATE_LIMIT_WINDOW_MS', '900000'), 10),
   rateLimitMax: parseInt(requireEnv('RATE_LIMIT_MAX_REQUESTS', '100'), 10),
   loginRateLimitMax: parseInt(requireEnv('LOGIN_RATE_LIMIT_MAX', '5'), 10),
+  // Optional shared counter store (Upstash-compatible Redis REST). Without it
+  // each serverless instance enforces its own copy of the limit.
+  rateLimitRedis: {
+    url: process.env['UPSTASH_REDIS_REST_URL'] ?? process.env['RATE_LIMIT_REDIS_URL'] ?? '',
+    token: process.env['UPSTASH_REDIS_REST_TOKEN'] ?? process.env['RATE_LIMIT_REDIS_TOKEN'] ?? '',
+  },
 
   // CORS
   corsOrigins: requireEnv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3001')

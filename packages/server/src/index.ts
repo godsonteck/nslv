@@ -14,6 +14,7 @@ import fs from 'fs';
 import { config, prisma } from './config';
 import routes from './routes';
 import { errorHandler } from './middleware/error';
+import { SharedRateLimitStore } from './middleware/rate-limit-store';
 
 
 const app = express();
@@ -56,12 +57,17 @@ app.use(
   }),
 );
 
+// Shared counters when Redis REST is configured; otherwise each instance keeps
+// its own map (same behaviour as the default store, with one warning in the log).
+const sharedStore = (prefix: string) => new SharedRateLimitStore(config.rateLimitRedis, prefix);
+
 // Global Rate Limiting
 const globalLimiter = rateLimit({
   windowMs: config.rateLimitWindowMs,
   max: config.rateLimitMax,
   standardHeaders: true,
   legacyHeaders: false,
+  store: sharedStore('nslv:rl:global'),
   skip: (req) => req.originalUrl.endsWith('/health'),
   message: {
     success: false,
@@ -78,6 +84,7 @@ const loginLimiter = rateLimit({
   max: config.loginRateLimitMax,
   standardHeaders: true,
   legacyHeaders: false,
+  store: sharedStore('nslv:rl:login'),
   message: {
     success: false,
     error: { code: 'LOGIN_RATE_LIMIT_EXCEEDED', message: 'Too many sign-in attempts. Please try again later.' },
