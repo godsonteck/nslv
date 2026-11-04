@@ -52,6 +52,9 @@ export const Header: React.FC = () => {
   React.useEffect(() => {
     if (!showNotifications) return;
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handlePointerDown = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (notificationsRef.current && target && !notificationsRef.current.contains(target)) {
@@ -68,6 +71,7 @@ export const Header: React.FC = () => {
     document.addEventListener('mousedown', handlePointerDown);
     document.addEventListener('keydown', handleEscape);
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener('mousedown', handlePointerDown);
       document.removeEventListener('keydown', handleEscape);
     };
@@ -154,11 +158,11 @@ export const Header: React.FC = () => {
             {showNotifications && (
               <div className="fixed inset-0 z-[80]">
                 <div
-                  className="absolute inset-0 cursor-pointer bg-slate-950/70 backdrop-blur-[2px]"
+                  className="absolute inset-0 cursor-pointer bg-slate-950/85 backdrop-blur-[3px]"
                   onClick={() => setShowNotifications(false)}
                 />
                 <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-end pr-4 pt-[78px] sm:pr-6 lg:pr-8">
-                  <div className="pointer-events-auto shadow-[0_30px_80px_-28px_rgba(3,7,18,0.85)]">
+                  <div className="pointer-events-auto rounded-[24px] ring-1 ring-white/10 shadow-[0_30px_90px_-30px_rgba(2,6,23,0.95)]">
                     <NotificationPanel onClose={() => setShowNotifications(false)} />
                   </div>
                 </div>
