@@ -11,7 +11,68 @@ import { SYSTEM_ROLES, type CreateUserInput, type UpdateUserInput } from '@nslv/
 
 const ADMIN_ROLE_NAME = 'Admin';
 
+type RoleWithPermissions = {
+  id: string;
+  name: string;
+  rolePermissions: { permission: { code: string } }[];
+};
+
 export class UserService {
+  /**
+   * The roles and permissions the acting user actually holds.
+   *
+   * Administrators are the only accounts allowed to hand out authority they do
+   * not already have; everyone else may only delegate a subset of their own.
+   */
+  private static async getActorAuthority(actorUserId: string) {
+    const actorRoles = await prisma.userRole.findMany({
+      where: { userId: actorUserId },
+      select: {
+        role: {
+          select: {
+            name: true,
+            rolePermissions: { select: { permission: { select: { code: true } } } },
+          },
+        },
+      },
+    });
+
+    const isAdmin = actorRoles.some((entry) => entry.role.name === ADMIN_ROLE_NAME);
+    const permissions = new Set<string>();
+    for (const entry of actorRoles) {
+      for (const rp of entry.role.rolePermissions) permissions.add(rp.permission.code);
+    }
+
+    return { isAdmin, permissions };
+  }
+
+  /**
+   * Refuse to grant a role that carries more authority than the actor holds.
+   * Without this, any account with users.create/users.edit could assign itself
+   * (or a colleague) the Admin role and take over the property.
+   */
+  private static async assertCanAssignRoles(actorUserId: string, roles: RoleWithPermissions[]) {
+    if (roles.length === 0) return;
+    const authority = await this.getActorAuthority(actorUserId);
+    if (authority.isAdmin) return;
+
+    for (const role of roles) {
+      if (role.name === ADMIN_ROLE_NAME) {
+        throw new AppError('Only an administrator can assign the Admin role.', 403, 'ROLE_ESCALATION');
+      }
+      const missing = role.rolePermissions
+        .map((rp) => rp.permission.code)
+        .filter((code) => !authority.permissions.has(code));
+      if (missing.length > 0) {
+        throw new AppError(
+          `You cannot assign the "${role.name}" role because it grants permissions you do not hold: ${missing.join(', ')}.`,
+          403,
+          'ROLE_ESCALATION',
+        );
+      }
+    }
+  }
+
   /**
    * Create a new user account (Admin only)
    */
@@ -29,12 +90,19 @@ export class UserService {
 
     const assignedRoles = await prisma.role.findMany({
       where: { id: { in: roleIdsToAssign } },
-      select: { id: true, name: true, isSystem: true },
+      select: {
+        id: true,
+        name: true,
+        isSystem: true,
+        rolePermissions: { select: { permission: { select: { code: true } } } },
+      },
     });
 
     if (assignedRoles.length !== roleIdsToAssign.length) {
       throw new AppError('One or more selected roles were not found.', 400, 'INVALID_ROLE');
     }
+
+    await this.assertCanAssignRoles(createdByUserId, assignedRoles);
 
     // Check email uniqueness
     const existingEmail = await prisma.user.findUnique({
@@ -164,11 +232,35 @@ export class UserService {
       }
       const assignedRoles = await prisma.role.findMany({
         where: { id: { in: roleIdsToAssign } },
-        select: { id: true, name: true },
+        select: {
+          id: true,
+          name: true,
+          rolePermissions: { select: { permission: { select: { code: true } } } },
+        },
       });
       if (assignedRoles.length !== roleIdsToAssign.length) {
         throw new AppError('One or more selected roles were not found.', 400, 'INVALID_ROLE');
       }
+
+      const currentRoles = await prisma.userRole.findMany({
+        where: { userId: id },
+        select: { roleId: true, role: { select: { name: true } } },
+      });
+      const currentRoleIds = new Set(currentRoles.map((entry) => entry.roleId));
+      const authority = await this.getActorAuthority(updatedByUserId);
+
+      // A non-admin may not touch an administrator's roles at all (demotion is
+      // just as damaging as escalation), and may only add roles whose
+      // permissions are a subset of their own.
+      const targetIsAdmin = currentRoles.some((entry) => entry.role.name === ADMIN_ROLE_NAME);
+      if (targetIsAdmin && !authority.isAdmin) {
+        throw new AppError('Only an administrator can change an administrator’s roles.', 403, 'ROLE_ESCALATION');
+      }
+
+      await this.assertCanAssignRoles(
+        updatedByUserId,
+        assignedRoles.filter((role) => !currentRoleIds.has(role.id)),
+      );
     }
 
     await prisma.$transaction(async (tx) => {
@@ -375,6 +467,24 @@ export class UserService {
     }
     if (input.name && input.name !== existing.name) {
       throw new AppError('Official system role names cannot be changed.', 400, 'SYSTEM_ROLE_NAME_IMMUTABLE');
+    }
+
+    // Editing a role's permission set is a grant of authority. A non-admin must
+    // not be able to add a permission it does not hold to its own role (or to
+    // any other role), and must not be able to weaken the Admin role.
+    const authority = await this.getActorAuthority(updatedByUserId);
+    if (existing.name === ADMIN_ROLE_NAME && !authority.isAdmin) {
+      throw new AppError('Only an administrator can change the Admin role.', 403, 'ROLE_ESCALATION');
+    }
+    if (input.permissionCodes && !authority.isAdmin) {
+      const missing = input.permissionCodes.filter((code) => !authority.permissions.has(code));
+      if (missing.length > 0) {
+        throw new AppError(
+          `You cannot grant permissions you do not hold: ${missing.join(', ')}.`,
+          403,
+          'PERMISSION_ESCALATION',
+        );
+      }
     }
 
     if (input.name && input.name !== existing.name) {
