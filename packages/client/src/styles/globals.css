@@ -457,50 +457,25 @@ html[data-theme="dark"] body, html.dark body {
      ────────────────────────────────────────── */
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    background-color: var(--ns-glass-2) !important;
-    background-image: var(--ns-glass-sheen) !important;
-    background-size: 100% 100% !important;
-    background-repeat: no-repeat !important;
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
     color: var(--ns-ink);
     border: 1px solid var(--ns-glass-border-outer);
     box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
   }
-
-  .glass, .ns-card { background-color: var(--ns-glass-2) !important; }
   .ns-card { border-radius: 20px; }
 
-  html[data-theme="dark"] .glass, html.dark .glass,
-  html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
-  html[data-theme="dark"] .glass-subtle, html.dark .glass-subtle,
-  html[data-theme="dark"] .ns-card, html.dark .ns-card,
-  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
-  html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
-  html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
-  html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
-    border-color: var(--ns-glass-border-outer) !important;
-    color: #f8fafc !important;
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth) !important;
-  }
-
   .glass-strong {
-    background-color: var(--ns-glass-3) !important;
     box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth-lg);
     -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.04);
     backdrop-filter: blur(12px) saturate(150%) brightness(1.04);
   }
 
   .glass-subtle {
-    background-color: var(--ns-glass-1) !important;
-    background-image: var(--ns-glass-sheen-soft) !important;
-    background-size: 100% 100% !important;
     box-shadow: var(--ns-glass-bevel-soft);
   }
 
   .glass-dark {
-    background-color: rgba(12, 30, 40, 0.72) !important;
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen) !important;
     border-color: rgba(198, 158, 92, 0.40);
     color: #f8fafc;
     box-shadow:
@@ -509,24 +484,16 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   .glass-warm {
-    background-color: var(--ns-glass-2) !important;
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm) !important;
     border-color: rgba(198, 158, 92, 0.34);
     box-shadow: var(--ns-glass-bevel), 0 22px 48px -24px rgba(150, 112, 52, 0.34);
   }
 
   .ns-card-soft {
     border-radius: 16px;
-    background-color: var(--ns-glass-1) !important;
-    background-image: var(--ns-glass-sheen-soft) !important;
-    background-size: 100% 100% !important;
     box-shadow: var(--ns-glass-bevel-soft), 0 10px 24px -18px rgba(10, 60, 75, 0.28);
   }
 
   .ns-glass-bar {
-    background-color: var(--ns-glass-1) !important;
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft) !important;
-    border-color: var(--ns-glass-border-outer) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.70),
       0 14px 34px -26px rgba(10, 60, 75, 0.45);
@@ -535,9 +502,6 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   .ns-glass-bar-soft {
-    background-color: var(--ns-glass-1) !important;
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft) !important;
-    border-color: var(--ns-glass-border-outer) !important;
     box-shadow:
       inset 1px 0 0 rgba(255, 255, 255, 0.55),
       6px 0 26px -22px rgba(10, 60, 75, 0.40);
@@ -546,16 +510,12 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   aside.ns-glass-bar-soft {
-    border-color: var(--ns-glass-border-outer) !important;
     box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
     -webkit-backdrop-filter: var(--ns-glass-filter);
     backdrop-filter: var(--ns-glass-filter);
   }
 
   .ns-glass-band {
-    background-color: var(--ns-glass-1) !important;
-    background-image: var(--ns-glass-sheen-soft) !important;
-    background-size: 100% 100% !important;
     border-color: var(--ns-glass-line-soft);
     box-shadow: var(--ns-glass-bevel-soft);
   }
@@ -578,259 +538,69 @@ html[data-theme="dark"] body, html.dark body {
 
   /* Primary Tactile Button */
   .clay-btn-primary {
-    background-color: rgba(8, 66, 82, 0.92) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(52, 148, 170, 0.32) 0%, rgba(20, 101, 120, 0.22) 48%, rgba(13, 79, 96, 0.34) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(8, 62, 76, 0.75) !important;
     -webkit-backdrop-filter: blur(18px) saturate(185%);
     backdrop-filter: blur(18px) saturate(185%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-      0 8px 18px -10px rgba(11, 76, 93, 0.60) !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38);
-    font-weight: 700 !important;
   }
   .clay-btn-primary:hover:not(:disabled) {
-    background-color: rgba(11, 82, 101, 0.95) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(70, 171, 192, 0.36) 0%, rgba(27, 125, 147, 0.26) 48%, rgba(18, 103, 123, 0.36) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
     transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      0 5px 12px -1px rgba(11, 47, 57, 0.4),
-      0 2px 4px rgba(0, 0, 0, 0.15) !important;
   }
   .clay-btn-primary:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.35),
-      0 1px 1px rgba(0, 0, 0, 0.1) !important;
-  }
-
-  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary {
-    background-color: rgba(6, 54, 70, 0.94) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(14, 150, 214, 0.30) 0%, rgba(3, 105, 161, 0.20) 52%, rgba(7, 89, 133, 0.34) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
-    border: 1px solid rgba(56, 189, 248, 0.55) !important;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.36),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-      0 10px 22px -12px rgba(2, 132, 199, 0.70) !important;
   }
 
   /* Secondary Claymorphic Frosted Glass Button */
   .clay-btn-secondary {
-    background-color: rgba(255, 255, 255, 0.24) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.18) 52%, rgba(207, 232, 236, 0.30) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
-    color: var(--ns-ink) !important;
-    border: 1px solid var(--ns-glass-border-outer) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     backdrop-filter: blur(20px) saturate(180%);
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 7px 16px -10px rgba(12, 24, 32, 0.40) !important;
-    font-weight: 700 !important;
   }
   .clay-btn-secondary:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.38) !important;
-    border-color: var(--ns-teal) !important;
     transform: translateY(-1px);
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 12px 24px -12px rgba(12, 24, 32, 0.46) !important;
   }
   .clay-btn-secondary:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow:
-      inset 0 2px 4px rgba(12, 24, 32, 0.14),
-      0 1px 1px rgba(0, 0, 0, 0.04) !important;
-  }
-
-  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary {
-    background-color: rgba(20, 56, 70, 0.46) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 55%, rgba(56, 189, 248, 0.12) 100%) !important;
-    color: #f8fafc !important;
-    border: 1px solid rgba(214, 244, 250, 0.24) !important;
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 8px 18px -10px rgba(0, 0, 0, 0.70) !important;
   }
 
   /* Accent Luxury Gold Claymorphic Button */
   .clay-btn-accent {
-    background-color: rgba(15, 88, 106, 0.92) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(58, 150, 169, 0.32) 0%, rgba(28, 111, 132, 0.22) 52%, rgba(18, 90, 108, 0.34) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(10, 70, 86, 0.75) !important;
     -webkit-backdrop-filter: blur(18px) saturate(185%);
     backdrop-filter: blur(18px) saturate(185%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.58),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-      0 8px 18px -10px rgba(18, 85, 104, 0.58) !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
-    font-weight: 700 !important;
   }
   .clay-btn-accent:hover:not(:disabled) {
-    background-color: rgba(19, 98, 118, 0.95) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(81, 175, 192, 0.36) 0%, rgba(40, 141, 164, 0.26) 52%, rgba(26, 113, 134, 0.36) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
     transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      0 5px 12px rgba(18, 85, 104, 0.4) !important;
   }
   .clay-btn-accent:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.35),
-      0 1px 1px rgba(0, 0, 0, 0.1) !important;
   }
 
   /* Danger Crimson Claymorphic Button */
   .clay-btn-danger {
-    background-color: rgba(139, 22, 22, 0.92) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(206, 34, 34, 0.32) 0%, rgba(172, 26, 26, 0.22) 52%, rgba(140, 24, 24, 0.34) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(110, 18, 18, 0.75) !important;
     -webkit-backdrop-filter: blur(18px) saturate(180%);
     backdrop-filter: blur(18px) saturate(180%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.50),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.14),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-      0 8px 18px -10px rgba(140, 20, 20, 0.58) !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-    font-weight: 700 !important;
   }
   .clay-btn-danger:hover:not(:disabled) {
-    background: linear-gradient(180deg, rgba(239, 68, 68, 0.42) 0%, rgba(220, 38, 38, 0.32) 52%, rgba(185, 28, 28, 0.38) 100%) !important;
     transform: translateY(-1px);
   }
   .clay-btn-danger:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35) !important;
   }
 
   /* Outline / Ghost Tactile Buttons */
   .clay-btn-outline, .clay-btn-ghost {
-    background-color: var(--ns-glass-1) !important;
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    background-repeat: repeat, no-repeat !important;
-    color: var(--ns-ink) !important;
-    border: 1px solid var(--ns-glass-border-outer) !important;
     -webkit-backdrop-filter: blur(18px) saturate(175%);
     backdrop-filter: blur(18px) saturate(175%);
-    box-shadow: var(--ns-glass-bevel-soft), 0 4px 10px -6px rgba(12, 24, 32, 0.28) !important;
-    font-weight: 700 !important;
   }
   .clay-btn-outline:hover:not(:disabled), .clay-btn-ghost:hover:not(:disabled) {
-    background-color: var(--ns-glass-hover) !important;
-    border-color: var(--ns-gold) !important;
     transform: translateY(-1px);
-    box-shadow: var(--ns-glass-bevel), 0 8px 18px -10px rgba(12, 24, 32, 0.34) !important;
-  }
-  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
-  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
-    background-color: rgba(18, 52, 66, 0.38) !important;
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft) !important;
-    color: #f8fafc !important;
-    border: 1px solid rgba(214, 244, 250, 0.22) !important;
-    box-shadow: var(--ns-glass-bevel-soft), 0 6px 14px -10px rgba(0, 0, 0, 0.60) !important;
   }
 
   /* Frosted Input Wells — glass recessed into the pane */
   .glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background-color: rgba(255, 255, 255, 0.30) !important;
-    background-image:
-      var(--ns-glass-sheen-soft),
-      linear-gradient(180deg, rgba(15, 71, 86, 0.06), transparent 62%) !important;
-    background-size: 100% 100%, 100% 100% !important;
-    background-repeat: no-repeat !important;
-    border: 1px solid var(--ns-glass-border-outer) !important;
-    box-shadow:
-      inset 0 1px 2px rgba(12, 62, 78, 0.14),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.55),
-      0 1px 0 rgba(255, 255, 255, 0.45) !important;
-    color: var(--ns-ink) !important;
-    font-weight: 600 !important;
     -webkit-backdrop-filter: blur(16px) saturate(170%);
     backdrop-filter: blur(16px) saturate(170%);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  }
-
-  html[data-theme="dark"] .glass-input, html.dark .glass-input,
-  html[data-theme="dark"] .ns-input, html.dark .ns-input,
-  html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-  html[data-theme="dark"] select,
-  html[data-theme="dark"] textarea {
-    background-color: rgba(8, 28, 38, 0.44) !important;
-    background-image: var(--ns-glass-sheen-soft) !important;
-    border: 1px solid rgba(214, 244, 250, 0.20) !important;
-    box-shadow:
-      inset 0 1px 3px rgba(0, 0, 0, 0.48),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.10),
-      0 1px 0 rgba(255, 255, 255, 0.05) !important;
-    color: #f8fafc !important;
-  }
-
-  .glass-input::placeholder, .ns-input::placeholder,
-  input::placeholder, textarea::placeholder {
-    color: color-mix(in srgb, var(--ns-ink) 72%, var(--ns-muted) 28%) !important;
-    opacity: 1 !important;
-    font-weight: 600 !important;
-  }
-
-  .glass-input:focus, .ns-input:focus,
-  input:focus, select:focus, textarea:focus {
-    outline: none !important;
-    border-color: var(--ns-teal) !important;
-    background-color: rgba(255, 255, 255, 0.46) !important;
-    box-shadow:
-      inset 0 1px 2px rgba(12, 62, 78, 0.10),
-      0 0 0 3px rgba(12, 89, 107, 0.26),
-      0 6px 18px -10px rgba(10, 60, 75, 0.45) !important;
-  }
-  html[data-theme="dark"] .glass-input:focus, html.dark .glass-input:focus,
-  html[data-theme="dark"] .ns-input:focus, html.dark .ns-input:focus,
-  html[data-theme="dark"] input:focus, html.dark select:focus, html.dark textarea:focus {
-    border-color: var(--ns-teal) !important;
-    background-color: rgba(10, 40, 54, 0.62) !important;
-    box-shadow:
-      inset 0 1px 3px rgba(0, 0, 0, 0.4),
-      0 0 0 3px rgba(56, 189, 248, 0.34),
-      0 8px 22px -12px rgba(0, 0, 0, 0.7) !important;
   }
 
   /* Tactile Raised Enamel Badges & Status Chips */
@@ -897,45 +667,6 @@ html[data-theme="dark"] body, html.dark body {
   .ns-glass-hover {
     transition: background-color .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
   }
-  .ns-glass-hover:hover {
-    background-color: var(--ns-glass-hover) !important;
-    border-color: var(--ns-glass-line) !important;
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 18px 38px -22px rgba(10, 60, 75, 0.44) !important;
-  }
-  html[data-theme="dark"] .ns-glass-hover:hover, html.dark .ns-glass-hover:hover {
-    background-color: var(--ns-glass-hover) !important;
-    border-color: rgba(214, 244, 250, 0.30) !important;
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 20px 42px -24px rgba(0, 0, 0, 0.70) !important;
-  }
-
-  .ns-glass-selected {
-    background-color: var(--ns-glass-3) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(35, 142, 168, 0.24) 0%, rgba(255, 255, 255, 0.14) 46%, rgba(35, 142, 168, 0.16) 100%) !important;
-    background-size: 180px 180px, 100% 100% !important;
-    border-color: color-mix(in srgb, var(--ns-teal) 62%, white) !important;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.90),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.34),
-      inset 0 -1px 0 rgba(10, 76, 93, 0.14),
-      0 10px 24px -16px rgba(10, 76, 93, 0.55) !important;
-  }
-  html[data-theme="dark"] .ns-glass-selected, html.dark .ns-glass-selected {
-    background-color: var(--ns-glass-3) !important;
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(56, 189, 248, 0.22) 0%, rgba(255, 255, 255, 0.05) 48%, rgba(56, 189, 248, 0.14) 100%) !important;
-    border-color: rgba(125, 211, 252, 0.62) !important;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.24),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.42),
-      0 12px 28px -18px rgba(0, 0, 0, 0.80) !important;
-  }
 
   /* Tactile Tables */
   .ns-table thead th {
@@ -998,63 +729,25 @@ html[data-theme="dark"] body, html.dark body {
   .clay-btn, .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
   .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
     border-radius: 14px;
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 9px 20px -13px rgba(7, 61, 77, 0.60) !important;
   }
   .clay-btn:hover:not(:disabled), .clay-btn-primary:hover:not(:disabled),
   .clay-btn-secondary:hover:not(:disabled), .clay-btn-accent:hover:not(:disabled),
   .clay-btn-danger:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled),
   .clay-btn-ghost:hover:not(:disabled) {
     transform: translateY(-1px) scale(1.015);
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 14px 28px -16px rgba(7, 61, 77, 0.65) !important;
-  }
-  html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
-  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
-  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
-  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
-  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger,
-  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
-  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 10px 24px -14px rgba(0, 0, 0, 0.80) !important;
-  }
-  html[data-theme="dark"] .clay-btn:hover:not(:disabled), html.dark .clay-btn:hover:not(:disabled),
-  html[data-theme="dark"] .clay-btn-primary:hover:not(:disabled), html.dark .clay-btn-primary:hover:not(:disabled),
-  html[data-theme="dark"] .clay-btn-secondary:hover:not(:disabled), html.dark .clay-btn-secondary:hover:not(:disabled),
-  html[data-theme="dark"] .clay-btn-accent:hover:not(:disabled), html.dark .clay-btn-accent:hover:not(:disabled),
-  html[data-theme="dark"] .clay-btn-danger:hover:not(:disabled), html.dark .clay-btn-danger:hover:not(:disabled),
-  html[data-theme="dark"] .clay-btn-outline:hover:not(:disabled), html.dark .clay-btn-outline:hover:not(:disabled),
-  html[data-theme="dark"] .clay-btn-ghost:hover:not(:disabled), html.dark .clay-btn-ghost:hover:not(:disabled) {
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 16px 32px -18px rgba(0, 0, 0, 0.90) !important;
   }
   .clay-btn:active:not(:disabled), .clay-btn-primary:active:not(:disabled),
   .clay-btn-secondary:active:not(:disabled), .clay-btn-accent:active:not(:disabled),
   .clay-btn-danger:active:not(:disabled), .clay-btn-outline:active:not(:disabled),
   .clay-btn-ghost:active:not(:disabled) {
     transform: translateY(1px) scale(0.985);
-    box-shadow:
-      inset 3px 3px 8px rgba(7, 61, 77, 0.16),
-      inset -2px -2px 6px rgba(255, 255, 255, 0.46) !important;
   }
   .glass-input, .ns-input,
   input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
     border-radius: 14px;
-    box-shadow:
-      inset 3px 3px 8px rgba(7, 61, 77, 0.13),
-      inset -2px -2px 6px rgba(255, 255, 255, 0.42),
-      1px 1px 3px rgba(255, 255, 255, 0.40) !important;
   }
   .clay-badge {
     border-radius: 999px;
-    box-shadow:
-      2px 3px 7px -4px rgba(7, 61, 77, 0.42),
-      inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
   }
   html[data-theme="dark"] .clay-card, html.dark .clay-card {
     box-shadow:
@@ -1062,18 +755,6 @@ html[data-theme="dark"] body, html.dark body {
       -7px -7px 18px -16px rgba(161, 237, 248, 0.22),
       inset 0 1px 0 rgba(220, 249, 253, 0.28),
       inset 0 -1px 1px rgba(0, 0, 0, 0.28);
-  }
-  html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
-  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
-  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
-  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
-  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger,
-  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
-  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
-    box-shadow:
-      5px 6px 13px -7px rgba(0, 0, 0, 0.74),
-      -3px -3px 9px -7px rgba(161, 237, 248, 0.24),
-      inset 0 1px 0 rgba(220, 249, 253, 0.25) !important;
   }
 
   /* ──────────────────────────────────────────
@@ -1246,3 +927,435 @@ html[data-theme="dark"] body, html.dark body {
     backdrop-filter: none !important;
   }
 }
+
+/* Cascade overrides (formerly !important inside @layer components).
+   Tailwind utilities live in a cascade layer, while these rules are
+   unlayered and last in the file, so they keep winning without !important.
+   Keep this block at the end; moving it into a layer changes the design. */
+
+.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
+    background-color: var(--ns-glass-2);
+    background-image: var(--ns-glass-sheen);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+.glass, .ns-card { background-color: var(--ns-glass-2); }
+
+html[data-theme="dark"] .glass, html.dark .glass,
+  html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
+  html[data-theme="dark"] .glass-subtle, html.dark .glass-subtle,
+  html[data-theme="dark"] .ns-card, html.dark .ns-card,
+  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
+  html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
+  html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
+  html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
+    border-color: var(--ns-glass-border-outer);
+    color: #f8fafc;
+    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
+  }
+
+.glass-strong {
+    background-color: var(--ns-glass-3);
+  }
+
+.glass-subtle {
+    background-color: var(--ns-glass-1);
+    background-image: var(--ns-glass-sheen-soft);
+    background-size: 100% 100%;
+  }
+
+.glass-dark {
+    background-color: rgba(12, 30, 40, 0.72);
+    background-image: var(--ns-glass-frost), var(--ns-glass-sheen);
+  }
+
+.glass-warm {
+    background-color: var(--ns-glass-2);
+    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm);
+  }
+
+.ns-card-soft {
+    background-color: var(--ns-glass-1);
+    background-image: var(--ns-glass-sheen-soft);
+    background-size: 100% 100%;
+  }
+
+.ns-glass-bar {
+    background-color: var(--ns-glass-1);
+    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
+    border-color: var(--ns-glass-border-outer);
+  }
+
+.ns-glass-bar-soft {
+    background-color: var(--ns-glass-1);
+    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
+    border-color: var(--ns-glass-border-outer);
+  }
+
+aside.ns-glass-bar-soft {
+    border-color: var(--ns-glass-border-outer);
+  }
+
+.ns-glass-band {
+    background-color: var(--ns-glass-1);
+    background-image: var(--ns-glass-sheen-soft);
+    background-size: 100% 100%;
+  }
+
+.clay-btn-primary {
+    background-color: rgba(8, 66, 82, 0.92);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(180deg, rgba(52, 148, 170, 0.32) 0%, rgba(20, 101, 120, 0.22) 48%, rgba(13, 79, 96, 0.34) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    color: #ffffff;
+    border: 1px solid rgba(8, 62, 76, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+      0 8px 18px -10px rgba(11, 76, 93, 0.60);
+    font-weight: 700;
+  }
+
+.clay-btn-primary:hover:not(:disabled) {
+    background-color: rgba(11, 82, 101, 0.95);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(180deg, rgba(70, 171, 192, 0.36) 0%, rgba(27, 125, 147, 0.26) 48%, rgba(18, 103, 123, 0.36) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 5px 12px -1px rgba(11, 47, 57, 0.4),
+      0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+.clay-btn-primary:active:not(:disabled) {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.35),
+      0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+
+html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary {
+    background-color: rgba(6, 54, 70, 0.94);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(180deg, rgba(14, 150, 214, 0.30) 0%, rgba(3, 105, 161, 0.20) 52%, rgba(7, 89, 133, 0.34) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    border: 1px solid rgba(56, 189, 248, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.36),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      0 10px 22px -12px rgba(2, 132, 199, 0.70);
+  }
+
+.clay-btn-secondary {
+    background-color: rgba(255, 255, 255, 0.24);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(150deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.18) 52%, rgba(207, 232, 236, 0.30) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    color: var(--ns-ink);
+    border: 1px solid var(--ns-glass-border-outer);
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 7px 16px -10px rgba(12, 24, 32, 0.40);
+    font-weight: 700;
+  }
+
+.clay-btn-secondary:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.38);
+    border-color: var(--ns-teal);
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 12px 24px -12px rgba(12, 24, 32, 0.46);
+  }
+
+.clay-btn-secondary:active:not(:disabled) {
+    box-shadow:
+      inset 0 2px 4px rgba(12, 24, 32, 0.14),
+      0 1px 1px rgba(0, 0, 0, 0.04);
+  }
+
+html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary {
+    background-color: rgba(20, 56, 70, 0.46);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(150deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 55%, rgba(56, 189, 248, 0.12) 100%);
+    color: #f8fafc;
+    border: 1px solid rgba(214, 244, 250, 0.24);
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 8px 18px -10px rgba(0, 0, 0, 0.70);
+  }
+
+.clay-btn-accent {
+    background-color: rgba(15, 88, 106, 0.92);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(180deg, rgba(58, 150, 169, 0.32) 0%, rgba(28, 111, 132, 0.22) 52%, rgba(18, 90, 108, 0.34) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    color: #ffffff;
+    border: 1px solid rgba(10, 70, 86, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+      0 8px 18px -10px rgba(18, 85, 104, 0.58);
+    font-weight: 700;
+  }
+
+.clay-btn-accent:hover:not(:disabled) {
+    background-color: rgba(19, 98, 118, 0.95);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(180deg, rgba(81, 175, 192, 0.36) 0%, rgba(40, 141, 164, 0.26) 52%, rgba(26, 113, 134, 0.36) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
+      0 5px 12px rgba(18, 85, 104, 0.4);
+  }
+
+.clay-btn-accent:active:not(:disabled) {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.35),
+      0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+
+.clay-btn-danger {
+    background-color: rgba(139, 22, 22, 0.92);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(180deg, rgba(206, 34, 34, 0.32) 0%, rgba(172, 26, 26, 0.22) 52%, rgba(140, 24, 24, 0.34) 100%);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    color: #ffffff;
+    border: 1px solid rgba(110, 18, 18, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.50),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+      0 8px 18px -10px rgba(140, 20, 20, 0.58);
+    font-weight: 700;
+  }
+
+.clay-btn-danger:hover:not(:disabled) {
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.42) 0%, rgba(220, 38, 38, 0.32) 52%, rgba(185, 28, 28, 0.38) 100%);
+  }
+
+.clay-btn-danger:active:not(:disabled) {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+
+.clay-btn-outline, .clay-btn-ghost {
+    background-color: var(--ns-glass-1);
+    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
+    background-size: 180px 180px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    color: var(--ns-ink);
+    border: 1px solid var(--ns-glass-border-outer);
+    box-shadow: var(--ns-glass-bevel-soft), 0 4px 10px -6px rgba(12, 24, 32, 0.28);
+    font-weight: 700;
+  }
+
+.clay-btn-outline:hover:not(:disabled), .clay-btn-ghost:hover:not(:disabled) {
+    background-color: var(--ns-glass-hover);
+    border-color: var(--ns-gold);
+    box-shadow: var(--ns-glass-bevel), 0 8px 18px -10px rgba(12, 24, 32, 0.34);
+  }
+
+html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
+  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
+    background-color: rgba(18, 52, 66, 0.38);
+    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
+    color: #f8fafc;
+    border: 1px solid rgba(214, 244, 250, 0.22);
+    box-shadow: var(--ns-glass-bevel-soft), 0 6px 14px -10px rgba(0, 0, 0, 0.60);
+  }
+
+.glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
+    background-color: rgba(255, 255, 255, 0.30);
+    background-image:
+      var(--ns-glass-sheen-soft),
+      linear-gradient(180deg, rgba(15, 71, 86, 0.06), transparent 62%);
+    background-size: 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+    border: 1px solid var(--ns-glass-border-outer);
+    box-shadow:
+      inset 0 1px 2px rgba(12, 62, 78, 0.14),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.55),
+      0 1px 0 rgba(255, 255, 255, 0.45);
+    color: var(--ns-ink);
+    font-weight: 600;
+  }
+
+html[data-theme="dark"] .glass-input, html.dark .glass-input,
+  html[data-theme="dark"] .ns-input, html.dark .ns-input,
+  html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+  html[data-theme="dark"] select,
+  html[data-theme="dark"] textarea {
+    background-color: rgba(8, 28, 38, 0.44);
+    background-image: var(--ns-glass-sheen-soft);
+    border: 1px solid rgba(214, 244, 250, 0.20);
+    box-shadow:
+      inset 0 1px 3px rgba(0, 0, 0, 0.48),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+      0 1px 0 rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+  }
+
+.glass-input::placeholder, .ns-input::placeholder,
+  input::placeholder, textarea::placeholder {
+    color: color-mix(in srgb, var(--ns-ink) 72%, var(--ns-muted) 28%);
+    opacity: 1;
+    font-weight: 600;
+  }
+
+.glass-input:focus, .ns-input:focus,
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--ns-teal);
+    background-color: rgba(255, 255, 255, 0.46);
+    box-shadow:
+      inset 0 1px 2px rgba(12, 62, 78, 0.10),
+      0 0 0 3px rgba(12, 89, 107, 0.26),
+      0 6px 18px -10px rgba(10, 60, 75, 0.45);
+  }
+
+html[data-theme="dark"] .glass-input:focus, html.dark .glass-input:focus,
+  html[data-theme="dark"] .ns-input:focus, html.dark .ns-input:focus,
+  html[data-theme="dark"] input:focus, html.dark select:focus, html.dark textarea:focus {
+    border-color: var(--ns-teal);
+    background-color: rgba(10, 40, 54, 0.62);
+    box-shadow:
+      inset 0 1px 3px rgba(0, 0, 0, 0.4),
+      0 0 0 3px rgba(56, 189, 248, 0.34),
+      0 8px 22px -12px rgba(0, 0, 0, 0.7);
+  }
+
+.ns-glass-hover:hover {
+    background-color: var(--ns-glass-hover);
+    border-color: var(--ns-glass-line);
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 18px 38px -22px rgba(10, 60, 75, 0.44);
+  }
+
+html[data-theme="dark"] .ns-glass-hover:hover, html.dark .ns-glass-hover:hover {
+    background-color: var(--ns-glass-hover);
+    border-color: rgba(214, 244, 250, 0.30);
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 20px 42px -24px rgba(0, 0, 0, 0.70);
+  }
+
+.ns-glass-selected {
+    background-color: var(--ns-glass-3);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(150deg, rgba(35, 142, 168, 0.24) 0%, rgba(255, 255, 255, 0.14) 46%, rgba(35, 142, 168, 0.16) 100%);
+    background-size: 180px 180px, 100% 100%;
+    border-color: color-mix(in srgb, var(--ns-teal) 62%, white);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+      inset 0 -1px 0 rgba(10, 76, 93, 0.14),
+      0 10px 24px -16px rgba(10, 76, 93, 0.55);
+  }
+
+html[data-theme="dark"] .ns-glass-selected, html.dark .ns-glass-selected {
+    background-color: var(--ns-glass-3);
+    background-image:
+      var(--ns-glass-frost),
+      linear-gradient(150deg, rgba(56, 189, 248, 0.22) 0%, rgba(255, 255, 255, 0.05) 48%, rgba(56, 189, 248, 0.14) 100%);
+    border-color: rgba(125, 211, 252, 0.62);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.42),
+      0 12px 28px -18px rgba(0, 0, 0, 0.80);
+  }
+
+.clay-btn, .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
+  .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 9px 20px -13px rgba(7, 61, 77, 0.60);
+  }
+
+.clay-btn:hover:not(:disabled), .clay-btn-primary:hover:not(:disabled),
+  .clay-btn-secondary:hover:not(:disabled), .clay-btn-accent:hover:not(:disabled),
+  .clay-btn-danger:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled),
+  .clay-btn-ghost:hover:not(:disabled) {
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 14px 28px -16px rgba(7, 61, 77, 0.65);
+  }
+
+html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
+  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger,
+  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
+  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 10px 24px -14px rgba(0, 0, 0, 0.80);
+  }
+
+html[data-theme="dark"] .clay-btn:hover:not(:disabled), html.dark .clay-btn:hover:not(:disabled),
+  html[data-theme="dark"] .clay-btn-primary:hover:not(:disabled), html.dark .clay-btn-primary:hover:not(:disabled),
+  html[data-theme="dark"] .clay-btn-secondary:hover:not(:disabled), html.dark .clay-btn-secondary:hover:not(:disabled),
+  html[data-theme="dark"] .clay-btn-accent:hover:not(:disabled), html.dark .clay-btn-accent:hover:not(:disabled),
+  html[data-theme="dark"] .clay-btn-danger:hover:not(:disabled), html.dark .clay-btn-danger:hover:not(:disabled),
+  html[data-theme="dark"] .clay-btn-outline:hover:not(:disabled), html.dark .clay-btn-outline:hover:not(:disabled),
+  html[data-theme="dark"] .clay-btn-ghost:hover:not(:disabled), html.dark .clay-btn-ghost:hover:not(:disabled) {
+    box-shadow:
+      var(--ns-glass-bevel),
+      0 16px 32px -18px rgba(0, 0, 0, 0.90);
+  }
+
+.clay-btn:active:not(:disabled), .clay-btn-primary:active:not(:disabled),
+  .clay-btn-secondary:active:not(:disabled), .clay-btn-accent:active:not(:disabled),
+  .clay-btn-danger:active:not(:disabled), .clay-btn-outline:active:not(:disabled),
+  .clay-btn-ghost:active:not(:disabled) {
+    box-shadow:
+      inset 3px 3px 8px rgba(7, 61, 77, 0.16),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.46);
+  }
+
+.glass-input, .ns-input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
+    box-shadow:
+      inset 3px 3px 8px rgba(7, 61, 77, 0.13),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.42),
+      1px 1px 3px rgba(255, 255, 255, 0.40);
+  }
+
+.clay-badge {
+    box-shadow:
+      2px 3px 7px -4px rgba(7, 61, 77, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  }
+
+html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary,
+  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger,
+  html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
+  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
+    box-shadow:
+      5px 6px 13px -7px rgba(0, 0, 0, 0.74),
+      -3px -3px 9px -7px rgba(161, 237, 248, 0.24),
+      inset 0 1px 0 rgba(220, 249, 253, 0.25);
+  }
+
