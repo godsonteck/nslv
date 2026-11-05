@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { villaAssets } from '../assets';
 import { receiptCompanyBlock } from '../lib/company';
+import { escapeHtml, openPrintWindow } from '../lib/html';
 import { Button, LoadingState, statusBadge } from '../components/ui';
 import { KpiRibbon } from '../components/common/WorkspaceUI';
 
@@ -52,7 +53,7 @@ const empty = {
 };
 
 const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
-  const win = window.open('', '_blank', 'width=380,height=560');
+  const win = openPrintWindow('width=380,height=560');
   if (!win) return;
   const title = kind === 'restaurant' ? 'RESTAURANT RECEIPT' : kind === 'bar' ? 'BAR RECEIPT' : 'POOL RECEIPT';
   const paymentLabel =
@@ -62,15 +63,15 @@ const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
   const no = order.orderNo || order.transactionNo || '—';
   const lines =
     kind === 'pool'
-      ? `<tr><td>${order.service?.name || 'Pool service'}</td><td class="r">${order.quantity || 1} × ${formatCurrency(Number(order.unitPrice || 0))}</td><td class="r">${formatCurrency(Number(order.totalAmount || 0))}</td></tr>`
+      ? `<tr><td>${escapeHtml(order.service?.name || 'Pool service')}</td><td class="r">${order.quantity || 1} × ${formatCurrency(Number(order.unitPrice || 0))}</td><td class="r">${formatCurrency(Number(order.totalAmount || 0))}</td></tr>`
       : (order.orderItems || [])
           .map(
             (li: any) =>
-              `<tr><td>${li.item?.name || 'Item'}</td><td class="r">${li.quantity} × ${formatCurrency(Number(li.unitPrice || 0))}</td><td class="r">${formatCurrency(Number(li.totalPrice || 0))}</td></tr>`,
+              `<tr><td>${escapeHtml(li.item?.name || 'Item')}</td><td class="r">${li.quantity} × ${formatCurrency(Number(li.unitPrice || 0))}</td><td class="r">${formatCurrency(Number(li.totalPrice || 0))}</td></tr>`,
           )
           .join('');
   const logoUrl = new URL(villaAssets.logo, window.location.href).href;
-  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>
+  win.document.write(`<!DOCTYPE html><html><head><title>${escapeHtml(title)}</title><style>
     body{font-family:'Courier New',monospace;font-size:12px;color:#111;padding:24px;width:320px;margin:0 auto}
     h1{font-size:15px;text-align:center;margin:0 0 4px} .company{text-align:center;font-size:10px;line-height:1.45;color:#444;margin-bottom:8px}.sub{text-align:center;font-size:10px;color:#555;margin-bottom:16px}
     .logo{display:block;margin:0 auto 10px;width:56px;height:56px;border-radius:12px;object-fit:cover}
@@ -80,11 +81,11 @@ const printReceipt = (order: any, kind: 'restaurant' | 'bar' | 'pool') => {
     .total{border-top:1px solid #111;padding-top:8px;font-size:13px;font-weight:bold;display:flex;justify-content:space-between}
     .foot{text-align:center;font-size:10px;color:#555;margin-top:18px;border-top:1px dashed #999;padding-top:8px}
     @media print{.noprint{display:none}}</style></head><body>
-    <img src="${logoUrl}" alt="NS Luxury Villa" class="logo"/>
-    ${receiptCompanyBlock()}<div class="sub">${title} · OFFICIAL RECEIPT</div>
-    <div class="row"><span>Order No</span><span>${no}</span></div>
-    <div class="row"><span>Date</span><span>${new Date(order.createdAt).toLocaleString()}</span></div>
-    <div class="row"><span>Payment</span><span>${paymentLabel}</span></div>
+    <img src="${escapeHtml(logoUrl)}" alt="NS Luxury Villa" class="logo"/>
+    ${receiptCompanyBlock()}<div class="sub">${escapeHtml(title)} · OFFICIAL RECEIPT</div>
+    <div class="row"><span>Order No</span><span>${escapeHtml(no)}</span></div>
+    <div class="row"><span>Date</span><span>${escapeHtml(new Date(order.createdAt).toLocaleString())}</span></div>
+    <div class="row"><span>Payment</span><span>${escapeHtml(paymentLabel)}</span></div>
     <table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Total</th></tr></thead><tbody>${lines}</tbody></table>
     <div class="total"><span>Amount paid</span><span>${formatCurrency(Number(order.totalAmount || 0))}</span></div>
     <div class="foot">Currency: GHS · This is a computer-generated receipt.<br/>Thank you for visiting NS Luxury Villa.</div>

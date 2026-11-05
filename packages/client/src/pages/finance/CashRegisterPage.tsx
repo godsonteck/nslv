@@ -33,6 +33,7 @@ import {
 import { useAuthStore } from '../../stores/authStore';
 import { cashRegisterApi, CashRegisterSummary, CashEntryRecord } from '../../services/apiService';
 import { printCashHandoverSlip, CashHandoverSlipData } from '../../lib/company';
+import { escapeHtml, openPrintWindow } from '../../lib/html';
 
 const CASH_CATEGORIES = [
   { value: 'FUEL', label: 'Generator & Vehicle Fuel' },
@@ -307,7 +308,7 @@ export const CashRegisterPage: React.FC = () => {
       <html>
       <head>
         <meta charset="utf-8"/>
-        <title>Receipt - ${row.receiptRef || row.id.slice(-6)}</title>
+        <title>Receipt - ${escapeHtml(row.receiptRef || row.id.slice(-6))}</title>
         <style>
           body { font-family: monospace; padding: 20px; max-width: 300px; margin: 0 auto; color: #111; }
           .header { text-align: center; border-bottom: 1px dashed #666; padding-bottom: 10px; margin-bottom: 12px; }
@@ -325,18 +326,18 @@ export const CashRegisterPage: React.FC = () => {
           <div class="sub">Front Desk Cash Voucher</div>
           <div class="sub">Ho, Volta Region, Ghana</div>
         </div>
-        <div class="row"><span>Date:</span><span>${new Date(row.recordedAt).toLocaleString('en-GH')}</span></div>
-        <div class="row"><span>Type:</span><span class="bold">${row.type}</span></div>
-        <div class="row"><span>Category:</span><span>${row.category || 'GENERAL'}</span></div>
-        <div class="row"><span>Ref:</span><span>${row.receiptRef || '—'}</span></div>
-        <div class="row"><span>Recipient:</span><span>${row.recipient || '—'}</span></div>
-        <div style="margin-top:8px;font-size:11px;"><strong>Description:</strong> ${row.description}</div>
+        <div class="row"><span>Date:</span><span>${escapeHtml(new Date(row.recordedAt).toLocaleString('en-GH'))}</span></div>
+        <div class="row"><span>Type:</span><span class="bold">${escapeHtml(row.type)}</span></div>
+        <div class="row"><span>Category:</span><span>${escapeHtml(row.category || 'GENERAL')}</span></div>
+        <div class="row"><span>Ref:</span><span>${escapeHtml(row.receiptRef || '—')}</span></div>
+        <div class="row"><span>Recipient:</span><span>${escapeHtml(row.recipient || '—')}</span></div>
+        <div style="margin-top:8px;font-size:11px;"><strong>Description:</strong> ${escapeHtml(row.description)}</div>
         <div class="total row">
           <span>Amount:</span>
           <span>${row.type === 'OUTFLOW' ? '−' : '+'}GH₵ ${Number(row.amount).toFixed(2)}</span>
         </div>
         <div style="margin-top:20px;border-top:1px dashed #999;padding-top:4px;font-size:10px;">
-          <div>Recorded By: ${row.recordedBy || 'Staff'}</div>
+          <div>Recorded By: ${escapeHtml(row.recordedBy || 'Staff')}</div>
           <div style="margin-top:20px;border-bottom:1px solid #333;"></div>
           <div style="text-align:center;font-size:9px;">Authorized Signature</div>
         </div>
@@ -344,7 +345,7 @@ export const CashRegisterPage: React.FC = () => {
       </body>
       </html>
     `;
-    const win = window.open('', '_blank', 'width=360,height=560');
+    const win = openPrintWindow('width=360,height=560');
     if (win) {
       win.document.write(slipHtml);
       win.document.close();

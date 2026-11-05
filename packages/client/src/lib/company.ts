@@ -1,5 +1,6 @@
 import { formatCurrency } from '@nslv/shared';
 import { villaAssets } from '../assets';
+import { escapeHtml, openPrintWindow } from './html';
 
 // Authoritative guest-facing property details. Keep these aligned with VILLA_* deployment settings.
 export const company = {
@@ -103,7 +104,7 @@ export function amountToWords(num: number): string {
 // Prints an official luxury hospitality transaction receipt
 export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContext) => {
   if (typeof window === 'undefined') return;
-  const win = window.open('', '_blank', 'width=460,height=780');
+  const win = openPrintWindow('width=460,height=780');
   if (!win) return;
 
   const type = context?.type || payment.type;
@@ -168,8 +169,7 @@ export const printPaymentReceipt = (payment: any, context?: PaymentReceiptContex
 
   const receiptNo = `RCP-${payment.id?.slice(-8).toUpperCase() ?? '00000000'}`;
 
-  const esc = (v: any) =>
-    String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const esc = escapeHtml;
 
   const logoUrl = new URL(villaAssets.logo, window.location.href).href;
 
@@ -484,11 +484,10 @@ export interface CashHandoverSlipData {
 // Prints an authoritative Close-of-Day Cash Handover Voucher
 export const printCashHandoverSlip = (data: CashHandoverSlipData) => {
   if (typeof window === 'undefined') return;
-  const win = window.open('', '_blank', 'width=540,height=860');
+  const win = openPrintWindow('width=540,height=860');
   if (!win) return;
 
-  const esc = (v: any) =>
-    String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const esc = escapeHtml;
 
   const logoUrl = new URL(villaAssets.logo, window.location.href).href;
   const amountWords = amountToWords(data.handoverAmount);

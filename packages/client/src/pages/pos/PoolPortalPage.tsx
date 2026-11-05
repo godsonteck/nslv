@@ -32,6 +32,7 @@ import { clearGetCache } from '../../services/api';
 import { Button, FormField, TextInput, SelectInput, showToast, LoadingState, Modal } from '../../components/ui';
 import { formatCurrency } from '@nslv/shared';
 import { receiptCompanyBlock } from '../../lib/company';
+import { escapeHtml, openPrintWindow } from '../../lib/html';
 import { villaAssets } from '../../assets';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -244,7 +245,7 @@ export default function PoolPortalPage() {
             },
           ];
     const receiptTotal = lineItems.reduce((sum, it) => sum + Number(it.total || 0), 0);
-    const win = window.open('', '_blank', 'width=380,height=600');
+    const win = openPrintWindow('width=380,height=600');
     if (!win) return;
     const logoUrl = new URL(villaAssets.logo, window.location.href).href;
     const receiptDate = data.createdAt ? new Date(data.createdAt).toLocaleString() : new Date().toLocaleString();
@@ -252,7 +253,7 @@ export default function PoolPortalPage() {
       data.receiptNo ||
       `POL-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.floor(100 + Math.random() * 900)}`;
 
-    win.document.write(`<!DOCTYPE html><html><head><title>POOL RECEIPT - ${receiptNo}</title><style>
+    win.document.write(`<!DOCTYPE html><html><head><title>POOL RECEIPT - ${escapeHtml(receiptNo)}</title><style>
       body{font-family:'Courier New',monospace;font-size:12px;color:#111;padding:24px;width:320px;margin:0 auto}
       h1{font-size:15px;text-align:center;margin:0 0 4px}
       .company{text-align:center;font-size:10px;line-height:1.45;color:#444;margin-bottom:8px}
@@ -267,15 +268,15 @@ export default function PoolPortalPage() {
       .foot{text-align:center;font-size:10px;color:#555;margin-top:18px;border-top:1px dashed #999;padding-top:8px}
       @media print{.noprint{display:none}}
     </style></head><body>
-      <img src="${logoUrl}" alt="NS Luxury Villa" class="logo"/>
+      <img src="${escapeHtml(logoUrl)}" alt="NS Luxury Villa" class="logo"/>
       ${receiptCompanyBlock()}
       <div class="sub">POOL &amp; SWIMMING ENTRY RECEIPT</div>
-      <div class="row"><span>Receipt No:</span><span style="font-weight:bold">${receiptNo}</span></div>
-      <div class="row"><span>Date:</span><span>${receiptDate}</span></div>
-      <div class="row"><span>Guest / Lead:</span><span style="font-weight:bold">${data.visitorName}</span></div>
-      ${data.phone ? `<div class="row"><span>Phone:</span><span>${data.phone}</span></div>` : ''}
+      <div class="row"><span>Receipt No:</span><span style="font-weight:bold">${escapeHtml(receiptNo)}</span></div>
+      <div class="row"><span>Date:</span><span>${escapeHtml(receiptDate)}</span></div>
+      <div class="row"><span>Guest / Lead:</span><span style="font-weight:bold">${escapeHtml(data.visitorName)}</span></div>
+      ${data.phone ? `<div class="row"><span>Phone:</span><span>${escapeHtml(data.phone)}</span></div>` : ''}
       <div class="row"><span>Swimmers:</span><span>${data.partySize} Person${data.partySize > 1 ? 's' : ''}</span></div>
-      <div class="row"><span>Payment Method:</span><span style="font-weight:bold">${data.paymentMethod}</span></div>
+      <div class="row"><span>Payment Method:</span><span style="font-weight:bold">${escapeHtml(data.paymentMethod)}</span></div>
       <table>
         <thead>
           <tr><th>Item / Service</th><th class="r">Qty × Rate</th><th class="r">Total</th></tr>
@@ -284,7 +285,7 @@ export default function PoolPortalPage() {
           ${lineItems
             .map(
               (it) => `<tr>
-            <td>${it.name}</td>
+            <td>${escapeHtml(it.name)}</td>
             <td class="r">${it.qty} × ${formatCurrency(it.unitPrice)}</td>
             <td class="r font-bold">${formatCurrency(it.total)}</td>
           </tr>`,
@@ -296,7 +297,7 @@ export default function PoolPortalPage() {
         <span>TOTAL AMOUNT PAID</span>
         <span>${formatCurrency(receiptTotal)}</span>
       </div>
-      ${data.notes ? `<div style="font-size:10px;color:#666;margin-top:8px">Notes: ${data.notes}</div>` : ''}
+      ${data.notes ? `<div style="font-size:10px;color:#666;margin-top:8px">Notes: ${escapeHtml(data.notes)}</div>` : ''}
       <div class="foot">
         Currency: GHS · Valid for pool access on date of issue.<br/>
         Thank you for visiting NS Luxury Villa!

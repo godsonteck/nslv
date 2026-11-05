@@ -26,6 +26,7 @@ import { staysApi, foliosApi, paymentsApi } from '../../services/apiService';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
 import { villaAssets } from '../../assets';
 import { receiptCompanyBlock } from '../../lib/company';
+import { escapeHtml, openPrintWindow } from '../../lib/html';
 
 interface BillStay {
   id: string;
@@ -309,7 +310,7 @@ export const GuestBillsPage: React.FC = () => {
     if (!selectedBill) return;
     const { stay, folio } = selectedBill;
     const summary = computeBillSummary(stay, folio);
-    const win = window.open('', '_blank', 'width=560,height=840');
+    const win = openPrintWindow('width=560,height=840');
     if (!win) {
       showToast('error', 'Pop-up blocked. Please allow pop-ups to print bill.');
       return;
@@ -320,7 +321,7 @@ export const GuestBillsPage: React.FC = () => {
       .map(
         (i: any) =>
           `<tr>
-            <td>${i.description}</td>
+            <td>${escapeHtml(i.description)}</td>
             <td style="text-align:center">${i.quantity ?? 1}</td>
             <td style="text-align:right">${formatCurrency(money(i.unitPrice || i.amount))}</td>
             <td style="text-align:right;font-weight:bold">${formatCurrency(money(i.amount))}</td>
@@ -332,8 +333,8 @@ export const GuestBillsPage: React.FC = () => {
       .map(
         (p: any) =>
           `<tr>
-            <td>${p.method} Payment</td>
-            <td style="text-align:center">${new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH')}</td>
+            <td>${escapeHtml(p.method)} Payment</td>
+            <td style="text-align:center">${escapeHtml(new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH'))}</td>
             <td style="text-align:right;font-weight:bold;color:#047857">-${formatCurrency(money(p.amount))}</td>
           </tr>`,
       )
@@ -351,7 +352,7 @@ export const GuestBillsPage: React.FC = () => {
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>Guest Folio · Room ${stay.room?.number ?? '—'} · ${guestName}</title>
+  <title>Guest Folio · Room ${escapeHtml(stay.room?.number ?? '—')} · ${escapeHtml(guestName)}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; font-size: 11px; color: #0c1921; background: #fff; padding: 24px; max-width: 500px; margin: 0 auto; }
@@ -384,7 +385,7 @@ export const GuestBillsPage: React.FC = () => {
 </head>
 <body>
   <div class="header">
-    <img src="${logoUrl}" alt="NS Luxury Villa" class="logo" onerror="this.style.display='none'"/>
+    <img src="${escapeHtml(logoUrl)}" alt="NS Luxury Villa" class="logo" onerror="this.style.display='none'"/>
     <div class="title">NS LUXURY VILLA</div>
     <div class="sub">${summary.isCheckedOut ? 'Departure Settlement Folio' : 'Official Guest Room Folio'}</div>
     <div class="company">Lokoe, Ho, Volta Region, Ghana | Tel: +233 535 572 774</div>
@@ -392,12 +393,12 @@ export const GuestBillsPage: React.FC = () => {
 
   <div class="meta-card">
     <div class="grid">
-      <div><div class="lbl">Room & Guest</div><div class="val">Room ${stay.room?.number ?? '—'} (${stay.room?.roomType?.name || 'Suite'}) · ${guestName}</div></div>
-      <div><div class="lbl">Folio Reference</div><div class="val" style="font-family:monospace">${folio.id.slice(0, 8).toUpperCase()}</div></div>
+      <div><div class="lbl">Room & Guest</div><div class="val">Room ${escapeHtml(stay.room?.number ?? '—')} (${escapeHtml(stay.room?.roomType?.name || 'Suite')}) · ${escapeHtml(guestName)}</div></div>
+      <div><div class="lbl">Folio Reference</div><div class="val" style="font-family:monospace">${escapeHtml(folio.id.slice(0, 8).toUpperCase())}</div></div>
       <div><div class="lbl">Checked In</div><div class="val">${new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}</div></div>
       <div>
         <div class="lbl">${summary.isCheckedOut ? 'Checked Out On' : 'Account Status'}</div>
-        <div class="val">${checkedOutStr ? `<span class="badge badge-amber">Checked Out: ${checkedOutStr}</span>` : '<span class="badge badge-emerald">In-House</span>'}</div>
+        <div class="val">${checkedOutStr ? `<span class="badge badge-amber">Checked Out: ${escapeHtml(checkedOutStr)}</span>` : '<span class="badge badge-emerald">In-House</span>'}</div>
       </div>
     </div>
   </div>
