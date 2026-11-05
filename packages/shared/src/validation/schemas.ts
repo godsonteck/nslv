@@ -21,6 +21,7 @@ export const passwordSchema = z
 
 export const emailSchema = z
   .string()
+  .trim()
   .email('Please enter a valid email address')
   .max(255)
   .transform((v) => v.toLowerCase().trim());
@@ -149,10 +150,10 @@ export const updateSettingSchema = z.object({
 // Domain Schemas — write endpoints across the API
 // ──────────────────────────────────────────
 
-const positiveNumber = z.coerce.number({ invalid_type_error: 'Must be a number' }).positive('Must be greater than zero');
-const nonNegativeNumber = z.coerce.number({ invalid_type_error: 'Must be a number' }).nonnegative('Cannot be negative');
-const wholeNumber = z.coerce.number({ invalid_type_error: 'Must be a number' }).int('Must be a whole number').nonnegative('Cannot be negative');
-const positiveInt = z.coerce.number({ invalid_type_error: 'Must be a number' }).int('Must be a whole number').positive('Must be at least 1');
+const positiveNumber = z.coerce.number({ error: 'Must be a number' }).positive('Must be greater than zero');
+const nonNegativeNumber = z.coerce.number({ error: 'Must be a number' }).nonnegative('Cannot be negative');
+const wholeNumber = z.coerce.number({ error: 'Must be a number' }).int('Must be a whole number').nonnegative('Cannot be negative');
+const positiveInt = z.coerce.number({ error: 'Must be a number' }).int('Must be a whole number').positive('Must be at least 1');
 const isoDateString = z.string().min(1, 'A date is required').max(40);
 const optionalString = z.string().max(2000).trim().optional().nullable();
 
@@ -438,7 +439,7 @@ export const createInventoryItemSchema = z.object({
 });
 export const updateInventoryItemSchema = createInventoryItemSchema.partial();
 export const adjustStockSchema = z.object({
-  quantityChange: z.coerce.number({ invalid_type_error: 'Must be a number' }).int('Must be a whole number').refine((v) => v !== 0, 'Cannot be zero'),
+  quantityChange: z.coerce.number({ error: 'Must be a number' }).int('Must be a whole number').refine((v) => v !== 0, 'Cannot be zero'),
   reason: z.string().max(500).trim().optional(),
 });
 
@@ -486,7 +487,7 @@ export const resetSystemModulesSchema = z.object({
 export type ResetSystemModules = z.infer<typeof resetSystemModulesSchema>;
 
 export const resetSystemSchema = z.object({
-  confirmText: z.literal('RESET', { invalid_type_error: 'Type RESET to confirm' }),
+  confirmText: z.literal('RESET', { error: 'Type RESET to confirm' }),
   password: z.string().min(1, 'Your password is required'),
   modules: resetSystemModulesSchema.optional(),
 });
