@@ -99,6 +99,31 @@ export function errorHandler(
     }
   }
 
+  // body-parser rejects a malformed or oversized body before any route runs.
+  // Those are client errors; reporting them as 500s pollutes the error log and
+  // makes an ordinary bad request look like a server fault.
+  const bodyError = err as { type?: string };
+  if (bodyError.type === 'entity.parse.failed') {
+    res.status(400).json({
+      success: false,
+      error: {
+        code: 'INVALID_JSON',
+        message: 'The request body is not valid JSON.',
+      },
+    });
+    return;
+  }
+  if (bodyError.type === 'entity.too.large') {
+    res.status(413).json({
+      success: false,
+      error: {
+        code: 'PAYLOAD_TOO_LARGE',
+        message: 'The request body is too large.',
+      },
+    });
+    return;
+  }
+
   // Default fallback internal server error
   res.status(500).json({
     success: false,

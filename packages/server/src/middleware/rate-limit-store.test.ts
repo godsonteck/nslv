@@ -73,4 +73,14 @@ describe('SharedRateLimitStore', () => {
     expect((await store.increment('1.2.3.4')).totalHits).toBe(1);
     expect((await store.increment('1.2.3.4')).totalHits).toBe(2);
   });
+
+  it('exposes a distinct prefix so two limiters are not mistaken for a double count', () => {
+    const globalStore = new SharedRateLimitStore({ url: '', token: '' }, 'nslv:rl:global');
+    const loginStore = new SharedRateLimitStore({ url: '', token: '' }, 'nslv:rl:login');
+
+    expect(globalStore.prefix).toBe('nslv:rl:global');
+    expect(loginStore.prefix).toBe('nslv:rl:login');
+    expect(globalStore.prefix).not.toBe(loginStore.prefix);
+    expect(globalStore.localKeys).toBe(false);
+  });
 });

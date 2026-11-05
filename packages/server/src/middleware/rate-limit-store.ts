@@ -41,17 +41,22 @@ async function redisCommand(config: RedisRestConfig, command: (string | number)[
 }
 
 export class SharedRateLimitStore implements Store {
-  /** Keys are not instance-local, so express-rate-limit must not prefix them. */
+  /**
+   * Keys are not instance-local, so express-rate-limit must not namespace them.
+   * `prefix` is public because the library's double-count check identifies a
+   * shared store by class name plus this prefix; two limiters using this class
+   * would otherwise collide on the same client key and report a false positive.
+   */
   localKeys = false;
+  readonly prefix: string;
 
   private readonly config: RedisRestConfig;
-  private readonly keyPrefix: string;
   private readonly fallback = new Map<string, FallbackEntry>();
   private windowMs = 60_000;
 
   constructor(config: RedisRestConfig, prefix = 'nslv:rl') {
     this.config = config;
-    this.keyPrefix = prefix;
+    this.prefix = prefix;
   }
 
   init(options: Options): void {
@@ -59,7 +64,7 @@ export class SharedRateLimitStore implements Store {
   }
 
   private bucketKey(key: string, now = Date.now()) {
-    return `${this.keyPrefix}:${Math.floor(now / this.windowMs)}:${key}`;
+    return `${this.prefix}:${Math.floor(now / this.windowMs)}:${key}`;
   }
 
   private fallbackIncrement(key: string, resetTime: Date): IncrementResponse {
