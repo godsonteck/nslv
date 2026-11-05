@@ -47,7 +47,10 @@ export const config = {
 
   // Set to the number of trusted proxy hops in front of the API (1 behind a
   // single reverse proxy / load balancer). 0 means no proxy — direct clients.
-  trustProxy: parseInt(requireEnv('TRUST_PROXY', '0'), 10),
+  // Vercel always terminates TLS at one proxy hop, so default to 1 there:
+  // otherwise req.ip is the edge node and every client shares one rate-limit
+  // bucket, while audit logs record the proxy instead of the operator.
+  trustProxy: parseInt(requireEnv('TRUST_PROXY', process.env['VERCEL'] ? '1' : '0'), 10),
 
   // Database
   databaseUrl: requireEnv('DATABASE_URL'),
