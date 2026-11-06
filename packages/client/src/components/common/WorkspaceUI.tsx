@@ -54,7 +54,7 @@ export const KpiRibbon: React.FC<{
           item.onClick ? 'cursor-pointer' : ''
         }`}
       >
-        <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+        <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
           {item.label}
         </div>
         <div className="text-2xl font-black mt-0.5" style={{ color: item.accent || 'var(--ns-ink)' }}>
@@ -74,7 +74,7 @@ export const SummaryStrip: React.FC<{
   <div className="ns-glass-band rounded-3xl border border-[var(--ns-glass-line)] px-5 py-3.5 mb-4 grid grid-flow-col auto-cols-max items-center gap-x-6 gap-y-2 overflow-x-auto sm:grid-flow-row sm:grid-cols-2 lg:grid-cols-4">
     {items.map((item, i) => (
       <div key={i} className="flex items-center gap-2 whitespace-nowrap">
-        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+        <span className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
           {item.label}
         </span>
         <span className="text-xl font-black" style={{ color: item.color || 'var(--ns-ink)' }}>
@@ -229,7 +229,7 @@ export const CompactStat: React.FC<{
   color?: string;
 }> = ({ label, value, color }) => (
   <div className="text-center">
-    <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+    <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
       {label}
     </div>
     <div className="text-xl font-black mt-0.5" style={{ color: color || 'var(--ns-ink)' }}>
@@ -259,7 +259,7 @@ export const StatTile: React.FC<{
     onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
   >
     <div className="flex items-start justify-between gap-3">
-      <span className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: 'var(--ns-muted)' }}>
+      <span className="text-[12px] font-black uppercase tracking-[.18em]" style={{ color: 'var(--ns-muted)' }}>
         {label}
       </span>
       {Icon && (
@@ -272,12 +272,12 @@ export const StatTile: React.FC<{
       {value}
     </div>
     {note && (
-      <div className="mt-1 text-[11px] font-bold" style={{ color: 'var(--ns-muted)' }}>
+      <div className="mt-1 text-[12px] font-bold" style={{ color: 'var(--ns-muted)' }}>
         {note}
       </div>
     )}
     {onClick && (
-      <div className="mt-2.5 flex items-center gap-1 text-[11px] font-extrabold text-[var(--ns-teal)] opacity-90 transition-opacity group-hover:opacity-100">
+      <div className="mt-2.5 flex items-center gap-1 text-[12px] font-extrabold text-[var(--ns-teal)] opacity-90 transition-opacity group-hover:opacity-100">
         <ArrowUpRight size={13} /> View in table
       </div>
     )}

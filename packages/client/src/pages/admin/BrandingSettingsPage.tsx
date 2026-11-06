@@ -145,7 +145,7 @@ export const BrandingSettingsPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Branding & Theme</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Customize your villa identity and brand colors</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Customize your villa identity and brand colors</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -187,42 +187,42 @@ export const BrandingSettingsPage: React.FC = () => {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded border border-[var(--ns-glass-line)] glass-subtle p-4">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--ns-muted)]">
+              <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ns-muted)]">
                 Logo image
               </div>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'logoUrl')}
-                className="block w-full text-[11px] text-[var(--ns-muted)] file:mr-3 file:rounded file:border-0 file:bg-[var(--ns-glass-1)] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[var(--ns-gold)]"
+                className="block w-full text-[12px] text-[var(--ns-muted)] file:mr-3 file:rounded file:border-0 file:bg-[var(--ns-glass-1)] file:px-3 file:py-2 file:text-[12px] file:font-semibold file:text-[var(--ns-gold)]"
               />
               <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[var(--ns-glass-line)] glass-subtle">
                 {logoValue ? (
                   <img src={logoValue} alt="Logo preview" className="max-h-full max-w-full object-contain" />
                 ) : (
-                  <span className="text-[10px] text-[var(--ns-muted)]">No logo uploaded</span>
+                  <span className="text-[12px] text-[var(--ns-muted)]">No logo uploaded</span>
                 )}
               </div>
             </div>
 
             <div className="rounded border border-[var(--ns-glass-line)] glass-subtle p-4">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--ns-muted)]">
+              <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ns-muted)]">
                 Login background
               </div>
-              <p className="mb-2 text-[11px] text-[var(--ns-muted)]">
+              <p className="mb-2 text-[12px] text-[var(--ns-muted)]">
                 Saved images are not displayed in the clear-glass login design.
               </p>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'loginBgUrl')}
-                className="block w-full text-[11px] text-[var(--ns-muted)] file:mr-3 file:rounded file:border-0 file:bg-[var(--ns-glass-1)] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[var(--ns-gold)]"
+                className="block w-full text-[12px] text-[var(--ns-muted)] file:mr-3 file:rounded file:border-0 file:bg-[var(--ns-glass-1)] file:px-3 file:py-2 file:text-[12px] file:font-semibold file:text-[var(--ns-gold)]"
               />
               <div className="mt-3 flex h-20 items-center justify-center overflow-hidden rounded border border-dashed border-[var(--ns-glass-line)] glass-subtle">
                 {loginBgValue ? (
                   <img src={loginBgValue} alt="Login background preview" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-[10px] text-[var(--ns-muted)]">No background uploaded</span>
+                  <span className="text-[12px] text-[var(--ns-muted)]">No background uploaded</span>
                 )}
               </div>
             </div>

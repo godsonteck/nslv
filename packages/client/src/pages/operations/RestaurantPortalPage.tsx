@@ -58,7 +58,7 @@ export const RestaurantPortalPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Restaurant Operations</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Restaurant · Kitchen &amp; Dining Workspace</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Restaurant · Kitchen &amp; Dining Workspace</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -77,13 +77,13 @@ export const RestaurantPortalPage: React.FC = () => {
       </div>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Restaurant Sales Today</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Restaurant Sales Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(revenue)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Orders Taken Today</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Orders Taken Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{orders.filter(o => {
             const d = new Date(o.createdAt);
             const today = new Date();
@@ -91,7 +91,7 @@ export const RestaurantPortalPage: React.FC = () => {
           }).length} Orders</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Open Orders</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Open Orders</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{orders.filter(o => !['COMPLETED', 'SERVED', 'CANCELLED'].includes(o.status)).length} Active</div>
         </div>
       </div>
@@ -126,7 +126,7 @@ export const RestaurantPortalPage: React.FC = () => {
                       <span className="text-[var(--ns-muted)]">{order.tableNumber ? `Table ${order.tableNumber}` : 'Takeaway'}</span>
                       {statusBadge(order.status)}
                     </div>
-                    <div className="text-[11px] text-[var(--ns-muted)]">
+                    <div className="text-[12px] text-[var(--ns-muted)]">
                       {new Date(order.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                       {order.items?.length ? ` · ${order.items.length} item${order.items.length !== 1 ? 's' : ''}` : ''}
                     </div>
@@ -136,7 +136,7 @@ export const RestaurantPortalPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-[10px] text-[var(--ns-gold)] mt-1"
+                      className="text-[12px] text-[var(--ns-gold)] mt-1"
                       onClick={() => navigate('/restaurant/pos')}
                     >
                       View in POS <ArrowRight size={11} />

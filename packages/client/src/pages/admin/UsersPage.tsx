@@ -317,7 +317,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, editUser, roles, onClose, o
             {selectedRoleObjs.map((r) => (
               <span
                 key={r.id}
-                className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-teal)]"
+                className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-teal)]"
               >
                 {r.name}
               </span>
@@ -430,7 +430,7 @@ export const UsersPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Staff User Accounts</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage employee access credentials, assign multi-role security tiers, and cross-functional operational authorizations.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage employee access credentials, assign multi-role security tiers, and cross-functional operational authorizations.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -462,9 +462,9 @@ export const UsersPage: React.FC = () => {
               <kpi.icon size={14} />
             </div>
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>{kpi.label}</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>{kpi.label}</div>
               <div className="text-lg font-black" style={{ color: 'var(--ns-ink)' }}>{kpi.value}</div>
-              <div className="text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{kpi.note}</div>
+              <div className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{kpi.note}</div>
             </div>
           </div>
         ))}
@@ -475,7 +475,7 @@ export const UsersPage: React.FC = () => {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-5 py-3 border-b border-[var(--ns-glass-line)] ns-glass-band">
           <div>
             <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Authorized Personnel Directory</h2>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Staff member details, usernames, department roles, and account security states.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Staff member details, usernames, department roles, and account security states.</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={fetchUsers} className="h-8 gap-1.5 text-xs !text-[var(--ns-muted)]">
@@ -521,7 +521,7 @@ export const UsersPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Staff Member</th>
                   <th className="py-3 px-5">Email Address</th>
                   <th className="py-3 px-5">Assigned Roles</th>
@@ -541,7 +541,7 @@ export const UsersPage: React.FC = () => {
                           <div className="font-bold text-[var(--ns-ink)] text-xs">
                             {u.firstName} {u.lastName}
                           </div>
-                          <div className="text-[10px] text-[var(--ns-muted)] font-mono">@{u.username}</div>
+                          <div className="text-[12px] text-[var(--ns-muted)] font-mono">@{u.username}</div>
                         </div>
                       </div>
                     </td>
@@ -555,7 +555,7 @@ export const UsersPage: React.FC = () => {
                           return (
                             <span
                               key={rName}
-                              className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]"
+                              className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[12px] font-bold text-[var(--ns-ink)]"
                             >
                               {rName}
                             </span>

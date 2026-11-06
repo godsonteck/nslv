@@ -374,7 +374,7 @@ export const CashRegisterPage: React.FC = () => {
           <div>
             <div className="workspace-page__eyebrow">Cash control</div>
             <h1 className="workspace-page__title text-xl">Cash at Hand</h1>
-            <p className="workspace-page__subtitle text-[11px]">Daily drawer reconciliation, cash movements, and handover control.</p>
+            <p className="workspace-page__subtitle text-[12px]">Daily drawer reconciliation, cash movements, and handover control.</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -487,7 +487,7 @@ export const CashRegisterPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline-flex text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+          <span className="hidden sm:inline-flex text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
             {new Date(`${selectedDate}T12:00:00`).toLocaleDateString('en-GH', {
               weekday: 'long',
               year: 'numeric',
@@ -509,7 +509,7 @@ export const CashRegisterPage: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleResetRegister}
-              className="h-9 gap-1 text-[11px] font-bold text-[var(--ns-danger)] ns-glass-hover"
+              className="h-9 gap-1 text-[12px] font-bold text-[var(--ns-danger)] ns-glass-hover"
               title="Reset manual drawer entries"
             >
               <Trash2 size={13} /> Reset Day
@@ -530,7 +530,7 @@ export const CashRegisterPage: React.FC = () => {
                 <CheckCircle2 size={20} />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
+                <span className="text-[12px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
                   Handover Complete
                 </span>
                 <h3 className="mt-0.5 text-base font-bold font-serif" style={{ color: 'var(--ns-ink)' }}>
@@ -563,7 +563,7 @@ export const CashRegisterPage: React.FC = () => {
                 <Lock size={18} />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ns-warning)]">
+                <span className="text-[12px] font-black uppercase tracking-wider text-[var(--ns-warning)]">
                   Pending Handover
                 </span>
                 <h3 className="mt-0.5 text-base font-bold font-serif" style={{ color: 'var(--ns-ink)' }}>
@@ -597,7 +597,7 @@ export const CashRegisterPage: React.FC = () => {
               <Clock size={16} />
             </div>
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
                 Drawer Ready
               </span>
               <p className="text-xs font-semibold" style={{ color: 'var(--ns-ink)' }}>
@@ -609,25 +609,25 @@ export const CashRegisterPage: React.FC = () => {
       )}
 
       {/* KPI Ribbon */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Morning Float</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Morning Float</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(openingCash)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash Inflows</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash Inflows</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(totalCollections)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Deductions</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Deductions</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(totalDeductions)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Handed Over</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Handed Over</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(handovers)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash at Hand</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash at Hand</div>
           <div className="text-xl font-black mt-0.5" style={{ color: cashAtHand > 0 ? 'var(--ns-gold)' : 'var(--ns-ink)' }}>{formatCurrency(cashAtHand)}</div>
         </div>
       </div>
@@ -649,7 +649,7 @@ export const CashRegisterPage: React.FC = () => {
           <Banknote size={15} />
           <span>Drawer Cash Ledger</span>
           <span
-            className="rounded-full px-2 py-0.5 text-[10px]"
+            className="rounded-full px-2 py-0.5 text-[12px]"
             style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-ink)' }}
           >
             {displayEntries.length}
@@ -668,7 +668,7 @@ export const CashRegisterPage: React.FC = () => {
           <Receipt size={15} />
           <span>Front Desk & POS Cash Sales</span>
           <span
-            className="rounded-full px-2 py-0.5 text-[10px]"
+            className="rounded-full px-2 py-0.5 text-[12px]"
             style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-ink)' }}
           >
             {summary?.cashPayments?.length ?? 0}
@@ -705,7 +705,7 @@ export const CashRegisterPage: React.FC = () => {
             <table className="w-full border-collapse text-left text-xs">
               <thead>
                 <tr
-                  className="border-b border-[var(--ns-glass-line)] text-[10px] font-extrabold uppercase tracking-wider"
+                  className="border-b border-[var(--ns-glass-line)] text-[12px] font-extrabold uppercase tracking-wider"
                   style={{ backgroundColor: 'var(--ns-glass-1)', color: 'var(--ns-muted)' }}
                 >
                   <th className="py-3 px-4">Time</th>
@@ -736,7 +736,7 @@ export const CashRegisterPage: React.FC = () => {
                         key={row.id}
                         className={`transition-colors ns-glass-hover ${isHandover ? 'ns-glass-band' : ''}`}
                       >
-                        <td className="py-3 px-4 font-mono text-[11px]" style={{ color: 'var(--ns-muted)' }}>
+                        <td className="py-3 px-4 font-mono text-[12px]" style={{ color: 'var(--ns-muted)' }}>
                           {new Date(row.recordedAt).toLocaleTimeString('en-GH', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -744,19 +744,19 @@ export const CashRegisterPage: React.FC = () => {
                         </td>
                         <td className="py-3 px-4">
                           {isHandover ? (
-                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-gold)]">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-gold)]">
                               <UserCheck size={11} /> Handover
                             </span>
                           ) : isMomo ? (
-                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-warning)]">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-warning)]">
                               <Smartphone size={11} /> MoMo
                             </span>
                           ) : isOutflow ? (
-                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-danger)]">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-danger)]">
                               <ArrowDown size={11} /> Out
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-success)]">
+                            <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-success)]">
                               <ArrowUp size={11} /> In
                             </span>
                           )}
@@ -764,13 +764,13 @@ export const CashRegisterPage: React.FC = () => {
                         <td className="py-3 px-4 font-medium max-w-xs truncate" style={{ color: 'var(--ns-ink)' }}>
                           {row.description}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-[11px]" style={{ color: 'var(--ns-muted)' }}>
+                        <td className="py-3 px-4 font-semibold text-[12px]" style={{ color: 'var(--ns-muted)' }}>
                           {row.category || 'General'}
                         </td>
                         <td className="py-3 px-4 font-medium" style={{ color: 'var(--ns-ink)' }}>
                           {row.recipient || 'None'}
                         </td>
-                        <td className="py-3 px-4 font-mono text-[11px]" style={{ color: 'var(--ns-muted)' }}>
+                        <td className="py-3 px-4 font-mono text-[12px]" style={{ color: 'var(--ns-muted)' }}>
                           {row.receiptRef || 'None'}
                         </td>
                         <td className="py-3 px-4 text-right font-mono text-sm font-bold">
@@ -849,7 +849,7 @@ export const CashRegisterPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-4">Time</th>
                   <th className="py-3 px-4">Source</th>
                   <th className="py-3 px-4">Description / Folio</th>
@@ -867,21 +867,21 @@ export const CashRegisterPage: React.FC = () => {
                 ) : (
                   (summary?.cashPayments ?? []).map((p) => (
                     <tr key={p.id} className="ns-glass-hover transition-colors">
-                      <td className="py-3 px-4 font-mono text-[11px] text-[var(--ns-muted)]">
+                      <td className="py-3 px-4 font-mono text-[12px] text-[var(--ns-muted)]">
                         {new Date(p.processedAt).toLocaleTimeString('en-GH', {
                           hour: '2-digit',
                           minute: '2-digit',
                         })}
                       </td>
                       <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
+                        <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                           {p.source || 'FRONT_DESK'}
                         </span>
                       </td>
                       <td className="py-3 px-4 font-medium text-[var(--ns-ink)]">
                         {p.description || `Payment #${p.sourceId?.slice(0, 8)}`}
                       </td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-[var(--ns-muted)]">
+                      <td className="py-3 px-4 font-mono text-[12px] text-[var(--ns-muted)]">
                         {p.reference || p.sourceId || '—'}
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-sm font-bold text-[var(--ns-success)]">
@@ -913,7 +913,7 @@ export const CashRegisterPage: React.FC = () => {
                   className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-4 shadow-sm flex items-center justify-between"
                 >
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                    <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                       {cat}
                     </span>
                     <div className="mt-1 text-base font-bold text-[var(--ns-ink)]">

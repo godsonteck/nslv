@@ -68,7 +68,7 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
         <div key={i} className="glass rounded-xl border border-[var(--ns-glass-line)] p-2.5">
           <div className="flex items-end gap-2">
             <div className="flex-1">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">Method</label>
+              <label className="block text-[12px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">Method</label>
               <SelectInput value={row.method} disabled={disabled} onChange={(e) => update(i, { method: e.target.value })}>
                 {TENDER_METHODS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -78,7 +78,7 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
               </SelectInput>
             </div>
             <div className="flex-1">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">Amount (GHS)</label>
+              <label className="block text-[12px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">Amount (GHS)</label>
               <TextInput
                 type="number"
                 min="0"
@@ -95,14 +95,14 @@ export const TenderSplit: React.FC<TenderSplitProps> = ({ total, rows, onChange,
               disabled={disabled || rows.length <= 1}
               onClick={() => remove(i)}
               title="Remove method"
-              className="mb-1 rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] disabled:opacity-30 disabled:cursor-not-allowed"
+              className="mb-1 rounded-lg p-1.5 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-danger)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X size={14} />
             </button>
           </div>
           {needsReference(row.method) && (
             <div className="mt-2">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">
+              <label className="block text-[12px] font-bold uppercase tracking-wide text-[var(--ns-muted)] mb-1">
                 {row.method === 'MOBILE_MONEY' ? 'Mobile money number' : 'Bank reference'}
               </label>
               <TextInput

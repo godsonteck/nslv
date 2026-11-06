@@ -111,7 +111,7 @@ export const AdminConsolePage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>System Administration</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Staff accounts, roles, access permissions, room configurations, menu catalogs, and immutable security audit logs.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Staff accounts, roles, access permissions, room configurations, menu catalogs, and immutable security audit logs.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -154,9 +154,9 @@ export const AdminConsolePage: React.FC = () => {
               <kpi.icon size={14} />
             </div>
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>{kpi.label}</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>{kpi.label}</div>
               <div className="text-lg font-black" style={{ color: 'var(--ns-ink)' }}>{kpi.value}</div>
-              <div className="text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{kpi.note}</div>
+              <div className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>{kpi.note}</div>
             </div>
           </div>
         ))}
@@ -167,7 +167,7 @@ export const AdminConsolePage: React.FC = () => {
         <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--ns-glass-line)] ns-glass-band">
           <div>
             <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Administration Modules</h2>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage underlying property configuration, users, permissions, and audit trails.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage underlying property configuration, users, permissions, and audit trails.</p>
           </div>
         </div>
         <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -182,8 +182,8 @@ export const AdminConsolePage: React.FC = () => {
               </span>
               <div className="min-w-0 flex-1">
                 <span className="block text-sm font-bold text-[var(--ns-ink)]">{tile.label}</span>
-                <span className="mt-1 block text-[11px] leading-relaxed text-[var(--ns-muted)]">{tile.desc}</span>
-                <span className="mt-2.5 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
+                <span className="mt-1 block text-[12px] leading-relaxed text-[var(--ns-muted)]">{tile.desc}</span>
+                <span className="mt-2.5 flex items-center gap-1 text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                   Open Module <ArrowRight size={11} />
                 </span>
               </div>
@@ -197,7 +197,7 @@ export const AdminConsolePage: React.FC = () => {
         <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--ns-glass-line)] ns-glass-band">
           <div>
             <h2 className="text-sm font-bold" style={{ color: 'var(--ns-ink)' }}>Recent Security & System Events</h2>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Live snapshot from the immutable audit trail.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Live snapshot from the immutable audit trail.</p>
           </div>
           <Button
             variant="ghost"
@@ -218,7 +218,7 @@ export const AdminConsolePage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Timestamp</th>
                   <th className="py-3 px-5">Security Action</th>
                   <th className="py-3 px-5">Target Resource</th>
@@ -232,11 +232,11 @@ export const AdminConsolePage: React.FC = () => {
                     onClick={() => navigate('/admin/audit')}
                     className="cursor-pointer ns-glass-hover transition-colors"
                   >
-                    <td className="py-3 px-5 font-mono text-[11px] text-[var(--ns-muted)]">
+                    <td className="py-3 px-5 font-mono text-[12px] text-[var(--ns-muted)]">
                       {new Date(l.createdAt).toLocaleString('en-GH')}
                     </td>
                     <td className="py-3 px-5">
-                      <span className="inline-flex rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
+                      <span className="inline-flex rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                         {l.action}
                       </span>
                     </td>

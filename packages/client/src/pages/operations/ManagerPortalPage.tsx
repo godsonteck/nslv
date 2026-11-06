@@ -133,7 +133,7 @@ export const ManagerPortalPage: React.FC = () => {
           <div>
             <div className="workspace-page__eyebrow">Management overview</div>
             <h1 className="workspace-page__title text-xl">Manager Workstation</h1>
-            <p className="workspace-page__subtitle text-[11px]">Property performance, service pressure, and cash position at a glance.</p>
+            <p className="workspace-page__subtitle text-[12px]">Property performance, service pressure, and cash position at a glance.</p>
           </div>
         </div>
         <div className="workspace-page__actions">
@@ -159,19 +159,19 @@ export const ManagerPortalPage: React.FC = () => {
       {/* ── KPI Ribbon ── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{metrics.occupancyRate}%</div>
         </div>
         <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue Today</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(metrics.todayRevenue)}</div>
         </div>
         <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Arrivals & Departures</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Arrivals & Departures</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{metrics.todayArrivals} in / {metrics.todayDepartures} out</div>
         </div>
         <div className="glass-subtle clay-card rounded-3xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Unsettled Folios</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Unsettled Folios</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(metrics.openFoliosBalance)}</div>
         </div>
       </div>
@@ -190,7 +190,7 @@ export const ManagerPortalPage: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <UtensilsCrossed size={13} className="text-[var(--ns-warning)]" /> Restaurant Dining
               </span>
               <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)] transition-colors" />
@@ -198,7 +198,7 @@ export const ManagerPortalPage: React.FC = () => {
             <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.restaurantSales)}
             </div>
-            <div className="text-[11px] text-[var(--ns-muted)]">Kitchen orders & room service</div>
+            <div className="text-[12px] text-[var(--ns-muted)]">Kitchen orders & room service</div>
           </div>
 
           <div
@@ -206,7 +206,7 @@ export const ManagerPortalPage: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <Wine size={13} className="text-[var(--ns-purple)]" /> Bar & Lounge
               </span>
               <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)] transition-colors" />
@@ -214,7 +214,7 @@ export const ManagerPortalPage: React.FC = () => {
             <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.barSales)}
             </div>
-            <div className="text-[11px] text-[var(--ns-muted)]">Beverages, cocktails & wine</div>
+            <div className="text-[12px] text-[var(--ns-muted)]">Beverages, cocktails & wine</div>
           </div>
 
           <div
@@ -222,7 +222,7 @@ export const ManagerPortalPage: React.FC = () => {
             className="group cursor-pointer rounded-2xl border border-[var(--ns-glass-line)] glass p-5 shadow-sm hover:border-[var(--ns-gold)] hover:shadow-md transition-all space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <Waves size={13} className="text-[var(--ns-teal)]" /> Pool Services
               </span>
               <ArrowRight size={14} className="text-[var(--ns-muted)] group-hover:text-[var(--ns-gold)] transition-colors" />
@@ -230,7 +230,7 @@ export const ManagerPortalPage: React.FC = () => {
             <div className="text-2xl font-black text-[var(--ns-ink)] font-mono">
               {formatCurrency(metrics.poolSales)}
             </div>
-            <div className="text-[11px] text-[var(--ns-muted)]">Day passes, towels & poolside drinks</div>
+            <div className="text-[12px] text-[var(--ns-muted)]">Day passes, towels & poolside drinks</div>
           </div>
         </div>
       </div>
@@ -264,7 +264,7 @@ export const ManagerPortalPage: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                       <th className="py-3 px-5">Room</th>
                       <th className="py-3 px-5">Guest Name</th>
                       <th className="py-3 px-5">Stay Dates</th>
@@ -282,9 +282,9 @@ export const ManagerPortalPage: React.FC = () => {
                           <div className="font-bold text-[var(--ns-ink)]">
                             {[stay.guest?.firstName, stay.guest?.lastName].filter(Boolean).join(' ') || 'In-House Guest'}
                           </div>
-                          <div className="text-[10px] text-[var(--ns-muted)]">{stay.guest?.phone || 'No phone'}</div>
+                          <div className="text-[12px] text-[var(--ns-muted)]">{stay.guest?.phone || 'No phone'}</div>
                         </td>
-                        <td className="py-3 px-5 text-[var(--ns-muted)] text-[11px]">
+                        <td className="py-3 px-5 text-[var(--ns-muted)] text-[12px]">
                           {new Date(stay.checkInDate).toLocaleDateString('en-GH')} &minus; {new Date(stay.checkOutDate).toLocaleDateString('en-GH')}
                         </td>
                         <td className="py-3 px-5 text-center">
@@ -337,7 +337,7 @@ export const ManagerPortalPage: React.FC = () => {
                     >
                       <div>
                         <div className="font-bold text-xs text-[var(--ns-ink)]">Room {room.number}</div>
-                        <div className="text-[10px] text-[var(--ns-muted)]">{room.roomType?.name || 'Suite'}</div>
+                        <div className="text-[12px] text-[var(--ns-muted)]">{room.roomType?.name || 'Suite'}</div>
                       </div>
                       {statusBadge('DIRTY')}
                     </div>
@@ -382,7 +382,7 @@ export const ManagerPortalPage: React.FC = () => {
               <AlertTriangle size={15} className="shrink-0" />
               <span>Admin-Only Action — Irreversible</span>
             </div>
-            <p className="text-[11px] text-[var(--ns-ink)] leading-relaxed">
+            <p className="text-[12px] text-[var(--ns-ink)] leading-relaxed">
               This will find every checked-out reservation with an open outstanding balance and mark it as fully settled,
               charging only the original <strong>reservation total</strong> (nights × room rate).
               Any late fees or extra checkout charges are voided. A payment record is created in the audit trail.

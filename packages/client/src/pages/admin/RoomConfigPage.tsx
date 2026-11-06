@@ -214,7 +214,7 @@ export const RoomConfigPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Room Configuration</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage room types, rate defaults, occupancy, and the property room inventory.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage room types, rate defaults, occupancy, and the property room inventory.</p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -266,15 +266,15 @@ export const RoomConfigPage: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-bold text-[var(--ns-ink)]">{t.name}</h3>
-                  <div className="text-[11px] text-[var(--ns-muted)]">{t._count?.rooms || 0} room(s) assigned</div>
+                  <div className="text-[12px] text-[var(--ns-muted)]">{t._count?.rooms || 0} room(s) assigned</div>
                 </div>
                 <span className="font-mono text-base font-extrabold text-[var(--ns-teal)]">
                   {formatCurrency(Number(t.basePrice))}
-                  <span className="text-[10px] font-normal text-[var(--ns-muted)]">/night</span>
+                  <span className="text-[12px] font-normal text-[var(--ns-muted)]">/night</span>
                 </span>
               </div>
               <p className="text-xs text-[var(--ns-muted)] line-clamp-2">{t.description || 'No description provided.'}</p>
-              <div className="text-[11px] text-[var(--ns-muted)]">
+              <div className="text-[12px] text-[var(--ns-muted)]">
                 Max Occupancy: <span className="font-semibold text-[var(--ns-ink)]">{t.maxAdults} Adults, {t.maxChildren} Children</span>
               </div>
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[var(--ns-glass-line)]">

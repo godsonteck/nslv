@@ -101,7 +101,7 @@ export const Header: React.FC = () => {
             <div className="font-['Manrope'] text-[15px] font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {villaName}
             </div>
-            <div className="text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
+            <div className="text-[12px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
               {villaTagline}
             </div>
           </div>
@@ -114,7 +114,7 @@ export const Header: React.FC = () => {
               <input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                placeholder="Search guests, reservations, rooms…"
+                placeholder="Search…"
                 className="ns-input h-9 w-full pl-9 pr-3 text-xs font-bold"
                 style={{ color: 'var(--ns-ink)' }}
               />
@@ -150,7 +150,7 @@ export const Header: React.FC = () => {
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge text-[var(--ns-danger)] text-[9px] font-black border border-rose-400/70">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge text-[var(--ns-danger)] text-[12px] font-black border border-rose-400/70">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -186,14 +186,14 @@ export const Header: React.FC = () => {
               onClick={() => setOpenDropdown(v => !v)}
               className="flex items-center gap-2 rounded-xl p-1 clay-btn clay-btn-secondary transition-colors"
             >
-              <span className="glass flex h-9 w-9 items-center justify-center overflow-hidden rounded-full clay-badge text-[11px] font-black text-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
+              <span className="glass flex h-9 w-9 items-center justify-center overflow-hidden rounded-full clay-badge text-[12px] font-black text-[var(--ns-teal)] ring-2 ring-[var(--ns-glass-line)]">
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" /> : initials}
               </span>
               <span className="hidden text-left lg:block">
-                <span className="block max-w-[120px] truncate text-[11px] font-extrabold" style={{ color: 'var(--ns-ink)' }}>
+                <span className="block max-w-[120px] truncate text-[12px] font-extrabold" style={{ color: 'var(--ns-ink)' }}>
                   {user ? `${user.firstName} ${user.lastName}` : 'Team member'}
                 </span>
-                <span className="block text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
+                <span className="block text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                   {user?.roles?.[0]?.name ?? 'User'}
                 </span>
               </span>
@@ -207,7 +207,7 @@ export const Header: React.FC = () => {
                   <div className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>
                     {user ? `${user.firstName} ${user.lastName}` : 'Team member'}
                   </div>
-                  <div className="mt-0.5 text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+                  <div className="mt-0.5 text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
                     {user?.roles?.[0]?.name ?? 'User'} access
                   </div>
                 </div>

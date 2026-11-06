@@ -313,19 +313,19 @@ export default function ReportsPage() {
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {periodLabel}
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
               Occupancy, headcount, operations, revenues & cash movement
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={loadReport} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={loadReport} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5">
             <RefreshCw size={12} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handlePrint} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={handlePrint} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5">
             <Printer size={12} /> Print
           </Button>
-          <Button variant="primary" size="sm" onClick={handleExportCSV} className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover">
+          <Button variant="primary" size="sm" onClick={handleExportCSV} className="glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold gap-1.5 ns-glass-hover">
             <Download size={12} /> Export CSV
           </Button>
         </div>
@@ -489,7 +489,7 @@ export default function ReportsPage() {
 
             {mode === 'custom' && (
               <div className="flex items-center gap-2">
-                <label className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1">
+                <label className="text-[12px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1">
                   From
                   <input
                     type="date"
@@ -498,7 +498,7 @@ export default function ReportsPage() {
                     onChange={(e) => setCustomStart(e.target.value)}
                   />
                 </label>
-                <label className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1">
+                <label className="text-[12px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1">
                   To
                   <input
                     type="date"
@@ -518,21 +518,21 @@ export default function ReportsPage() {
       ) : (
         <div className="space-y-6">
           {/* ── KPI Ribbon ── */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex flex-wrap gap-2 pb-2">
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Occupancy Rate</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-teal)' }}>{occ.occupancyRate ?? 0}%</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>People Accommodated</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>People Accommodated</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{ppl.totalPeopleAccommodated ?? 0} Guests</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Revenue</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(Number(fin.totalCollectedRevenue ?? data?.totalCollectedRevenue ?? 0))}</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Net Operating Flow</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Net Operating Flow</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{formatCurrency(Number(cash.netMovement ?? 0))}</div>
             </div>
           </div>
@@ -571,14 +571,14 @@ export default function ReportsPage() {
 
               <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-[var(--ns-glass-line)]">
                 <div className="p-3 ns-glass-band rounded border border-[var(--ns-glass-line)]">
-                  <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Total Room Nights</div>
+                  <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Total Room Nights</div>
                   <div className="text-lg font-extrabold text-[var(--ns-ink)] mt-0.5">{occ.totalRoomNights || 0} nights</div>
-                  <div className="text-[10px] text-[var(--ns-muted)]">Occupied nights in selected window</div>
+                  <div className="text-[12px] text-[var(--ns-muted)]">Occupied nights in selected window</div>
                 </div>
                 <div className="p-3 ns-glass-band rounded border border-[var(--ns-glass-line)]">
-                  <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Average Daily Rate (ADR)</div>
+                  <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Average Daily Rate (ADR)</div>
                   <div className="text-lg font-extrabold text-[var(--ns-gold)] mt-0.5">{formatCurrency(fin.averageDailyRate || 0)}</div>
-                  <div className="text-[10px] text-[var(--ns-muted)]">Average revenue per occupied room</div>
+                  <div className="text-[12px] text-[var(--ns-muted)]">Average revenue per occupied room</div>
                 </div>
               </div>
             </div>
@@ -677,7 +677,7 @@ export default function ReportsPage() {
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-bold uppercase text-[var(--ns-warning)]">Late Check-Outs</div>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded glass-subtle text-[var(--ns-warning)] font-mono font-bold border border-[var(--ns-warning)]">
+                  <span className="text-[12px] px-1.5 py-0.5 rounded glass-subtle text-[var(--ns-warning)] font-mono font-bold border border-[var(--ns-warning)]">
                     {ops.lateCheckOutsCount || 0} Stays
                   </span>
                 </div>
@@ -688,7 +688,7 @@ export default function ReportsPage() {
                   Hourly departure charges
                 </div>
                 {(ops.totalLateCheckoutRefunds ?? 0) > 0 && (
-                  <div className="mt-1 text-[10px] font-bold text-[var(--ns-success)]">
+                  <div className="mt-1 text-[12px] font-bold text-[var(--ns-success)]">
                     {formatCurrency(ops.totalLateCheckoutRefunds)} refunded
                   </div>
                 )}
@@ -707,24 +707,24 @@ export default function ReportsPage() {
             <div className="p-5 space-y-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                  <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Total Swimmers</div>
+                  <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Total Swimmers</div>
                   <div className="text-2xl font-extrabold text-[var(--ns-gold)] mt-1">{poolData.swimmersCount || 0}</div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Registered in period (all entries)</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Registered in period (all entries)</div>
                 </div>
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                  <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Groups / Visits</div>
+                  <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Groups / Visits</div>
                   <div className="text-2xl font-extrabold text-[var(--ns-ink)] mt-1">{poolData.groupsCount || 0}</div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Individual attendance entries</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Individual attendance entries</div>
                 </div>
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                  <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Paid Transactions</div>
+                  <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Paid Transactions</div>
                   <div className="text-2xl font-extrabold text-[var(--ns-success)] mt-1">{poolData.transactionsCount || 0}</div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Charged pool pass receipts</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Charged pool pass receipts</div>
                 </div>
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                  <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Pool Revenue</div>
+                  <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Pool Revenue</div>
                   <div className="text-2xl font-extrabold text-[var(--ns-gold)] mt-1">{formatCurrency(poolData.revenue || 0)}</div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">All paid pool transactions</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">All paid pool transactions</div>
                 </div>
               </div>
 
@@ -736,7 +736,7 @@ export default function ReportsPage() {
                       <div key={method} className="p-3 ns-glass-band rounded-lg border border-[var(--ns-glass-line)] flex items-center justify-between">
                         <div>
                           <div className="text-xs font-bold text-[var(--ns-ink)]">{method}</div>
-                          <div className="text-[10px] text-[var(--ns-muted)]">{info.count} transaction{info.count !== 1 ? 's' : ''}</div>
+                          <div className="text-[12px] text-[var(--ns-muted)]">{info.count} transaction{info.count !== 1 ? 's' : ''}</div>
                         </div>
                         <div className="text-sm font-extrabold text-[var(--ns-warning)]">{formatCurrency(info.amount)}</div>
                       </div>
@@ -757,24 +757,24 @@ export default function ReportsPage() {
             </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Orders</div>
+                <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Orders</div>
                 <div className="text-2xl font-extrabold text-[var(--ns-ink)] mt-1">{fnbData.restaurantOrderCount || 0}</div>
-                <div className="text-[10px] text-[var(--ns-muted)] mt-1">Completed / Served orders</div>
+                <div className="text-[12px] text-[var(--ns-muted)] mt-1">Completed / Served orders</div>
               </div>
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Revenue</div>
+                <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><UtensilsCrossed size={12} /> Restaurant Revenue</div>
                 <div className="text-2xl font-extrabold text-[var(--ns-gold)] mt-1">{formatCurrency(fnbData.restaurantRevenue || 0)}</div>
-                <div className="text-[10px] text-[var(--ns-muted)] mt-1">Kitchen & dining sales</div>
+                <div className="text-[12px] text-[var(--ns-muted)] mt-1">Kitchen & dining sales</div>
               </div>
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><Wine size={12} /> Bar Orders</div>
+                <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><Wine size={12} /> Bar Orders</div>
                 <div className="text-2xl font-extrabold text-[var(--ns-ink)] mt-1">{fnbData.barOrderCount || 0}</div>
-                <div className="text-[10px] text-[var(--ns-muted)] mt-1">Completed / Served orders</div>
+                <div className="text-[12px] text-[var(--ns-muted)] mt-1">Completed / Served orders</div>
               </div>
               <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><Wine size={12} /> Bar Revenue</div>
+                <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)] flex items-center gap-1"><Wine size={12} /> Bar Revenue</div>
                 <div className="text-2xl font-extrabold text-[var(--ns-gold)] mt-1">{formatCurrency(fnbData.barRevenue || 0)}</div>
-                <div className="text-[10px] text-[var(--ns-muted)] mt-1">Beverage POS sales</div>
+                <div className="text-[12px] text-[var(--ns-muted)] mt-1">Beverage POS sales</div>
               </div>
             </div>
           </div>
@@ -795,11 +795,11 @@ export default function ReportsPage() {
                 { label: 'Bank Transfer', key: 'BANK_TRANSFER', color: 'text-[var(--ns-purple)]' },
               ].map(({ label, key, color }) => (
                 <div key={key} className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
-                  <div className={`text-[10px] uppercase font-bold ${color}`}>{label}</div>
+                  <div className={`text-[12px] uppercase font-bold ${color}`}>{label}</div>
                   <div className={`text-2xl font-extrabold mt-1 ${color}`}>
                     {formatCurrency(payMethodBreakdown[key] || 0)}
                   </div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">
                     {payMethodBreakdown[key] > 0
                       ? `${((payMethodBreakdown[key] / Math.max(1, Object.values(payMethodBreakdown as Record<string,number>).reduce((a, b) => a + b, 0))) * 100).toFixed(1)}% of total`
                       : 'No payments in period'}
@@ -879,7 +879,7 @@ export default function ReportsPage() {
                   <div className="text-xl font-extrabold text-[var(--ns-ink)] mt-1">
                     {formatCurrency(Number(cash.payments || 0))}
                   </div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Cash collections at desk & POS</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Cash collections at desk & POS</div>
                 </div>
 
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
@@ -889,7 +889,7 @@ export default function ReportsPage() {
                   <div className="text-xl font-extrabold text-[var(--ns-danger)] mt-1">
                     {formatCurrency(Number(cash.approvedExpenses || 0))}
                   </div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Approved cash expenses paid</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Approved cash expenses paid</div>
                 </div>
 
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
@@ -899,7 +899,7 @@ export default function ReportsPage() {
                   <div className="text-xl font-extrabold text-[var(--ns-gold)] mt-1">
                     {formatCurrency(Number(cash.netMovement || 0))}
                   </div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Cash in hand balance change</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Cash in hand balance change</div>
                 </div>
 
                 <div className="p-4 ns-glass-band rounded-xl border border-[var(--ns-glass-line)]">
@@ -909,7 +909,7 @@ export default function ReportsPage() {
                   <div className="text-xl font-extrabold text-[var(--ns-warning)] mt-1">
                     {formatCurrency(Number(fin.receivables || data?.receivables || 0))}
                   </div>
-                  <div className="text-[10px] text-[var(--ns-muted)] mt-1">Unpaid folio balances</div>
+                  <div className="text-[12px] text-[var(--ns-muted)] mt-1">Unpaid folio balances</div>
                 </div>
               </div>
 
@@ -934,7 +934,7 @@ export default function ReportsPage() {
                   <div className="text-xs font-bold uppercase text-[var(--ns-muted)] mb-2">Approved Expenses — Full Ledger</div>
                   <div className="overflow-x-auto rounded-xl border border-[var(--ns-glass-line)]">
                     <table className="w-full text-xs text-left text-[var(--ns-muted)]">
-                      <thead className="text-[10px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
+                      <thead className="text-[12px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
                         <tr>
                           <th className="p-2.5">Date</th>
                           <th className="p-2.5">Category</th>
@@ -943,12 +943,12 @@ export default function ReportsPage() {
                           <th className="p-2.5">Paid By</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[var(--ns-glass-line)] text-[11px]">
+                      <tbody className="divide-y divide-[var(--ns-glass-line)] text-[12px]">
                         {expenseDetail.map((exp: any) => (
                           <tr key={exp.id} className="ns-glass-hover transition-colors">
                             <td className="p-2.5 font-mono text-[var(--ns-muted)]">{exp.incurredOn || '—'}</td>
                             <td className="p-2.5">
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                              <span className="px-1.5 py-0.5 rounded text-[12px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                                 {exp.category}
                               </span>
                             </td>
@@ -992,9 +992,9 @@ export default function ReportsPage() {
                       <div key={sp.name} className="p-3 ns-glass-band rounded-lg border border-[var(--ns-glass-line)] flex justify-between items-center">
                         <div>
                           <div className="text-xs font-bold text-[var(--ns-ink)]">{sp.name}</div>
-                          <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">{sp.guests} guests</div>
+                          <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">{sp.guests} guests</div>
                         </div>
-                        <div className="text-lg font-extrabold text-[var(--ns-gold)]">{sp.bookings} <span className="text-[10px] font-normal text-[var(--ns-muted)]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
+                        <div className="text-lg font-extrabold text-[var(--ns-gold)]">{sp.bookings} <span className="text-[12px] font-normal text-[var(--ns-muted)]">booking{sp.bookings !== 1 ? 's' : ''}</span></div>
                       </div>
                     ))}
                   </div>
@@ -1007,7 +1007,7 @@ export default function ReportsPage() {
                   <div className="text-xs font-bold uppercase text-[var(--ns-muted)] mb-2">Events in Period</div>
                   <div className="overflow-x-auto rounded-xl border border-[var(--ns-glass-line)]">
                     <table className="w-full text-xs text-left text-[var(--ns-muted)]">
-                      <thead className="text-[10px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
+                      <thead className="text-[12px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
                         <tr>
                           <th className="p-2.5">Event Title</th>
                           <th className="p-2.5">Space</th>
@@ -1019,7 +1019,7 @@ export default function ReportsPage() {
                           <th className="p-2.5">Booked By</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[var(--ns-glass-line)] text-[11px]">
+                      <tbody className="divide-y divide-[var(--ns-glass-line)] text-[12px]">
                         {(evts.recentEvents || []).map((ev: any) => (
                           <tr key={ev.id} className="ns-glass-hover transition-colors">
                             <td className="p-2.5 font-bold text-[var(--ns-ink)]">{ev.title}</td>
@@ -1028,7 +1028,7 @@ export default function ReportsPage() {
                             <td className="p-2.5 font-mono">{new Date(ev.endAt).toLocaleString()}</td>
                             <td className="p-2.5 text-center font-bold text-[var(--ns-info)]">{ev.guestCount}</td>
                             <td className="p-2.5">
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                              <span className={`px-1.5 py-0.5 rounded text-[12px] font-bold ${
                                 ev.status === 'CONFIRMED' ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]' :
                                 ev.status === 'CANCELLED' ? 'glass-subtle text-[var(--ns-danger)] border border-[var(--ns-danger)]' :
                                 'glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]'
@@ -1059,7 +1059,7 @@ export default function ReportsPage() {
                       <div key={ev.id} className="flex items-center justify-between p-3 ns-glass-band rounded-lg border border-[var(--ns-glass-line)]">
                         <div>
                           <div className="text-xs font-bold text-[var(--ns-ink)]">{ev.title}</div>
-                          <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">{ev.spaceName} · {new Date(ev.startAt).toLocaleString()}</div>
+                          <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">{ev.spaceName} · {new Date(ev.startAt).toLocaleString()}</div>
                         </div>
                         <div className="text-right">
                           <div className="text-xs font-bold text-[var(--ns-info)]">{ev.guestCount} guests</div>
@@ -1083,7 +1083,7 @@ export default function ReportsPage() {
               </div>
               <div className="p-4 overflow-x-auto">
                 <table className="w-full text-xs text-left text-[var(--ns-muted)]">
-                  <thead className="text-[10px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
+                  <thead className="text-[12px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
                     <tr>
                       <th className="p-2.5">Date</th>
                       <th className="p-2.5">Day</th>
@@ -1100,7 +1100,7 @@ export default function ReportsPage() {
                       <th className="p-2.5 text-center">People</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ns-glass-line)] font-mono text-[11px]">
+                  <tbody className="divide-y divide-[var(--ns-glass-line)] font-mono text-[12px]">
                     {dailyTimeline.map((d: any) => (
                       <tr key={d.date} className="ns-glass-hover transition-colors">
                         <td className="p-2.5 font-bold text-[var(--ns-ink)]">{d.date}</td>
@@ -1138,9 +1138,9 @@ const MetricBox: React.FC<{ label: string; value: string | number; sub: string; 
   highlight = 'text-[var(--ns-ink)]',
 }) => (
   <div className="p-3 ns-glass-band rounded-lg border border-[var(--ns-glass-line)]">
-    <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">{label}</div>
+    <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">{label}</div>
     <div className={`text-xl font-extrabold mt-0.5 ${highlight}`}>{value}</div>
-    <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">{sub}</div>
+    <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">{sub}</div>
   </div>
 );
 
@@ -1158,7 +1158,7 @@ const DeptCard: React.FC<{ icon: any; label: string; value: any; note: string }>
     <div className="mt-3 text-xl font-extrabold text-[var(--ns-ink)]">
       {formatCurrency(Number(value || 0))}
     </div>
-    <div className="mt-2 text-[10px] text-[var(--ns-muted)] pt-1.5 border-t border-[var(--ns-glass-line)]">
+    <div className="mt-2 text-[12px] text-[var(--ns-muted)] pt-1.5 border-t border-[var(--ns-glass-line)]">
       {note}
     </div>
   </div>

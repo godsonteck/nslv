@@ -195,7 +195,7 @@ const openEdit = (item: any) => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Menu & Point of Sale</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Full control over the restaurant, bar and pool menus, pricing, availability and posted orders.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Full control over the restaurant, bar and pool menus, pricing, availability and posted orders.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ const openEdit = (item: any) => {
           <button
             key={d.id}
             onClick={() => setDomain(d.id)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[11px] font-extrabold ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-extrabold ${
               domain === d.id
                 ? 'glass ns-glass-selected text-[var(--ns-teal)]'
                 : 'border border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-muted)]'
@@ -241,7 +241,7 @@ const openEdit = (item: any) => {
                 onChange={(e) => setIncludeOff(e.target.checked)}
                 className="h-4 w-4 accent-[var(--ns-teal)]"
               />
-              <label htmlFor="inc-off" className="text-[10px] font-bold text-[var(--ns-muted)]">
+              <label htmlFor="inc-off" className="text-[12px] font-bold text-[var(--ns-muted)]">
                 Show archived
               </label>
             </div>
@@ -267,7 +267,7 @@ const openEdit = (item: any) => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       {i.isAvailable === false ? (
-                        <span className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-danger)]">
+                        <span className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-danger)]">
                           Archived
                         </span>
                       ) : (
@@ -275,7 +275,7 @@ const openEdit = (item: any) => {
                       )}
                       <span className="truncate text-xs font-extrabold text-[var(--ns-ink)]">{i.name}</span>
                     </div>
-                    <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">
+                    <div className="mt-0.5 text-[12px] text-[var(--ns-muted)]">
                       {i.category}
                       {i.description ? ` · ${i.description}` : ''}
                     </div>
@@ -320,7 +320,7 @@ const openEdit = (item: any) => {
                 <RefreshCw size={14} className="text-[var(--ns-teal)]" />
                 <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Posted orders</h2>
               </div>
-              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Recent {domainLabel.toLowerCase()} transactions</p>
+              <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Recent {domainLabel.toLowerCase()} transactions</p>
             </div>
             <div className="divide-y divide-[var(--ns-glass-line)]">
               {orders.length === 0 ? (
@@ -329,12 +329,12 @@ const openEdit = (item: any) => {
                 orders.slice(0, 8).map((o) => (
                   <div key={o.id} className="px-5 py-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[11px] font-extrabold text-[var(--ns-ink)]">{o.orderNo}</span>
-                      <span className="text-[11px] font-extrabold text-[var(--ns-gold)]">
+                      <span className="font-mono text-[12px] font-extrabold text-[var(--ns-ink)]">{o.orderNo}</span>
+                      <span className="text-[12px] font-extrabold text-[var(--ns-gold)]">
                         {formatCurrency(Number(o.totalAmount || 0))}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-[10px] text-[var(--ns-muted)]">
+                    <div className="mt-1 flex items-center justify-between text-[12px] text-[var(--ns-muted)]">
                       <span>
                         {o.paymentMethod} · {o.paymentStatus}
                       </span>
@@ -353,11 +353,11 @@ const openEdit = (item: any) => {
                 <Waves size={14} className="text-[var(--ns-teal)]" />
                 <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Categories</h2>
               </div>
-              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage {domainLabel.toLowerCase()} categories</p>
+              <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage {domainLabel.toLowerCase()} categories</p>
             </div>
             <div className="px-5 py-3">
               {categories.length === 0 ? (
-                <div className="text-[10px] text-[var(--ns-muted)] mb-3">
+                <div className="text-[12px] text-[var(--ns-muted)] mb-3">
                   Using default categories. Create custom categories to manage your menu.
                 </div>
               ) : null}

@@ -113,7 +113,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ type, title, o
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-xs text-[var(--ns-ink)]">{cat.name}</div>
                   {cat.description && (
-                    <div className="text-[10px] text-[var(--ns-muted)] line-clamp-1">{cat.description}</div>
+                    <div className="text-[12px] text-[var(--ns-muted)] line-clamp-1">{cat.description}</div>
                   )}
                 </div>
               </div>

@@ -157,7 +157,7 @@ const PropertyDashboard: React.FC = () => {
             <h1 className="workspace-page__title text-xl">
               Command Center
             </h1>
-            <p className="workspace-page__subtitle text-[11px]">
+            <p className="workspace-page__subtitle text-[12px]">
               {nowFormatted}
             </p>
           </div>
@@ -166,7 +166,7 @@ const PropertyDashboard: React.FC = () => {
           <button
             onClick={() => void load()}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-secondary px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-secondary px-3 py-2 text-[12px] font-bold text-[var(--ns-ink)] disabled:opacity-50"
           >
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
             Refresh
@@ -174,7 +174,7 @@ const PropertyDashboard: React.FC = () => {
           {canFrontDesk && (
             <button
               onClick={() => navigate('/frontdesk')}
-              className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-primary px-3.5 py-2 text-[11px] font-black text-white shadow-md"
+              className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-primary px-3.5 py-2 text-[12px] font-black text-white shadow-md"
             >
               <LogIn size={12} /> Front Desk
             </button>
@@ -182,7 +182,7 @@ const PropertyDashboard: React.FC = () => {
           {canReserve && (
             <button
               onClick={() => navigate('/reservations')}
-              className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-accent px-3.5 py-2 text-[11px] font-black text-white shadow-md"
+              className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-accent px-3.5 py-2 text-[12px] font-black text-white shadow-md"
             >
               <CalendarCheck size={12} /> New Stay
             </button>
@@ -260,7 +260,7 @@ const PropertyDashboard: React.FC = () => {
           </div>
           <button
             onClick={() => navigate('/rooms')}
-            className="text-[11px] font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
+            className="text-[12px] font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
           >
             Room Board <ChevronRight size={12} />
           </button>
@@ -287,7 +287,7 @@ const PropertyDashboard: React.FC = () => {
             title={`Dirty: ${m.dirtyRooms}`}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold">
+        <div className="flex flex-wrap items-center gap-4 text-[12px] font-bold">
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Available ({m.availableRooms})</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Reserved ({m.reservedRooms})</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-sky-500" /> Occupied ({m.occupiedRooms})</span>
@@ -303,14 +303,14 @@ const PropertyDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Users size={15} className="text-[var(--ns-teal)]" />
               <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>In-House Active Stays</h2>
-              <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
+              <span className="text-[12px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
                 {stays.length}
               </span>
             </div>
             {canFrontDesk && (
               <button
                 onClick={() => navigate('/frontdesk')}
-                className="text-[11px] font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
+                className="text-[12px] font-bold text-[var(--ns-gold)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
               >
                 Front Desk <ChevronRight size={12} />
               </button>
@@ -334,17 +334,17 @@ const PropertyDashboard: React.FC = () => {
                     className="flex items-center justify-between gap-4 px-5 py-3.5 ns-glass-hover transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ns-glass-band text-[10px] font-black text-[var(--ns-ink)] shadow-xs border border-[var(--ns-glass-line)]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ns-glass-band text-[12px] font-black text-[var(--ns-ink)] shadow-xs border border-[var(--ns-glass-line)]">
                         {initials}
                       </div>
                       <div className="min-w-0">
                         <div className="truncate text-xs font-bold text-[var(--ns-ink)] flex items-center gap-2">
                           <span>{guestFullName}</span>
-                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-gold)]">
+                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-1.5 py-0.5 text-[12px] font-black text-[var(--ns-gold)]">
                             Rm {s.room?.number || '—'}
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[10px] text-[var(--ns-muted)] flex items-center gap-2">
+                        <div className="mt-0.5 text-[12px] text-[var(--ns-muted)] flex items-center gap-2">
                           <span>Out: {s.checkOutDate ? new Date(s.checkOutDate).toLocaleDateString() : '—'}</span>
                           <span>&middot;</span>
                           <span>In: {s.actualCheckIn ? new Date(s.actualCheckIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
@@ -394,8 +394,8 @@ const PropertyDashboard: React.FC = () => {
                       <UtensilsCrossed size={14} />
                     </div>
                     <div>
-                      <div className="text-[11px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Restaurant</div>
-                      <div className="text-[9px] text-[var(--ns-muted)]">Dining & orders</div>
+                      <div className="text-[12px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Restaurant</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">Dining & orders</div>
                     </div>
                   </div>
                   <strong className="text-xs font-extrabold text-[var(--ns-ink)]">
@@ -414,8 +414,8 @@ const PropertyDashboard: React.FC = () => {
                       <Wine size={14} />
                     </div>
                     <div>
-                      <div className="text-[11px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Bar & Lounge</div>
-                      <div className="text-[9px] text-[var(--ns-muted)]">Cocktails & beverages</div>
+                      <div className="text-[12px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Bar & Lounge</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">Cocktails & beverages</div>
                     </div>
                   </div>
                   <strong className="text-xs font-extrabold text-[var(--ns-ink)]">
@@ -434,8 +434,8 @@ const PropertyDashboard: React.FC = () => {
                       <Waves size={14} />
                     </div>
                     <div>
-                      <div className="text-[11px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Pool</div>
-                      <div className="text-[9px] text-[var(--ns-muted)]">Passes & leisure</div>
+                      <div className="text-[12px] font-bold text-[var(--ns-ink)] group-hover:text-[var(--ns-teal)]">Pool</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">Passes & leisure</div>
                     </div>
                   </div>
                   <strong className="text-xs font-extrabold text-[var(--ns-ink)]">
@@ -446,10 +446,10 @@ const PropertyDashboard: React.FC = () => {
             </div>
 
             <div className="border-t border-[var(--ns-glass-line)] ns-glass-band px-5 py-3 flex items-center justify-between">
-              <span className="text-[10px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Daily outlet performance</span>
+              <span className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Daily outlet performance</span>
               <button
                 onClick={() => navigate('/reports')}
-                className="text-[10px] font-bold text-[var(--ns-teal)] hover:underline flex items-center gap-1"
+                className="text-[12px] font-bold text-[var(--ns-teal)] hover:underline flex items-center gap-1"
               >
                 Analytics <ChevronRight size={10} />
               </button>
@@ -464,7 +464,7 @@ const PropertyDashboard: React.FC = () => {
                   <DoorOpen size={14} className="text-[var(--ns-danger)]" />
                   <h2 className="text-xs font-black" style={{ color: 'var(--ns-ink)' }}>Housekeeping Alert</h2>
                 </div>
-                <span className="text-[10px] font-black text-[var(--ns-danger)] glass-subtle px-2 py-0.5 rounded-full border border-[var(--ns-danger)]/30">
+                <span className="text-[12px] font-black text-[var(--ns-danger)] glass-subtle px-2 py-0.5 rounded-full border border-[var(--ns-danger)]/30">
                   {dirty.length} room{dirty.length === 1 ? '' : 's'}
                 </span>
               </div>
@@ -475,14 +475,14 @@ const PropertyDashboard: React.FC = () => {
                     onClick={() => navigate('/rooms')}
                     className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer ns-glass-hover transition-colors"
                   >
-                    <span className="text-[11px] font-bold text-[var(--ns-ink)]">Room {r.number}</span>
-                    <span className="text-[9px] font-bold text-[var(--ns-danger)]">{r.status}</span>
+                    <span className="text-[12px] font-bold text-[var(--ns-ink)]">Room {r.number}</span>
+                    <span className="text-[12px] font-bold text-[var(--ns-danger)]">{r.status}</span>
                   </div>
                 ))}
                 {dirty.length > 4 && (
                   <button
                     onClick={() => navigate('/rooms')}
-                    className="w-full text-center text-[10px] font-bold text-[var(--ns-gold)] py-1.5 hover:underline"
+                    className="w-full text-center text-[12px] font-bold text-[var(--ns-gold)] py-1.5 hover:underline"
                   >
                     +{dirty.length - 4} more
                   </button>
@@ -558,7 +558,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             <h1 className="workspace-page__title text-xl">
               {deptLabel} Workstation
             </h1>
-            <p className="workspace-page__subtitle text-[11px]">
+            <p className="workspace-page__subtitle text-[12px]">
               Orders, receipts & revenue
             </p>
           </div>
@@ -569,14 +569,14 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
             size="sm"
             onClick={() => void load()}
             loading={refreshing}
-            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold"
           >
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </Button>
           <Button
             size="sm"
             onClick={() => navigate(toPOS)}
-            className="glass ns-glass-hover text-[var(--ns-ink)] shadow-md text-[11px] font-bold gap-1.5"
+            className="glass ns-glass-hover text-[var(--ns-ink)] shadow-md text-[12px] font-bold gap-1.5"
           >
             <ArrowRight size={12} /> Open POS
           </Button>
@@ -592,23 +592,23 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
       {/* ── Revenue Hero + Stats Row ── */}
       <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
         <div className="glass clay-card rounded-3xl border border-[var(--ns-glass-line)] p-6 space-y-2">
-          <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
+          <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
             Today's {deptLabel} Revenue
           </div>
           <div className="text-3xl font-black" style={{ color: 'var(--ns-ink)' }}>
             {formatCurrency(Number(todayRevenue || 0))}
           </div>
-          <p className="text-[11px] text-[var(--ns-muted)] max-w-md">
+          <p className="text-[12px] text-[var(--ns-muted)] max-w-md">
             Cumulative department sales across guest folios, card, cash, and MoMo.
           </p>
         </div>
         <div className="flex gap-3">
           <div className="glass-subtle clay-card rounded-3xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[112px]">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Orders</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Orders</div>
             <div className="mt-1 text-2xl font-black" style={{ color: 'var(--ns-ink)' }}>{todayOrders.length}</div>
           </div>
           <div className="glass-subtle clay-card rounded-3xl border border-[var(--ns-glass-line)] px-5 py-4 text-center min-w-[112px]">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Items</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">Items</div>
             <div className="mt-1 text-2xl font-black" style={{ color: 'var(--ns-ink)' }}>
               {todayOrders.reduce((s, o) => s + (o.orderItems?.length || 1), 0)}
             </div>
@@ -624,7 +624,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
           </h2>
           <button
             onClick={() => navigate(toPOS)}
-            className="text-[11px] font-bold text-[var(--ns-teal)] hover:underline flex items-center gap-1"
+            className="text-[12px] font-bold text-[var(--ns-teal)] hover:underline flex items-center gap-1"
           >
             New Order <ChevronRight size={11} />
           </button>
@@ -635,7 +635,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] uppercase font-bold tracking-wider text-[var(--ns-muted)]">
+              <thead className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] uppercase font-bold tracking-wider text-[var(--ns-muted)]">
                 <tr>
                   <th className="px-5 py-3">Order No.</th>
                   <th className="px-5 py-3">Payment</th>
@@ -656,7 +656,7 @@ const DepartmentDashboard: React.FC<{ kind: 'restaurant' | 'bar' | 'pool' }> = (
                       {formatCurrency(Number(o.totalAmount || 0))}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <Button variant="outline" size="sm" onClick={() => printReceipt(o, kind)} className="gap-1 text-[10px] border-[var(--ns-glass-line)] text-[var(--ns-ink)]">
+                      <Button variant="outline" size="sm" onClick={() => printReceipt(o, kind)} className="gap-1 text-[12px] border-[var(--ns-glass-line)] text-[var(--ns-ink)]">
                         <Printer size={11} /> Print
                       </Button>
                     </td>

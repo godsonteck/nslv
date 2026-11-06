@@ -640,7 +640,7 @@ export default function PoolPortalPage() {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Pool Services</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Sell pool passes, record visitor attendance, print official receipts, and manage entries.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Sell pool passes, record visitor attendance, print official receipts, and manage entries.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -661,26 +661,26 @@ export default function PoolPortalPage() {
       </div>
 
       {/* KPI Ribbon */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Swimmers Today</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Swimmers Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalVisitorsToday} Swimmers</div>
-          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{todayAttendance.length} registered group{todayAttendance.length !== 1 ? 's' : ''}</div>
+          <div className="text-[12px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{todayAttendance.length} registered group{todayAttendance.length !== 1 ? 's' : ''}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Paid Swimmers / Sales</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Paid Swimmers / Sales</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalPaidSwimmersToday} Swimmers</div>
-          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{todayTransactions.length} transaction{todayTransactions.length !== 1 ? 's' : ''}</div>
+          <div className="text-[12px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{todayTransactions.length} transaction{todayTransactions.length !== 1 ? 's' : ''}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pool Sales Today</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pool Sales Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(salesToday)}</div>
-          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>Accrued from paid pool passes</div>
+          <div className="text-[12px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>Accrued from paid pool passes</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Complimentary / Unpaid</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Complimentary / Unpaid</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{Math.max(0, totalVisitorsToday - totalPaidSwimmersToday)} Swimmers</div>
-          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>Residents or uncollected entries</div>
+          <div className="text-[12px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>Residents or uncollected entries</div>
         </div>
       </div>
 
@@ -696,7 +696,7 @@ export default function PoolPortalPage() {
                   <ClipboardCheck size={14} className="text-[var(--ns-teal)]" />
                   <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Record Entry & Charge</h2>
                 </div>
-                <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Enter visitor details, select pass rate, and print receipt.</p>
+                <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Enter visitor details, select pass rate, and print receipt.</p>
               </div>
               <form onSubmit={(e) => handleSubmitEntry(e, true)} className="space-y-4 p-5">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -736,7 +736,7 @@ export default function PoolPortalPage() {
                         <button
                           type="button"
                           onClick={() => setPricingModalOpen(true)}
-                          className="text-[11px] text-[var(--ns-gold)] hover:underline font-semibold flex items-center gap-1"
+                          className="text-[12px] text-[var(--ns-gold)] hover:underline font-semibold flex items-center gap-1"
                           title="Adjust prices or add new pool passes"
                         >
                           <Settings size={11} /> Adjust Prices
@@ -800,7 +800,7 @@ export default function PoolPortalPage() {
                       />
                     </FormField>
                     <div className="flex items-end pb-1">
-                      <p className="text-[11px] text-[var(--ns-muted)] leading-snug">
+                      <p className="text-[12px] text-[var(--ns-muted)] leading-snug">
                         Not included in the pass. Leave at 0 if no towel is issued.
                       </p>
                     </div>
@@ -905,7 +905,7 @@ export default function PoolPortalPage() {
                 </button>
               </div>
 
-              <div className="text-[11px] text-[var(--ns-muted)]">
+              <div className="text-[12px] text-[var(--ns-muted)]">
                 Showing {activeTab === 'entries' ? attendance.length : transactions.length} records
               </div>
             </div>
@@ -917,7 +917,7 @@ export default function PoolPortalPage() {
                     <Users size={14} className="text-[var(--ns-teal)]" />
                     <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Registered Swimmer Entries</h2>
                   </div>
-                  <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>All visitor entries. Re-print receipts, attach payments to unpaid entries, or edit.</p>
+                  <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>All visitor entries. Re-print receipts, attach payments to unpaid entries, or edit.</p>
                 </div>
                 {matchedAttendanceList.length === 0 ? (
                   <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
@@ -941,11 +941,11 @@ export default function PoolPortalPage() {
                               <span className="font-extrabold text-[var(--ns-ink)] text-sm truncate">
                                 {entry.visitorName}
                               </span>
-                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[12px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                                 <Users size={11} /> {entry.partySize} {entry.partySize > 1 ? 'Swimmers' : 'Swimmer'}
                               </span>
                               <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                className={`px-2 py-0.5 rounded text-[12px] font-bold ${
                                   isPaid
                                     ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]'
                                     : entry.paymentMethod === 'COMPLIMENTARY'
@@ -961,7 +961,7 @@ export default function PoolPortalPage() {
                               </span>
                             </div>
 
-                            <div className="text-[11px] text-[var(--ns-muted)] flex items-center gap-2">
+                            <div className="text-[12px] text-[var(--ns-muted)] flex items-center gap-2">
                               <span>
                                 {new Date(entry.createdAt).toLocaleString([], {
                                   dateStyle: 'short',
@@ -976,7 +976,7 @@ export default function PoolPortalPage() {
                             </div>
 
                             {entry.notes && (
-                              <div className="text-[10px] text-[var(--ns-muted)] italic ns-glass-band border border-[var(--ns-glass-line)] px-2 py-0.5 rounded inline-block">
+                              <div className="text-[12px] text-[var(--ns-muted)] italic ns-glass-band border border-[var(--ns-glass-line)] px-2 py-0.5 rounded inline-block">
                                 Note: {entry.notes}
                               </div>
                             )}
@@ -1062,7 +1062,7 @@ export default function PoolPortalPage() {
                     <ReceiptText size={14} className="text-[var(--ns-teal)]" />
                     <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Paid Pool Transactions & Receipts</h2>
                   </div>
-                  <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Official cashier payment ledger for pool passes and rentals.</p>
+                  <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Official cashier payment ledger for pool passes and rentals.</p>
                 </div>
                 {transactions.length === 0 ? (
                   <div className="p-12 text-center text-xs text-[var(--ns-muted)]">
@@ -1081,15 +1081,15 @@ export default function PoolPortalPage() {
                             <span className="font-extrabold text-[var(--ns-ink)] text-sm">
                               {tx.transactionNo || 'POL-TX'}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)] font-mono">
+                            <span className="px-2 py-0.5 rounded text-[12px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)] font-mono">
                               {tx.service?.name || 'Pool Pass'} × {tx.quantity}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)] font-mono">
+                            <span className="px-2 py-0.5 rounded text-[12px] font-bold glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)] font-mono">
                               {formatCurrency(Number(tx.totalAmount || 0))}
                             </span>
                           </div>
 
-                          <div className="text-[11px] text-[var(--ns-muted)] flex items-center gap-2">
+                          <div className="text-[12px] text-[var(--ns-muted)] flex items-center gap-2">
                             <span>
                               {new Date(tx.createdAt).toLocaleString([], {
                                 dateStyle: 'short',
@@ -1100,7 +1100,7 @@ export default function PoolPortalPage() {
                           </div>
 
                           {tx.notes && (
-                            <div className="text-[10px] text-[var(--ns-muted)] italic ns-glass-band px-2 py-0.5 rounded inline-block">
+                            <div className="text-[12px] text-[var(--ns-muted)] italic ns-glass-band px-2 py-0.5 rounded inline-block">
                               {tx.notes}
                             </div>
                           )}
@@ -1321,7 +1321,7 @@ export default function PoolPortalPage() {
               <AlertTriangle className="text-[var(--ns-danger)] shrink-0 mt-0.5" size={18} />
               <div>
                 <div className="font-bold text-[var(--ns-danger)]">Are you sure you want to delete this pool record?</div>
-                <div className="text-[11px] text-[var(--ns-danger)] mt-1">
+                <div className="text-[12px] text-[var(--ns-danger)] mt-1">
                   You are deleting the entry for <strong>{deletingItem.name}</strong>. This cannot be undone.
                 </div>
               </div>
@@ -1511,7 +1511,7 @@ export default function PoolPortalPage() {
                           <div className="flex items-center gap-2">
                             <span className="font-extrabold text-[var(--ns-ink)] text-sm">{svc.name}</span>
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              className={`px-2 py-0.5 rounded text-[12px] font-bold ${
                                 svc.isAvailable
                                   ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]'
                                   : 'ns-glass-band text-[var(--ns-muted)]'
@@ -1521,7 +1521,7 @@ export default function PoolPortalPage() {
                             </span>
                           </div>
                           {svc.description && (
-                            <div className="text-[11px] text-[var(--ns-muted)]">{svc.description}</div>
+                            <div className="text-[12px] text-[var(--ns-muted)]">{svc.description}</div>
                           )}
                           <div className="text-base font-extrabold text-[var(--ns-gold)] font-mono pt-1">
                             {formatCurrency(Number(svc.price || 0))}

@@ -236,7 +236,7 @@ export const GuestsPage: React.FC = () => {
             <h1 className="workspace-page__title text-xl">
               Guest Directory
             </h1>
-            <p className="workspace-page__subtitle text-[11px]">
+            <p className="workspace-page__subtitle text-[12px]">
               Profiles, contacts, VIP status & stay history
             </p>
           </div>
@@ -246,7 +246,7 @@ export const GuestsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={load}
-            className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5"
           >
             <RefreshCw size={12} /> Refresh
           </Button>
@@ -255,7 +255,7 @@ export const GuestsPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => setCreateOpen(true)}
-              className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover"
+              className="glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold gap-1.5 ns-glass-hover"
             >
               <Plus size={12} /> Register Guest
             </Button>
@@ -269,7 +269,7 @@ export const GuestsPage: React.FC = () => {
           onClick={() => { setVipFilter('ALL'); setQ(''); }}
           className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Guests</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Guests</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{data.length}</div>
         </button>
         <button
@@ -278,15 +278,15 @@ export const GuestsPage: React.FC = () => {
             vipFilter === 'VIP' ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]/40' : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)]'
           }`}
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>VIP</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>VIP</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{vipCount}</div>
         </button>
         <div className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Repeat</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Repeat</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{repeatGuestsCount}</div>
         </div>
         <div className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Stays</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Stays</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{totalStaysCount}</div>
         </div>
       </div>
@@ -297,7 +297,7 @@ export const GuestsPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <Users size={14} className="text-[var(--ns-teal)]" />
             <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Guest Records</h2>
-            <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
+            <span className="text-[12px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
               {filteredGuests.length}
             </span>
           </div>
@@ -311,14 +311,14 @@ export const GuestsPage: React.FC = () => {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by name, phone, email, document #..."
-              className="ns-input glass-input w-full pl-7 pr-3 py-1.5 text-[11px]"
+              className="ns-input glass-input w-full pl-7 pr-3 py-1.5 text-[12px]"
             />
           </div>
           <div className="flex flex-wrap gap-2 sm:ml-auto">
             <select
               value={vipFilter}
               onChange={(e) => setVipFilter(e.target.value as any)}
-              className="ns-input glass-input h-9 px-2.5 text-[11px] font-semibold"
+              className="ns-input glass-input h-9 px-2.5 text-[12px] font-semibold"
             >
               <option value="ALL">All Guests</option>
               <option value="VIP">VIP Only</option>
@@ -327,7 +327,7 @@ export const GuestsPage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="ns-input glass-input h-9 px-2.5 text-[11px] font-semibold"
+              className="ns-input glass-input h-9 px-2.5 text-[12px] font-semibold"
             >
               <option value="name_asc">Name (A-Z)</option>
               <option value="stays_desc">Most Stays</option>
@@ -337,7 +337,7 @@ export const GuestsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setQ('')}
-                className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-ink)] glass-subtle ns-glass-hover"
+                className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[12px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-ink)] glass-subtle ns-glass-hover"
               >
                 <X size={12} /> Clear
               </button>
@@ -368,7 +368,7 @@ export const GuestsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="ns-glass-band text-[10px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)]">
+              <thead className="ns-glass-band text-[12px] uppercase tracking-[.14em] text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="px-5 py-3">Guest Name</th>
                   <th className="px-5 py-3">Contact</th>
@@ -406,12 +406,12 @@ export const GuestsPage: React.FC = () => {
                                 {formatGuestName(g)}
                               </span>
                               {g.isVip && (
-                                <span className="inline-flex items-center gap-0.5 rounded-md glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[9px] font-extrabold text-[var(--ns-warning)]">
+                                <span className="inline-flex items-center gap-0.5 rounded-md glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[12px] font-extrabold text-[var(--ns-warning)]">
                                   <Sparkles size={8} /> VIP
                                 </span>
                               )}
                             </div>
-                            <div className="font-mono text-[10px] text-[var(--ns-muted)] mt-0.5">
+                            <div className="font-mono text-[12px] text-[var(--ns-muted)] mt-0.5">
                               ID: {g.id.slice(0, 8).toUpperCase()}
                             </div>
                           </div>
@@ -433,7 +433,7 @@ export const GuestsPage: React.FC = () => {
                             <span className="text-[var(--ns-muted)]">-</span>
                           )}
                         </div>
-                        <div className="text-[11px] text-[var(--ns-muted)] mt-0.5">
+                        <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">
                           {g.email ? (
                             <a
                               href={`mailto:${g.email}`}
@@ -452,7 +452,7 @@ export const GuestsPage: React.FC = () => {
                       <td className="px-5 py-3.5 text-xs text-[var(--ns-muted)]">
                         <div>{[g.city, g.country].filter(Boolean).join(', ') || '-'}</div>
                         {g.nationality && (
-                          <div className="text-[11px] text-[var(--ns-muted)] mt-0.5">
+                          <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">
                             {g.nationality}
                           </div>
                         )}
@@ -534,7 +534,7 @@ export const GuestsPage: React.FC = () => {
                       {formatGuestName(selectedGuest)}
                     </h3>
                     {selectedGuest.isVip && (
-                      <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-2 py-0.5 text-[10px] font-bold text-[var(--ns-warning)]">
+                      <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-2 py-0.5 text-[12px] font-bold text-[var(--ns-warning)]">
                         VIP
                       </span>
                     )}
@@ -632,7 +632,7 @@ export const GuestsPage: React.FC = () => {
 
                 {/* Stay History Summary */}
                 <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3.5 space-y-2 text-xs">
-                  <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">
+                  <div className="flex justify-between items-center text-[12px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">
                     <span className="flex items-center gap-1.5"><BedDouble size={13} /> Stay History</span>
                     <span>{selectedGuest.reservations?.length ?? 0} booking{(selectedGuest.reservations?.length ?? 0) === 1 ? '' : 's'}</span>
                   </div>
@@ -649,7 +649,7 @@ export const GuestsPage: React.FC = () => {
                               <div className="font-bold text-[var(--ns-ink)]">
                                 {res.room ? `Room ${res.room.number}` : 'Unassigned'}
                               </div>
-                              <div className="text-[11px] text-[var(--ns-muted)]">
+                              <div className="text-[12px] text-[var(--ns-muted)]">
                                 {new Date(res.checkInDate).toLocaleDateString()} → {new Date(res.checkOutDate).toLocaleDateString()}
                               </div>
                             </div>
@@ -763,12 +763,12 @@ export const GuestsPage: React.FC = () => {
                     VIP Guest Recognition
                   </span>
                   {form.isVip && (
-                    <span className="rounded glass-subtle px-1.5 py-0.5 text-[9px] font-black uppercase text-[var(--ns-gold)]">
+                    <span className="rounded glass-subtle px-1.5 py-0.5 text-[12px] font-black uppercase text-[var(--ns-gold)]">
                       Active
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] leading-tight" style={{ color: 'var(--ns-muted)' }}>
+                <p className="text-[12px] leading-tight" style={{ color: 'var(--ns-muted)' }}>
                   Priority reservations, champagne welcome amenities, and dedicated concierge
                 </p>
               </div>
@@ -936,12 +936,12 @@ export const GuestsPage: React.FC = () => {
                     VIP Guest Recognition
                   </span>
                   {editForm.isVip && (
-                    <span className="rounded glass-subtle px-1.5 py-0.5 text-[9px] font-black uppercase text-[var(--ns-gold)]">
+                    <span className="rounded glass-subtle px-1.5 py-0.5 text-[12px] font-black uppercase text-[var(--ns-gold)]">
                       Active
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] leading-tight" style={{ color: 'var(--ns-muted)' }}>
+                <p className="text-[12px] leading-tight" style={{ color: 'var(--ns-muted)' }}>
                   Priority reservations, complimentary amenities, and dedicated villa concierge
                 </p>
               </div>

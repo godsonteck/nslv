@@ -114,7 +114,7 @@ export default function Login() {
             <div className="font-['Manrope'] text-base sm:text-lg font-extrabold tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {villaName}
             </div>
-            <div className="text-[10px] font-bold tracking-wider text-[var(--ns-muted)]">
+            <div className="text-[12px] font-bold tracking-wider text-[var(--ns-muted)]">
               {villaTagline}
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function Login() {
 
             {/* Top Calm Eyebrow */}
             <div className="relative z-10 flex items-center gap-2">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[10.5px] font-semibold tracking-wider uppercase">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[12px] font-semibold tracking-wider uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--ns-gold)]" />
                 Staff portal
               </span>
@@ -184,7 +184,7 @@ export default function Login() {
                 <MapPin size={13} className="text-[#9de0ea]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
-              <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+              <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[12px]">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 <span>Live</span>
               </div>
@@ -201,7 +201,7 @@ export default function Login() {
                 <div className="mx-auto mb-3 h-13 w-13 rounded-2xl glass p-1 border border-[var(--ns-glass-line)] shadow-xs flex items-center justify-center">
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
+                <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
                   {two ? 'Two-step check' : 'Staff login'}
                 </div>
                 <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
@@ -307,7 +307,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setTwo(false)}
-                      className="mt-2 text-[11px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
+                      className="mt-2 text-[12px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
                     >
                       <ArrowLeft size={12} />
                       Back to sign in
@@ -336,7 +336,7 @@ export default function Login() {
               </form>
 
               {/* Security Strip */}
-              <div className="mt-6 pt-4 border-t border-[var(--ns-glass-line)] flex items-center justify-between text-[10px] font-medium" style={{ color: 'var(--ns-muted)' }}>
+              <div className="mt-6 pt-4 border-t border-[var(--ns-glass-line)] flex items-center justify-between text-[12px] font-medium" style={{ color: 'var(--ns-muted)' }}>
                 <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                   <CheckCircle2 size={12} />
                   <span>Secure</span>
@@ -349,7 +349,7 @@ export default function Login() {
             </div>
 
             {/* Calm Footer Footnote */}
-            <p className="text-center mt-3 text-[10.5px] font-medium text-[var(--ns-muted)]">
+            <p className="text-center mt-3 text-[12px] font-medium text-[var(--ns-muted)]">
               Staff access only.
             </p>
           </div>
@@ -357,7 +357,7 @@ export default function Login() {
       </main>
 
       {/* ── Footer Strip ── */}
-      <footer className="relative z-10 px-6 py-4 text-center text-[10.5px] font-medium border-t border-[var(--ns-glass-line)] text-[var(--ns-muted)]">
+      <footer className="relative z-10 px-6 py-4 text-center text-[12px] font-medium border-t border-[var(--ns-glass-line)] text-[var(--ns-muted)]">
         © {new Date().getFullYear()} {villaName}. All rights reserved.
       </footer>
     </div>

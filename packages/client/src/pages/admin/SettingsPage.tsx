@@ -130,7 +130,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
       <div className="flex items-center justify-between p-3 glass-subtle border border-[var(--ns-glass-line)] rounded">
         <div>
           <div className="text-xs font-medium text-[var(--ns-ink)]">{label}</div>
-          {description && <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">{description}</div>}
+          {description && <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">{description}</div>}
         </div>
         <button
           type="button"
@@ -146,7 +146,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
   return (
     <FormField label={label}>
       {description && (
-        <p className="text-[10px] text-[var(--ns-muted)] mb-1">{description}</p>
+        <p className="text-[12px] text-[var(--ns-muted)] mb-1">{description}</p>
       )}
       <TextInput
         value={String(val ?? '')}
@@ -649,7 +649,7 @@ export const SettingsPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Property & System Settings</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure villa business rules, tax rates, checkout policies, snapshots & data recovery</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure villa business rules, tax rates, checkout policies, snapshots & data recovery</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -743,7 +743,7 @@ export const SettingsPage: React.FC = () => {
                 <div className="text-center py-12 border border-dashed border-[var(--ns-glass-line)] rounded-xl">
                   <Database size={32} className="mx-auto text-[var(--ns-muted)] mb-2" />
                   <h4 className="text-xs font-bold text-[var(--ns-ink)]">No snapshots recorded yet</h4>
-                  <p className="text-[11px] text-[var(--ns-muted)] mt-1 max-w-sm mx-auto">
+                  <p className="text-[12px] text-[var(--ns-muted)] mt-1 max-w-sm mx-auto">
                     Click "Create System Snapshot" above to create an instant manual backup point, or perform a reset to generate an automatic pre-reset snapshot.
                   </p>
                 </div>
@@ -762,7 +762,7 @@ export const SettingsPage: React.FC = () => {
                         <div className="space-y-1.5 min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span
-                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${
+                              className={`text-[12px] font-extrabold px-2 py-0.5 rounded border ${
                                 isPreReset
                                   ? 'glass-subtle text-[var(--ns-warning)] border-[var(--ns-warning)]/30'
                                   : 'glass-subtle text-[var(--ns-success)] border-[var(--ns-success)]/30'
@@ -771,7 +771,7 @@ export const SettingsPage: React.FC = () => {
                               {isPreReset ? '🛡️ Pre-Reset Safety Snapshot' : '💾 Manual Snapshot'}
                             </span>
                             <span className="text-xs font-bold text-[var(--ns-ink)]">{dateStr}</span>
-                            <span className="text-[11px] text-[var(--ns-muted)] font-mono">
+                            <span className="text-[12px] text-[var(--ns-muted)] font-mono">
                               ({b.totalRecords} records · {sizeKb} KB)
                             </span>
                           </div>
@@ -787,13 +787,13 @@ export const SettingsPage: React.FC = () => {
                               .map(([model, count]) => (
                                 <span
                                   key={model}
-                                  className="text-[9px] font-mono glass-subtle text-[var(--ns-ink)] px-1.5 py-0.5 rounded border border-[var(--ns-glass-line)]"
+                                  className="text-[12px] font-mono glass-subtle text-[var(--ns-ink)] px-1.5 py-0.5 rounded border border-[var(--ns-glass-line)]"
                                 >
                                   {model}: {count}
                                 </span>
                               ))}
                             {Object.keys(b.modelsCount || {}).filter((k) => (b.modelsCount as any)[k] > 0).length > 7 && (
-                              <span className="text-[9px] font-mono text-[var(--ns-muted)]">+more</span>
+                              <span className="text-[12px] font-mono text-[var(--ns-muted)]">+more</span>
                             )}
                           </div>
                         </div>
@@ -884,7 +884,7 @@ export const SettingsPage: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-extrabold text-[var(--ns-ink)]">Danger Zone — Selective or Full System Reset</h3>
-                  <span className="glass-subtle text-[var(--ns-danger)] text-[10px] font-bold px-2 py-0.5 rounded border border-[var(--ns-danger)]/40">Admin Only</span>
+                  <span className="glass-subtle text-[var(--ns-danger)] text-[12px] font-bold px-2 py-0.5 rounded border border-[var(--ns-danger)]/40">Admin Only</span>
                 </div>
                 <p className="text-xs text-[var(--ns-muted)] mt-1 max-w-2xl leading-relaxed">
                   Choose exactly which data modules you want to clear (Reservations, POS Orders, Expenses, Cash Ledger, Menus, Rooms, etc.) or wipe the entire database clean. A safety snapshot is automatically created before any wipe so you can reverse/restore at any time.
@@ -918,7 +918,7 @@ export const SettingsPage: React.FC = () => {
             <div className="text-xs leading-relaxed">
               <strong className="text-[var(--ns-success)] font-bold">Data Restoration:</strong> This will restore all{' '}
               <strong className="text-[var(--ns-ink)]">{selectedBackupForRestore?.totalRecords} records</strong> from snapshot{' '}
-              <code className="glass-subtle text-[var(--ns-success)] px-1 py-0.5 rounded font-mono text-[11px]">{selectedBackupForRestore?.id}</code> back into the live database.
+              <code className="glass-subtle text-[var(--ns-success)] px-1 py-0.5 rounded font-mono text-[12px]">{selectedBackupForRestore?.id}</code> back into the live database.
             </div>
           </div>
 
@@ -976,7 +976,7 @@ export const SettingsPage: React.FC = () => {
           <div className="flex items-start gap-3 glass-subtle border border-[var(--ns-danger)]/30 rounded-xl p-4 text-[var(--ns-danger)]">
             <AlertTriangle size={18} className="text-[var(--ns-danger)] mt-0.5 shrink-0" />
             <div className="text-xs leading-relaxed">
-              Are you sure you want to permanently delete snapshot <code className="glass-subtle px-1 py-0.5 rounded font-mono text-[11px] text-[var(--ns-danger)]">{selectedBackupForDelete?.id}</code>?
+              Are you sure you want to permanently delete snapshot <code className="glass-subtle px-1 py-0.5 rounded font-mono text-[12px] text-[var(--ns-danger)]">{selectedBackupForDelete?.id}</code>?
             </div>
           </div>
 
@@ -1027,10 +1027,10 @@ export const SettingsPage: React.FC = () => {
           {/* Quick Preset Buttons */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+              <label className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <Sliders size={13} /> Quick Selection Presets
               </label>
-              <span className="text-[11px] font-bold text-[var(--ns-teal)]">
+              <span className="text-[12px] font-bold text-[var(--ns-teal)]">
                 {selectedCount} of {RESET_MODULES_LIST.length} modules selected ({totalAffectedRecords} total records)
               </span>
             </div>
@@ -1069,7 +1069,7 @@ export const SettingsPage: React.FC = () => {
 
           {/* Modules Selection Checklist */}
           <div className="space-y-2">
-            <label className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+            <label className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
               Select Data Modules to Clear
             </label>
 
@@ -1100,7 +1100,7 @@ export const SettingsPage: React.FC = () => {
                           {item.label}
                         </span>
                         <span
-                          className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                          className={`text-[12px] font-extrabold px-1.5 py-0.5 rounded ${
                             totalCount > 0
                               ? isSelected
                                 ? 'glass-subtle text-[var(--ns-danger)] border border-[var(--ns-danger)]/30'
@@ -1112,11 +1112,11 @@ export const SettingsPage: React.FC = () => {
                         </span>
                       </div>
 
-                      <p className="text-[10px] text-[var(--ns-muted)] mt-1 leading-relaxed line-clamp-2">
+                      <p className="text-[12px] text-[var(--ns-muted)] mt-1 leading-relaxed line-clamp-2">
                         {item.description}
                       </p>
 
-                      <div className="text-[9px] font-mono text-[var(--ns-muted)] mt-1.5 truncate">
+                      <div className="text-[12px] font-mono text-[var(--ns-muted)] mt-1.5 truncate">
                         {countsLoading ? 'Loading records...' : item.getCountsText(moduleCounts)}
                       </div>
                     </div>
@@ -1161,7 +1161,7 @@ export const SettingsPage: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-            <div className="text-[11px] text-[var(--ns-muted)]">
+            <div className="text-[12px] text-[var(--ns-muted)]">
               {selectedCount === 0 ? (
                 <span className="text-[var(--ns-warning)] font-semibold">Please select at least 1 module to clear.</span>
               ) : selectedCount === RESET_MODULES_LIST.length ? (

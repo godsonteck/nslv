@@ -187,7 +187,7 @@ export default function ReceptionReportPage() {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Shift &amp; Operations Report</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Reception front desk reporting</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Reception front desk reporting</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -209,7 +209,7 @@ export default function ReceptionReportPage() {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`glass-subtle ns-glass-hover px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
+              className={`glass-subtle ns-glass-hover px-3 py-1.5 rounded-md text-[12px] font-bold uppercase tracking-wider transition-all ${
                 mode === m ? 'glass text-[var(--ns-ink)] shadow font-black ns-glass-selected' : 'text-[var(--ns-muted)] hover:text-[var(--ns-gold)]'
               }`}
             >
@@ -218,7 +218,7 @@ export default function ReceptionReportPage() {
           ))}
         </div>
         {mode === 'custom' && (
-          <div className="flex items-center gap-2 text-[11px] text-[var(--ns-muted)]">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--ns-muted)]">
             <label className="flex items-center gap-1">
               From
               <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)}
@@ -231,7 +231,7 @@ export default function ReceptionReportPage() {
             </label>
           </div>
         )}
-        <span className="ml-auto text-[10px] font-bold text-[var(--ns-gold)] glass-subtle border border-[var(--ns-warning)] px-2.5 py-1.5 rounded-lg">
+        <span className="ml-auto text-[12px] font-bold text-[var(--ns-gold)] glass-subtle border border-[var(--ns-warning)] px-2.5 py-1.5 rounded-lg">
           {periodTitle}
         </span>
       </div>
@@ -243,29 +243,29 @@ export default function ReceptionReportPage() {
       ) : (
         <>
           {/* KPI Ribbon */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex flex-wrap gap-2 pb-2">
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Mobile Money</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Mobile Money</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{formatCurrency(fin.momo?.totalAmount || 0)}</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash Received</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash Received</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(fin.cash?.totalAmount || 0)}</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Card Payments</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Card Payments</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{formatCurrency(fin.card?.totalAmount || 0)}</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>People Booked</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>People Booked</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-purple)' }}>{bkg.totalPeople || 0}</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Expenses</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Expenses</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-danger)' }}>{formatCurrency(exp.totalTakenForExpenses || 0)}</div>
             </div>
             <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash in Hand</div>
+              <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Cash in Hand</div>
               <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-success)' }}>{formatCurrency(rec.expectedCashAtHand || 0)}</div>
             </div>
           </div>
@@ -276,7 +276,7 @@ export default function ReceptionReportPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`glass-subtle ns-glass-hover flex items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold border-b-2 transition-all ${
+                className={`glass-subtle ns-glass-hover flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-bold border-b-2 transition-all ${
                   activeTab === tab.id
                     ? 'border-[var(--ns-gold)] text-[var(--ns-gold)]'
                     : 'border-transparent text-[var(--ns-muted)] hover:text-[var(--ns-ink)]'
@@ -285,7 +285,7 @@ export default function ReceptionReportPage() {
                 <tab.icon size={13} />
                 {tab.label}
                 {tab.count !== undefined && (
-                  <span className={`ml-1 rounded px-1.5 py-0.5 text-[9px] font-bold ${activeTab === tab.id ? 'glass-subtle text-[var(--ns-gold)]' : 'glass-subtle text-[var(--ns-muted)] border border-[var(--ns-glass-line)]'}`}>
+                  <span className={`ml-1 rounded px-1.5 py-0.5 text-[12px] font-bold ${activeTab === tab.id ? 'glass-subtle text-[var(--ns-gold)]' : 'glass-subtle text-[var(--ns-muted)] border border-[var(--ns-glass-line)]'}`}>
                     {tab.count}
                   </span>
                 )}
@@ -307,9 +307,9 @@ export default function ReceptionReportPage() {
                   <div key={m.label} className="ns-card glass p-4 flex items-center gap-3">
                     <div className="w-1 self-stretch rounded-full" style={{ backgroundColor: m.color }} />
                     <div>
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{m.label}</div>
+                      <div className="text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{m.label}</div>
                       <div className="text-sm font-extrabold" style={{ color: m.ink }}>{formatCurrency(m.amt)}</div>
-                      <div className="text-[9px] text-[var(--ns-muted)]">{m.count} transactions</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">{m.count} transactions</div>
                     </div>
                   </div>
                 ))}
@@ -331,40 +331,40 @@ export default function ReceptionReportPage() {
                       <thead className="border-b border-[var(--ns-glass-line)]">
                         <tr>
                           {['Time', 'Guest & Phone', 'Room / Conf #', 'MoMo Reference', 'Staff', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--ns-glass-line)]">
                         {fin.momo.transactions.map((t: any) => (
                           <tr key={t.id} className="ns-glass-hover transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[12px]">
                               {new Date(t.processedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-[var(--ns-ink)]">{t.guestName}</div>
-                              <div className="text-[10px] text-[var(--ns-muted)] flex items-center gap-1">
+                              <div className="text-[12px] text-[var(--ns-muted)] flex items-center gap-1">
                                 <Phone size={9} /> {t.phone}
                               </div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-[var(--ns-ink)]">{t.roomNumber}</div>
-                              <div className="text-[10px] font-mono text-[var(--ns-muted)]">{t.confirmationNo}</div>
+                              <div className="text-[12px] font-mono text-[var(--ns-muted)]">{t.confirmationNo}</div>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="rounded border border-[var(--ns-warning)] glass-subtle px-1.5 py-0.5 font-mono text-[9px] font-bold text-[var(--ns-gold)]">
+                              <span className="rounded border border-[var(--ns-warning)] glass-subtle px-1.5 py-0.5 font-mono text-[12px] font-bold text-[var(--ns-gold)]">
                                 {t.reference}
                               </span>
-                              <div className="text-[9px] text-[var(--ns-muted)] mt-0.5 truncate max-w-[180px]">{t.description}</div>
+                              <div className="text-[12px] text-[var(--ns-muted)] mt-0.5 truncate max-w-[180px]">{t.description}</div>
                             </td>
-                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)] font-medium">{t.processedBy}</td>
+                            <td className="px-4 py-3 text-[12px] text-[var(--ns-muted)] font-medium">{t.processedBy}</td>
                             <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-gold)]">{formatCurrency(t.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="border-t border-[var(--ns-glass-line)]">
                         <tr>
-                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total MoMo Collected</td>
+                          <td colSpan={5} className="px-4 py-3 text-right text-[12px] font-bold uppercase text-[var(--ns-muted)]">Total MoMo Collected</td>
                           <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-gold)]">{formatCurrency(fin.momo?.totalAmount || 0)}</td>
                         </tr>
                       </tfoot>
@@ -389,18 +389,18 @@ export default function ReceptionReportPage() {
                       <thead className="border-b border-[var(--ns-glass-line)]">
                         <tr>
                           {['Time', 'Method', 'Guest', 'Room / Conf #', 'Staff', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--ns-glass-line)]">
                         {fin.allPaymentRecords.map((p: any) => (
                           <tr key={p.id} className="ns-glass-hover transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[12px]">
                               {new Date(p.processedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </td>
                             <td className="px-4 py-3">
-                              <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                              <span className={`rounded px-1.5 py-0.5 text-[12px] font-bold ${
                                 p.method === 'MOBILE_MONEY' ? 'glass-subtle text-[var(--ns-gold)] border border-[var(--ns-warning)]' :
                                 p.method === 'CASH' ? 'glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]' :
                                 p.method === 'CARD' ? 'glass-subtle text-[var(--ns-info)] border border-[var(--ns-info)]' :
@@ -411,20 +411,20 @@ export default function ReceptionReportPage() {
                             </td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-[var(--ns-ink)]">{p.guestName}</div>
-                              {p.reference !== '—' && <div className="text-[9px] font-mono text-[var(--ns-muted)]">{p.reference}</div>}
+                              {p.reference !== '—' && <div className="text-[12px] font-mono text-[var(--ns-muted)]">{p.reference}</div>}
                             </td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-[var(--ns-ink)]">{p.roomNumber}</div>
-                              <div className="text-[9px] font-mono text-[var(--ns-muted)]">{p.confirmationNo}</div>
+                              <div className="text-[12px] font-mono text-[var(--ns-muted)]">{p.confirmationNo}</div>
                             </td>
-                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)]">{p.processedBy}</td>
+                            <td className="px-4 py-3 text-[12px] text-[var(--ns-muted)]">{p.processedBy}</td>
                             <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-ink)]">{formatCurrency(p.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="border-t border-[var(--ns-glass-line)]">
                         <tr>
-                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total Gross Collections</td>
+                          <td colSpan={5} className="px-4 py-3 text-right text-[12px] font-bold uppercase text-[var(--ns-muted)]">Total Gross Collections</td>
                           <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-ink)]">{formatCurrency(fin.totalCollections || 0)}</td>
                         </tr>
                       </tfoot>
@@ -455,9 +455,9 @@ export default function ReceptionReportPage() {
                         <div className="flex items-start justify-between">
                           <div>
                             <div className="text-xs font-extrabold text-[var(--ns-ink)]">{cat.categoryName}</div>
-                            <div className="text-[9px] text-[var(--ns-muted)] mt-0.5">{formatCurrency(cat.basePrice)}/night</div>
+                            <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">{formatCurrency(cat.basePrice)}/night</div>
                           </div>
-                          <span className="rounded-full glass-subtle text-[var(--ns-gold)] font-bold text-[9px] px-2 py-0.5 border border-[var(--ns-gold)]">
+                          <span className="rounded-full glass-subtle text-[var(--ns-gold)] font-bold text-[12px] px-2 py-0.5 border border-[var(--ns-gold)]">
                             {cat.percentageShare}%
                           </span>
                         </div>
@@ -468,7 +468,7 @@ export default function ReceptionReportPage() {
                             { label: 'Guests', value: cat.totalPeople },
                           ].map((s) => (
                             <div key={s.label}>
-                              <div className="text-[8px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">{s.label}</div>
+                              <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-muted)]">{s.label}</div>
                               <div className="text-sm font-extrabold text-[var(--ns-ink)] mt-0.5">{s.value}</div>
                             </div>
                           ))}
@@ -478,7 +478,7 @@ export default function ReceptionReportPage() {
                           <span className="font-extrabold text-[var(--ns-gold)]">{formatCurrency(cat.totalRevenue)}</span>
                         </div>
                         {cat.roomsList && (
-                          <div className="text-[9px] text-[var(--ns-muted)] truncate">Rooms: <span className="text-[var(--ns-ink)] font-medium">{cat.roomsList}</span></div>
+                          <div className="text-[12px] text-[var(--ns-muted)] truncate">Rooms: <span className="text-[var(--ns-ink)] font-medium">{cat.roomsList}</span></div>
                         )}
                       </div>
                     ))}
@@ -502,28 +502,28 @@ export default function ReceptionReportPage() {
                       <thead className="border-b border-[var(--ns-glass-line)]">
                         <tr>
                           {['Conf #', 'Guest & Phone', 'Room / Category', 'Dates', 'People', 'Status', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--ns-glass-line)]">
                         {bkg.bookingsList.map((b: any) => (
                           <tr key={b.id} className="ns-glass-hover transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono font-bold text-[var(--ns-gold)] text-[10px]">{b.confirmationNo}</td>
+                            <td className="px-4 py-3 font-mono font-bold text-[var(--ns-gold)] text-[12px]">{b.confirmationNo}</td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-[var(--ns-ink)]">{b.guestName}</div>
-                              <div className="text-[9px] text-[var(--ns-muted)] flex items-center gap-1"><Phone size={9} />{b.phone}</div>
+                              <div className="text-[12px] text-[var(--ns-muted)] flex items-center gap-1"><Phone size={9} />{b.phone}</div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-[var(--ns-ink)]">Room {b.roomNumber}</div>
-                              <div className="text-[9px] text-[var(--ns-muted)]">{b.categoryName}</div>
+                              <div className="text-[12px] text-[var(--ns-muted)]">{b.categoryName}</div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="font-medium text-[var(--ns-ink)]">{b.checkInDate} → {b.checkOutDate}</div>
-                              <div className="text-[9px] text-[var(--ns-muted)]">{b.nights} night{b.nights !== 1 ? 's' : ''}</div>
+                              <div className="text-[12px] text-[var(--ns-muted)]">{b.nights} night{b.nights !== 1 ? 's' : ''}</div>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="rounded glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[9px] font-bold text-[var(--ns-ink)]">
+                              <span className="rounded glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                                 {b.totalPeople} ({b.adults}A / {b.children}C)
                               </span>
                             </td>
@@ -531,7 +531,7 @@ export default function ReceptionReportPage() {
                             <td className="px-4 py-3 text-right">
                               <div className="font-extrabold text-[var(--ns-ink)]">{formatCurrency(b.totalAmount)}</div>
                               {b.depositAmount > 0 && (
-                                <div className="text-[9px] text-[var(--ns-success)]">Dep: {formatCurrency(b.depositAmount)}</div>
+                                <div className="text-[12px] text-[var(--ns-success)]">Dep: {formatCurrency(b.depositAmount)}</div>
                               )}
                             </td>
                           </tr>
@@ -539,7 +539,7 @@ export default function ReceptionReportPage() {
                       </tbody>
                       <tfoot className="border-t border-[var(--ns-glass-line)]">
                         <tr>
-                          <td colSpan={6} className="px-4 py-3 text-[10px] text-[var(--ns-muted)]">
+                          <td colSpan={6} className="px-4 py-3 text-[12px] text-[var(--ns-muted)]">
                             Total: <strong className="text-[var(--ns-ink)]">{bkg.totalPeople || 0} people</strong> · {bkg.adults || 0} adults · {bkg.children || 0} children
                           </td>
                           <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-gold)]">
@@ -562,9 +562,9 @@ export default function ReceptionReportPage() {
                 <div className="grid gap-3 sm:grid-cols-4">
                   {(exp.byCategory || []).map((cat: any) => (
                     <div key={cat.category} className="ns-card glass p-4 border-l-2 border-[var(--ns-danger)]/60">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)] truncate">{cat.category}</div>
+                      <div className="text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)] truncate">{cat.category}</div>
                       <div className="text-sm font-extrabold text-[var(--ns-danger)] mt-1">{formatCurrency(cat.amount)}</div>
-                      <div className="text-[9px] text-[var(--ns-muted)]">{cat.percentage}% of payouts</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">{cat.percentage}% of payouts</div>
                     </div>
                   ))}
                 </div>
@@ -586,28 +586,28 @@ export default function ReceptionReportPage() {
                       <thead className="border-b border-[var(--ns-glass-line)]">
                         <tr>
                           {['Date / Time', 'Category', 'Description', 'Recipient', 'Voucher', 'Staff', 'Amount'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--ns-glass-line)]">
                         {exp.disbursementsList.map((d: any) => (
                           <tr key={d.id} className="ns-glass-hover transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">{d.date} {d.time}</td>
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[12px]">{d.date} {d.time}</td>
                             <td className="px-4 py-3">
-                              <span className="rounded glass-subtle text-[var(--ns-danger)] border border-[var(--ns-danger)] font-bold px-1.5 py-0.5 text-[9px] uppercase">{d.category}</span>
+                              <span className="rounded glass-subtle text-[var(--ns-danger)] border border-[var(--ns-danger)] font-bold px-1.5 py-0.5 text-[12px] uppercase">{d.category}</span>
                             </td>
                             <td className="px-4 py-3 text-[var(--ns-ink)] font-medium max-w-[200px] truncate">{d.description}</td>
                             <td className="px-4 py-3 font-bold text-[var(--ns-ink)]">{d.recipient}</td>
-                            <td className="px-4 py-3 font-mono text-[10px] text-[var(--ns-muted)]">{d.receiptRef}</td>
-                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)]">{d.recordedBy}</td>
+                            <td className="px-4 py-3 font-mono text-[12px] text-[var(--ns-muted)]">{d.receiptRef}</td>
+                            <td className="px-4 py-3 text-[12px] text-[var(--ns-muted)]">{d.recordedBy}</td>
                             <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-danger)]">-{formatCurrency(d.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="border-t border-[var(--ns-glass-line)]">
                         <tr>
-                          <td colSpan={6} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total Taken from Reception</td>
+                          <td colSpan={6} className="px-4 py-3 text-right text-[12px] font-bold uppercase text-[var(--ns-muted)]">Total Taken from Reception</td>
                           <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-danger)]">-{formatCurrency(exp.totalTakenForExpenses || 0)}</td>
                         </tr>
                       </tfoot>
@@ -624,7 +624,7 @@ export default function ReceptionReportPage() {
               <div className="grid gap-5 md:grid-cols-2">
                 {/* Cash Ledger */}
                 <div className="ns-card glass p-6 space-y-3">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)] pb-3">
+                  <div className="text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)] pb-3">
                     Cash Reconciliation Ledger
                   </div>
                   <div className="space-y-2 text-xs">
@@ -644,7 +644,7 @@ export default function ReceptionReportPage() {
                       </div>
                     ))}
                     <div className="border-t-2 border-[var(--ns-gold)] pt-3 flex items-center justify-between">
-                      <span className="font-extrabold text-[var(--ns-ink)] uppercase text-[10px] tracking-widest">Expected Cash at Hand</span>
+                      <span className="font-extrabold text-[var(--ns-ink)] uppercase text-[12px] tracking-widest">Expected Cash at Hand</span>
                       <span className="font-mono font-extrabold text-[var(--ns-gold)] text-base">{formatCurrency(rec.expectedCashAtHand || 0)}</span>
                     </div>
                   </div>
@@ -653,7 +653,7 @@ export default function ReceptionReportPage() {
                 {/* Shift Sign-off */}
                 <div className="ns-card glass p-6 space-y-4 flex flex-col justify-between">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)] pb-3">
+                    <div className="text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)] border-b border-[var(--ns-glass-line)] pb-3">
                       Shift Handover
                     </div>
                     <div className="mt-4 space-y-2 glass-subtle border border-[var(--ns-glass-line)] rounded-lg p-4 text-xs text-[var(--ns-muted)]">
@@ -663,13 +663,13 @@ export default function ReceptionReportPage() {
                       <div><span className="font-bold text-[var(--ns-ink)]">In-House Guests:</span> {ops.activeStaysCount || 0}</div>
                       <div><span className="font-bold text-[var(--ns-ink)]">Period:</span> {periodTitle}</div>
                     </div>
-                    <p className="text-[10px] text-[var(--ns-muted)] mt-3">
+                    <p className="text-[12px] text-[var(--ns-muted)] mt-3">
                       This report certifies all cash, MoMo, and expense records for the specified shift period.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-[var(--ns-glass-line)] grid grid-cols-2 gap-4 text-center">
-                    <div className="border-t border-dashed border-[var(--ns-glass-line)] pt-2 text-[9px] text-[var(--ns-muted)]">Receptionist Signature</div>
-                    <div className="border-t border-dashed border-[var(--ns-glass-line)] pt-2 text-[9px] text-[var(--ns-muted)]">Manager / Auditor</div>
+                    <div className="border-t border-dashed border-[var(--ns-glass-line)] pt-2 text-[12px] text-[var(--ns-muted)]">Receptionist Signature</div>
+                    <div className="border-t border-dashed border-[var(--ns-glass-line)] pt-2 text-[12px] text-[var(--ns-muted)]">Manager / Auditor</div>
                   </div>
                 </div>
               </div>
@@ -688,29 +688,29 @@ export default function ReceptionReportPage() {
                       <thead className="border-b border-[var(--ns-glass-line)]">
                         <tr>
                           {['Date', 'Time', 'Description', 'MoMo Ref', 'Staff', 'Cash Taken'].map((h) => (
-                            <th key={h} className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
+                            <th key={h} className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-[var(--ns-muted)]">{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--ns-glass-line)]">
                         {rec.momoDepositsList.map((m: any) => (
                           <tr key={m.id} className="ns-glass-hover transition-colors text-xs">
-                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">{m.date}</td>
-                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[10px]">{m.time}</td>
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[12px]">{m.date}</td>
+                            <td className="px-4 py-3 font-mono text-[var(--ns-muted)] text-[12px]">{m.time}</td>
                             <td className="px-4 py-3 text-[var(--ns-ink)]">{m.description}</td>
                             <td className="px-4 py-3">
-                              <span className="rounded border border-[var(--ns-warning)] glass-subtle px-1.5 py-0.5 font-mono text-[9px] font-bold text-[var(--ns-gold)]">
+                              <span className="rounded border border-[var(--ns-warning)] glass-subtle px-1.5 py-0.5 font-mono text-[12px] font-bold text-[var(--ns-gold)]">
                                 {m.reference}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-[11px] text-[var(--ns-muted)]">{m.recordedBy}</td>
+                            <td className="px-4 py-3 text-[12px] text-[var(--ns-muted)]">{m.recordedBy}</td>
                             <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-warning)]">-{formatCurrency(m.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="border-t border-[var(--ns-glass-line)]">
                         <tr>
-                          <td colSpan={5} className="px-4 py-3 text-right text-[10px] font-bold uppercase text-[var(--ns-muted)]">Total Sent via MoMo</td>
+                          <td colSpan={5} className="px-4 py-3 text-right text-[12px] font-bold uppercase text-[var(--ns-muted)]">Total Sent via MoMo</td>
                           <td className="px-4 py-3 text-right font-extrabold text-[var(--ns-warning)]">
                             -{formatCurrency(rec.momoDepositsFromCash || rec.cashDepositedToBank || 0)}
                           </td>

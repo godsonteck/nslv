@@ -100,13 +100,13 @@ const NotificationItem: React.FC<{
               <h4 className="text-xs font-black leading-snug truncate" style={{ color: 'var(--ns-ink)' }}>
                 {notification.title}
               </h4>
-              <p className="mt-0.5 line-clamp-2 text-[11px] font-medium leading-relaxed" style={{ color: 'var(--ns-muted)' }}>
+              <p className="mt-0.5 line-clamp-2 text-[12px] font-medium leading-relaxed" style={{ color: 'var(--ns-muted)' }}>
                 {notification.message}
               </p>
             </div>
             {!notification.isRead && (
               <span
-                className="shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide whitespace-nowrap"
+                className="shrink-0 rounded border px-1.5 py-0.5 text-[12px] font-black uppercase tracking-wide whitespace-nowrap"
                 data-accent=""
                 style={priorityBadgeStyle(notification.priority)}
               >
@@ -114,7 +114,7 @@ const NotificationItem: React.FC<{
               </span>
             )}
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-[10px] font-medium" style={{ color: 'var(--ns-muted)' }}>
+          <div className="mt-2 flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ns-muted)' }}>
             <span>{new Date(notification.createdAt).toLocaleString()}</span>
             <ArrowUpRight size={11} className="opacity-0 transition group-hover:opacity-100" data-accent="" style={{ color: 'var(--ns-teal)' }} />
           </div>
@@ -125,7 +125,7 @@ const NotificationItem: React.FC<{
         {!notification.isRead && (
           <button
             onClick={async () => await onMarkAsRead(notification.id)}
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold transition-colors ns-glass-hover"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors ns-glass-hover"
             style={{ color: 'var(--ns-ink)' }}
             title="Mark as read"
           >
@@ -142,7 +142,7 @@ const NotificationItem: React.FC<{
             }
           }}
           disabled={deleting}
-          className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold transition-colors disabled:opacity-50"
+          className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors disabled:opacity-50"
           data-accent=""
           style={{ color: 'var(--ns-danger)' }}
           title="Delete notification"
@@ -203,7 +203,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
           </h2>
           {unreadCount > 0 && (
             <span
-              className="rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide"
+              className="rounded-full px-2 py-0.5 text-[12px] font-black uppercase tracking-wide"
               data-accent=""
               style={{
                 border: '1px solid var(--ns-gold)',
@@ -223,7 +223,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
                 await markAllAsRead();
                 showToast('success', 'All notifications marked as read');
               }}
-              className="rounded-lg px-2.5 py-1 text-[10px] font-bold transition-colors ns-glass-hover"
+              className="rounded-lg px-2.5 py-1 text-[12px] font-bold transition-colors ns-glass-hover"
               style={{
                 border: '1px solid var(--ns-glass-line-soft)',
                 background: 'var(--ns-glass-1)',
@@ -266,7 +266,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
             <p className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
               No notifications
             </p>
-            <p className="mt-0.5 text-[11px]" style={{ color: 'var(--ns-muted)' }}>
+            <p className="mt-0.5 text-[12px]" style={{ color: 'var(--ns-muted)' }}>
               You're completely caught up.
             </p>
           </div>

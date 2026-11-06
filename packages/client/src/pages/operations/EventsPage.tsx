@@ -255,7 +255,7 @@ export const EventsPage: React.FC = () => {
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               Events & Venues
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
               Function spaces, banquets, private parties & corporate gatherings
             </p>
           </div>
@@ -267,7 +267,7 @@ export const EventsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setSpaceModalOpen(true)}
-                className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold"
+                className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold"
               >
                 <Building2 size={12} /> Add Venue
               </Button>
@@ -275,7 +275,7 @@ export const EventsPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={openCreate}
-                className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold ns-glass-hover"
+                className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold ns-glass-hover"
               >
                 <Plus size={12} /> Book Event
               </Button>
@@ -285,23 +285,23 @@ export const EventsPage: React.FC = () => {
       </div>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <button
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Upcoming Functions</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Upcoming Functions</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{upcomingCount}</div>
         </button>
         <button
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Events Today</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Events Today</div>
           <div className="text-xl font-black mt-0.5" style={{ color: todayCount > 0 ? 'var(--ns-gold)' : 'var(--ns-ink)' }}>{todayCount}</div>
         </button>
         <button
           className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] shrink-0"
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Expected Guests</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Expected Guests</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{expectedGuests}</div>
         </button>
       </div>
@@ -318,7 +318,7 @@ export const EventsPage: React.FC = () => {
         >
           <Calendar size={14} />
           <span>Event Bookings</span>
-          <span className="rounded-full ns-glass-band px-2 py-0.5 text-[10px]">
+          <span className="rounded-full ns-glass-band px-2 py-0.5 text-[12px]">
             {events.length}
           </span>
         </button>
@@ -332,7 +332,7 @@ export const EventsPage: React.FC = () => {
         >
           <Building2 size={14} />
           <span>Villa Function Spaces</span>
-          <span className="rounded-full ns-glass-band px-2 py-0.5 text-[10px]">
+          <span className="rounded-full ns-glass-band px-2 py-0.5 text-[12px]">
             {spaces.length}
           </span>
         </button>
@@ -386,7 +386,7 @@ export const EventsPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                  <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                     <th className="py-3 px-5">Event Title & Notes</th>
                     <th className="py-3 px-5">Venue Space</th>
                     <th className="py-3 px-5">Date & Time</th>
@@ -401,19 +401,19 @@ export const EventsPage: React.FC = () => {
                     <tr key={ev.id} className="ns-glass-hover transition-colors">
                       <td className="py-3.5 px-5">
                         <div className="font-bold text-[var(--ns-ink)] text-xs">{ev.title}</div>
-                        <div className="text-[10px] text-[var(--ns-muted)] max-w-xs truncate">
+                        <div className="text-[12px] text-[var(--ns-muted)] max-w-xs truncate">
                           {ev.description || ev.notes || '—'}
                         </div>
                       </td>
                       <td className="py-3.5 px-5">
-                        <span className="inline-flex items-center gap-1 rounded-md ns-glass-band px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
+                        <span className="inline-flex items-center gap-1 rounded-md ns-glass-band px-2 py-0.5 text-[12px] font-semibold text-[var(--ns-ink)]">
                           <Building2 size={11} className="text-[var(--ns-gold)]" />
                           {ev.eventSpace?.name ?? 'Villa Grounds'}
                         </span>
                       </td>
-                      <td className="py-3.5 px-5 font-mono text-[11px] text-[var(--ns-muted)]">
+                      <td className="py-3.5 px-5 font-mono text-[12px] text-[var(--ns-muted)]">
                         <div>{new Date(ev.startAt).toLocaleDateString('en-GH', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                        <div className="text-[10px] text-[var(--ns-muted)]">
+                        <div className="text-[12px] text-[var(--ns-muted)]">
                           {new Date(ev.startAt).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' })} &minus; {new Date(ev.endAt).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </td>
@@ -423,7 +423,7 @@ export const EventsPage: React.FC = () => {
                       <td className="py-3.5 px-5">
                         <div className="font-semibold text-[var(--ns-ink)] text-xs">{ev.contactName || '—'}</div>
                         {ev.contactPhone && (
-                          <div className="text-[10px] text-[var(--ns-muted)]">{ev.contactPhone}</div>
+                          <div className="text-[12px] text-[var(--ns-muted)]">{ev.contactPhone}</div>
                         )}
                       </td>
                       <td className="py-3.5 px-5 text-center">
@@ -492,7 +492,7 @@ export const EventsPage: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-[var(--ns-ink)] font-serif">{sp.name}</h4>
-                      <p className="text-[11px] text-[var(--ns-muted)] flex items-center gap-1">
+                      <p className="text-[12px] text-[var(--ns-muted)] flex items-center gap-1">
                         <MapPin size={11} className="text-[var(--ns-gold)]" /> {sp.location || 'NS Villa Grounds'}
                       </p>
                     </div>

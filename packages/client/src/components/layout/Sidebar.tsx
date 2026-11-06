@@ -139,7 +139,7 @@ export const Sidebar: React.FC = () => {
               >
                 NS Luxury Villa
               </div>
-              <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
+              <div className="mt-0.5 flex items-center gap-1.5 text-[12px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,.2)]" />
                 <span className="truncate">Lokoe, Ho ({roleName})</span>
               </div>
@@ -151,7 +151,7 @@ export const Sidebar: React.FC = () => {
         {sections.map((section, sIdx) => (
           <div key={section.title} className={sidebarOpen ? 'mb-4' : 'mb-2.5'}>
             {sidebarOpen ? (
-              <div className="px-3 pb-2 text-[9px] font-black uppercase tracking-[.16em] text-[var(--ns-muted)] opacity-100">
+              <div className="px-3 pb-2 text-[12px] font-black uppercase tracking-[.16em] text-[var(--ns-muted)] opacity-100">
                 {section.title}
               </div>
             ) : sIdx > 0 ? (
@@ -165,7 +165,7 @@ export const Sidebar: React.FC = () => {
                   to={to}
                   title={label}
                   className={({ isActive }) =>
-                    `group relative z-0 flex items-center rounded-xl text-[11px] font-bold transition-all ${
+                    `group relative z-0 flex items-center rounded-xl text-[12px] font-bold transition-all ${
                       sidebarOpen
                         ? 'gap-3 px-3 py-2.5 w-full'
                         : 'justify-center h-11 w-11 mx-auto'
@@ -216,20 +216,20 @@ export const Sidebar: React.FC = () => {
               <div
                 className="glass-subtle flex items-center gap-2.5 rounded-2xl p-2.5 border border-[var(--ns-glass-line)]"
               >
-                <div className="glass clay-badge flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[var(--ns-teal)] text-[10px] font-black border border-[var(--ns-teal)]/55">
+                <div className="glass clay-badge flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[var(--ns-teal)] text-[12px] font-black border border-[var(--ns-teal)]/55">
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-[11px] font-black" style={{ color: 'var(--ns-ink)' }}>
+                  <div className="truncate text-[12px] font-black" style={{ color: 'var(--ns-ink)' }}>
                     {fullName}
                   </div>
-                  <div className="truncate text-[9.5px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
+                  <div className="truncate text-[12px] font-black uppercase tracking-wider text-[var(--ns-gold)]">
                     {roleName}
                   </div>
                 </div>
               </div>
               <div
-                className="border-t border-[var(--ns-glass-line)] pt-2.5 text-[9px] leading-4"
+                className="border-t border-[var(--ns-glass-line)] pt-2.5 text-[12px] leading-4"
                 style={{ color: 'var(--ns-muted)' }}
               >
                 <div className="font-black uppercase tracking-[.14em]" style={{ color: 'var(--ns-ink)' }}>
@@ -242,7 +242,7 @@ export const Sidebar: React.FC = () => {
             </div>
           ) : (
             <div
-              className="glass flex h-9 w-9 mx-auto items-center justify-center rounded-xl clay-badge text-[var(--ns-teal)] text-[10px] font-black cursor-pointer hover:opacity-90 transition border border-[var(--ns-teal)]/55"
+              className="glass flex h-9 w-9 mx-auto items-center justify-center rounded-xl clay-badge text-[var(--ns-teal)] text-[12px] font-black cursor-pointer hover:opacity-90 transition border border-[var(--ns-teal)]/55"
               title={`${fullName} (${roleName})`}
             >
               {initials}

@@ -228,7 +228,7 @@ export const ExpensesPage: React.FC = () => {
             <h1 className="workspace-page__title text-xl">
               Property Expenditures
             </h1>
-            <p className="workspace-page__subtitle text-[11px]">
+            <p className="workspace-page__subtitle text-[12px]">
               Expense vouchers, supplier payments &amp; department disbursements
             </p>
           </div>
@@ -239,7 +239,7 @@ export const ExpensesPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => setCategoryManagerOpen(true)}
-              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover text-[11px] font-semibold"
+              className="gap-1.5 border-[var(--ns-glass-line)] text-[var(--ns-ink)] ns-glass-hover text-[12px] font-semibold"
             >
               <Settings size={13} /> Categories
             </Button>
@@ -249,7 +249,7 @@ export const ExpensesPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={openCreate}
-              className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold text-[11px]"
+              className="gap-1.5 glass ns-glass-hover text-[var(--ns-gold)] shadow-sm font-semibold text-[12px]"
             >
               <Plus size={12} /> New Expense Voucher
             </Button>
@@ -258,23 +258,23 @@ export const ExpensesPage: React.FC = () => {
       </header>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Approved Expenses</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Approved Expenses</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(totalApproved)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Approvals</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Approvals</div>
           <div className="text-xl font-black mt-0.5" style={{ color: pendingCount > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>
             {pendingCount} <span className="text-xs font-bold" style={{ color: 'var(--ns-muted)' }}>vouchers</span>
           </div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Value</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Pending Value</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(pendingTotal)}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Recorded</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Recorded</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{expenses.length}</div>
         </div>
       </div>
@@ -285,11 +285,11 @@ export const ExpensesPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <FileText size={14} className="text-[var(--ns-teal)]" />
             <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Expenditure Vouchers</h2>
-            <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
+            <span className="text-[12px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>
               {filteredExpenses.length}
             </span>
           </div>
-          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-[11px] text-[var(--ns-muted)] glass-subtle ns-glass-hover">
+          <Button variant="ghost" size="sm" onClick={fetchExpenses} className="h-8 gap-1.5 text-[12px] text-[var(--ns-muted)] glass-subtle ns-glass-hover">
             <RefreshCw size={13} /> Refresh
           </Button>
         </div>
@@ -303,7 +303,7 @@ export const ExpensesPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by description, vendor, or voucher #..."
-              className="ns-input glass-input w-full pl-7 pr-3 py-1.5 text-[11px]"
+              className="ns-input glass-input w-full pl-7 pr-3 py-1.5 text-[12px]"
             />
           </div>
           <div className="flex flex-wrap gap-2 sm:ml-auto">
@@ -342,7 +342,7 @@ export const ExpensesPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">Voucher #</th>
                   <th className="py-3 px-5">Category & Description</th>
                   <th className="py-3 px-5">Vendor / Payee</th>
@@ -356,21 +356,21 @@ export const ExpensesPage: React.FC = () => {
               <tbody className="divide-y divide-[var(--ns-glass-line)]">
                 {filteredExpenses.map((exp) => (
                   <tr key={exp.id} className="ns-glass-hover transition-colors">
-                    <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[var(--ns-gold)]">
+                    <td className="py-3.5 px-5 font-mono text-[12px] font-bold text-[var(--ns-gold)]">
                       {exp.expenseNo || exp.id.slice(0, 8).toUpperCase()}
                     </td>
                     <td className="py-3.5 px-5">
                       <div className="font-bold text-[var(--ns-ink)] text-xs">{exp.description}</div>
-                      <div className="text-[10px] font-semibold text-[var(--ns-muted)]">{exp.category}</div>
+                      <div className="text-[12px] font-semibold text-[var(--ns-muted)]">{exp.category}</div>
                     </td>
                     <td className="py-3.5 px-5 font-medium text-[var(--ns-ink)]">
                       {exp.vendor || '—'}
                     </td>
-                    <td className="py-3.5 px-5 text-[var(--ns-muted)] font-mono text-[11px]">
+                    <td className="py-3.5 px-5 text-[var(--ns-muted)] font-mono text-[12px]">
                       {new Date(exp.incurredOn).toLocaleDateString('en-GH')}
                     </td>
                     <td className="py-3.5 px-5">
-                      <span className="inline-flex rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
+                      <span className="inline-flex rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                         {exp.paymentMethod || 'CASH'}
                       </span>
                     </td>

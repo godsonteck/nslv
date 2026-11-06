@@ -63,7 +63,7 @@ const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }
             >
               {isExpanded ? <ChevronDown size={14} className="mr-2 text-[var(--ns-muted)]" /> : <ChevronRight size={14} className="mr-2 text-[var(--ns-muted)]" />}
               <span className="uppercase tracking-wider mr-2">{mod}</span>
-              <span className="text-[10px] text-[var(--ns-muted)] font-mono">({modPerms.length} rules)</span>
+              <span className="text-[12px] text-[var(--ns-muted)] font-mono">({modPerms.length} rules)</span>
             </button>
 
             {/* Permission Rows */}
@@ -72,7 +72,7 @@ const PermissionMatrix: React.FC<MatrixProps> = ({ roles, permissions, modules }
                 <div key={perm.id} className="flex items-center border-t border-[var(--ns-glass-line)] ns-glass-hover transition-colors">
                   <div className="w-64 shrink-0 px-4 py-2">
                     <div className="font-medium text-[var(--ns-ink)]">{perm.action}</div>
-                    {perm.description && <div className="text-[10px] text-[var(--ns-muted)]">{perm.description}</div>}
+                    {perm.description && <div className="text-[12px] text-[var(--ns-muted)]">{perm.description}</div>}
                   </div>
                   {roles.map((role) => {
                     const has = hasPermission(role, perm.id);
@@ -177,7 +177,7 @@ export const RolesPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Roles & Access Control</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Structured role definitions and permission matrix across all villa modules</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Structured role definitions and permission matrix across all villa modules</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -194,8 +194,8 @@ export const RolesPage: React.FC = () => {
                 <span className="font-semibold text-[var(--ns-ink)]">{role.name.replace(/_/g, ' ')}</span>
                 {role.isSystem && <Badge label="System" variant="info" />}
               </div>
-              {role.description && <p className="text-[11px] text-[var(--ns-muted)] mt-1">{role.description}</p>}
-              <div className="text-[10px] text-[var(--ns-muted)] font-mono mt-2">
+              {role.description && <p className="text-[12px] text-[var(--ns-muted)] mt-1">{role.description}</p>}
+              <div className="text-[12px] text-[var(--ns-muted)] font-mono mt-2">
                 {role.permissions?.length ?? 0} permissions
               </div>
             </div>
@@ -237,7 +237,7 @@ export const RolesPage: React.FC = () => {
                 if (modPerms.length === 0) return null;
                 return (
                   <div key={mod}>
-                    <div className="text-[10px] uppercase tracking-wider text-[var(--ns-gold)] font-semibold mb-1">{mod}</div>
+                    <div className="text-[12px] uppercase tracking-wider text-[var(--ns-gold)] font-semibold mb-1">{mod}</div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                       {modPerms.map((p) => (
                         <label key={p.id} className="flex items-center gap-2 p-1.5 rounded ns-glass-hover cursor-pointer">
@@ -247,7 +247,7 @@ export const RolesPage: React.FC = () => {
                             checked={selectedCodes.has(p.code)}
                             onChange={() => togglePermission(p.code)}
                           />
-                          <span className="text-[11px] text-[var(--ns-muted)]">{p.code}</span>
+                          <span className="text-[12px] text-[var(--ns-muted)]">{p.code}</span>
                         </label>
                       ))}
                     </div>

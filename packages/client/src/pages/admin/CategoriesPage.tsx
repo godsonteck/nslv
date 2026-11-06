@@ -97,7 +97,7 @@ export const CategoriesPage: React.FC = () => {
       render: (row: ItemCategory) => (
         <div>
           <div className="font-semibold text-[var(--ns-ink)]">{row.name}</div>
-          <div className="text-[11px] text-[var(--ns-muted)]">{row.description || '—'}</div>
+          <div className="text-[12px] text-[var(--ns-muted)]">{row.description || '—'}</div>
         </div>
       ),
     },
@@ -149,7 +149,7 @@ export const CategoriesPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Category Management</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Organize and manage system categories</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Organize and manage system categories</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

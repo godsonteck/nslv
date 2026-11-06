@@ -299,7 +299,7 @@ export const FrontDeskPage: React.FC = () => {
             <h1 className="workspace-page__title text-xl">
               Front Desk & Reception
             </h1>
-            <p className="workspace-page__subtitle text-[11px]">
+            <p className="workspace-page__subtitle text-[12px]">
               {nowFormatted} &middot; Checkout: {checkoutPolicy.checkoutTime}
             </p>
           </div>
@@ -307,19 +307,19 @@ export const FrontDeskPage: React.FC = () => {
         <div className="workspace-page__actions">
           <button
             onClick={() => navigate('/reception/report')}
-            className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] ns-glass-hover"
+            className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[12px] font-bold text-[var(--ns-ink)] ns-glass-hover"
           >
             <BarChart3 size={12} className="text-[var(--ns-info)]" /> Reception Report
           </button>
           <button
             onClick={() => navigate('/cash-at-hand')}
-            className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)] ns-glass-hover"
+            className="inline-flex items-center gap-1.5 rounded-xl glass border border-[var(--ns-glass-line)] px-3 py-2 text-[12px] font-bold text-[var(--ns-ink)] ns-glass-hover"
           >
             <WalletCards size={12} className="text-[var(--ns-success)]" /> Cash
           </button>
           <button
             onClick={refresh}
-            className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-secondary px-3 py-2 text-[11px] font-bold text-[var(--ns-ink)]"
+            className="inline-flex items-center gap-1.5 rounded-xl clay-btn clay-btn-secondary px-3 py-2 text-[12px] font-bold text-[var(--ns-ink)]"
           >
             <RefreshCw size={12} /> Refresh
           </button>
@@ -332,32 +332,32 @@ export const FrontDeskPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <DoorOpen size={14} className="text-[var(--ns-gold)]" />
             <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--ns-gold)' }}>Room Rack</span>
-            <span className="text-[10px] font-bold" style={{ color: 'var(--ns-muted)' }}>{rooms.length} total rooms</span>
+            <span className="text-[12px] font-bold" style={{ color: 'var(--ns-muted)' }}>{rooms.length} total rooms</span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
           <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-success)]">
-            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-success)]">Available</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{availableRoomsToday.length}</div>
           </div>
           <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-warning)]">
-            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-warning)]">Reserved</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{reservedRoomsToday.length}</div>
           </div>
           <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-info)]">
-            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-info)]">In-House</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{occupiedRoomsToday.length}</div>
           </div>
           <div className="glass-subtle clay-card rounded-2xl p-3 border-l-2 border-l-[var(--ns-danger)]">
-            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Turnover</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">Turnover</div>
             <div className="mt-1 text-2xl font-black text-[var(--ns-ink)]">{dirtyRoomsToday.length}</div>
           </div>
         </div>
 
         {availableRoomsToday.length > 0 && (
           <div className="pt-2 border-t border-[var(--ns-glass-line)]">
-            <div className="text-[10px] font-bold text-[var(--ns-muted)] uppercase tracking-wider mb-2">
+            <div className="text-[12px] font-bold text-[var(--ns-muted)] uppercase tracking-wider mb-2">
               Ready for Walk-Ins ({availableRoomsToday.length})
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -369,9 +369,9 @@ export const FrontDeskPage: React.FC = () => {
                   title="Click to book in reservations"
                 >
                   <DoorOpen size={11} className="text-[var(--ns-success)]" />
-                  <span className="text-[10px] font-black text-[var(--ns-ink)]">Rm {room.number}</span>
+                  <span className="text-[12px] font-black text-[var(--ns-ink)]">Rm {room.number}</span>
                   {room.roomType?.name && (
-                    <span className="text-[9px] text-[var(--ns-success)] font-semibold">{room.roomType.name}</span>
+                    <span className="text-[12px] text-[var(--ns-success)] font-semibold">{room.roomType.name}</span>
                   )}
                 </button>
               ))}
@@ -389,7 +389,7 @@ export const FrontDeskPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <LogIn size={14} className="text-[var(--ns-info)]" />
                 <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Arrivals Queue</h2>
-                <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>{arrivals.length}</span>
+                <span className="text-[12px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>{arrivals.length}</span>
               </div>
 
               <div className="relative w-full sm:w-48">
@@ -399,7 +399,7 @@ export const FrontDeskPage: React.FC = () => {
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Filter arrivals..."
-                  className="ns-input glass-input w-full pl-7 pr-3 py-1 text-[11px]"
+                  className="ns-input glass-input w-full pl-7 pr-3 py-1 text-[12px]"
                 />
               </div>
             </div>
@@ -429,11 +429,11 @@ export const FrontDeskPage: React.FC = () => {
                         <div className="min-w-0">
                           <div className="truncate text-xs font-bold text-[var(--ns-ink)] flex items-center gap-2">
                             <span>{guestFullName}</span>
-                            <span className="rounded-md border border-[var(--ns-info)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-info)]">
+                            <span className="rounded-md border border-[var(--ns-info)] glass-subtle px-2 py-0.5 text-[12px] font-black text-[var(--ns-info)]">
                               Room {reservation.room?.number || 'Unassigned'}
                             </span>
                           </div>
-                          <div className="mt-0.5 text-[11px] text-[var(--ns-muted)] flex items-center gap-2 flex-wrap">
+                          <div className="mt-0.5 text-[12px] text-[var(--ns-muted)] flex items-center gap-2 flex-wrap">
                             <span>Checkout: {new Date(reservation.checkOutDate).toLocaleDateString()} 12:00 PM</span>
                             <span className="text-[var(--ns-muted)]">|</span>
                             <span>Ref: {reservation.confirmationNo || reservation.id.slice(0, 8).toUpperCase()}</span>
@@ -466,9 +466,9 @@ export const FrontDeskPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <LogOut size={14} className="text-[var(--ns-warning)]" />
                 <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>In-House & Checkout</h2>
-                <span className="text-[10px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>{stays.length}</span>
+                <span className="text-[12px] font-bold glass-subtle rounded-full px-2 py-0.5 border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-muted)' }}>{stays.length}</span>
               </div>
-              <span className="text-[10px] font-bold" style={{ color: 'var(--ns-muted)' }}>
+              <span className="text-[12px] font-bold" style={{ color: 'var(--ns-muted)' }}>
                 Late: +GHS {checkoutPolicy.hourlyRate}/hr
               </span>
             </div>
@@ -493,16 +493,16 @@ export const FrontDeskPage: React.FC = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-bold text-[var(--ns-ink)]">{guestFullName}</span>
-                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-gold)]">
+                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-2 py-0.5 text-[12px] font-black text-[var(--ns-gold)]">
                             Room {stay.room?.number || 'Unassigned'}
                           </span>
                           {late && (
-                            <span className="inline-flex items-center gap-1 rounded-md border border-[var(--ns-warning)] glass-subtle px-2 py-0.5 text-[10px] font-black text-[var(--ns-warning)] animate-pulse">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-[var(--ns-warning)] glass-subtle px-2 py-0.5 text-[12px] font-black text-[var(--ns-warning)] animate-pulse">
                               <AlertTriangle size={11} /> LATE +GHS {late.fee} ({late.lateHours}h)
                             </span>
                           )}
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[var(--ns-muted)] flex items-center gap-2 flex-wrap">
+                        <div className="mt-0.5 text-[12px] text-[var(--ns-muted)] flex items-center gap-2 flex-wrap">
                           <span>
                             Departs {departureDate(stay) ? new Date(departureDate(stay)).toLocaleDateString() : 'Active'} 12:00 PM
                           </span>
@@ -569,7 +569,7 @@ export const FrontDeskPage: React.FC = () => {
               {/* ── Folio Breakdown ── */}
               <div className="rounded-xl border border-[var(--ns-gold)] glass-subtle overflow-hidden shadow-xs">
                 <div className="px-4 py-2.5 ns-glass-band border-b border-[var(--ns-gold)] flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--ns-gold)]">Folio Breakdown — What this payment covers</span>
+                  <span className="text-[12px] font-black uppercase tracking-wider text-[var(--ns-gold)]">Folio Breakdown — What this payment covers</span>
                   <Receipt size={13} className="text-[var(--ns-gold)]" />
                 </div>
                 <div className="divide-y divide-[var(--ns-glass-line)]">
@@ -598,7 +598,7 @@ export const FrontDeskPage: React.FC = () => {
                                   className="h-3.5 w-3.5 accent-[var(--ns-gold)] shrink-0"
                                 />
                                 <span className={line.voided ? 'line-through' : ''}>{line.label}</span>
-                                <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase">
+                                <span className="rounded-full glass-subtle border border-[var(--ns-warning)] px-1.5 py-0.5 text-[12px] font-black text-[var(--ns-warning)] uppercase">
                                   {chargeLateCheckoutFee ? 'Late fee (will be charged)' : 'Late fee (not charging — tick to charge)'}
                                 </span>
                               </label>
@@ -619,13 +619,13 @@ export const FrontDeskPage: React.FC = () => {
                             'text-[var(--ns-ink)]'
                           } ${line.voided ? 'line-through text-[var(--ns-muted)]' : ''}`}>
                             {isCredit ? '−' : ''}GHS {line.amount.toFixed(2)}
-                            {isUnpaid && <span className="ml-1 text-[10px] text-[var(--ns-warning)] font-normal">(owing)</span>}
+                            {isUnpaid && <span className="ml-1 text-[12px] text-[var(--ns-warning)] font-normal">(owing)</span>}
                           </span>
                         </div>
 
                         {/* When late fee is NOT being charged — show clear info */}
                         {isLateFee && !chargeLateCheckoutFee && (
-                          <p className="text-[10.5px] text-[var(--ns-success)] italic pl-5">
+                          <p className="text-[12px] text-[var(--ns-success)] italic pl-5">
                             ✓ Late checkout fee will NOT be charged. Tick the checkbox above to add it.
                           </p>
                         )}
@@ -633,7 +633,7 @@ export const FrontDeskPage: React.FC = () => {
                         {/* Optional payment allocation for late checkout */}
                         {isLateFee && chargeLateCheckoutFee && (
                           <div className="pl-5 pt-1 space-y-1 border-t border-[var(--ns-warning)]">
-                            <label className="flex items-center gap-2 cursor-pointer text-[11px] font-medium text-[var(--ns-warning)]">
+                            <label className="flex items-center gap-2 cursor-pointer text-[12px] font-medium text-[var(--ns-warning)]">
                               <input
                                 type="checkbox"
                                 checked={payLateFeeNow}
@@ -641,10 +641,10 @@ export const FrontDeskPage: React.FC = () => {
                                 className="h-3.5 w-3.5 accent-[var(--ns-gold)] shrink-0"
                               />
                               <span>Include late checkout payment in this settlement now</span>
-                              <span className="rounded glass-subtle px-1.5 py-0.2 text-[9px] font-bold text-[var(--ns-warning)] uppercase">Optional</span>
+                              <span className="rounded glass-subtle px-1.5 py-0.2 text-[12px] font-bold text-[var(--ns-warning)] uppercase">Optional</span>
                             </label>
                             {!payLateFeeNow && (
-                              <p className="text-[10.5px] text-[var(--ns-warning)] italic">
+                              <p className="text-[12px] text-[var(--ns-warning)] italic">
                                 Late fee of GHS {line.amount.toFixed(2)} will remain on the folio as an outstanding balance to be paid later.
                               </p>
                             )}
@@ -687,7 +687,7 @@ export const FrontDeskPage: React.FC = () => {
               {/* ── Payment Allocation & Purpose Card ── */}
               <div className="rounded-xl border border-[var(--ns-info)] glass-subtle p-3.5 space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-[var(--ns-info)]">
-                  <span className="flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                  <span className="flex items-center gap-1.5 uppercase tracking-wider text-[12px]">
                     <ShieldCheck size={13} className="text-[var(--ns-info)]" />
                     Payment Allocation &amp; Purpose
                   </span>
@@ -695,13 +695,13 @@ export const FrontDeskPage: React.FC = () => {
                     Due now: GHS {checkoutTotal.toFixed(2)}
                   </span>
                 </div>
-                <div className="text-[11px] text-[var(--ns-info)] space-y-1">
+                <div className="text-[12px] text-[var(--ns-info)] space-y-1">
                   <div>
                     <span className="font-semibold">Paying for:</span>{' '}
                     <span className="font-medium text-[var(--ns-ink)]">{checkoutPaymentDescription}</span>
                   </div>
                   {activeLateInfo && (
-                    <div className="flex items-center gap-1.5 text-[10.5px]">
+                    <div className="flex items-center gap-1.5 text-[12px]">
                       <span className="font-semibold">Late checkout allocation:</span>{' '}
                       {!chargeLateCheckoutFee ? (
                         <span className="text-[var(--ns-muted)] italic">Waived (Fee not charged)</span>
@@ -739,7 +739,7 @@ export const FrontDeskPage: React.FC = () => {
                     <AlertTriangle size={15} className="shrink-0" />
                     <span>Outstanding Balance — Payment Required Before Check-Out</span>
                   </div>
-                  <p className="text-[11px] text-[var(--ns-danger)] leading-relaxed">
+                  <p className="text-[12px] text-[var(--ns-danger)] leading-relaxed">
                     This guest has an unpaid balance of <strong>GHS {checkoutTotal.toFixed(2)}</strong>.
                     Full payment must be collected before check-out can be completed.
                     Select a payment method above and confirm the amount.

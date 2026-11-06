@@ -44,7 +44,7 @@ const AuditDetailModal: React.FC<{ log: AuditLogEntry | null; onClose: () => voi
   if (!log) return null;
 
   const renderJson = (data: unknown) => (
-    <pre className="glass-subtle border border-[var(--ns-glass-line)] rounded p-3 text-[10px] text-[var(--ns-muted)] overflow-auto max-h-40 font-mono">
+    <pre className="glass-subtle border border-[var(--ns-glass-line)] rounded p-3 text-[12px] text-[var(--ns-muted)] overflow-auto max-h-40 font-mono">
       {JSON.stringify(data, null, 2)}
     </pre>
   );
@@ -62,7 +62,7 @@ const AuditDetailModal: React.FC<{ log: AuditLogEntry | null; onClose: () => voi
             { label: 'Timestamp', value: new Date(log.createdAt).toLocaleString() },
           ].map((item) => (
             <div key={item.label} className="glass-subtle border border-[var(--ns-glass-line)] rounded p-2.5">
-              <div className="text-[10px] text-[var(--ns-muted)] uppercase tracking-wide mb-0.5">{item.label}</div>
+              <div className="text-[12px] text-[var(--ns-muted)] uppercase tracking-wide mb-0.5">{item.label}</div>
               <div className="text-xs text-[var(--ns-ink)] font-medium break-all">{item.value}</div>
             </div>
           ))}
@@ -75,20 +75,20 @@ const AuditDetailModal: React.FC<{ log: AuditLogEntry | null; onClose: () => voi
             </div>
             <div>
               <div className="text-xs text-[var(--ns-ink)] font-medium">{log.userName}</div>
-              {log.userEmail && <div className="text-[10px] text-[var(--ns-muted)]">{log.userEmail}</div>}
+              {log.userEmail && <div className="text-[12px] text-[var(--ns-muted)]">{log.userEmail}</div>}
             </div>
           </div>
         )}
 
         {log.beforeData && (
           <div>
-            <div className="text-[10px] text-[var(--ns-muted)] uppercase tracking-wide mb-1">State Before</div>
+            <div className="text-[12px] text-[var(--ns-muted)] uppercase tracking-wide mb-1">State Before</div>
             {renderJson(log.beforeData)}
           </div>
         )}
         {log.afterData && (
           <div>
-            <div className="text-[10px] text-[var(--ns-muted)] uppercase tracking-wide mb-1">State After</div>
+            <div className="text-[12px] text-[var(--ns-muted)] uppercase tracking-wide mb-1">State After</div>
             {renderJson(log.afterData)}
           </div>
         )}
@@ -140,7 +140,7 @@ export const AuditLogsPage: React.FC = () => {
       render: (log: AuditLogEntry) => (
         <div className="text-xs text-[var(--ns-muted)]">
           <div>{new Date(log.createdAt).toLocaleDateString()}</div>
-          <div className="text-[10px] font-mono text-[var(--ns-muted)]">{new Date(log.createdAt).toLocaleTimeString()}</div>
+          <div className="text-[12px] font-mono text-[var(--ns-muted)]">{new Date(log.createdAt).toLocaleTimeString()}</div>
         </div>
       ),
     },
@@ -151,7 +151,7 @@ export const AuditLogsPage: React.FC = () => {
         log.userName ? (
           <div>
             <div className="text-[var(--ns-ink)] font-medium">{log.userName}</div>
-            <div className="text-[10px] text-[var(--ns-muted)]">{log.userEmail || 'Staff'}</div>
+            <div className="text-[12px] text-[var(--ns-muted)]">{log.userEmail || 'Staff'}</div>
           </div>
         ) : (
           <span className="text-[var(--ns-muted)]">System</span>
@@ -167,15 +167,15 @@ export const AuditLogsPage: React.FC = () => {
       header: 'Target Entity',
       render: (log: AuditLogEntry) => (
         <div>
-          <span className="text-[var(--ns-ink)] uppercase text-[11px] font-mono">{log.resource}</span>
-          {log.resourceId && <div className="text-[10px] text-[var(--ns-muted)] font-mono">{log.resourceId.slice(0, 14)}…</div>}
+          <span className="text-[var(--ns-ink)] uppercase text-[12px] font-mono">{log.resource}</span>
+          {log.resourceId && <div className="text-[12px] text-[var(--ns-muted)] font-mono">{log.resourceId.slice(0, 14)}…</div>}
         </div>
       ),
     },
     {
       key: 'ip',
       header: 'IP Address',
-      render: (log: AuditLogEntry) => <span className="font-mono text-[11px] text-[var(--ns-muted)]">{log.ipAddress ?? '—'}</span>,
+      render: (log: AuditLogEntry) => <span className="font-mono text-[12px] text-[var(--ns-muted)]">{log.ipAddress ?? '—'}</span>,
     },
     {
       key: 'actions',
@@ -201,7 +201,7 @@ export const AuditLogsPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Audit Logs & System History</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Immutable, timestamped audit trail of all security, operational and user actions</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Immutable, timestamped audit trail of all security, operational and user actions</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

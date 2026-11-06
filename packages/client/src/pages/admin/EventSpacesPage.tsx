@@ -108,7 +108,7 @@ export const EventSpacesPage: React.FC = () => {
       render: (s: EventSpaceRecord) => (
         <div>
           <div className="font-bold text-[var(--ns-ink)]">{s.name}</div>
-          <div className="text-[11px] text-[var(--ns-muted)]">{s.description || 'No description'}</div>
+          <div className="text-[12px] text-[var(--ns-muted)]">{s.description || 'No description'}</div>
         </div>
       ),
     },
@@ -158,7 +158,7 @@ export const EventSpacesPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Event Spaces Management</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure property event locations, max capacities, and hourly rental rates for bookings.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure property event locations, max capacities, and hourly rental rates for bookings.</p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">

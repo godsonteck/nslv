@@ -239,7 +239,7 @@ export const LateCheckoutsPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Late Check-Outs Audit</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Complete ledger of delayed departures, automated hourly fees, delay durations, and staff attributions.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Complete ledger of delayed departures, automated hourly fees, delay durations, and staff attributions.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -253,22 +253,22 @@ export const LateCheckoutsPage: React.FC = () => {
       </div>
 
       {/* KPI Ribbon */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Late Departures</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Late Departures</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{summary.totalLateCheckouts} Stays</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Late Fees Recovered</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Late Fees Recovered</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{formatCurrency(summary.totalFeesCollected)}</div>
-          <div className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{formatCurrency(summary.totalFeesBilled)} billed · {formatCurrency(summary.totalRefunded)} refunded{(summary.totalFeesWaived || 0) > 0 ? ` · ${formatCurrency(summary.totalFeesWaived || 0)} waived` : ''}</div>
+          <div className="text-[12px] font-semibold mt-0.5" style={{ color: 'var(--ns-muted)' }}>{formatCurrency(summary.totalFeesBilled)} billed · {formatCurrency(summary.totalRefunded)} refunded{(summary.totalFeesWaived || 0) > 0 ? ` · ${formatCurrency(summary.totalFeesWaived || 0)} waived` : ''}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Avg Delay Duration</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Avg Delay Duration</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{summary.avgDelayHours} Hours</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Active Late Policy</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Active Late Policy</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>GHS {policy.hourlyRate}/hr</div>
         </div>
       </div>
@@ -280,7 +280,7 @@ export const LateCheckoutsPage: React.FC = () => {
             <Clock size={14} className="text-[var(--ns-teal)]" />
             <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Late Departures Ledger</h2>
           </div>
-          <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Filter by date range or search guest name, room, staff, or confirmation code.</p>
+          <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Filter by date range or search guest name, room, staff, or confirmation code.</p>
         </div>
 
         {/* Filter Toolbar */}
@@ -351,7 +351,7 @@ export const LateCheckoutsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left text-[var(--ns-muted)]">
-              <thead className="text-[10px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
+              <thead className="text-[12px] uppercase font-bold text-[var(--ns-muted)] ns-glass-band border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="p-3">Guest & Booking</th>
                   <th className="p-3">Room</th>
@@ -369,31 +369,31 @@ export const LateCheckoutsPage: React.FC = () => {
                   <tr key={r.id} className="ns-glass-hover transition-colors">
                     <td className="p-3">
                       <div className="font-bold text-[var(--ns-ink)]">{r.guestName}</div>
-                      <div className="text-[10px] font-mono text-[var(--ns-gold)]">{r.confirmationNo}</div>
+                      <div className="text-[12px] font-mono text-[var(--ns-gold)]">{r.confirmationNo}</div>
                       {r.guestPhone && r.guestPhone !== '—' && (
-                        <div className="text-[10px] text-[var(--ns-muted)]">{r.guestPhone}</div>
+                        <div className="text-[12px] text-[var(--ns-muted)]">{r.guestPhone}</div>
                       )}
                     </td>
 
                     <td className="p-3">
                       <div className="font-bold text-[var(--ns-ink)]">Room {r.roomNumber}</div>
-                      <div className="text-[10px] text-[var(--ns-muted)]">{r.roomTypeName}</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">{r.roomTypeName}</div>
                     </td>
 
-                    <td className="p-3 font-mono text-[11px]">
+                    <td className="p-3 font-mono text-[12px]">
                       <div>{new Date(r.scheduledCheckOutDate).toLocaleDateString()}</div>
-                      <div className="text-[10px] text-[var(--ns-muted)]">{policy.checkoutTime} PM</div>
+                      <div className="text-[12px] text-[var(--ns-muted)]">{policy.checkoutTime} PM</div>
                     </td>
 
-                    <td className="p-3 font-mono text-[11px]">
+                    <td className="p-3 font-mono text-[12px]">
                       <div className="text-[var(--ns-ink)]">{new Date(r.actualCheckOut).toLocaleDateString()}</div>
-                      <div className="text-[10px] text-[var(--ns-warning)]">
+                      <div className="text-[12px] text-[var(--ns-warning)]">
                         {new Date(r.actualCheckOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </td>
 
                     <td className="p-3 text-center">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]/50">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-bold glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)]/50">
                         <Clock size={10} /> +{r.hoursLate}h late
                       </span>
                     </td>
@@ -414,36 +414,36 @@ export const LateCheckoutsPage: React.FC = () => {
                           formatCurrency(r.feeAmount)
                         )}
                       </div>
-                      <div className="text-[9px] text-[var(--ns-muted)]">
+                      <div className="text-[12px] text-[var(--ns-muted)]">
                         {r.hoursLate}h @ GHS {policy.hourlyRate}/h
                       </div>
                       {r.waived && (
                         <span
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold glass-subtle text-[var(--ns-muted)] border border-[var(--ns-glass-line)]"
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[12px] font-bold glass-subtle text-[var(--ns-muted)] border border-[var(--ns-glass-line)]"
                           title={r.waivedReason || 'Fee waived at checkout'}
                         >
                           Waived at checkout
                         </span>
                       )}
                       {r.refundedAmount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[9px] font-bold glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]/50">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 mt-1 rounded text-[12px] font-bold glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)]/50">
                           {formatCurrency(r.refundedAmount)} Refunded
                         </span>
                       )}
                     </td>
 
                     <td className="p-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold glass-subtle text-[var(--ns-muted)]">
+                      <span className="px-2 py-0.5 rounded text-[12px] font-bold glass-subtle text-[var(--ns-muted)]">
                         {r.paymentMethod}
                       </span>
-                      <div className="text-[10px] text-[var(--ns-muted)] mt-0.5">Condition: {r.roomCondition}</div>
+                      <div className="text-[12px] text-[var(--ns-muted)] mt-0.5">Condition: {r.roomCondition}</div>
                     </td>
 
                     <td className="p-3">
                       <div className="flex items-center gap-1 font-semibold text-[var(--ns-ink)]">
                         👤 {r.checkedOutByName}
                       </div>
-                      <div className="text-[10px] text-[var(--ns-muted)]">
+                      <div className="text-[12px] text-[var(--ns-muted)]">
                         Check-in: {r.checkedInByName}
                       </div>
                     </td>
@@ -498,7 +498,7 @@ export const LateCheckoutsPage: React.FC = () => {
                 <div className="font-bold text-[var(--ns-warning)]">
                   Late Departure Delay of {selectedRecord.hoursLate} Hour{selectedRecord.hoursLate > 1 ? 's' : ''}
                 </div>
-                <div className="text-[11px] text-[var(--ns-warning)] mt-0.5">
+                <div className="text-[12px] text-[var(--ns-warning)] mt-0.5">
                   Guest departed on {new Date(selectedRecord.actualCheckOut).toLocaleString()} (Scheduled cutoff: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()} at {policy.checkoutTime} PM).{' '}
                   {selectedRecord.waived ? (
                     <>
@@ -515,7 +515,7 @@ export const LateCheckoutsPage: React.FC = () => {
             {/* Stay & Room Grid */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="p-3.5 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-2">
-                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Guest & Reservation</div>
+                <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Guest & Reservation</div>
                 <div className="text-sm font-extrabold text-[var(--ns-ink)]">{selectedRecord.guestName}</div>
                 <div className="text-xs text-[var(--ns-muted)]">Confirmation: <span className="font-mono text-[var(--ns-gold)]">{selectedRecord.confirmationNo}</span></div>
                 <div className="text-xs text-[var(--ns-muted)]">Phone: {selectedRecord.guestPhone}</div>
@@ -523,7 +523,7 @@ export const LateCheckoutsPage: React.FC = () => {
               </div>
 
               <div className="p-3.5 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-2">
-                <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Room & Stay Window</div>
+                <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Room & Stay Window</div>
                 <div className="text-sm font-extrabold text-[var(--ns-ink)]">Room {selectedRecord.roomNumber} · {selectedRecord.roomTypeName}</div>
                 <div className="text-xs text-[var(--ns-muted)]">Check-in Date: {new Date(selectedRecord.checkInDate).toLocaleDateString()}</div>
                 <div className="text-xs text-[var(--ns-muted)]">Scheduled Check-out: {new Date(selectedRecord.scheduledCheckOutDate).toLocaleDateString()}</div>
@@ -533,7 +533,7 @@ export const LateCheckoutsPage: React.FC = () => {
 
             {/* Financial Settlement & Staff Audit */}
             <div className="p-3.5 glass-subtle rounded-xl border border-[var(--ns-glass-line)] space-y-3">
-              <div className="text-[10px] uppercase font-bold text-[var(--ns-muted)]">Settlement & Staff Accountability</div>
+              <div className="text-[12px] uppercase font-bold text-[var(--ns-muted)]">Settlement & Staff Accountability</div>
               <div className="grid gap-2 sm:grid-cols-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                   <span className="text-[var(--ns-muted)]">Late Fee Charge</span>
@@ -603,7 +603,7 @@ export const LateCheckoutsPage: React.FC = () => {
                 <div className="font-bold text-[var(--ns-danger)]">
                   Remove Late Check-Out Status & Fee
                 </div>
-                <div className="text-[11px] text-[var(--ns-danger)] leading-relaxed">
+                <div className="text-[12px] text-[var(--ns-danger)] leading-relaxed">
                   This action will void the <strong>{formatCurrency(deletingRecord.feeAmount)}</strong> late check-out charge on the folio, reset the departure timestamp to on-time cutoff, and record this deletion in the immutable audit log.
                 </div>
               </div>

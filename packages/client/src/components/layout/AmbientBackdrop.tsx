@@ -1,21 +1,13 @@
 import React from 'react';
-import { villaAssets } from '../../assets';
-import { useThemeStore } from '../../stores/themeStore';
 
-export const AmbientBackdrop: React.FC = () => {
-  const logoUrl = useThemeStore((s) => s.theme?.logoUrl);
-  const logo = logoUrl || villaAssets.logo;
-
-  return (
-    <div className="ns-ambient" aria-hidden="true">
-      <div className="ns-orb ns-orb-1" />
-      <div className="ns-orb ns-orb-2" />
-      <div className="ns-orb ns-orb-3" />
-      <div className="ns-watermark">
-        <img src={logo} alt="" />
-      </div>
-    </div>
-  );
-};
+// Decorative ambient light field, without any logo watermark. Rays sit behind
+// the glass surfaces instead of competing with page copy.
+export const AmbientBackdrop: React.FC = () => (
+  <div className="ns-ambient" aria-hidden="true">
+    <div className="ns-orb ns-orb-1" />
+    <div className="ns-orb ns-orb-2" />
+    <div className="ns-orb ns-orb-3" />
+  </div>
+);
 
 export default AmbientBackdrop;

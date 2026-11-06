@@ -274,29 +274,6 @@ html[data-theme="dark"], html.dark {
     color: var(--ns-ink) !important;
   }
 
-  /* Saturated action buttons keep white labelling even inside ink-forced panes.
-     Declared in the same layer so it lands after the ink rule above. */
-  .clay-btn-primary, .clay-btn-primary *,
-  .clay-btn-accent, .clay-btn-accent *,
-  .clay-btn-danger, .clay-btn-danger * {
-    color: #ffffff !important;
-  }
-  .clay-btn-primary svg, .clay-btn-accent svg, .clay-btn-danger svg {
-    stroke: #ffffff !important;
-  }
-
-  /* The ink rule above targets direct children of glass panes and therefore
-     wins on specificity. This restores white primary-button labels inside
-     those same panes by matching the container and the button themselves. */
-  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
-    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger),
-  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
-    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger) * {
-    color: #ffffff !important;
-  }
-
   /* Semantic accents that must survive the ink rule inside glass panes. */
   .ns-accent-danger { color: var(--ns-danger) !important; }
   .ns-accent-warning { color: var(--ns-warning) !important; }
@@ -326,6 +303,26 @@ html[data-theme="dark"], html.dark {
   .text-neutral-400,
   .text-neutral-500 {
     color: var(--ns-muted) !important;
+  }
+
+  /* Saturated action buttons keep white labelling inside ink-forced panes.
+     Declared at the end of the base layer so they also beat the .text-[var(--ns-*)]
+     overrides above. */
+  .clay-btn-primary, .clay-btn-primary *,
+  .clay-btn-accent, .clay-btn-accent *,
+  .clay-btn-danger, .clay-btn-danger * {
+    color: #ffffff !important;
+  }
+  .clay-btn-primary svg, .clay-btn-accent svg, .clay-btn-danger svg {
+    stroke: #ffffff !important;
+  }
+  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
+    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger),
+  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
+    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger) * {
+    color: #ffffff !important;
   }
 }
 
@@ -412,30 +409,6 @@ html[data-theme="dark"] body, html.dark body {
   html[data-theme="dark"] .ns-ambient::after, html.dark .ns-ambient::after {
     opacity: .06;
     background-image: linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .12) 47%, transparent 60%);
-  }
-
-    .ns-watermark {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .ns-watermark img {
-    width: clamp(520px, 62vw, 1150px);
-    max-width: 96vw;
-    height: auto;
-    opacity: 0.28;
-    mix-blend-mode: multiply;
-    filter: invert(1) contrast(1.18);
-    user-select: none;
-    transform: translateY(-2vh);
-  }
-  html[data-theme="dark"] .ns-watermark img, html.dark .ns-watermark img {
-    opacity: 0.36;
-    mix-blend-mode: screen;
-    filter: brightness(1.22) contrast(1.12);
   }
 
   /* Notification rows: theme-aware glass instead of fixed white fills. */
@@ -688,7 +661,7 @@ html[data-theme="dark"] body, html.dark body {
     background-repeat: no-repeat;
     color: var(--ns-ink);
     border-bottom: 1px solid var(--ns-glass-line);
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: .12em;
     text-transform: uppercase;
     font-weight: 800;
@@ -810,7 +783,7 @@ html[data-theme="dark"] body, html.dark body {
   }
   .workspace-page__eyebrow {
     color: var(--ns-teal);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 900;
     letter-spacing: .18em;
     text-transform: uppercase;
@@ -928,7 +901,7 @@ html[data-theme="dark"] body, html.dark body {
     --ns-glass-3: transparent !important;
     color-scheme: light !important;
   }
-  .ns-ambient, .ns-watermark { display: none !important; }
+  .ns-ambient { display: none !important; }
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .glass-input, .ns-input, .ns-glass-band,
   .ns-glass-bar, .ns-glass-bar-soft {
@@ -954,6 +927,11 @@ html[data-theme="dark"] body, html.dark body {
   }
 
 .glass, .ns-card { background-color: var(--ns-glass-2); }
+
+/* Action buttons keep a single-line label wherever space allows. */
+.clay-btn {
+  white-space: nowrap;
+}
 
 html[data-theme="dark"] .glass, html.dark .glass,
   html[data-theme="dark"] .glass-strong, html.dark .glass-strong,

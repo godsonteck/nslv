@@ -129,7 +129,7 @@ export const AccountPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>My Profile</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage your personal details, avatar, and account security for the villa team.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Manage your personal details, avatar, and account security for the villa team.</p>
           </div>
         </div>
         <div className="flex items-center gap-2"></div>
@@ -192,7 +192,7 @@ export const AccountPage: React.FC = () => {
 
             <div className="rounded-xl border border-[var(--ns-glass-line)] ns-glass-band p-3 text-center text-xs text-[var(--ns-muted)] space-y-1 w-full">
               <div className="font-bold text-[var(--ns-ink)]">{user?.firstName} {user?.lastName}</div>
-              <div className="text-[11px] text-[var(--ns-gold)] font-semibold uppercase tracking-wider">
+              <div className="text-[12px] text-[var(--ns-gold)] font-semibold uppercase tracking-wider">
                 {user?.roles?.map((r: any) => (typeof r === 'string' ? r : r?.name)).join(' • ') || 'Villa team'}
               </div>
             </div>
@@ -208,7 +208,7 @@ export const AccountPage: React.FC = () => {
                 <UserCheck size={14} className="text-[var(--ns-teal)]" />
                 <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Personal Information</h2>
               </div>
-              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Your name, username and contact details.</p>
+              <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Your name, username and contact details.</p>
             </div>
             <form onSubmit={saveProfile} className="grid gap-4 p-5 sm:grid-cols-2">
               <FormField label="Username" required>
@@ -273,7 +273,7 @@ export const AccountPage: React.FC = () => {
                 <KeyRound size={14} className="text-[var(--ns-teal)]" />
                 <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>Account Password</h2>
               </div>
-              <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Update your sign-in credentials. You will be automatically signed out upon successful change.</p>
+              <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Update your sign-in credentials. You will be automatically signed out upon successful change.</p>
             </div>
             <form onSubmit={changePassword} className="space-y-4 p-5">
               <div className="grid gap-4 sm:grid-cols-3">

@@ -183,7 +183,7 @@ export const InventoryPage: React.FC = () => {
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               Inventory & Stock Levels
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
               Housekeeping, F&B stock, maintenance supplies & reorder levels
             </p>
           </div>
@@ -194,7 +194,7 @@ export const InventoryPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => setCategoryManagerOpen(true)}
-              className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold"
+              className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold"
             >
               <Settings size={12} /> Categories
             </Button>
@@ -207,7 +207,7 @@ export const InventoryPage: React.FC = () => {
                 setCategory(categoryOptions[0] ?? 'HOUSEKEEPING');
                 setCreateModalOpen(true);
               }}
-              className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold ns-glass-hover"
+              className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold ns-glass-hover"
             >
               <Plus size={12} /> Add Stock Item
             </Button>
@@ -216,17 +216,17 @@ export const InventoryPage: React.FC = () => {
       </div>
 
       {/* ── KPI Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Tracked Items</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Tracked Items</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{inventory.length}</div>
         </div>
         <div className={`glass-subtle rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${lowStockCount > 0 ? 'border-[var(--ns-warning)] ring-1 ring-[var(--ns-warning)]/30' : 'border-[var(--ns-glass-line)]'}`}>
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Low Stock Alerts</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Low Stock Alerts</div>
           <div className="text-xl font-black mt-0.5" style={{ color: lowStockCount > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>{lowStockCount} items</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Inventory Value</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Inventory Value</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{formatCurrency(totalValuation)}</div>
         </div>
       </div>
@@ -288,7 +288,7 @@ export const InventoryPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-5">SKU Code</th>
                   <th className="py-3 px-5">Item Description & Category</th>
                   <th className="py-3 px-5 text-center">In Stock</th>
@@ -304,19 +304,19 @@ export const InventoryPage: React.FC = () => {
 
                   return (
                     <tr key={item.id} className="ns-glass-hover transition-colors">
-                      <td className="py-3.5 px-5 font-mono text-[11px] font-bold text-[var(--ns-gold)]">
+                      <td className="py-3.5 px-5 font-mono text-[12px] font-bold text-[var(--ns-gold)]">
                         {item.sku || '—'}
                       </td>
                       <td className="py-3.5 px-5">
                         <div className="font-bold text-[var(--ns-ink)] text-xs">{item.name}</div>
-                        <div className="text-[10px] font-semibold text-[var(--ns-muted)]">{item.category}</div>
+                        <div className="text-[12px] font-semibold text-[var(--ns-muted)]">{item.category}</div>
                       </td>
                       <td className="py-3.5 px-5 text-center font-mono font-bold text-xs">
                         <span className={isLow ? 'text-[var(--ns-warning)] font-extrabold' : 'text-[var(--ns-ink)]'}>
                           {item.quantity} {item.unit}
                         </span>
                       </td>
-                      <td className="py-3.5 px-5 text-center font-mono text-[11px] text-[var(--ns-muted)]">
+                      <td className="py-3.5 px-5 text-center font-mono text-[12px] text-[var(--ns-muted)]">
                         {item.minQuantity} {item.unit}
                       </td>
                       <td className="py-3.5 px-5 text-right font-mono font-semibold text-[var(--ns-ink)]">
@@ -324,11 +324,11 @@ export const InventoryPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-5 text-center">
                         {isLow ? (
-                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                             <AlertTriangle size={10} /> Reorder Needed
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
+                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
                             <CheckCircle2 size={10} /> Sufficient
                           </span>
                         )}
@@ -468,13 +468,13 @@ export const InventoryPage: React.FC = () => {
           <form onSubmit={handleAdjust} className="space-y-4">
             <div className="rounded-xl border border-[var(--ns-gold)] glass-subtle p-4 flex justify-between items-center text-xs">
               <div>
-                <span className="text-[10px] font-extrabold uppercase text-[var(--ns-gold)]">Current Balance</span>
+                <span className="text-[12px] font-extrabold uppercase text-[var(--ns-gold)]">Current Balance</span>
                 <div className="text-base font-bold text-[var(--ns-ink)]">
                   {adjustModal.quantity} {adjustModal.unit}
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">Reorder Level</span>
+                <span className="text-[12px] font-extrabold uppercase text-[var(--ns-muted)]">Reorder Level</span>
                 <div className="text-sm font-semibold text-[var(--ns-muted)]">
                   {adjustModal.minQuantity} {adjustModal.unit}
                 </div>

@@ -137,7 +137,7 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       {...props}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center font-medium transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-medium transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
     >
       {loading && <div className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />}
       {children}
@@ -169,7 +169,7 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral' }) => {
     neutral: 'bg-transparent text-[var(--ns-muted)] border-slate-400/55',
   };
   return (
-    <span className={`glass-subtle clay-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wide border ${cls[variant]}`}>
+    <span className={`glass-subtle clay-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-[12px] font-black tracking-wide border ${cls[variant]}`}>
       {label}
     </span>
   );
@@ -235,7 +235,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, badge, 
       <div className="workspace-page__eyebrow">Property operations</div>
       <div className="mt-1 flex flex-wrap items-center gap-2.5">
         <h1 className="workspace-page__title">{title}</h1>
-        {badge && <span className="glass clay-badge rounded-full border border-[var(--ns-teal)]/55 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[.12em]" style={{ color: 'var(--ns-teal)' }}>{badge}</span>}
+        {badge && <span className="glass clay-badge rounded-full border border-[var(--ns-teal)]/55 px-2.5 py-1 text-[12px] font-extrabold uppercase tracking-[.12em]" style={{ color: 'var(--ns-teal)' }}>{badge}</span>}
       </div>
       {subtitle && <p className="workspace-page__subtitle">{subtitle}</p>}
     </div>
@@ -256,9 +256,9 @@ interface MetricCardProps {
 
 export const MetricCard: React.FC<MetricCardProps> = ({ label, value, subtext, indicator, accent = false }) => (
   <div className={`ns-card glass p-5 ${accent ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]' : ''}`}>
-    <div className="flex items-center justify-between"><span className="text-[9px] font-extrabold uppercase tracking-[.15em] text-[var(--ns-muted)]">{label}</span>{indicator && <div className="text-[var(--ns-gold)]">{indicator}</div>}</div>
+    <div className="flex items-center justify-between"><span className="text-[12px] font-extrabold uppercase tracking-[.15em] text-[var(--ns-muted)]">{label}</span>{indicator && <div className="text-[var(--ns-gold)]">{indicator}</div>}</div>
     <div className={`ns-number mt-3 text-[27px] font-extrabold ${accent ? 'text-[var(--ns-teal)]' : 'text-[var(--ns-ink)]'}`}>{value}</div>
-    {subtext && <div className="mt-1 text-[10px] leading-4 text-[var(--ns-muted)]">{subtext}</div>}
+    {subtext && <div className="mt-1 text-[12px] leading-4 text-[var(--ns-muted)]">{subtext}</div>}
   </div>
 );
 
@@ -276,7 +276,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, subtitle, a
   <div className="glass clay-card flex min-h-48 flex-col items-center justify-center rounded-3xl border border-dashed border-[var(--ns-glass-line)] px-5 py-12 text-center">
     {icon && <div className="glass-subtle mb-4 flex h-11 w-11 items-center justify-center rounded-2xl text-[var(--ns-muted)]">{icon}</div>}
     <h3 className="text-sm font-extrabold text-[var(--ns-ink)]">{title}</h3>
-    {subtitle && <p className="mt-1 max-w-sm text-[11px] leading-5 text-[var(--ns-muted)]">{subtitle}</p>}
+    {subtitle && <p className="mt-1 max-w-sm text-[12px] leading-5 text-[var(--ns-muted)]">{subtitle}</p>}
     {action && <div className="mt-4">{action}</div>}
   </div>
 );
@@ -322,7 +322,7 @@ export function DataTable<T>({
                 <th
                   key={col.key}
                   style={col.width ? { width: col.width } : undefined}
-                  className={`px-4 py-3 font-bold text-[11px] uppercase tracking-wider ${
+                  className={`px-4 py-3 font-bold text-[12px] uppercase tracking-wider ${
                     col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                   }`}
                 >
@@ -390,7 +390,7 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
       <button
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="clay-btn clay-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="clay-btn clay-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft size={16} />
       </button>
@@ -400,7 +400,7 @@ export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, total,
       <button
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="clay-btn clay-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="clay-btn clay-btn-secondary p-1.5 rounded-lg border border-[var(--ns-glass-line)] text-[var(--ns-ink)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight size={16} />
       </button>

@@ -862,19 +862,19 @@ export const ReservationsPage: React.FC = () => {
             <h1 className="workspace-page__title text-xl">
               Reservations & Bookings
             </h1>
-            <p className="workspace-page__subtitle text-[11px]">
+            <p className="workspace-page__subtitle text-[12px]">
               Group bookings, individual commitments, deposits
             </p>
           </div>
         </div>
         <div className="workspace-page__actions">
-          <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={load} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5">
             <RefreshCw size={12} /> Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => navigate('/payments')} className="border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5">
             <CreditCard size={12} className="text-[var(--ns-gold)]" /> Payments
           </Button>
-          <Button size="sm" onClick={() => setOpen(true)} className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover">
+          <Button size="sm" onClick={() => setOpen(true)} className="glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold gap-1.5 ns-glass-hover">
             <Plus size={12} /> New Reservation
           </Button>
         </div>
@@ -886,28 +886,28 @@ export const ReservationsPage: React.FC = () => {
           onClick={() => scrollToTable('ALL')}
           className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
-          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bookings</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Bookings</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{displayItems.length}</div>
         </button>
         <button
           onClick={() => scrollToTable('CONFIRMED_PENDING')}
           className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-gold)]/40 transition-all hover:border-[var(--ns-teal)]"
         >
-          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Confirmed</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Confirmed</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-gold)' }}>{confirmed}</div>
         </button>
         <button
           onClick={() => scrollToTable('CHECKED_IN')}
           className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
-          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Checked In</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Checked In</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-info)' }}>{active}</div>
         </button>
         <button
           onClick={() => navigate('/rooms')}
           className="glass-subtle clay-card rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)]"
         >
-          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Rooms</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Rooms</div>
           <div className="text-2xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>
         </button>
       </div>
@@ -926,7 +926,7 @@ export const ReservationsPage: React.FC = () => {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search guest, booking code or room..."
-              className="ns-input glass-input w-full px-3 py-1.5 text-[11px]"
+              className="ns-input glass-input w-full px-3 py-1.5 text-[12px]"
             />
           </div>
         </div>
@@ -937,7 +937,7 @@ export const ReservationsPage: React.FC = () => {
           <div className="flex items-center gap-1.5 flex-wrap">
             <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-2.5 h-10 shadow-sm focus-within:border-[var(--ns-gold)] focus-within:ring-1 focus-within:ring-[var(--ns-gold)]">
               <CalendarDays size={14} className="text-[var(--ns-gold)] mr-2 flex-shrink-0" />
-              <label htmlFor="resDateFilter" className="text-[11px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap cursor-pointer">
+              <label htmlFor="resDateFilter" className="text-[12px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap cursor-pointer">
                 Filter date:
               </label>
               <input
@@ -1038,7 +1038,7 @@ export const ReservationsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setDateFilter('')}
-              className="flex items-center gap-1 rounded-lg glass px-2 py-1 text-[11px] font-bold text-[var(--ns-gold)] ns-glass-hover border border-[var(--ns-glass-line)]"
+              className="flex items-center gap-1 rounded-lg glass px-2 py-1 text-[12px] font-bold text-[var(--ns-gold)] ns-glass-hover border border-[var(--ns-glass-line)]"
             >
               <X size={12} /> Clear date filter
             </button>
@@ -1057,7 +1057,7 @@ export const ReservationsPage: React.FC = () => {
                 {dateFilter ? 'Try a different date or clear the filter.' : 'Your fresh property database is ready for its first booking.'}
               </p>
               {dateFilter && (
-                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl glass px-4 py-2 text-[11px] font-extrabold text-[var(--ns-teal)] ns-glass-hover transition">
+                <button onClick={() => setDateFilter('')} className="mt-4 rounded-xl glass px-4 py-2 text-[12px] font-extrabold text-[var(--ns-teal)] ns-glass-hover transition">
                   Clear date filter
                 </button>
               )}
@@ -1066,7 +1066,7 @@ export const ReservationsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="ns-glass-band text-[11px] uppercase tracking-[.14em] text-[var(--ns-ink)] border-b border-[var(--ns-glass-line)]">
+              <thead className="ns-glass-band text-[12px] uppercase tracking-[.14em] text-[var(--ns-ink)] border-b border-[var(--ns-glass-line)]">
                 <tr>
                   <th className="px-5 py-3">Reservation / Group</th>
                   <th className="px-5 py-3">Guests</th>
@@ -1124,20 +1124,20 @@ export const ReservationsPage: React.FC = () => {
                               >
                                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                               </button>
-                              <span className="font-mono text-[11px] font-bold text-[var(--ns-gold)]">{item.bookingId}</span>
-                              <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[9px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
+                              <span className="font-mono text-[12px] font-bold text-[var(--ns-gold)]">{item.bookingId}</span>
+                              <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                                 <Users size={10} className="text-[var(--ns-gold)]" /> GROUP · {item.reservations.length} ROOMS
                               </span>
                             </div>
-                            <div className="mt-1 text-[10px] text-[var(--ns-muted)]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</div>
-                            {isAdmin && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">Booked by: {item.bookedBy?.name || '-'}</div>}
+                            <div className="mt-1 text-[12px] text-[var(--ns-muted)]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</div>
+                            {isAdmin && <div className="mt-1 text-[12px] text-[var(--ns-muted)]">Booked by: {item.bookedBy?.name || '-'}</div>}
                           </td>
                           <td className="px-5 py-4 text-xs text-[var(--ns-ink)]">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-extrabold">{formatGuestName(item.leadGuest)}</span>
-                              <span className="text-[10px] font-bold text-[var(--ns-gold)]">(Lead)</span>
+                              <span className="text-[12px] font-bold text-[var(--ns-gold)]">(Lead)</span>
                               {item.allGuests.length > 1 && (
-                                <span className="inline-flex items-center rounded-md glass-subtle px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
+                                <span className="inline-flex items-center rounded-md glass-subtle px-1.5 py-0.5 text-[12px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                                   +{item.allGuests.length - 1} in party
                                 </span>
                               )}
@@ -1145,16 +1145,16 @@ export const ReservationsPage: React.FC = () => {
                           </td>
                           <td className="px-5 py-4 text-xs text-[var(--ns-muted)]">
                             <div className="font-bold text-[var(--ns-ink)]">{item.rooms.length} Rooms: {item.rooms.map((r: any) => `R${r.number}`).join(', ')}</div>
-                            <div className="text-[11px] text-[var(--ns-ink-2)]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
+                            <div className="text-[12px] text-[var(--ns-ink-2)]">{item.rooms.map((r: any) => r.roomType?.name).filter(Boolean).slice(0, 2).join(', ')}{item.rooms.length > 2 ? '…' : ''}</div>
                           </td>
                           <td className="px-5 py-4 text-[12px] text-[var(--ns-ink)]">
                             <div>{new Date(item.checkInDate).toLocaleDateString()} → {new Date(item.checkOutDate).toLocaleDateString()}</div>
-                            <div className="text-[11px] text-[var(--ns-ink-2)]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
+                            <div className="text-[12px] text-[var(--ns-ink-2)]">{Math.max(1, Math.ceil((new Date(item.checkOutDate).getTime() - new Date(item.checkInDate).getTime()) / (1000 * 3600 * 24)))} nights</div>
                           </td>
                           <td className="px-5 py-4 text-xs font-extrabold text-[var(--ns-ink)]">
                             <div>{formatCurrency(item.totalAmount)}</div>
-                            <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--ns-gold)]">Group total</div>
-                            {item.discountAmount > 0 && <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">Discount -{formatCurrency(item.discountAmount)}</div>}
+                            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-gold)]">Group total</div>
+                            {item.discountAmount > 0 && <div className="mt-0.5 text-[12px] text-[var(--ns-muted)]">Discount -{formatCurrency(item.discountAmount)}</div>}
                           </td>
                           <td className="px-5 py-4 text-xs">
                             {item.recordedTotal > 0 ? (
@@ -1163,20 +1163,20 @@ export const ReservationsPage: React.FC = () => {
                                   {formatCurrency(item.recordedTotal)} paid
                                 </div>
                                 {item.isFullyPaid ? (
-                                  <span className="mt-1 inline-block rounded-full glass-subtle px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
+                                  <span className="mt-1 inline-block rounded-full glass-subtle px-2 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                                     Paid in full (Group)
                                   </span>
                                 ) : (
-                                  <div className="mt-0.5 text-[11px] font-bold text-[var(--ns-ink)]">
+                                  <div className="mt-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                                     Balance due {formatCurrency(item.balance)}
                                   </div>
                                 )}
-                                <div className="text-[9px] text-[var(--ns-muted)] font-semibold mt-0.5">Group Payment ({item.payments.length})</div>
+                                <div className="text-[12px] text-[var(--ns-muted)] font-semibold mt-0.5">Group Payment ({item.payments.length})</div>
                               </>
                             ) : (
                               <div>
                                 <span className="text-[var(--ns-muted)] font-semibold">Unpaid</span>
-                                <div className="mt-0.5 text-[10px] font-bold text-[var(--ns-muted)]">Due {formatCurrency(item.totalAmount)}</div>
+                                <div className="mt-0.5 text-[12px] font-bold text-[var(--ns-muted)]">Due {formatCurrency(item.totalAmount)}</div>
                               </div>
                             )}
                           </td>
@@ -1221,7 +1221,7 @@ export const ReservationsPage: React.FC = () => {
                             onClick={() => openDetails(subRes)}
                             className="ns-glass-band border-l-4 border-l-[var(--ns-gold)] text-xs ns-glass-hover transition-colors cursor-pointer"
                           >
-                            <td className="px-5 py-2.5 pl-8 font-mono text-[11px] text-[var(--ns-muted)]">
+                            <td className="px-5 py-2.5 pl-8 font-mono text-[12px] text-[var(--ns-muted)]">
                               <span className="text-[var(--ns-gold)] font-bold mr-1.5">↳</span>
                               {subRes.confirmationNo}
                             </td>
@@ -1229,15 +1229,15 @@ export const ReservationsPage: React.FC = () => {
                               <span className="font-semibold">{guestName(subRes.guests?.[0]?.guest)}</span>
                             </td>
                             <td className="px-5 py-2.5 font-bold text-[var(--ns-ink)]">
-                              Room {subRes.room?.number || '-'} <span className="text-[10px] font-normal text-[var(--ns-muted)]">({subRes.room?.roomType?.name || 'Room'})</span>
+                              Room {subRes.room?.number || '-'} <span className="text-[12px] font-normal text-[var(--ns-muted)]">({subRes.room?.roomType?.name || 'Room'})</span>
                             </td>
-                            <td className="px-5 py-2.5 text-[11px] text-[var(--ns-muted)]">
+                            <td className="px-5 py-2.5 text-[12px] text-[var(--ns-muted)]">
                               {new Date(subRes.checkInDate).toLocaleDateString()} → {new Date(subRes.checkOutDate).toLocaleDateString()}
                             </td>
                             <td className="px-5 py-2.5 font-bold text-[var(--ns-ink)]">
                               {formatCurrency(subRes.totalAmount)}
                             </td>
-                            <td className="px-5 py-2.5 text-[10px] text-[var(--ns-muted)]">
+                            <td className="px-5 py-2.5 text-[12px] text-[var(--ns-muted)]">
                               Covered by group payment
                             </td>
                             <td className="px-5 py-2.5">{statusBadge(subRes.status || 'PENDING')}</td>
@@ -1267,17 +1267,17 @@ export const ReservationsPage: React.FC = () => {
                     >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-[11px] font-bold text-[var(--ns-gold)]">{r.confirmationNo || r.id.slice(0, 8)}</span>
+                          <span className="font-mono text-[12px] font-bold text-[var(--ns-gold)]">{r.confirmationNo || r.id.slice(0, 8)}</span>
                         </div>
-                        <div className="mt-1 text-[10px] text-[var(--ns-muted)]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</div>
-                        {isAdmin && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">Booked by: {r.bookedBy?.name || '-'}</div>}
+                        <div className="mt-1 text-[12px] text-[var(--ns-muted)]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</div>
+                        {isAdmin && <div className="mt-1 text-[12px] text-[var(--ns-muted)]">Booked by: {r.bookedBy?.name || '-'}</div>}
                       </td>
                       <td className="px-5 py-4 text-xs text-[var(--ns-ink)]">
                         {allGuests.length ? (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-extrabold">{guestName(allGuests[0])}</span>
                             {extra > 0 && (
-                              <span className="inline-flex items-center rounded-md glass-subtle px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
+                              <span className="inline-flex items-center rounded-md glass-subtle px-1.5 py-0.5 text-[12px] font-semibold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                                 +{extra} more
                               </span>
                             )}
@@ -1288,14 +1288,14 @@ export const ReservationsPage: React.FC = () => {
                       </td>
                       <td className="px-5 py-4 text-xs text-[var(--ns-ink)]">
                         {r.room ? `Room ${r.room.number}` : 'Unassigned'}
-                        <div className="text-[11px] text-[var(--ns-ink-2)]">{r.room?.roomType?.name || '-'}</div>
+                        <div className="text-[12px] text-[var(--ns-ink-2)]">{r.room?.roomType?.name || '-'}</div>
                       </td>
                       <td className="px-5 py-4 text-[12px] text-[var(--ns-ink)]">
                         {new Date(r.checkInDate).toLocaleDateString()} → {new Date(r.checkOutDate).toLocaleDateString()}
                       </td>
                       <td className="px-5 py-4 text-xs font-extrabold text-[var(--ns-ink)]">
                         {Number(r.totalAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}
-                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[10px] font-bold text-[var(--ns-muted)]" title={r.discountReason || 'Approved reservation discount'}>Discount -{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
+                        {Number(r.discountAmount || 0) > 0 && <div className="mt-1 text-[12px] font-bold text-[var(--ns-muted)]" title={r.discountReason || 'Approved reservation discount'}>Discount -{Number(r.discountAmount).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</div>}
                       </td>
                       <td className="px-5 py-4 text-xs">
                         {Number(r.depositAmount || 0) > 0 || recordedDepositTotal(r) > 0 ? (
@@ -1304,15 +1304,15 @@ export const ReservationsPage: React.FC = () => {
                               {formatCurrency(recordedDepositTotal(r))} paid
                             </div>
                             {isFullyPaid(r) ? (
-                              <span className="mt-1 inline-block rounded-full glass-subtle px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
+                              <span className="mt-1 inline-block rounded-full glass-subtle px-2 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                                 Paid in full
                               </span>
                             ) : (
                               <>
                                 {Number(r.depositAmount || 0) > 0 && Number(r.depositAmount) !== recordedDepositTotal(r) && (
-                                  <div className="mt-0.5 text-[10px] text-[var(--ns-muted)]">{formatCurrency(r.depositAmount)} expected</div>
+                                  <div className="mt-0.5 text-[12px] text-[var(--ns-muted)]">{formatCurrency(r.depositAmount)} expected</div>
                                 )}
-                                <div className="mt-0.5 text-[11px] font-bold text-[var(--ns-ink)]">
+                                <div className="mt-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                                   Balance due {formatCurrency(reservationBalance(r))}
                                 </div>
                               </>
@@ -1322,7 +1322,7 @@ export const ReservationsPage: React.FC = () => {
                           <span className="text-[var(--ns-muted)]">-</span>
                         )}
                       </td>
-                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[10px] text-[var(--ns-muted)]">Out: {r.checkedOutBy.name}</div>}</td>
+                      <td className="px-5 py-4">{statusBadge(r.status || 'PENDING')}{isAdmin && r.checkedInBy?.name && <div className="mt-1 text-[12px] text-[var(--ns-muted)]">In: {r.checkedInBy.name}</div>}{isAdmin && r.checkedOutBy?.name && <div className="mt-1 text-[12px] text-[var(--ns-muted)]">Out: {r.checkedOutBy.name}</div>}</td>
                       <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
                           <button onClick={() => openDetails(r)} className="rounded-lg p-2 text-[var(--ns-muted)] ns-glass-hover hover:text-[var(--ns-gold)] bg-[var(--ns-glass-1)]" title="View booking details">
@@ -1382,10 +1382,10 @@ export const ReservationsPage: React.FC = () => {
       <Modal open={open} onClose={closeModal} title="New reservation" size="lg">
         <form onSubmit={save} className="space-y-5">
           <div className="flex flex-wrap gap-1.5">
-            <button type="button" onClick={() => setMulti(false)} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${!multi ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'}`}>
+            <button type="button" onClick={() => setMulti(false)} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[12px] font-extrabold transition ${!multi ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'}`}>
               Single room
             </button>
-            <button type="button" onClick={startMulti} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center gap-1.5 transition ${multi ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'}`}>
+            <button type="button" onClick={startMulti} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[12px] font-extrabold flex items-center gap-1.5 transition ${multi ? 'glass text-[var(--ns-teal)] shadow-sm ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'}`}>
               <Users size={12} className="text-[var(--ns-gold)]" /> Group booking (multiple rooms)
             </button>
           </div>
@@ -1413,7 +1413,7 @@ export const ReservationsPage: React.FC = () => {
 
               <div className="rounded-2xl border border-[var(--ns-glass-line)] p-4 glass-subtle">
                 <div className="flex items-center justify-between">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Guests in this booking</div>
+                  <div className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Guests in this booking</div>
                   <Button size="sm" type="button" variant="outline" onClick={() => setPeople((p) => [...p, { ...emptyPerson, key: uid() }])}>
                     <Plus size={13} /> Add guest
                   </Button>
@@ -1423,10 +1423,10 @@ export const ReservationsPage: React.FC = () => {
                     <div key={p.key} className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex flex-wrap gap-1.5">
-                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'existing' } : x)))} className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'existing' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
+                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'existing' } : x)))} className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-extrabold transition ${p.mode === 'existing' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                             Existing
                           </button>
-                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'new' } : x)))} className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${p.mode === 'new' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
+                          <button type="button" onClick={() => setPeople((arr) => arr.map((x) => (x.key === p.key ? { ...x, mode: 'new' } : x)))} className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-extrabold transition ${p.mode === 'new' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                             New guest
                           </button>
                         </div>
@@ -1471,17 +1471,17 @@ export const ReservationsPage: React.FC = () => {
               <div className="rounded-2xl border border-[var(--ns-glass-line)] p-4 glass-subtle">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Rooms in this party ({roomLines.length})</div>
-                    <div className="text-[10px] text-[var(--ns-muted)]">Select how many rooms this group is reserving</div>
+                    <div className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Rooms in this party ({roomLines.length})</div>
+                    <div className="text-[12px] text-[var(--ns-muted)]">Select how many rooms this group is reserving</div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-bold text-[var(--ns-muted)]">Quick size:</span>
+                    <span className="text-[12px] font-bold text-[var(--ns-muted)]">Quick size:</span>
                     {[2, 3, 4, 5].map((cnt) => (
                       <button
                         key={cnt}
                         type="button"
                         onClick={() => setMultiRoomCount(cnt)}
-                        className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-extrabold transition ${
+                        className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-extrabold transition ${
                           roomLines.length === cnt
                             ? 'glass text-[var(--ns-teal)] shadow-xs ns-glass-selected'
                             : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)] hover:text-[var(--ns-gold)]'
@@ -1501,7 +1501,7 @@ export const ReservationsPage: React.FC = () => {
                     return (
                       <div key={line.key} className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-[11px] font-extrabold text-[var(--ns-ink)]">Room {i + 1} of {roomLines.length}</div>
+                          <div className="text-[12px] font-extrabold text-[var(--ns-ink)]">Room {i + 1} of {roomLines.length}</div>
                           {roomLines.length > 1 && (
                             <button type="button" onClick={() => setRoomLines((arr) => arr.filter((x) => x.key !== line.key))} className="text-[var(--ns-muted)] ns-glass-hover p-1 rounded bg-[var(--ns-glass-1)]" title="Remove this room">
                               <Minus size={14} />
@@ -1561,7 +1561,7 @@ export const ReservationsPage: React.FC = () => {
                                           ),
                                         )
                                       }
-                                      className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
+                                      className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
                                     >
                                       {label || 'Person'}
                                     </button>
@@ -1585,22 +1585,22 @@ export const ReservationsPage: React.FC = () => {
               <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-glass-line)] pb-2.5">
                   <div>
-                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)] flex items-center gap-1.5">
+                    <div className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)] flex items-center gap-1.5">
                       <CreditCard size={14} className="text-[var(--ns-gold)]" /> Group Financial Breakdown &amp; Payment (optional)
                     </div>
-                    <p className="mt-0.5 text-[10px] text-[var(--ns-muted)]">Calculates total group charges, payments made, and remaining balance due.</p>
+                    <p className="mt-0.5 text-[12px] text-[var(--ns-muted)]">Calculates total group charges, payments made, and remaining balance due.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {groupEstimatedTotal > 0 && Number(groupDeposit.amount) >= groupEstimatedTotal ? (
-                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[12px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                         ✓ Full Payment (Group)
                       </span>
                     ) : Number(groupDeposit.amount) > 0 ? (
-                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[12px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                         Part Payment / Deposit (Group)
                       </span>
                     ) : (
-                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[12px] font-extrabold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                         Unpaid · Settle at check-in
                       </span>
                     )}
@@ -1688,10 +1688,10 @@ export const ReservationsPage: React.FC = () => {
             <>
               <div className="rounded-2xl border border-[var(--ns-glass-line)] p-4 glass-subtle">
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" onClick={() => setGuestMode('existing')} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'existing' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
+                  <button type="button" onClick={() => setGuestMode('existing')} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[12px] font-extrabold transition ${guestMode === 'existing' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                     Select existing guest
                   </button>
-                  <button type="button" onClick={() => setGuestMode('new')} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[10px] font-extrabold transition ${guestMode === 'new' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
+                  <button type="button" onClick={() => setGuestMode('new')} className={`glass-subtle ns-glass-hover rounded-xl px-3 py-2 text-[12px] font-extrabold transition ${guestMode === 'new' ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}>
                     Enter new guest details
                   </button>
                 </div>
@@ -1738,7 +1738,7 @@ export const ReservationsPage: React.FC = () => {
                               key={g.id}
                               type="button"
                               onClick={() => toggleFormGuest(g.id)}
-                              className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
+                              className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
                             >
                               {g.firstName} {g.lastName}
                             </button>
@@ -1787,22 +1787,22 @@ export const ReservationsPage: React.FC = () => {
               <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-glass-line)] pb-2.5">
                   <div>
-                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)] flex items-center gap-1.5">
+                    <div className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)] flex items-center gap-1.5">
                       <CreditCard size={14} className="text-[var(--ns-gold)]" /> Financial Breakdown &amp; Payment (optional)
                     </div>
-                    <p className="mt-0.5 text-[10px] text-[var(--ns-muted)]">Calculates room charges, payments, and remaining money due.</p>
+                    <p className="mt-0.5 text-[12px] text-[var(--ns-muted)]">Calculates room charges, payments, and remaining money due.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {singleEstimatedTotal > 0 && Number(form.depositAmount) >= singleEstimatedTotal ? (
-                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[12px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                         ✓ Full Payment
                       </span>
                     ) : Number(form.depositAmount) > 0 ? (
-                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[12px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                         Part Payment / Deposit
                       </span>
                     ) : (
-                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[11px] font-extrabold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2.5 py-1 text-[12px] font-extrabold text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                         Unpaid · Settle at check-in
                       </span>
                     )}
@@ -1845,7 +1845,7 @@ export const ReservationsPage: React.FC = () => {
             </>
           )}
 
-          <div className="rounded-2xl glass-subtle p-4 text-[11px] leading-5 text-[var(--ns-muted)]">
+          <div className="rounded-2xl glass-subtle p-4 text-[12px] leading-5 text-[var(--ns-muted)]">
             Availability and pricing must be validated by the server. The client does not reserve a room until the API confirms the booking.
           </div>
           <div className="flex justify-end gap-2">
@@ -1929,11 +1929,11 @@ export const ReservationsPage: React.FC = () => {
                       <div>
                         <div className="font-extrabold text-[var(--ns-ink)] flex items-center gap-2">
                           <span>Group Booking {detailsRes.bookingId}</span>
-                          <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-bold text-[var(--ns-ink)]">
+                          <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[12px] font-bold text-[var(--ns-ink)]">
                             {groupRooms.length} Room{groupRooms.length !== 1 ? 's' : ''} in Party
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[var(--ns-muted)]">
+                        <div className="mt-0.5 text-[12px] text-[var(--ns-muted)]">
                           Rooms: {groupRooms.map((rm: any) => `Room ${rm.number}`).join(', ')} · Group Total: <strong className="text-[var(--ns-ink)]">{formatCurrency(groupTotal)}</strong> · Group Paid: <strong className="text-[var(--ns-success)]">{formatCurrency(groupPaid)}</strong> · Group Remaining Due: <strong className="text-[var(--ns-muted)]">{formatCurrency(groupBalance)}</strong>
                         </div>
                       </div>
@@ -1961,7 +1961,7 @@ export const ReservationsPage: React.FC = () => {
                       {detailsRes.confirmationNo || detailsRes.id.slice(0, 8)}
                     </span>
                     {detailsRes.bookingId && (
-                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                         PARTY · {detailsRes.bookingId}
                       </span>
                     )}
@@ -1987,7 +1987,7 @@ export const ReservationsPage: React.FC = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Stay & Room */}
                 <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+                  <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                     <BedDouble size={14} /> Room & Stay Information
                   </div>
                   <div className="space-y-2 text-xs">
@@ -2025,7 +2025,7 @@ export const ReservationsPage: React.FC = () => {
 
                 {/* Primary & Additional Guests */}
                 <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center justify-between">
+                  <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <Users size={14} /> Guests on Booking
                     </span>
@@ -2035,7 +2035,7 @@ export const ReservationsPage: React.FC = () => {
                         setDetailsRes(null);
                         openManageGuests(r);
                       }}
-                      className="text-[10px] font-extrabold text-[var(--ns-gold)] hover:underline glass-subtle ns-glass-hover"
+                      className="text-[12px] font-extrabold text-[var(--ns-gold)] hover:underline glass-subtle ns-glass-hover"
                     >
                       Manage →
                     </button>
@@ -2062,7 +2062,7 @@ export const ReservationsPage: React.FC = () => {
                         <span className="text-[var(--ns-muted)] block mb-1">Additional Guests ({additionalGuests.length}):</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {additionalGuests.map((ag: any) => (
-                            <span key={ag.id} className="inline-flex rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[11px] font-semibold text-[var(--ns-ink)]">
+                            <span key={ag.id} className="inline-flex rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[12px] font-semibold text-[var(--ns-ink)]">
                               {formatGuestName(ag.guest)}
                             </span>
                           ))}
@@ -2076,19 +2076,19 @@ export const ReservationsPage: React.FC = () => {
               {/* Financial Summary Card */}
               <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+                  <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                     <CreditCard size={14} /> Financial Breakdown &amp; Money Due
                   </div>
                   {isFullyPaid(detailsRes) ? (
-                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
+                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                       ✓ Paid in full
                     </span>
                   ) : recordedDepositTotal(detailsRes) > 0 ? (
-                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                       Part Payment / Deposit
                     </span>
                   ) : (
-                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
+                    <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-muted)] border border-[var(--ns-glass-line)]">
                       Unpaid · Balance Due
                     </span>
                   )}
@@ -2117,15 +2117,15 @@ export const ReservationsPage: React.FC = () => {
                   {/* Always-visible 3 KPI Tiles */}
                   <div className="grid grid-cols-3 gap-2.5 pt-2">
                     <div className="rounded-xl glass-subtle p-3 border border-[var(--ns-glass-line)] text-center">
-                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">Total Money Due</div>
+                      <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">Total Money Due</div>
                       <div className="text-base font-extrabold text-[var(--ns-ink)] mt-0.5">{formatCurrency(detailsRes.totalAmount)}</div>
                     </div>
                     <div className="rounded-xl glass-subtle p-3 border border-[var(--ns-success)] text-center">
-                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-success)]">Money Paid</div>
+                      <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-success)]">Money Paid</div>
                       <div className="text-base font-extrabold text-[var(--ns-success)] mt-0.5">{formatCurrency(recordedDepositTotal(detailsRes))}</div>
                     </div>
                     <div className={`rounded-xl p-3 border text-center ${reservationBalance(detailsRes) > 0 ? 'glass-subtle border-[var(--ns-warning)]' : 'glass-subtle border-[var(--ns-success)]'}`}>
-                      <div className={`text-[10px] font-extrabold uppercase tracking-wider ${reservationBalance(detailsRes) > 0 ? 'text-[var(--ns-warning)]' : 'text-[var(--ns-success)]'}`}>
+                      <div className={`text-[12px] font-extrabold uppercase tracking-wider ${reservationBalance(detailsRes) > 0 ? 'text-[var(--ns-warning)]' : 'text-[var(--ns-success)]'}`}>
                         Remaining Money Due
                       </div>
                       <div className={`text-base font-extrabold mt-0.5 ${reservationBalance(detailsRes) > 0 ? 'text-[var(--ns-warning)]' : 'text-[var(--ns-success)]'}`}>
@@ -2147,7 +2147,7 @@ export const ReservationsPage: React.FC = () => {
                     </div>
                     {recordedDeposits(detailsRes).length > 0 ? (
                       recordedDeposits(detailsRes).map((p: any) => (
-                        <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1.5 border-t border-[var(--ns-glass-line)]">
+                        <div key={p.id} className="flex items-center justify-between gap-2 text-[12px] pt-1.5 border-t border-[var(--ns-glass-line)]">
                           <span className="text-[var(--ns-muted)]">
                             Recorded · {p.method}
                             {p.reference ? ` · ${p.reference}` : ''}
@@ -2177,7 +2177,7 @@ export const ReservationsPage: React.FC = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="text-[11px] text-[var(--ns-gold)] pt-1 border-t border-[var(--ns-glass-line)]">
+                      <div className="text-[12px] text-[var(--ns-gold)] pt-1 border-t border-[var(--ns-glass-line)]">
                         No payment recorded yet. Collect partial payment or full amount at check-in.
                       </div>
                     )}
@@ -2194,7 +2194,7 @@ export const ReservationsPage: React.FC = () => {
               {/* Special Requests & Notes */}
               {(detailsRes.specialRequests || detailsRes.notes) && (
                 <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-2 text-xs">
-                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+                  <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                     <FileText size={13} /> Notes & Special Requests
                   </div>
                   {detailsRes.specialRequests && (
@@ -2286,7 +2286,7 @@ export const ReservationsPage: React.FC = () => {
                   <span className="font-mono text-base font-extrabold text-[var(--ns-gold)]">
                     {selectedGroup.bookingId}
                   </span>
-                  <span className="rounded-md glass-subtle px-2 py-0.5 text-[10px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
+                  <span className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                     GROUP BOOKING · {selectedGroup.reservations.length} ROOMS
                   </span>
                 </div>
@@ -2311,7 +2311,7 @@ export const ReservationsPage: React.FC = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Stay Dates */}
               <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+                <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                   <CalendarDays size={14} className="text-[var(--ns-gold)]" /> Group Stay Dates
                 </div>
                 <div className="space-y-2 text-xs">
@@ -2336,7 +2336,7 @@ export const ReservationsPage: React.FC = () => {
 
               {/* Lead Guest */}
               <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+                <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                   <Users size={14} /> Lead Guest Contact
                 </div>
                 <div className="space-y-2 text-xs">
@@ -2344,7 +2344,7 @@ export const ReservationsPage: React.FC = () => {
                     <span className="text-[var(--ns-muted)]">Name</span>
                     <span className="font-extrabold text-[var(--ns-ink)] flex items-center gap-1">
                       {formatGuestName(selectedGroup.leadGuest)}
-                      {selectedGroup.leadGuest?.isVip && <span className="rounded glass-subtle px-1 py-0.5 text-[9px] font-extrabold text-[var(--ns-warning)]">VIP</span>}
+                      {selectedGroup.leadGuest?.isVip && <span className="rounded glass-subtle px-1 py-0.5 text-[12px] font-extrabold text-[var(--ns-warning)]">VIP</span>}
                     </span>
                   </div>
                   {selectedGroup.leadGuest?.phone && (
@@ -2364,7 +2364,7 @@ export const ReservationsPage: React.FC = () => {
                       <span className="text-[var(--ns-muted)] block mb-1">Other Guests ({selectedGroup.allGuests.length - 1}):</span>
                       <div className="flex flex-wrap gap-1.5">
                         {selectedGroup.allGuests.filter((g: any) => g.id !== selectedGroup.leadGuest?.id).map((ag: any) => (
-                          <span key={ag.id} className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[11px] font-medium text-[var(--ns-ink)]">
+                          <span key={ag.id} className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[12px] font-medium text-[var(--ns-ink)]">
                             {formatGuestName(ag)}
                           </span>
                         ))}
@@ -2377,12 +2377,12 @@ export const ReservationsPage: React.FC = () => {
 
             {/* Rooms in Group */}
             <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
-              <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                 <BedDouble size={14} /> Booked Rooms ({selectedGroup.reservations.length})
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="ns-glass-band text-[10px] uppercase tracking-wider text-[var(--ns-muted)]">
+                  <thead className="ns-glass-band text-[12px] uppercase tracking-wider text-[var(--ns-muted)]">
                     <tr>
                       <th className="px-3 py-2">Room</th>
                       <th className="px-3 py-2">Confirmation</th>
@@ -2396,7 +2396,7 @@ export const ReservationsPage: React.FC = () => {
                     {selectedGroup.reservations.map((sub: any) => (
                       <tr key={sub.id} className="ns-glass-hover">
                         <td className="px-3 py-2 font-bold text-[var(--ns-ink)]">
-                          Room {sub.room?.number || '—'} <span className="text-[10px] font-normal text-[var(--ns-muted)]">({sub.room?.roomType?.name || 'Room'})</span>
+                          Room {sub.room?.number || '—'} <span className="text-[12px] font-normal text-[var(--ns-muted)]">({sub.room?.roomType?.name || 'Room'})</span>
                         </td>
                         <td className="px-3 py-2 font-mono text-[var(--ns-muted)]">{sub.confirmationNo}</td>
                         <td className="px-3 py-2 text-[var(--ns-ink)]">{guestName(sub.guests?.[0]?.guest)}</td>
@@ -2425,15 +2425,15 @@ export const ReservationsPage: React.FC = () => {
             {/* Financial Summary & Group Payment Card */}
             <div className="rounded-2xl border border-[var(--ns-glass-line)] glass-subtle p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
+                <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] flex items-center gap-1.5">
                   <CreditCard size={14} className="text-[var(--ns-gold)]" /> Group Payment &amp; Financial Summary
                 </div>
                 {selectedGroup.isFullyPaid ? (
-                  <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
+                  <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-success)] border border-[var(--ns-success)]">
                     Paid in full (Group)
                   </span>
                 ) : (
-                  <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                  <span className="rounded-full glass-subtle px-2.5 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                     Balance due {formatCurrency(selectedGroup.balance)}
                   </span>
                 )}
@@ -2460,7 +2460,7 @@ export const ReservationsPage: React.FC = () => {
                   </div>
                   {selectedGroup.payments.length > 0 ? (
                     selectedGroup.payments.map((p: any) => (
-                      <div key={p.id} className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-[var(--ns-glass-line)]">
+                      <div key={p.id} className="flex items-center justify-between gap-2 text-[12px] pt-1 border-t border-[var(--ns-glass-line)]">
                         <span className="text-[var(--ns-muted)]">
                           Group Deposit · {p.method}
                           {p.reference ? ` · ${p.reference}` : ''}
@@ -2491,7 +2491,7 @@ export const ReservationsPage: React.FC = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-[11px] text-[var(--ns-muted)]">No group payment recorded yet. Collect partial payment below.</div>
+                    <div className="text-[12px] text-[var(--ns-muted)]">No group payment recorded yet. Collect partial payment below.</div>
                   )}
                   {!selectedGroup.isFullyPaid && (
                     <div className="flex justify-between border-t border-[var(--ns-glass-line)] pt-2 mt-1">
@@ -2564,7 +2564,7 @@ export const ReservationsPage: React.FC = () => {
                 ) : (
                   <span>No payment logged yet for this group. Record the group deposit.</span>
                 )}
-                <div className="mt-1 text-[10px] text-[var(--ns-muted)]">
+                <div className="mt-1 text-[12px] text-[var(--ns-muted)]">
                   Outstanding group balance: <strong className="text-[var(--ns-ink)]">{formatCurrency(depositTargetGroup.balance)}</strong> (Group total: {formatCurrency(depositTargetGroup.totalAmount)})
                 </div>
               </div>
@@ -2622,11 +2622,11 @@ export const ReservationsPage: React.FC = () => {
                   <div className="border-t border-[var(--ns-glass-line)] pt-2 flex justify-between items-center">
                     <span className="font-semibold text-[var(--ns-ink)]">Payment Classification:</span>
                     {Number(depositForm.amount) >= depositTargetGroup.balance ? (
-                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
                         &#10003; Full Payment (Paid in full)
                       </span>
                     ) : (
-                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
                         Part Payment / Deposit
                       </span>
                     )}
@@ -2644,7 +2644,7 @@ export const ReservationsPage: React.FC = () => {
                     </div>
                   )}
                   {Number(depositForm.amount) >= depositTargetGroup.balance && (
-                    <div className="text-[11px] text-[var(--ns-success)] font-semibold text-center pt-0.5">
+                    <div className="text-[12px] text-[var(--ns-success)] font-semibold text-center pt-0.5">
                       &#10003; This payment completely clears the outstanding group balance.
                     </div>
                   )}
@@ -2705,7 +2705,7 @@ export const ReservationsPage: React.FC = () => {
                 ) : (
                   <span>No payment was logged on this reservation. Record the amount the guest paid.</span>
                 )}
-                <div className="mt-1 text-[10px] text-[var(--ns-muted)]">
+                <div className="mt-1 text-[12px] text-[var(--ns-muted)]">
                   Amount cannot exceed {formatCurrency(Math.max(0, Number(detailsRes.totalAmount || 0) - recordedDepositTotal(detailsRes)))}
                 </div>
               </div>
@@ -2764,11 +2764,11 @@ export const ReservationsPage: React.FC = () => {
                   <div className="border-t border-[var(--ns-glass-line)] pt-2 flex justify-between items-center">
                     <span className="font-semibold text-[var(--ns-ink)]">Payment Classification:</span>
                     {Number(depositForm.amount) >= reservationBalance(detailsRes) ? (
-                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-glass-line)]">
                         &#10003; Full Payment (Paid in full)
                       </span>
                     ) : (
-                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[11px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
+                      <span className="rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-glass-line)]">
                         Part Payment / Deposit
                       </span>
                     )}
@@ -2786,7 +2786,7 @@ export const ReservationsPage: React.FC = () => {
                     </div>
                   )}
                   {Number(depositForm.amount) >= reservationBalance(detailsRes) && (
-                    <div className="text-[11px] text-[var(--ns-success)] font-semibold text-center pt-0.5">
+                    <div className="text-[12px] text-[var(--ns-success)] font-semibold text-center pt-0.5">
                       &#10003; This payment completely clears the outstanding reservation balance.
                     </div>
                   )}
@@ -2832,21 +2832,21 @@ export const ReservationsPage: React.FC = () => {
       <Modal open={manageOpen} onClose={() => setManageOpen(false)} title={manageRes ? `Guests on ${manageRes.confirmationNo || 'reservation'}` : 'Manage guests'} size="lg">
         <div className="space-y-5">
           <div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Currently on the reservation</div>
+            <div className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Currently on the reservation</div>
             <div className="mt-2 space-y-1.5">
               {(manageRes?.guests?.length ? [...manageRes.guests].sort((a: any, b: any) => Number(b.isPrimary) - Number(a.isPrimary)) : []).map((g: any) => (
                 <div key={g.id} className="flex items-center justify-between rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 py-2 text-xs">
                   <span className={g.isPrimary ? 'font-extrabold text-[var(--ns-ink)]' : 'text-[var(--ns-muted)]'}>
-                    {guestName(g.guest)} {g.isPrimary && <span className="ml-1 rounded-md glass-subtle px-1.5 py-0.5 text-[9px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">PRIMARY</span>}
+                    {guestName(g.guest)} {g.isPrimary && <span className="ml-1 rounded-md glass-subtle px-1.5 py-0.5 text-[12px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">PRIMARY</span>}
                   </span>
-                  <span className="text-[10px] text-[var(--ns-muted)]">{g.guest?.phone || g.guest?.email || ''}</span>
+                  <span className="text-[12px] text-[var(--ns-muted)]">{g.guest?.phone || g.guest?.email || ''}</span>
                 </div>
               ))}
               {(!manageRes?.guests || manageRes.guests.length === 0) && <p className="text-xs text-[var(--ns-muted)]">No guests attached yet.</p>}
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Add more guests</div>
+            <div className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-ink)]">Add more guests</div>
             <div className="mt-2 flex max-h-44 flex-wrap gap-1.5 overflow-y-auto">
               {guests.filter((g) => !guestAttached(g)).length === 0 ? (
                 <p className="text-xs text-[var(--ns-muted)]">All guests are already on this reservation.</p>
@@ -2860,7 +2860,7 @@ export const ReservationsPage: React.FC = () => {
                         key={g.id}
                         type="button"
                         onClick={() => setManageIds((ids) => (active ? ids.filter((x) => x !== g.id) : [...ids, g.id]))}
-                        className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
+                        className={`glass-subtle ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-bold transition ${active ? 'glass text-[var(--ns-teal)] ns-glass-selected' : 'border border-[var(--ns-glass-line)] glass text-[var(--ns-muted)] hover:border-[var(--ns-gold)]'}`}
                       >
                         {g.firstName} {g.lastName}
                       </button>

@@ -465,7 +465,7 @@ export const GuestBillsPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Guest Bills &amp; Folios</h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Live room accounts for in-house guests</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Live room accounts for in-house guests</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -475,17 +475,17 @@ export const GuestBillsPage: React.FC = () => {
         </div>
       </div>
       {/* KPI Ribbon */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>In-House Guests</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>In-House Guests</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{stays.length}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Open Folios</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Open Folios</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{openFolios.length}</div>
         </div>
         <div className="glass-subtle rounded-xl px-4 py-2.5 text-left border border-[var(--ns-glass-line)] shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Balance Due</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>Total Balance Due</div>
           <div className="text-xl font-black mt-0.5" style={{ color: outstandingTotal > 0 ? 'var(--ns-warning)' : 'var(--ns-ink)' }}>{formatCurrency(outstandingTotal)}</div>
         </div>
       </div>
@@ -528,7 +528,7 @@ export const GuestBillsPage: React.FC = () => {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search guest or room…"
-                className="w-full rounded-lg border border-[var(--ns-glass-line)] glass-input py-1.5 pl-7 pr-3 text-[11px] font-medium text-[var(--ns-ink)] placeholder-[var(--ns-muted)] focus:border-[var(--ns-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--ns-gold)]"
+                className="w-full rounded-lg border border-[var(--ns-glass-line)] glass-input py-1.5 pl-7 pr-3 text-[12px] font-medium text-[var(--ns-ink)] placeholder-[var(--ns-muted)] focus:border-[var(--ns-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--ns-gold)]"
               />
             </div>
           </div>
@@ -544,7 +544,7 @@ export const GuestBillsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
+                <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)]">
                   <th className="py-3 px-4">Room &amp; Guest</th>
                   <th className="py-3 px-4">Checkout / Status</th>
                   <th className="py-3 px-4 text-right">Supposed to Pay</th>
@@ -573,11 +573,11 @@ export const GuestBillsPage: React.FC = () => {
                           <div>
                             <div className="font-bold text-[var(--ns-ink)] text-xs flex items-center gap-1.5 flex-wrap">
                               <span>{formatGuestName(stay.guest, 'Guest')}</span>
-                              <span className="text-[10px] text-[var(--ns-muted)] font-normal">
+                              <span className="text-[12px] text-[var(--ns-muted)] font-normal">
                                 ({stay.room?.roomType?.name || 'Room'})
                               </span>
                             </div>
-                            <div className="text-[10px] font-mono text-[var(--ns-gold)]">
+                            <div className="text-[12px] font-mono text-[var(--ns-gold)]">
                               Folio #{folio.id.slice(0, 8).toUpperCase()}
                             </div>
                           </div>
@@ -588,22 +588,22 @@ export const GuestBillsPage: React.FC = () => {
                       <td className="py-3.5 px-4">
                         {summary.isCheckedOut ? (
                           <div className="space-y-0.5">
-                            <span className="inline-flex items-center gap-1 rounded glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)] text-[10px] font-black uppercase px-2 py-0.2">
+                            <span className="inline-flex items-center gap-1 rounded glass-subtle text-[var(--ns-warning)] border border-[var(--ns-warning)] text-[12px] font-black uppercase px-2 py-0.2">
                               Checked Out
                             </span>
-                            <div className="text-[10.5px] font-semibold text-[var(--ns-ink)]">
+                            <div className="text-[12px] font-semibold text-[var(--ns-ink)]">
                               {summary.actualCheckOut ? new Date(summary.actualCheckOut).toLocaleDateString('en-GH', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Date recorded'}
                             </div>
-                            <div className="text-[9.5px] text-[var(--ns-muted)]">
+                            <div className="text-[12px] text-[var(--ns-muted)]">
                               {summary.actualCheckOut ? new Date(summary.actualCheckOut).toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit' }) : ''}
                             </div>
                           </div>
                         ) : (
                           <div className="space-y-0.5">
-                            <span className="inline-flex items-center gap-1 rounded glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)] text-[10px] font-black uppercase px-2 py-0.2">
+                            <span className="inline-flex items-center gap-1 rounded glass-subtle text-[var(--ns-success)] border border-[var(--ns-success)] text-[12px] font-black uppercase px-2 py-0.2">
                               In-House Stay
                             </span>
-                            <div className="text-[10px] text-[var(--ns-muted)]">
+                            <div className="text-[12px] text-[var(--ns-muted)]">
                               Since {new Date(stay.actualCheckIn).toLocaleDateString('en-GH')}
                             </div>
                           </div>
@@ -615,7 +615,7 @@ export const GuestBillsPage: React.FC = () => {
                         <div className="font-mono text-xs font-black text-[var(--ns-ink)]">
                           {formatCurrency(summary.totalBilled)}
                         </div>
-                        <div className="text-[9.5px] text-[var(--ns-muted)]">Total folio bill</div>
+                        <div className="text-[12px] text-[var(--ns-muted)]">Total folio bill</div>
                       </td>
 
                       {/* Paid by Then */}
@@ -625,14 +625,14 @@ export const GuestBillsPage: React.FC = () => {
                             <div className="font-mono text-xs font-bold text-[var(--ns-ink)]">
                               {formatCurrency(summary.paidAtCheckout)}
                             </div>
-                            <div className="text-[9.5px] text-[var(--ns-muted)]">At departure</div>
+                            <div className="text-[12px] text-[var(--ns-muted)]">At departure</div>
                           </>
                         ) : (
                           <>
                             <div className="font-mono text-xs font-bold text-[var(--ns-ink)]">
                               {formatCurrency(summary.totalPaid)}
                             </div>
-                            <div className="text-[9.5px] text-[var(--ns-muted)]">Paid to date</div>
+                            <div className="text-[12px] text-[var(--ns-muted)]">Paid to date</div>
                           </>
                         )}
                       </td>
@@ -640,31 +640,31 @@ export const GuestBillsPage: React.FC = () => {
                       {/* Paid & Method (Cash / MoMo) */}
                       <td className="py-3.5 px-4">
                         <div className="font-mono text-xs font-bold text-[var(--ns-success)] mb-1">
-                          {formatCurrency(summary.totalPaid)} <span className="text-[9.5px] text-[var(--ns-muted)] font-normal">total</span>
+                          {formatCurrency(summary.totalPaid)} <span className="text-[12px] text-[var(--ns-muted)] font-normal">total</span>
                         </div>
                         <div className="flex flex-wrap items-center gap-1">
                           {summary.cashPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[12px] font-extrabold text-[var(--ns-success)] border border-[var(--ns-success)]">
                               💵 Cash {formatCurrency(summary.cashPaid)}
                             </span>
                           )}
                           {summary.momoPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[12px] font-extrabold text-[var(--ns-warning)] border border-[var(--ns-warning)]">
                               📱 MoMo {formatCurrency(summary.momoPaid)}
                             </span>
                           )}
                           {summary.cardPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-info)] border border-[var(--ns-info)]">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[12px] font-extrabold text-[var(--ns-info)] border border-[var(--ns-info)]">
                               💳 Card {formatCurrency(summary.cardPaid)}
                             </span>
                           )}
                           {summary.bankPaid > 0 && (
-                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[9.5px] font-extrabold text-[var(--ns-purple)] border border-[var(--ns-purple)]">
+                            <span className="inline-flex items-center gap-0.5 rounded glass-subtle px-1.5 py-0.5 text-[12px] font-extrabold text-[var(--ns-purple)] border border-[var(--ns-purple)]">
                               🏦 Bank {formatCurrency(summary.bankPaid)}
                             </span>
                           )}
                           {summary.totalPaid === 0 && (
-                            <span className="text-[10px] text-[var(--ns-muted)] italic">No payments yet</span>
+                            <span className="text-[12px] text-[var(--ns-muted)] italic">No payments yet</span>
                           )}
                         </div>
                       </td>
@@ -676,12 +676,12 @@ export const GuestBillsPage: React.FC = () => {
                             <div className="font-mono text-sm font-black text-[var(--ns-danger)]">
                               {formatCurrency(summary.balance)}
                             </div>
-                            <div className="text-[9.5px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">
+                            <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-danger)]">
                               Owes balance
                             </div>
                           </>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[10px] font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
+                          <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-bold text-[var(--ns-success)] border border-[var(--ns-success)]">
                             <CheckCircle2 size={10} /> Fully Settled
                           </span>
                         )}
@@ -743,13 +743,13 @@ export const GuestBillsPage: React.FC = () => {
             <div className="rounded-2xl border border-[var(--ns-glass-line)] glass p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ns-glass-line)] pb-3">
                 <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
+                  <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-gold)]">
                     Folio #{selectedBill.folio.id.slice(0, 8).toUpperCase()}
                   </span>
                   <div className="text-base font-black text-[var(--ns-ink)]">
                     Room {selectedBill.stay.room?.number ?? '—'} · {formatGuestName(selectedBill.stay.guest, 'Guest')}
                   </div>
-                  <div className="text-[11px] text-[var(--ns-muted)]">
+                  <div className="text-[12px] text-[var(--ns-muted)]">
                     Checked in: {new Date(selectedBill.stay.actualCheckIn).toLocaleDateString('en-GH')}
                   </div>
                 </div>
@@ -760,7 +760,7 @@ export const GuestBillsPage: React.FC = () => {
                         <AlertCircle size={13} /> Checked Out
                       </span>
                       {summary.actualCheckOut && (
-                        <span className="text-[10.5px] font-semibold text-[var(--ns-warning)] mt-1">
+                        <span className="text-[12px] font-semibold text-[var(--ns-warning)] mt-1">
                           {new Date(summary.actualCheckOut).toLocaleString('en-GH', { dateStyle: 'medium', timeStyle: 'short' })}
                         </span>
                       )}
@@ -776,29 +776,29 @@ export const GuestBillsPage: React.FC = () => {
               {/* 4 Financial Audit Tiles */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                 <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
-                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                  <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     Supposed to Pay
                   </span>
                   <div className="font-mono text-sm font-black text-[var(--ns-ink)] mt-0.5">
                     {formatCurrency(summary.totalBilled)}
                   </div>
-                  <span className="text-[9px] text-[var(--ns-muted)]">Total bill charges</span>
+                  <span className="text-[12px] text-[var(--ns-muted)]">Total bill charges</span>
                 </div>
 
                 <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
-                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                  <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     {summary.isCheckedOut ? 'Paid by Checkout' : 'Paid at Check-in'}
                   </span>
                   <div className="font-mono text-sm font-black text-[var(--ns-success)] mt-0.5">
                     {formatCurrency(summary.paidAtCheckout)}
                   </div>
-                  <span className="text-[9px] text-[var(--ns-muted)]">
+                  <span className="text-[12px] text-[var(--ns-muted)]">
                     {summary.isCheckedOut ? 'At departure time' : 'Initial settlement'}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-[var(--ns-glass-line)] glass-subtle p-2.5">
-                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
+                  <span className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ns-muted)] block">
                     Total Paid to Date
                   </span>
                   <div className="font-mono text-sm font-black text-[var(--ns-success)] mt-0.5">
@@ -806,46 +806,46 @@ export const GuestBillsPage: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {summary.cashPaid > 0 && (
-                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-success)]">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[12px] font-extrabold text-[var(--ns-success)]">
                         💵 Cash {formatCurrency(summary.cashPaid)}
                       </span>
                     )}
                     {summary.momoPaid > 0 && (
-                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-warning)]">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[12px] font-extrabold text-[var(--ns-warning)]">
                         📱 MoMo {formatCurrency(summary.momoPaid)}
                       </span>
                     )}
                     {summary.cardPaid > 0 && (
-                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-info)]">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[12px] font-extrabold text-[var(--ns-info)]">
                         💳 Card {formatCurrency(summary.cardPaid)}
                       </span>
                     )}
                     {summary.bankPaid > 0 && (
-                      <span className="rounded glass-subtle px-1 py-0.2 text-[9px] font-extrabold text-[var(--ns-purple)]">
+                      <span className="rounded glass-subtle px-1 py-0.2 text-[12px] font-extrabold text-[var(--ns-purple)]">
                         🏦 Bank {formatCurrency(summary.bankPaid)}
                       </span>
                     )}
                     {summary.totalPaid === 0 && (
-                      <span className="text-[9px] text-[var(--ns-muted)] italic">No payments</span>
+                      <span className="text-[12px] text-[var(--ns-muted)] italic">No payments</span>
                     )}
                   </div>
                 </div>
 
                 <div className={`rounded-xl border p-2.5 ${summary.balance > 0.005 ? 'border-[var(--ns-danger)] glass-subtle' : 'border-[var(--ns-success)] glass-subtle'}`}>
-                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider block ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
+                  <span className={`text-[12px] font-extrabold uppercase tracking-wider block ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     Guest Owes
                   </span>
                   <div className={`font-mono text-sm font-black mt-0.5 ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     {formatCurrency(summary.balance)}
                   </div>
-                  <span className={`text-[9px] font-semibold ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
+                  <span className={`text-[12px] font-semibold ${summary.balance > 0.005 ? 'text-[var(--ns-danger)]' : 'text-[var(--ns-success)]'}`}>
                     {summary.balance > 0.005 ? 'Outstanding balance' : 'Fully settled'}
                   </span>
                 </div>
               </div>
 
               {selectedBill.stay.checkOutNotes && (
-                <div className="rounded-lg glass-subtle border border-[var(--ns-warning)] px-3 py-1.5 text-[11px] text-[var(--ns-warning)]">
+                <div className="rounded-lg glass-subtle border border-[var(--ns-warning)] px-3 py-1.5 text-[12px] text-[var(--ns-warning)]">
                   <span className="font-bold">Checkout Remark:</span> {selectedBill.stay.checkOutNotes}
                 </div>
               )}
@@ -857,14 +857,14 @@ export const GuestBillsPage: React.FC = () => {
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--ns-ink)]">
                   Department Charges & Room Services
                 </h4>
-                <span className="text-[11px] text-[var(--ns-muted)]">
+                <span className="text-[12px] text-[var(--ns-muted)]">
                   {(selectedBill.folio.items || []).filter((i: any) => !i.voidedAt).length} item(s)
                 </span>
               </div>
               <div className="max-h-60 overflow-y-auto rounded-xl border border-[var(--ns-glass-line)] glass-subtle">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
+                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase text-[var(--ns-muted)]">
                       <th className="py-2 px-3">Item / Description</th>
                       <th className="py-2 px-3">Dept</th>
                       <th className="py-2 px-3 text-center">Qty</th>
@@ -877,7 +877,7 @@ export const GuestBillsPage: React.FC = () => {
                       .map((i: any) => (
                         <tr key={i.id} className="ns-glass-hover">
                           <td className="py-2 px-3 font-medium text-[var(--ns-ink)]">{i.description}</td>
-                          <td className="py-2 px-3 text-[10px] font-semibold text-[var(--ns-muted)]">{i.department || 'ROOM'}</td>
+                          <td className="py-2 px-3 text-[12px] font-semibold text-[var(--ns-muted)]">{i.department || 'ROOM'}</td>
                           <td className="py-2 px-3 text-center font-mono">{i.quantity ?? 1}</td>
                           <td className="py-2 px-3 text-right font-mono font-bold text-[var(--ns-ink)]">
                             {formatCurrency(money(i.amount))}
@@ -902,14 +902,14 @@ export const GuestBillsPage: React.FC = () => {
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--ns-ink)]">
                   Recorded Payments & Deposits
                 </h4>
-                <span className="text-[11px] text-[var(--ns-muted)]">
+                <span className="text-[12px] text-[var(--ns-muted)]">
                   {(selectedBill.folio.payments || []).length} payment(s)
                 </span>
               </div>
               <div className="max-h-40 overflow-y-auto rounded-xl border border-[var(--ns-glass-line)] glass-subtle">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[10px] font-extrabold uppercase text-[var(--ns-muted)]">
+                    <tr className="border-b border-[var(--ns-glass-line)] ns-glass-band text-[12px] font-extrabold uppercase text-[var(--ns-muted)]">
                       <th className="py-2 px-3">Method</th>
                       <th className="py-2 px-3">Date</th>
                       <th className="py-2 px-3 text-right">Amount Paid</th>
@@ -919,7 +919,7 @@ export const GuestBillsPage: React.FC = () => {
                     {(selectedBill.folio.payments || []).map((p: any) => (
                       <tr key={p.id} className="ns-glass-hover">
                         <td className="py-2 px-3 font-semibold text-[var(--ns-ink)]">{p.method}</td>
-                        <td className="py-2 px-3 text-[var(--ns-muted)] text-[11px]">
+                        <td className="py-2 px-3 text-[var(--ns-muted)] text-[12px]">
                           {new Date(p.processedAt || p.createdAt).toLocaleDateString('en-GH')}
                         </td>
                         <td className="py-2 px-3 text-right font-mono font-bold text-[var(--ns-success)]">
@@ -978,7 +978,7 @@ export const GuestBillsPage: React.FC = () => {
               <div className="font-bold text-[var(--ns-warning)]">
                 {formatGuestName(selectedBill.stay.guest, 'Guest')} · Room {selectedBill.stay.room?.number || '—'}
                 {selectedBill.stay.isCheckedOut && (
-                  <span className="ml-2 rounded glass-subtle text-[var(--ns-warning)] px-1.5 py-0.5 text-[10px]">
+                  <span className="ml-2 rounded glass-subtle text-[var(--ns-warning)] px-1.5 py-0.5 text-[12px]">
                     CHECKED OUT
                   </span>
                 )}
@@ -994,15 +994,15 @@ export const GuestBillsPage: React.FC = () => {
             {/* Folio Charges Allocation Preview */}
             {selectedBill.folio.items && (
               <div className="rounded-xl border border-[var(--ns-info)] glass-subtle p-3 text-xs space-y-1">
-                <div className="font-bold text-[var(--ns-info)] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                <div className="font-bold text-[var(--ns-info)] text-[12px] uppercase tracking-wider flex items-center gap-1.5">
                   <ShieldCheck size={12} className="text-[var(--ns-info)]" />
                   What this money settles (Folio items)
                 </div>
-                <div className="text-[11px] text-[var(--ns-info)] flex flex-wrap gap-1.5 pt-1">
+                <div className="text-[12px] text-[var(--ns-info)] flex flex-wrap gap-1.5 pt-1">
                   {(selectedBill.folio.items || [])
                     .filter((i: any) => !i.voidedAt && !['PAYMENT', 'DEPOSIT'].includes(String(i.type).toUpperCase()) && Number(i.amount) > 0)
                     .map((i: any) => (
-                      <span key={i.id} className="rounded glass-subtle px-2 py-0.5 border border-[var(--ns-info)] font-medium text-[10.5px]">
+                      <span key={i.id} className="rounded glass-subtle px-2 py-0.5 border border-[var(--ns-info)] font-medium text-[12px]">
                         {i.description || i.type} ({formatCurrency(money(i.amount))})
                       </span>
                     ))}
@@ -1016,8 +1016,8 @@ export const GuestBillsPage: React.FC = () => {
                 onChange={(e) => setPayDesc(e.target.value)}
                 placeholder="e.g. Payment for: Room Accommodation, Late checkout fee"
               />
-              <div className="flex flex-wrap gap-1 mt-1 text-[10px]">
-                <span className="text-[9.5px] text-[var(--ns-muted)] self-center font-bold">Quick set:</span>
+              <div className="flex flex-wrap gap-1 mt-1 text-[12px]">
+                <span className="text-[12px] text-[var(--ns-muted)] self-center font-bold">Quick set:</span>
                 <button
                   type="button"
                   onClick={() => setPayDesc('Payment for Late checkout fee')}

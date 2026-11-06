@@ -316,7 +316,7 @@ export const RoomsPage: React.FC = () => {
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               Room Board & Inventory
             </h1>
-            <p className="text-[11px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>
               Real-time statuses, reservations & housekeeping
             </p>
           </div>
@@ -327,7 +327,7 @@ export const RoomsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate('/reservations')}
-            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5"
           >
             <CalendarDays size={12} className="text-[var(--ns-teal)]" /> Reservations
           </Button>
@@ -335,7 +335,7 @@ export const RoomsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => { clearGetCache(); void load(); }}
-            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
+            className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5"
           >
             <RefreshCw size={12} /> Refresh
           </Button>
@@ -345,7 +345,7 @@ export const RoomsPage: React.FC = () => {
               size="sm"
               loading={saving}
               onClick={syncBookingStatuses}
-              className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[11px] font-semibold gap-1.5"
+              className="border-[var(--ns-glass-line)] ns-glass-hover glass text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold gap-1.5"
             >
               <RefreshCw size={12} className="text-[var(--ns-gold)]" /> Sync
             </Button>
@@ -354,7 +354,7 @@ export const RoomsPage: React.FC = () => {
             <Button
               size="sm"
               onClick={() => navigate('/admin/rooms')}
-              className="glass text-[var(--ns-teal)] shadow-md text-[11px] font-bold gap-1.5 ns-glass-hover"
+              className="glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold gap-1.5 ns-glass-hover"
             >
               <Layers size={12} /> Config
             </Button>
@@ -363,7 +363,7 @@ export const RoomsPage: React.FC = () => {
       </div>
 
       {/* ── Status Counts Ribbon ── */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <button
           onClick={() => setStatus('ALL')}
           className={`glass-subtle ns-glass-hover rounded-xl px-4 py-2.5 text-left border transition-all shrink-0 ${
@@ -372,7 +372,7 @@ export const RoomsPage: React.FC = () => {
               : 'border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
           }`}
         >
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>All</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>All</div>
           <div className="text-xl font-black mt-0.5" style={{ color: 'var(--ns-ink)' }}>{rooms.length}</div>
         </button>
 
@@ -389,7 +389,7 @@ export const RoomsPage: React.FC = () => {
                   : 'glass border-[var(--ns-glass-line)] hover:border-[var(--ns-teal)] text-[var(--ns-ink)]'
               }`}
             >
-              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ns-muted)] truncate">
+              <div className="text-[12px] font-bold uppercase tracking-wider text-[var(--ns-muted)] truncate">
                 {s.replaceAll('_', ' ')}
               </div>
               <div className="text-xl font-black mt-0.5 text-[var(--ns-ink)]">{count}</div>
@@ -418,7 +418,7 @@ export const RoomsPage: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 py-1.5 shadow-xs">
               <CalendarDays size={14} className="text-[var(--ns-teal)] mr-2 shrink-0" />
-              <label htmlFor="roomDateFilter" className="text-[11px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap cursor-pointer">
+              <label htmlFor="roomDateFilter" className="text-[12px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap cursor-pointer">
                 Filter Date:
               </label>
               <input
@@ -442,7 +442,7 @@ export const RoomsPage: React.FC = () => {
 
             {dateFilter && (
               <div className="flex items-center rounded-xl border border-[var(--ns-glass-line)] glass-subtle px-3 py-1.5 shadow-xs">
-                <span className="text-[11px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap">To:</span>
+                <span className="text-[12px] font-bold text-[var(--ns-muted)] mr-2 whitespace-nowrap">To:</span>
                 <input
                   type="date"
                   min={dateFilter}
@@ -535,7 +535,7 @@ export const RoomsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => { setDateFilter(''); setEndDateFilter(''); }}
-              className="flex items-center gap-1 rounded-md glass px-2 py-0.5 text-[11px] font-bold text-[var(--ns-info)] border border-[var(--ns-info)] ns-glass-hover transition-colors"
+              className="flex items-center gap-1 rounded-md glass px-2 py-0.5 text-[12px] font-bold text-[var(--ns-info)] border border-[var(--ns-info)] ns-glass-hover transition-colors"
             >
               <X size={12} /> Clear Filter
             </button>
@@ -590,14 +590,14 @@ export const RoomsPage: React.FC = () => {
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center gap-1">
                           {activeReservation?.bookingId && (
-                            <span className="rounded-md glass-subtle px-1.5 py-0.5 text-[9px] font-black text-[var(--ns-info)] border border-[var(--ns-info)]">
+                            <span className="rounded-md glass-subtle px-1.5 py-0.5 text-[12px] font-black text-[var(--ns-info)] border border-[var(--ns-info)]">
                               GROUP
                             </span>
                           )}
                           {statusBadge(effectiveStatus)}
                         </div>
                         {dateFilter && effectiveStatus !== r.status && (
-                          <span className="text-[9px] text-[var(--ns-muted)] font-medium" title="Physical status">
+                          <span className="text-[12px] text-[var(--ns-muted)] font-medium" title="Physical status">
                             DB: {r.status}
                           </span>
                         )}
@@ -606,7 +606,7 @@ export const RoomsPage: React.FC = () => {
 
                     {/* Available Now Next Guest pill */}
                     {effectiveStatus === 'AVAILABLE' && upcomingReservation && !dateFilter && (
-                      <div className="mt-3 flex items-center justify-between rounded-xl border border-[var(--ns-success)] glass-subtle px-3 py-1.5 text-[11px] text-[var(--ns-success)]">
+                      <div className="mt-3 flex items-center justify-between rounded-xl border border-[var(--ns-success)] glass-subtle px-3 py-1.5 text-[12px] text-[var(--ns-success)]">
                         <span>Available now | Next arrival:</span>
                         <span className="font-black font-mono">
                           {new Date(upcomingReservation.checkInDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -626,14 +626,14 @@ export const RoomsPage: React.FC = () => {
                             )}
                             {guestName(activeReservation.guests?.[0]?.guest)}
                           </span>
-                          <span className="font-mono text-[10px] text-[var(--ns-info)]">
+                          <span className="font-mono text-[12px] text-[var(--ns-info)]">
                             {activeReservation.confirmationNo || activeReservation.id.slice(0, 8).toUpperCase()}
                           </span>
                         </div>
-                        <div className="text-[11px] text-[var(--ns-info)]">
+                        <div className="text-[12px] text-[var(--ns-info)]">
                           Stay: {new Date(activeReservation.checkInDate).toLocaleDateString()} &rarr; {new Date(activeReservation.checkOutDate).toLocaleDateString()}
                         </div>
-                        <div className="pt-1 flex items-center justify-between text-[11px]">
+                        <div className="pt-1 flex items-center justify-between text-[12px]">
                           <button
                             type="button"
                             onClick={() => navigate('/reservations')}
@@ -642,7 +642,7 @@ export const RoomsPage: React.FC = () => {
                             View Details &rarr;
                           </button>
                           {activeReservation.bookingId && (
-                            <span className="text-[9px] font-mono text-[var(--ns-info)]">
+                            <span className="text-[12px] font-mono text-[var(--ns-info)]">
                               {activeReservation.bookingId}
                             </span>
                           )}
@@ -685,7 +685,7 @@ export const RoomsPage: React.FC = () => {
 
                     {canStatus && (
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-[var(--ns-muted)]">Status</span>
+                        <span className="text-[12px] font-bold uppercase text-[var(--ns-muted)]">Status</span>
                         <SelectInput
                           value={r.status || 'AVAILABLE'}
                           onChange={(e) => void setRoomStatus(r, e.target.value)}
@@ -715,7 +715,7 @@ export const RoomsPage: React.FC = () => {
               <Layers size={16} className="text-[var(--ns-teal)]" />
               Room Types &amp; Pricing Categories
             </h2>
-            <p className="text-[11px] text-[var(--ns-muted)] mt-0.5">
+            <p className="text-[12px] text-[var(--ns-muted)] mt-0.5">
               Configured room tiers, base nightly rates, guest capacities, and included amenities.
             </p>
           </div>
@@ -742,11 +742,11 @@ export const RoomsPage: React.FC = () => {
                       <div>
                         <h3 className="text-base font-extrabold text-[var(--ns-ink)]">{t.name}</h3>
                         <div className="text-xs font-bold text-[var(--ns-gold)] mt-0.5">
-                          {formatCurrency(t.basePrice)} <span className="text-[10px] text-[var(--ns-muted)] font-normal">/ night</span>
+                          {formatCurrency(t.basePrice)} <span className="text-[12px] text-[var(--ns-muted)] font-normal">/ night</span>
                         </div>
                       </div>
                       {!t.isActive && (
-                        <span className="rounded-full glass-subtle px-2 py-0.5 text-[9px] font-black text-[var(--ns-warning)] uppercase">
+                        <span className="rounded-full glass-subtle px-2 py-0.5 text-[12px] font-black text-[var(--ns-warning)] uppercase">
                           Inactive
                         </span>
                       )}
@@ -754,7 +754,7 @@ export const RoomsPage: React.FC = () => {
                     {t.description && (
                       <p className="mt-2 text-xs text-[var(--ns-muted)] line-clamp-2 leading-relaxed">{t.description}</p>
                     )}
-                    <div className="mt-3 flex items-center gap-2 text-[11px] text-[var(--ns-muted)] font-medium">
+                    <div className="mt-3 flex items-center gap-2 text-[12px] text-[var(--ns-muted)] font-medium">
                       <span>Max {t.maxAdults} Adults</span>
                       <span className="text-[var(--ns-muted)]">|</span>
                       <span>{t.maxChildren} Children</span>
@@ -765,13 +765,13 @@ export const RoomsPage: React.FC = () => {
                         t.amenities.map((a: any) => (
                           <span
                             key={a.amenityId}
-                            className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[10px] font-semibold text-[var(--ns-muted)]"
+                            className="rounded-md glass-subtle border border-[var(--ns-glass-line)] px-2 py-0.5 text-[12px] font-semibold text-[var(--ns-muted)]"
                           >
                             {a.amenity?.name || 'Amenity'}
                           </span>
                         ))
                       ) : (
-                        <span className="text-[10px] text-[var(--ns-muted)]">No amenities set</span>
+                        <span className="text-[12px] text-[var(--ns-muted)]">No amenities set</span>
                       )}
                     </div>
                   </div>
