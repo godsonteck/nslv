@@ -16,12 +16,17 @@ export const Header: React.FC = () => {
   const { theme, themePreference, setThemePreference } = useThemeStore();
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const notificationsRef = React.useRef<HTMLDivElement | null>(null);
+  const notificationsButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [openDropdown, setOpenDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
   const canSearchGuests = user?.permissions?.includes('guests.view') ?? false;
+  const closeNotifications = () => {
+    setShowNotifications(false);
+    window.requestAnimationFrame(() => notificationsButtonRef.current?.focus());
+  };
 
   const villaName = theme?.villaName || 'NS Luxury Villa';
   const villaTagline = theme?.villaTagline || 'Lokoe, Ho, Ghana';
@@ -58,13 +63,13 @@ export const Header: React.FC = () => {
     const handlePointerDown = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (notificationsRef.current && target && !notificationsRef.current.contains(target)) {
-        setShowNotifications(false);
+        closeNotifications();
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setShowNotifications(false);
+        closeNotifications();
       }
     };
 
@@ -138,19 +143,29 @@ export const Header: React.FC = () => {
 
           {/* Notifications */}
           <div className="relative" ref={notificationsRef}>
-            <button 
+            <button
+              ref={notificationsButtonRef}
               onClick={() => {
                 setOpenDropdown(false);
-                setShowNotifications(!showNotifications);
+                if (showNotifications) {
+                  closeNotifications();
+                  return;
+                }
+                setShowNotifications(true);
               }}
               aria-expanded={showNotifications}
+              aria-controls="notifications-panel"
+              aria-haspopup="dialog"
               className="relative h-9 w-9 flex items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-colors"
-              aria-label="Notifications"
+              aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
               title="Notifications"
             >
-              <Bell size={16} />
+              <Bell size={16} aria-hidden="true" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge text-[var(--ns-danger)] text-[12px] font-black border border-rose-400/70">
+                <span
+                  className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full glass clay-badge text-[12px] font-black text-[var(--ns-danger)] border border-rose-400/70"
+                  aria-hidden="true"
+                >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -159,11 +174,12 @@ export const Header: React.FC = () => {
               <div className="fixed inset-0 z-[80]">
                 <div
                   className="absolute inset-0 cursor-pointer bg-slate-950/85 backdrop-blur-[3px]"
-                  onClick={() => setShowNotifications(false)}
+                  onClick={closeNotifications}
+                  aria-hidden="true"
                 />
                 <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-end pr-4 pt-[78px] sm:pr-6 lg:pr-8">
                   <div className="pointer-events-auto rounded-[24px] ring-1 ring-white/10 shadow-[0_30px_90px_-30px_rgba(2,6,23,0.95)]">
-                    <NotificationPanel onClose={() => setShowNotifications(false)} />
+                    <NotificationPanel onClose={closeNotifications} />
                   </div>
                 </div>
               </div>

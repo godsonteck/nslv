@@ -5,6 +5,7 @@ interface NotificationStore {
   notifications: NotificationRecord[];
   unreadCount: number;
   isLoading: boolean;
+  error: string | null;
   
   // Actions
   loadNotifications: (params?: { page?: number; pageSize?: number; isRead?: boolean }) => Promise<void>;
@@ -19,19 +20,20 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   notifications: [],
   unreadCount: 0,
   isLoading: false,
+  error: null,
 
   loadNotifications: async (params) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const result = await notificationsApi.list({
         pageSize: params?.pageSize || 50,
         isRead: params?.isRead,
         ...params,
       });
-      set({ notifications: result.data.items || [] });
+      set({ notifications: result.data.items || [], error: null });
     } catch (error) {
       console.error('Failed to load notifications:', error);
-      set({ notifications: [] });
+      set({ notifications: [], error: 'Unable to load notifications. Check your connection and try again.' });
     } finally {
       set({ isLoading: false });
     }
@@ -53,6 +55,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       await get().loadNotifications();
     } catch (error) {
       console.error('Failed to mark as read:', error);
+      set({ error: 'Unable to mark that notification as read. Try again.' });
     }
   },
 
@@ -63,6 +66,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       await get().loadNotifications();
     } catch (error) {
       console.error('Failed to mark all as read:', error);
+      set({ error: 'Unable to mark notifications as read. Try again.' });
     }
   },
 
@@ -73,10 +77,11 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       await get().loadNotifications();
     } catch (error) {
       console.error('Failed to delete notification:', error);
+      set({ error: 'Unable to delete that notification. Try again.' });
     }
   },
 
   clearNotifications: () => {
-    set({ notifications: [], unreadCount: 0 });
+    set({ notifications: [], unreadCount: 0, error: null });
   },
 }));

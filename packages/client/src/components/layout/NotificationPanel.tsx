@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Bell, Trash2, Check, ArrowUpRight } from 'lucide-react';
+import { X, Bell, Trash2, Check, ArrowUpRight, CalendarDays, CreditCard, AlertTriangle, Settings, Info } from 'lucide-react';
 import { useNotificationStore } from '../../stores/notificationStore';
-import { showToast } from '../ui';
 import type { NotificationRecord } from '../../services/apiService';
 
 const notificationTarget = (notification: NotificationRecord): string => {
@@ -14,6 +13,9 @@ const notificationTarget = (notification: NotificationRecord): string => {
     default: return '/dashboard';
   }
 };
+
+const formatDate = (value: string): string =>
+  new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 
 // Use inline style objects for badge colours so they
 // survive the global bg-* Tailwind class override in globals.css
@@ -46,14 +48,21 @@ const priorityBadgeStyle = (priority: string): React.CSSProperties => {
   }
 };
 
-const typeIcon = (type: string): string => {
+const typeIcon = (type: string): React.ReactNode => {
+  const className = 'h-5 w-5';
   switch (type) {
-    case 'RESERVATION': return '\u{1F4C5}';
-    case 'PAYMENT': return '\u{1F4B3}';
-    case 'ALERT': return '\u26A0\uFE0F';
-    case 'SYSTEM': return '\u2699\uFE0F';
-    case 'INFO': return '\u2139\uFE0F';
-    default: return '\u{1F514}';
+    case 'RESERVATION':
+      return <CalendarDays size={18} className={className} aria-hidden="true" style={{ color: 'var(--ns-gold)' }} />;
+    case 'PAYMENT':
+      return <CreditCard size={18} className={className} aria-hidden="true" style={{ color: 'var(--ns-teal)' }} />;
+    case 'ALERT':
+      return <AlertTriangle size={18} className={className} aria-hidden="true" style={{ color: 'var(--ns-warning)' }} />;
+    case 'SYSTEM':
+      return <Settings size={18} className={className} aria-hidden="true" style={{ color: 'var(--ns-muted)' }} />;
+    case 'INFO':
+      return <Info size={18} className={className} aria-hidden="true" style={{ color: 'var(--ns-info)' }} />;
+    default:
+      return <Bell size={18} className={className} aria-hidden="true" style={{ color: 'var(--ns-teal)' }} />;
   }
 };
 
@@ -63,7 +72,7 @@ const NotificationItem: React.FC<{
   onMarkAsRead: (id: string) => Promise<void>;
   onOpen: (notification: NotificationRecord) => void;
 }> = ({ notification, onDelete, onMarkAsRead, onOpen }) => {
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, setDeleting] = React.useState(false);
 
   const itemStyle: React.CSSProperties = notification.isRead
     ? {
@@ -86,18 +95,19 @@ const NotificationItem: React.FC<{
   ].filter(Boolean).join(' ');
 
   return (
-    <div className={itemClassName} style={itemStyle}>
+    <div className={itemClassName} style={itemStyle} role="listitem">
       <button
         onClick={() => onOpen(notification)}
         className="group flex w-full items-start gap-3 p-3.5 text-left transition"
         style={{ background: 'transparent' }}
-        title="Open notification"
+        title={`Open ${notification.title}`}
+        aria-label={`Open ${notification.title}`}
       >
-        <span className="mt-0.5 text-lg select-none shrink-0">{typeIcon(notification.type)}</span>
+        <span className="mt-0.5 shrink-0" aria-hidden="true">{typeIcon(notification.type)}</span>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <h4 className="text-xs font-black leading-snug truncate" style={{ color: 'var(--ns-ink)' }}>
+            <div className="min-w-0 flex-1">
+              <h4 className="truncate text-[12px] font-black leading-snug" style={{ color: 'var(--ns-ink)' }}>
                 {notification.title}
               </h4>
               <p className="mt-0.5 line-clamp-2 text-[12px] font-medium leading-relaxed" style={{ color: 'var(--ns-muted)' }}>
@@ -106,7 +116,7 @@ const NotificationItem: React.FC<{
             </div>
             {!notification.isRead && (
               <span
-                className="shrink-0 rounded border px-1.5 py-0.5 text-[12px] font-black uppercase tracking-wide whitespace-nowrap"
+                className="shrink-0 whitespace-nowrap rounded border px-1.5 py-0.5 text-[12px] font-black uppercase tracking-wide"
                 data-accent=""
                 style={priorityBadgeStyle(notification.priority)}
               >
@@ -115,8 +125,8 @@ const NotificationItem: React.FC<{
             )}
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ns-muted)' }}>
-            <span>{new Date(notification.createdAt).toLocaleString()}</span>
-            <ArrowUpRight size={11} className="opacity-0 transition group-hover:opacity-100" data-accent="" style={{ color: 'var(--ns-teal)' }} />
+            <time dateTime={notification.createdAt}>{formatDate(notification.createdAt)}</time>
+            <ArrowUpRight size={12} className="opacity-0 transition group-hover:opacity-100" data-accent="" style={{ color: 'var(--ns-teal)' }} aria-hidden="true" />
           </div>
         </div>
       </button>
@@ -125,11 +135,12 @@ const NotificationItem: React.FC<{
         {!notification.isRead && (
           <button
             onClick={async () => await onMarkAsRead(notification.id)}
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors ns-glass-hover"
+            className="ns-glass-hover flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors"
             style={{ color: 'var(--ns-ink)' }}
             title="Mark as read"
+            aria-label={`Mark "${notification.title}" as read`}
           >
-            <Check size={12} data-accent="" style={{ color: 'var(--ns-teal)' }} /> Mark read
+            <Check size={12} data-accent="" style={{ color: 'var(--ns-teal)' }} aria-hidden="true" /> Mark read
           </button>
         )}
         <button
@@ -142,12 +153,13 @@ const NotificationItem: React.FC<{
             }
           }}
           disabled={deleting}
-          className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors disabled:opacity-50"
+          className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold transition-colors disabled:opacity-60"
           data-accent=""
           style={{ color: 'var(--ns-danger)' }}
           title="Delete notification"
+          aria-label={`Delete notification "${notification.title}"`}
         >
-          <Trash2 size={12} /> {deleting ? 'Deleting…' : 'Delete'}
+          <Trash2 size={12} aria-hidden="true" /> {deleting ? 'Deleting…' : 'Delete'}
         </button>
       </div>
     </div>
@@ -160,6 +172,7 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
     notifications,
     unreadCount,
     isLoading,
+    error,
     loadNotifications,
     getUnreadCount,
     markAsRead,
@@ -167,9 +180,16 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
     deleteNotification,
   } = useNotificationStore();
 
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const titleId = 'notifications-title';
+
   useEffect(() => {
     void loadNotifications();
     void getUnreadCount();
+  }, [getUnreadCount, loadNotifications]);
+
+  useEffect(() => {
+    closeRef.current?.focus();
   }, []);
 
   const openNotification = async (notification: NotificationRecord) => {
@@ -178,32 +198,43 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
     navigate(notificationTarget(notification));
   };
 
-  // Inline styles throughout to bypass global glass class color overrides
+  // Strongly opaque, theme-aware panel so the dashboard behind never bleeds
+  // through and text stays crisp in both light and dark themes.
   const panelStyle: React.CSSProperties = {
-    background: 'color-mix(in srgb, var(--ns-bg) 22%, transparent)',
-    backdropFilter: 'blur(32px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(180%)',
-    border: '1px solid var(--ns-glass-line)',
-    boxShadow: '0 24px 64px -16px rgba(0,0,0,0.32), inset 0 1px 0 var(--ns-glass-line)',
+    background: 'var(--ns-notif-bg)',
+    backdropFilter: 'blur(24px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+    border: '1px solid var(--ns-notif-border)',
+    boxShadow: 'var(--ns-notif-shadow)',
+  };
+
+  const retry = () => {
+    void loadNotifications();
+    void getUnreadCount();
   };
 
   return (
     <div
-      className="relative z-50 w-[26rem] max-w-[calc(100vw-2rem)] max-h-[min(620px,calc(100dvh-6rem))] flex flex-col origin-top-right overflow-hidden rounded-[24px]"
+      id="notifications-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      className="relative z-50 flex max-h-[min(620px,calc(100dvh-6rem))] w-[26rem] max-w-[calc(100vw-2rem)] origin-top-right flex-col overflow-hidden rounded-[24px]"
       style={panelStyle}
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3 shrink-0"
+        className="flex shrink-0 items-center justify-between px-4 py-3"
         style={{ borderBottom: '1px solid var(--ns-glass-line-soft)', background: 'var(--ns-glass-1)' }}
       >
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-sm font-black" style={{ color: 'var(--ns-ink)' }}>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <h2 id={titleId} className="truncate text-[12px] font-black" style={{ color: 'var(--ns-ink)' }}>
             Notifications
           </h2>
           {unreadCount > 0 && (
             <span
-              className="rounded-full px-2 py-0.5 text-[12px] font-black uppercase tracking-wide"
+              className="whitespace-nowrap rounded-full px-2 py-0.5 text-[12px] font-black uppercase tracking-wide"
               data-accent=""
               style={{
                 border: '1px solid var(--ns-gold)',
@@ -216,60 +247,86 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {unreadCount > 0 && (
             <button
-              onClick={async () => {
-                await markAllAsRead();
-                showToast('success', 'All notifications marked as read');
-              }}
-              className="rounded-lg px-2.5 py-1 text-[12px] font-bold transition-colors ns-glass-hover"
+              onClick={async () => await markAllAsRead()}
+              className="ns-glass-hover rounded-lg px-2.5 py-1 text-[12px] font-bold transition-colors"
               style={{
                 border: '1px solid var(--ns-glass-line-soft)',
                 background: 'var(--ns-glass-1)',
                 color: 'var(--ns-ink)',
               }}
               title="Mark all as read"
+              aria-label="Mark all notifications as read"
             >
               Mark all read
             </button>
           )}
           <button
+            ref={closeRef}
             onClick={onClose}
-            className="rounded-lg p-1.5 transition-colors ns-glass-hover"
+            className="ns-glass-hover rounded-lg p-1.5 transition-colors"
             style={{ color: 'var(--ns-muted)' }}
-            title="Close"
+            title="Close notifications"
+            aria-label="Close notifications"
           >
-            <X size={16} />
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
       </div>
 
+      {/* Error banner */}
+      {error && (
+        <div
+          role="alert"
+          className="shrink-0 px-4 py-2 text-[12px] font-semibold leading-snug"
+          style={{
+            borderBottom: '1px solid var(--ns-glass-line-soft)',
+            background: 'color-mix(in srgb, var(--ns-danger) 10%, transparent)',
+            color: 'var(--ns-danger)',
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <span>{error}</span>
+            <button
+              onClick={retry}
+              className="shrink-0 whitespace-nowrap font-black underline underline-offset-2"
+              style={{ color: 'var(--ns-danger)' }}
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 overscroll-contain">
+      <div className="flex-1 space-y-2.5 overflow-y-auto p-3 overscroll-contain" role="list" aria-label="Notifications" aria-busy={isLoading}>
         {isLoading ? (
-          <div className="py-10 text-center text-xs" style={{ color: 'var(--ns-muted)' }}>
+          <div className="py-10 text-center text-[12px]" role="status" style={{ color: 'var(--ns-muted)' }}>
             Loading notifications…
           </div>
         ) : notifications.length === 0 ? (
-          <div className="py-12 text-center">
-            <div
-              className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl"
-              style={{
-                background: 'var(--ns-glass-1)',
-                border: '1px solid var(--ns-glass-line-soft)',
-                color: 'var(--ns-muted)',
-              }}
-            >
-              <Bell size={20} />
+          error ? null : (
+            <div className="py-12 text-center" role="listitem">
+              <div
+                className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl"
+                style={{
+                  background: 'var(--ns-glass-1)',
+                  border: '1px solid var(--ns-glass-line-soft)',
+                  color: 'var(--ns-muted)',
+                }}
+              >
+                <Bell size={20} aria-hidden="true" />
+              </div>
+              <p className="text-[12px] font-bold" style={{ color: 'var(--ns-ink)' }}>
+                No notifications
+              </p>
+              <p className="mt-0.5 text-[12px]" style={{ color: 'var(--ns-muted)' }}>
+                You're completely caught up.
+              </p>
             </div>
-            <p className="text-xs font-bold" style={{ color: 'var(--ns-ink)' }}>
-              No notifications
-            </p>
-            <p className="mt-0.5 text-[12px]" style={{ color: 'var(--ns-muted)' }}>
-              You're completely caught up.
-            </p>
-          </div>
+          )
         ) : (
           notifications.map((notification) => (
             <NotificationItem
@@ -285,3 +342,5 @@ export const NotificationPanel: React.FC<{ onClose: () => void }> = ({ onClose }
     </div>
   );
 };
+
+export default NotificationPanel;

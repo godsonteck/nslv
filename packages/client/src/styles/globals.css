@@ -78,6 +78,13 @@
     0 2px 6px -1px rgba(13, 66, 82, 0.10),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
 
+  /* Notification panel: strongly opaque so the dashboard behind never bleeds through. */
+  --ns-notif-bg: rgba(255, 255, 255, 0.94);
+  --ns-notif-border: rgba(24, 79, 96, 0.35);
+  --ns-notif-shadow:
+    0 24px 64px -16px rgba(10, 60, 75, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.90);
+
   --ns-surface: var(--ns-glass-1);
   --ns-surface-2: var(--ns-glass-2);
   --ns-line: var(--ns-glass-border-outer);
@@ -163,6 +170,13 @@ html[data-theme="dark"], html.dark {
     0 14px 40px -4px rgba(0, 0, 0, 0.6),
     0 4px 10px -2px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+
+  /* Notification panel: strongly opaque so the dashboard behind never bleeds through. */
+  --ns-notif-bg: rgba(7, 13, 20, 0.97);
+  --ns-notif-border: rgba(214, 244, 250, 0.22);
+  --ns-notif-shadow:
+    0 24px 64px -16px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   --ns-surface: var(--ns-glass-1);
   --ns-surface-2: var(--ns-glass-2);
