@@ -14,7 +14,7 @@ import fs from 'fs';
 import { config, prisma } from './config';
 import routes from './routes';
 import { errorHandler } from './middleware/error';
-import { SharedRateLimitStore } from './middleware/rate-limit-store';
+import { PostgresRateLimitStore, SharedRateLimitStore } from './middleware/rate-limit-store';
 
 
 const app = express();
@@ -59,7 +59,15 @@ app.use(
 
 // Shared counters when Redis REST is configured; otherwise each instance keeps
 // its own map (same behaviour as the default store, with one warning in the log).
-const sharedStore = (prefix: string) => new SharedRateLimitStore(config.rateLimitRedis, prefix);
+// Prefer Redis when configured; otherwise share counters through Postgres so
+// every serverless instance enforces one limit. Both fall back to in-process
+// counters if their backend is unreachable.
+const sharedStore = (prefix: string) => {
+  if (config.rateLimitRedis.url && config.rateLimitRedis.token) {
+    return new SharedRateLimitStore(config.rateLimitRedis, prefix);
+  }
+  return new PostgresRateLimitStore(prisma, prefix);
+};
 
 // Global Rate Limiting
 const globalLimiter = rateLimit({

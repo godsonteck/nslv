@@ -898,6 +898,19 @@ model BrandingTheme {
 }
 
 // ──────────────────────────────────────────
+// Shared rate-limit counters
+// ──────────────────────────────────────────
+
+model RateLimitCounter {
+  key       String   @id
+  totalHits Int      @map("total_hits")
+  resetAt   DateTime @map("reset_at") @db.Timestamptz(3)
+
+  @@map("rate_limit_counters")
+}
+
+
+// ──────────────────────────────────────────
 // Notifications
 // ──────────────────────────────────────────
 
