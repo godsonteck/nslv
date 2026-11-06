@@ -285,6 +285,18 @@ html[data-theme="dark"], html.dark {
     stroke: #ffffff !important;
   }
 
+  /* The ink rule above targets direct children of glass panes and therefore
+     wins on specificity. This restores white primary-button labels inside
+     those same panes by matching the container and the button themselves. */
+  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
+    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger),
+  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
+    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger) * {
+    color: #ffffff !important;
+  }
+
   /* Semantic accents that must survive the ink rule inside glass panes. */
   .ns-accent-danger { color: var(--ns-danger) !important; }
   .ns-accent-warning { color: var(--ns-warning) !important; }
