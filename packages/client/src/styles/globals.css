@@ -379,6 +379,30 @@ html[data-theme="dark"] body, html.dark body {
     pointer-events: none;
   }
 
+  /* Subtle logo watermark: centered, faint, behind all content, never competes
+     with copy. Fully pointer-transparent so it cannot block clicks or text. */
+  .ns-watermark {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    display: grid;
+    place-items: center;
+    opacity: 0.06;
+    mix-blend-mode: soft-light;
+    filter: grayscale(0.4) contrast(0.9);
+    max-width: 48vw;
+    max-height: 48vh;
+    width: auto;
+    height: auto;
+  }
+  html[data-theme="dark"] .ns-watermark, html.dark .ns-watermark {
+    opacity: 0.045;
+    filter: grayscale(0.25) contrast(1.0);
+  }
+
   .ns-orb {
     position: absolute;
     border-radius: 999px;
