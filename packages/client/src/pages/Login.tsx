@@ -145,9 +145,11 @@ export default function Login() {
               <img
                 src={heroImage}
                 alt="NS Luxury Villa"
-                className="w-full h-full object-cover transform scale-105 filter brightness-[0.65] contrast-[1.05]"
+                className="w-full h-full object-cover transform scale-105 filter brightness-[0.62] contrast-[1.05]"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,30,40,1),rgba(4,30,40,.95))]" />
+              {/* Soft scrim: keeps the photograph visible while giving the
+                  white editorial copy a stable, readable backdrop. */}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,30,40,.34)_0%,rgba(4,30,40,.52)_46%,rgba(4,30,40,.86)_100%)]" />
             </div>
 
             {/* Top Calm Eyebrow */}
@@ -160,32 +162,32 @@ export default function Login() {
 
             {/* Editorial Centerpiece — Uncluttered & Poetic */}
             <div className="relative z-10 space-y-4 my-auto py-8">
-              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-sm">
+              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-md">
                 Your place, <br />
-                <span className="text-[var(--ns-success)] italic font-light">all in one view.</span>
+                <span className="text-[#9de0ea] italic font-light">all in one view.</span>
               </h1>
-              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-[var(--ns-ink-2)] drop-shadow-sm">
+              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-white/90 drop-shadow-md">
                 See bookings, guests, room status, and daily work from one place.
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
-              <div className="pt-6 flex items-center gap-3 text-xs font-medium text-[var(--ns-ink-2)] drop-shadow-md">
+              <div className="pt-6 flex items-center gap-3 text-xs font-semibold text-white/85 drop-shadow-md">
                 <span>12 guest rooms</span>
-                <span className="text-[var(--ns-ink-2)] drop-shadow-sm">·</span>
+                <span className="text-white/60">·</span>
                 <span>Pool area</span>
-                <span className="text-[var(--ns-ink-2)] drop-shadow-sm">·</span>
+                <span className="text-white/60">·</span>
                 <span>Front desk & dining</span>
               </div>
             </div>
 
             {/* Bottom Property Signature */}
-            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/20 pt-4 font-medium text-[var(--ns-ink-2)] drop-shadow-md">
-              <div className="flex items-center gap-1.5 text-[var(--ns-ink-2)] drop-shadow-sm">
-                <MapPin size={13} className="text-[var(--ns-success)]" />
+            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/20 pt-4 font-semibold text-white/85 drop-shadow-md">
+              <div className="flex items-center gap-1.5">
+                <MapPin size={13} className="text-[#9de0ea]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[var(--ns-success)] dark:text-emerald-400 font-semibold text-[12px]">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <div className="flex items-center gap-1.5 text-emerald-300 font-semibold text-[12px]">
+                <span className="h-2 w-2 rounded-full bg-emerald-300" />
                 <span>Live</span>
               </div>
             </div>
@@ -201,7 +203,7 @@ export default function Login() {
                 <div className="mx-auto mb-3 h-13 w-13 rounded-2xl glass p-1 border border-[var(--ns-glass-line)] shadow-xs flex items-center justify-center">
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
-                <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-success)]">
+                <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-ink)]">
                   {two ? 'Two-step check' : 'Staff login'}
                 </div>
                 <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
