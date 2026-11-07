@@ -181,7 +181,7 @@ export default function Login() {
             {/* Bottom Property Signature */}
             <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/20 pt-4 font-medium text-[var(--ns-ink)] drop-shadow-md">
               <div className="flex items-center gap-1.5 text-[var(--ns-ink)] drop-shadow-sm">
-                <MapPin size={13} className="text-[#9de0ea]" />
+                <MapPin size={13} className="text-[var(--ns-success)]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
               <div className="flex items-center gap-1.5 text-[var(--ns-success)] dark:text-emerald-400 font-semibold text-[12px]">
@@ -201,7 +201,7 @@ export default function Login() {
                 <div className="mx-auto mb-3 h-13 w-13 rounded-2xl glass p-1 border border-[var(--ns-glass-line)] shadow-xs flex items-center justify-center">
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
-                <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-gold)]">
+                <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-success)]">
                   {two ? 'Two-step check' : 'Staff login'}
                 </div>
                 <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
