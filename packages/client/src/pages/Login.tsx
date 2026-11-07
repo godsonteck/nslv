@@ -147,7 +147,7 @@ export default function Login() {
                 alt="NS Luxury Villa"
                 className="w-full h-full object-cover transform scale-105 filter brightness-[0.65] contrast-[1.05]"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,30,40,.75),rgba(4,30,40,.95))]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,30,40,1),rgba(4,30,40,.95))]" />
             </div>
 
             {/* Top Calm Eyebrow */}
