@@ -668,6 +668,13 @@ html[data-theme="dark"] body, html.dark body {
     transform: translateY(1px) scale(0.985);
   }
 
+  /* Dark theme: saturated buttons use dark text on light saturated backgrounds */
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger {
+    color: #0b1d28;
+  }
+
   /* Outline / Ghost — surface with border bevel */
   .clay-btn-outline, .clay-btn-ghost {
     background-color: var(--ns-clay-bg);
