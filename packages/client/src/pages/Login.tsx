@@ -160,11 +160,11 @@ export default function Login() {
 
             {/* Editorial Centerpiece — Uncluttered & Poetic */}
             <div className="relative z-10 space-y-4 my-auto py-8">
-              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-sm">
+              <h1 className="text-4xl xl:text-5xl font-black text-[var(--ns-ink)] font-serif tracking-tight leading-[1.15] drop-shadow-sm">
                 Your place, <br />
                 <span className="text-[var(--ns-success)] italic font-light">all in one view.</span>
               </h1>
-              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-white drop-shadow-sm">
+              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-[var(--ns-ink)] drop-shadow-sm">
                 See bookings, guests, room status, and daily work from one place.
               </p>
 
