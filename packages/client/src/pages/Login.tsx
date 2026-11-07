@@ -114,7 +114,7 @@ export default function Login() {
             <div className="font-['Manrope'] text-base sm:text-lg font-extrabold tracking-tight" style={{ color: 'var(--ns-ink)' }}>
               {villaName}
             </div>
-            <div className="text-[12px] font-bold tracking-wider text-[var(--ns-muted)]">
+            <div className="text-[12px] font-bold tracking-wider text-[var(--ns-ink)] drop-shadow-sm">
               {villaTagline}
             </div>
           </div>
@@ -169,18 +169,18 @@ export default function Login() {
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
-              <div className="pt-6 flex items-center gap-3 text-xs font-medium text-white/80">
+              <div className="pt-6 flex items-center gap-3 text-xs font-medium text-[var(--ns-ink)] drop-shadow-md">
                 <span>12 guest rooms</span>
-                <span className="text-[var(--ns-muted)]">·</span>
+                <span className="text-[var(--ns-ink)] drop-shadow-sm">·</span>
                 <span>Pool area</span>
-                <span className="text-[var(--ns-muted)]">·</span>
+                <span className="text-[var(--ns-ink)] drop-shadow-sm">·</span>
                 <span>Front desk & dining</span>
               </div>
             </div>
 
             {/* Bottom Property Signature */}
-            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/10 pt-4 font-medium text-white/70">
-              <div className="flex items-center gap-1.5 text-white/80">
+            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/20 pt-4 font-medium text-[var(--ns-ink)] drop-shadow-md">
+              <div className="flex items-center gap-1.5 text-[var(--ns-ink)] drop-shadow-sm">
                 <MapPin size={13} className="text-[#9de0ea]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
