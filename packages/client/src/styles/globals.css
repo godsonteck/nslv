@@ -1269,4 +1269,9 @@ html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
       -3px -3px 9px -7px rgba(161, 237, 248, 0.24),
       inset 0 1px 0 rgba(220, 249, 253, 0.25);
   }
+  html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-accent, html.dark .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-danger, html.dark .clay-btn-danger {
+    color: #0b1d28;
+  }
 
