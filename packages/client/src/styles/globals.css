@@ -379,28 +379,19 @@ html[data-theme="dark"] body, html.dark body {
     pointer-events: none;
   }
 
-  /* Logo watermark: centered behind all content, visible but non-intrusive.
-     Fully pointer-transparent so it cannot block clicks or text selection. */
-  .ns-watermark {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-    display: grid;
-    place-items: center;
-    opacity: 0.30;
-    mix-blend-mode: normal;
-    filter: grayscale(0.30) contrast(1.10) blur(4px);
-    max-width: 60vw;
-    max-height: 60vh;
-    width: auto;
-    height: auto;
+  /* Full-page tiled logo watermark — repeats across the whole viewport as a
+     subtle brand background. Applied to .ns-ambient via inline background-image
+     (asset URL) with repeat tiling; opacity/filter handled here per theme. */
+  .ns-ambient {
+    background-repeat: repeat;
+    background-size: 220px 220px;
+    background-position: 0 0;
+    opacity: 0.12;
+    filter: grayscale(0.35) contrast(1.05);
   }
-  html[data-theme="dark"] .ns-watermark, html.dark .ns-watermark {
-    opacity: 0.26;
-    filter: grayscale(0.20) contrast(1.15) blur(4px);
+  html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
+    opacity: 0.09;
+    filter: grayscale(0.25) contrast(1.10);
   }
 
   .ns-orb {

@@ -1,23 +1,23 @@
 import React from 'react';
 import { villaAssets } from '../../assets';
 
-// Decorative ambient light field plus a subtle, non-competing logo watermark.
-// The watermark sits at the back (z-index -1), is fully pointer-transparent,
-// and uses very low opacity + soft-light blending so it never competes with
-// page copy in either theme.
+// Full-page tiled logo watermark behind the ambient light field. Repeats
+// across the whole viewport at low opacity so it reads as a subtle brand
+// watermark rather than competing with page copy. Fully pointer-transparent.
 export const AmbientBackdrop: React.FC = () => (
-  <div className="ns-ambient" aria-hidden="true">
+  <div
+    className="ns-ambient"
+    aria-hidden="true"
+    style={{
+      backgroundImage: `url(${villaAssets.logo})`,
+      backgroundRepeat: 'repeat',
+      backgroundSize: '220px 220px',
+      backgroundPosition: '0 0',
+    }}
+  >
     <div className="ns-orb ns-orb-1" />
     <div className="ns-orb ns-orb-2" />
     <div className="ns-orb ns-orb-3" />
-    <img
-      src={villaAssets.logo}
-      alt=""
-      aria-hidden="true"
-      className="ns-watermark"
-      loading="lazy"
-      decoding="async"
-    />
   </div>
 );
 
