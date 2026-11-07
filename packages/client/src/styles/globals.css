@@ -102,6 +102,13 @@
   --clay-well-shadow: inset 0 2px 5px rgba(17, 71, 87, 0.16), inset 0 1px 1px rgba(17, 71, 87, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9);
   --clay-btn-shadow: 0 3px 7px -1px rgba(13, 66, 82, 0.18), 0 1px 2px rgba(13, 66, 82, 0.10);
   --clay-card-shadow: 0 16px 34px -14px rgba(13, 66, 82, 0.30), 0 2px 7px -2px rgba(13, 66, 82, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
+
+  /* Claymorphism + Neumorphism surface tokens (Light) */
+  --ns-clay-bg: #d8e9ed;
+  --ns-clay-shadow-light: rgba(255, 255, 255, 0.90);
+  --ns-clay-shadow-dark: rgba(10, 60, 75, 0.16);
+  --ns-clay-bevel-light: rgba(255, 255, 255, 0.98);
+  --ns-clay-bevel-dark: rgba(10, 60, 75, 0.10);
 }
 
 html[data-theme="dark"], html.dark {
@@ -195,6 +202,13 @@ html[data-theme="dark"], html.dark {
   --clay-well-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.10);
   --clay-btn-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
   --clay-card-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.28), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+
+  /* Claymorphism + Neumorphism surface tokens (Dark) */
+  --ns-clay-bg: #070d14;
+  --ns-clay-shadow-light: rgba(255, 255, 255, 0.06);
+  --ns-clay-shadow-dark: rgba(0, 0, 0, 0.65);
+  --ns-clay-bevel-light: rgba(255, 255, 255, 0.10);
+  --ns-clay-bevel-dark: rgba(0, 0, 0, 0.45);
 }
 
 @layer base {
@@ -261,7 +275,7 @@ html[data-theme="dark"], html.dark {
   ::-webkit-scrollbar { width: 9px; height: 9px; }
   ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); }
   ::-webkit-scrollbar-thumb {
-    background: var(--ns-glass-line);
+    background: var(--ns-clay-shadow-dark);
     border-radius: 999px;
     border: 2px solid transparent;
     background-clip: content-box;
@@ -440,23 +454,40 @@ html[data-theme="dark"] body, html.dark body {
     background-image: linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .12) 47%, transparent 60%);
   }
 
-  /* Notification rows: theme-aware glass instead of fixed white fills. */
+  /* Notification rows: theme-aware clay instead of fixed white fills. */
   .ns-notif-item {
-    background-color: var(--ns-glass-1);
-    border: 1px solid var(--ns-glass-line-soft);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
-    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    background-color: var(--ns-clay-bg);
+    border: none;
+    border-radius: 16px;
+    box-shadow:
+      4px 4px 8px var(--ns-clay-shadow-dark),
+      -4px -4px 8px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
   }
-  .ns-notif-item:hover { background-color: var(--ns-glass-hover); }
+  .ns-notif-item:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      6px 6px 12px var(--ns-clay-shadow-dark),
+      -6px -6px 12px var(--ns-clay-shadow-light),
+      inset 2px 2px 4px var(--ns-clay-bevel-dark),
+      inset -2px -2px 4px var(--ns-clay-bevel-light);
+  }
   .ns-notif-item--unread {
-    background-color: var(--ns-glass-2);
     border-color: color-mix(in srgb, var(--ns-teal) 42%, transparent);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.60),
-      0 8px 20px -16px rgba(15, 60, 72, 0.55);
+      4px 4px 8px var(--ns-clay-shadow-dark),
+      -4px -4px 8px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
   html[data-theme="dark"] .ns-notif-item, html.dark .ns-notif-item {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    box-shadow:
+      4px 4px 8px rgba(0, 0, 0, 0.60),
+      -4px -4px 8px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.40),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
   }
   html[data-theme="dark"] .ns-notif-item--unread, html.dark .ns-notif-item--unread {
     border-color: color-mix(in srgb, var(--ns-teal) 52%, transparent);
@@ -466,193 +497,251 @@ html[data-theme="dark"] body, html.dark body {
   }
 
   /* ──────────────────────────────────────────
-     Premium Glassmorphism (Both Themes)
-     Sheen + frost grain + bevel + depth, together.
+     Claymorphism + Neumorphism (Both Themes)
+     Opaque surfaces extruded from the page background with dual-tone
+     bevel shadows — no backdrop-filter, no transparency.
      ────────────────────────────────────────── */
   .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
+  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft,
+  .clay-card {
+    background-color: var(--ns-clay-bg);
+    border: none;
+    border-radius: 24px;
     color: var(--ns-ink);
-    border: 1px solid var(--ns-glass-border-outer);
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
+    box-shadow:
+      /* outer drop shadow (bottom-right dark, top-left light) */
+      8px 8px 16px var(--ns-clay-shadow-dark),
+      -8px -8px 16px var(--ns-clay-shadow-light),
+      /* inner bevel (top-left light highlight, bottom-right dark groove) */
+      inset 2px 2px 4px var(--ns-clay-bevel-dark),
+      inset -2px -2px 4px var(--ns-clay-bevel-light);
   }
-  .ns-card { border-radius: 20px; }
+  .ns-card { border-radius: 24px; }
+  .ns-card-soft { border-radius: 16px; }
 
-  .glass-strong {
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth-lg);
-    -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.04);
-    backdrop-filter: blur(12px) saturate(150%) brightness(1.04);
+  /* Raised surface — stronger elevation */
+  .glass-strong, .ns-glass-bar {
+    box-shadow:
+      12px 12px 24px var(--ns-clay-shadow-dark),
+      -12px -12px 24px var(--ns-clay-shadow-light),
+      inset 3px 3px 6px var(--ns-clay-bevel-dark),
+      inset -3px -3px 6px var(--ns-clay-bevel-light);
   }
 
-  .glass-subtle {
-    box-shadow: var(--ns-glass-bevel-soft);
+  /* Subtle surface — softer, lower elevation */
+  .glass-subtle, .ns-glass-band, .ns-glass-bar-soft {
+    box-shadow:
+      5px 5px 10px var(--ns-clay-shadow-dark),
+      -5px -5px 10px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
 
+  /* Semantic dark surface */
   .glass-dark {
-    border-color: rgba(198, 158, 92, 0.40);
+    background-color: color-mix(in srgb, var(--ns-clay-bg) 85%, #0b1d28);
     color: #f8fafc;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      0 30px 60px -26px rgba(4, 12, 18, 0.60);
+      10px 10px 20px rgba(0, 0, 0, 0.50),
+      -10px -10px 20px rgba(255, 255, 255, 0.04),
+      inset 2px 2px 4px rgba(0, 0, 0, 0.60),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.06);
+  }
+  html[data-theme="dark"] .glass-dark, html.dark .glass-dark {
+    background-color: #051018;
+    box-shadow:
+      10px 10px 20px rgba(0, 0, 0, 0.80),
+      -10px -10px 20px rgba(255, 255, 255, 0.02),
+      inset 2px 2px 4px rgba(0, 0, 0, 0.90),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.04);
   }
 
+  /* Semantic warm surface */
   .glass-warm {
-    border-color: rgba(198, 158, 92, 0.34);
-    box-shadow: var(--ns-glass-bevel), 0 22px 48px -24px rgba(150, 112, 52, 0.34);
-  }
-
-  .ns-card-soft {
-    border-radius: 16px;
-    box-shadow: var(--ns-glass-bevel-soft), 0 10px 24px -18px rgba(10, 60, 75, 0.28);
-  }
-
-  .ns-glass-bar {
+    background-color: color-mix(in srgb, var(--ns-clay-bg) 85%, #7c3a12);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.70),
-      0 14px 34px -26px rgba(10, 60, 75, 0.45);
-    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.02);
-    backdrop-filter: blur(10px) saturate(140%) brightness(1.02);
+      10px 10px 20px rgba(0, 0, 0, 0.25),
+      -10px -10px 20px rgba(255, 255, 255, 0.08),
+      inset 2px 2px 4px rgba(0, 0, 0, 0.20),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.10);
   }
 
-  .ns-glass-bar-soft {
-    box-shadow:
-      inset 1px 0 0 rgba(255, 255, 255, 0.55),
-      6px 0 26px -22px rgba(10, 60, 75, 0.40);
-    -webkit-backdrop-filter: blur(8px) saturate(135%) brightness(1.02);
-    backdrop-filter: blur(8px) saturate(135%) brightness(1.02);
-  }
-
-  aside.ns-glass-bar-soft {
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
-  }
-
-  .ns-glass-band {
-    border-color: var(--ns-glass-line-soft);
-    box-shadow: var(--ns-glass-bevel-soft);
-  }
-
+  /* Scrim — solid overlay for modals, no clay bevel */
   .ns-scrim {
-    background: rgba(6, 20, 28, 0.42);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-    backdrop-filter: blur(12px) saturate(150%);
+    background: var(--ns-clay-bg);
+    opacity: 0.92;
+    border-radius: 0;
   }
 
   /* ──────────────────────────────────────────
-     Claymorphic Elements on Background
+     Claymorphic + Neumorphic Buttons
      ────────────────────────────────────────── */
-
-  /* Tactile Claymorphic Push Buttons */
   .clay-btn, button:not([class*="text-"]):not([class*="p-0"]):not([class*="h-full"]) {
     position: relative;
+    background-color: var(--ns-clay-bg);
+    border: none;
+    border-radius: 16px;
+    color: var(--ns-ink);
+    box-shadow:
+      6px 6px 12px var(--ns-clay-shadow-dark),
+      -6px -6px 12px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
     transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Primary Tactile Button */
+  /* Primary — saturated teal, extruded from surface */
   .clay-btn-primary {
-    -webkit-backdrop-filter: blur(18px) saturate(185%);
-    backdrop-filter: blur(18px) saturate(185%);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38);
+    background-color: var(--ns-teal);
+    color: #ffffff;
+    box-shadow:
+      6px 6px 12px color-mix(in srgb, var(--ns-teal) 40%, transparent),
+      -6px -6px 12px rgba(255, 255, 255, 0.40),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.25),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.50);
   }
   .clay-btn-primary:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow:
+      8px 8px 16px color-mix(in srgb, var(--ns-teal) 50%, transparent),
+      -8px -8px 16px rgba(255, 255, 255, 0.50),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.20),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.55);
   }
   .clay-btn-primary:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.985);
+    box-shadow:
+      3px 3px 6px color-mix(in srgb, var(--ns-teal) 30%, transparent),
+      -3px -3px 6px rgba(255, 255, 255, 0.30),
+      inset 2px 2px 4px rgba(0, 0, 0, 0.30),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.20);
   }
 
-  /* Secondary Claymorphic Frosted Glass Button */
+  /* Secondary — surface tone with bevel */
   .clay-btn-secondary {
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
+    background-color: var(--ns-clay-bg);
+    color: var(--ns-ink-2);
+    box-shadow:
+      5px 5px 10px var(--ns-clay-shadow-dark),
+      -5px -5px 10px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
   .clay-btn-secondary:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
   .clay-btn-secondary:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.985);
   }
 
-  /* Accent Luxury Gold Claymorphic Button */
+  /* Accent — gold */
   .clay-btn-accent {
-    -webkit-backdrop-filter: blur(18px) saturate(185%);
-    backdrop-filter: blur(18px) saturate(185%);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+    background-color: var(--ns-gold);
+    color: #ffffff;
+    box-shadow:
+      6px 6px 12px color-mix(in srgb, var(--ns-gold) 40%, transparent),
+      -6px -6px 12px rgba(255, 255, 255, 0.40),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.25),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.50);
   }
   .clay-btn-accent:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
   .clay-btn-accent:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.985);
   }
 
-  /* Danger Crimson Claymorphic Button */
+  /* Danger — red */
   .clay-btn-danger {
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    backdrop-filter: blur(18px) saturate(180%);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    background-color: var(--ns-danger);
+    color: #ffffff;
+    box-shadow:
+      6px 6px 12px color-mix(in srgb, var(--ns-danger) 40%, transparent),
+      -6px -6px 12px rgba(255, 255, 255, 0.40),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.25),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.50);
   }
   .clay-btn-danger:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
   .clay-btn-danger:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.985);
   }
 
-  /* Outline / Ghost Tactile Buttons */
+  /* Outline / Ghost — surface with border bevel */
   .clay-btn-outline, .clay-btn-ghost {
-    -webkit-backdrop-filter: blur(18px) saturate(175%);
-    backdrop-filter: blur(18px) saturate(175%);
+    background-color: var(--ns-clay-bg);
+    color: var(--ns-ink-2);
+    border: 2px solid var(--ns-clay-border-outer);
+    box-shadow:
+      5px 5px 10px var(--ns-clay-shadow-dark),
+      -5px -5px 10px var(--ns-clay-shadow-light);
   }
   .clay-btn-outline:hover:not(:disabled), .clay-btn-ghost:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
-  /* Frosted Input Wells — glass recessed into the pane */
-  .glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    -webkit-backdrop-filter: blur(16px) saturate(170%);
-    backdrop-filter: blur(16px) saturate(170%);
+  /* Frosted Input Wells — clay recessed into surface */
+  .glass-input, .ns-input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
+    background-color: var(--ns-clay-bg);
+    border: none;
+    border-radius: 16px;
+    color: var(--ns-ink);
+    box-shadow:
+      5px 5px 10px var(--ns-clay-shadow-dark),
+      -5px -5px 10px var(--ns-clay-shadow-light),
+      inset 2px 2px 4px var(--ns-clay-bevel-dark),
+      inset -2px -2px 4px var(--ns-clay-bevel-light);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
   }
 
-  /* Tactile Raised Enamel Badges & Status Chips */
+  /* Tactile Raised Badges & Status Chips */
   .clay-badge {
     position: relative;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.08),
-      0 1px 3px rgba(12, 24, 32, 0.10);
+    background-color: var(--ns-clay-bg);
+    border: none;
+    border-radius: 999px;
+    color: var(--ns-ink-2);
     font-weight: 800;
     letter-spacing: 0.04em;
+    box-shadow:
+      3px 3px 6px var(--ns-clay-shadow-dark),
+      -3px -3px 6px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
   html[data-theme="dark"] .clay-badge, html.dark .clay-badge {
+    color: var(--ns-ink-2);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
-      0 1px 3px rgba(0, 0, 0, 0.3);
+      3px 3px 6px rgba(0, 0, 0, 0.70),
+      -3px -3px 6px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.50),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
   }
 
-  /* Tactile Raised Quick Link & Stat Cards */
-  .clay-card {
-    border-radius: 18px;
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-sheen-soft);
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    border: 1px solid var(--ns-glass-border-outer);
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
-    box-shadow: var(--ns-glass-bevel-soft), var(--ns-glass-depth);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  /* Tactile Raised Cards */
   .clay-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth-lg);
+    transform: translateY(-3px);
+    box-shadow:
+      12px 12px 24px var(--ns-clay-shadow-dark),
+      -12px -12px 24px var(--ns-clay-shadow-light),
+      inset 3px 3px 6px var(--ns-clay-bevel-dark),
+      inset -3px -3px 6px var(--ns-clay-bevel-light);
+  }
+  html[data-theme="dark"] .clay-card, html.dark .clay-card {
+    box-shadow:
+      10px 10px 20px rgba(0, 0, 0, 0.60),
+      -10px -10px 20px rgba(255, 255, 255, 0.03),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.40),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
   }
   html[data-theme="dark"] .clay-card:hover, html.dark .clay-card:hover {
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth-lg);
+    box-shadow:
+      14px 14px 28px rgba(0, 0, 0, 0.80),
+      -14px -14px 28px rgba(255, 255, 255, 0.04),
+      inset 2px 2px 4px rgba(0, 0, 0, 0.50),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.03);
   }
 
   /* Eyebrows, Labels & Numeric Display */
@@ -682,93 +771,81 @@ html[data-theme="dark"] body, html.dark body {
     transition: background-color .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
   }
 
-  /* Tactile Tables */
+  /* ──────────────────────────────────────────
+     Claymorphic + Neumorphic Tables
+     ────────────────────────────────────────── */
   .ns-table thead th {
-    background-color: rgba(255, 255, 255, 0.22);
-    background-image: var(--ns-glass-sheen-soft);
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    color: var(--ns-ink);
-    border-bottom: 1px solid var(--ns-glass-line);
+    background-color: var(--ns-clay-bg);
+    color: var(--ns-ink-2);
+    border-bottom: 2px solid var(--ns-clay-bg);
     font-size: 12px;
     letter-spacing: .12em;
     text-transform: uppercase;
     font-weight: 800;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
-    -webkit-backdrop-filter: blur(18px) saturate(170%);
-    backdrop-filter: blur(18px) saturate(170%);
+    box-shadow:
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
   html[data-theme="dark"] .ns-table thead th, html.dark .ns-table thead th {
-    background-color: rgba(12, 42, 56, 0.52);
-    background-image: var(--ns-glass-sheen-soft);
-    color: #f8fafc;
-    border-bottom: 1px solid rgba(214, 244, 250, 0.22);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    color: #e2e8f0;
+    border-bottom: 2px solid var(--ns-clay-bg);
+    box-shadow:
+      inset 1px 1px 2px rgba(0, 0, 0, 0.50),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.04);
   }
 
   .ns-table tbody td {
     color: var(--ns-ink);
     font-weight: 600;
+    border-bottom: 1px solid var(--ns-clay-bg);
   }
   .ns-table tbody tr {
-    background: transparent;
-    transition: background-color .15s ease, box-shadow .15s ease;
+    background-color: var(--ns-clay-bg);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
   }
   .ns-table tbody tr:hover {
-    background: var(--ns-glass-hover);
+    background-color: var(--ns-clay-bg);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.35),
-      inset 3px 0 0 0 color-mix(in srgb, var(--ns-teal) 55%, transparent);
+      inset 2px 2px 4px var(--ns-clay-bevel-dark),
+      inset -2px -2px 4px var(--ns-clay-bevel-light);
+    transform: scale(1.01);
   }
   html[data-theme="dark"] .ns-table tbody tr:hover, html.dark .ns-table tbody tr:hover {
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.10),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.30),
-      inset 3px 0 0 0 color-mix(in srgb, var(--ns-teal) 55%, transparent);
+      inset 2px 2px 4px rgba(0, 0, 0, 0.50),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.04);
   }
 
-  /* Glass surface border consistency */
+  /* Clay surface border consistency — no borders, shadows define edges */
   .glass, .ns-card,
   .glass-strong, .ns-card-soft, .ns-glass-band,
   .ns-glass-bar, .ns-glass-bar-soft,
   .ns-glass-selected {
-    border-color: var(--ns-glass-line);
-  }
-
-  .ns-glass-hover:hover, .ns-table tbody tr:hover {
-    background-color: var(--ns-glass-hover);
+    border: none;
   }
 
   .clay-btn, .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
   .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
-    border-radius: 14px;
+    border-radius: 16px;
   }
   .clay-btn:hover:not(:disabled), .clay-btn-primary:hover:not(:disabled),
   .clay-btn-secondary:hover:not(:disabled), .clay-btn-accent:hover:not(:disabled),
   .clay-btn-danger:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled),
   .clay-btn-ghost:hover:not(:disabled) {
-    transform: translateY(-1px) scale(1.015);
+    transform: translateY(-3px);
   }
   .clay-btn:active:not(:disabled), .clay-btn-primary:active:not(:disabled),
   .clay-btn-secondary:active:not(:disabled), .clay-btn-accent:active:not(:disabled),
   .clay-btn-danger:active:not(:disabled), .clay-btn-outline:active:not(:disabled),
   .clay-btn-ghost:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
+    transform: translateY(1px) scale(0.98);
   }
   .glass-input, .ns-input,
   input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    border-radius: 14px;
+    border-radius: 16px;
   }
   .clay-badge {
     border-radius: 999px;
-  }
-  html[data-theme="dark"] .clay-card, html.dark .clay-card {
-    box-shadow:
-      12px 14px 30px -17px rgba(0, 0, 0, 0.72),
-      -7px -7px 18px -16px rgba(161, 237, 248, 0.22),
-      inset 0 1px 0 rgba(220, 249, 253, 0.28),
-      inset 0 -1px 1px rgba(0, 0, 0, 0.28);
   }
 
   /* ──────────────────────────────────────────
@@ -800,15 +877,17 @@ html[data-theme="dark"] body, html.dark body {
     gap: 20px;
     min-height: 98px;
     padding: 18px 20px;
-    border: 1px solid var(--ns-glass-border-outer);
+    border: none;
     border-radius: 24px;
-    background-color: var(--ns-glass-2);
-    background-image: var(--ns-glass-sheen);
-    background-size: 100% 100%;
+    background-color: var(--ns-clay-bg);
+    background-image: none;
+    background-size: auto;
     background-repeat: no-repeat;
-    -webkit-backdrop-filter: var(--ns-glass-filter);
-    backdrop-filter: var(--ns-glass-filter);
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
+    box-shadow:
+      6px 6px 12px var(--ns-clay-shadow-dark),
+      -6px -6px 12px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
   .workspace-page__eyebrow {
     color: var(--ns-teal);
@@ -842,10 +921,14 @@ html[data-theme="dark"] body, html.dark body {
     gap: 8px;
   }
   .workspace-page .glass, .workspace-page .ns-card, .workspace-page .ns-card-soft {
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
+    box-shadow:
+      6px 6px 12px var(--ns-clay-shadow-dark),
+      -6px -6px 12px var(--ns-clay-shadow-light),
+      inset 1px 1px 2px var(--ns-clay-bevel-dark),
+      inset -1px -1px 2px var(--ns-clay-bevel-light);
   }
   .workspace-page .ns-glass-band {
-    border-color: var(--ns-glass-line);
+    border: none;
   }
   .ns-page > .grid { align-items: start; }
   .ns-page .glass > .ns-glass-band:first-child,
@@ -857,12 +940,16 @@ html[data-theme="dark"] body, html.dark body {
     .workspace-page__actions { justify-content: flex-start; width: 100%; }
   }
   html[data-theme="dark"] .workspace-page__header, html.dark .workspace-page__header {
-    background-color: var(--ns-glass-2);
-    background-image: var(--ns-glass-sheen);
-    background-size: 100% 100%;
+    background-color: var(--ns-clay-bg);
+    background-image: none;
+    background-size: auto;
     background-repeat: no-repeat;
-    border-color: var(--ns-glass-border-outer);
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
+    border: none;
+    box-shadow:
+      6px 6px 12px rgba(0, 0, 0, 0.60),
+      -6px -6px 12px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(0, 0, 0, 0.40),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
   }
   header.ns-glass-bar {
     box-shadow:
@@ -949,141 +1036,52 @@ html[data-theme="dark"] body, html.dark body {
 
 .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
   .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-    background-color: var(--ns-glass-2);
-    background-image: var(--ns-glass-sheen);
-    background-size: 100% 100%;
+    background-color: var(--ns-clay-bg);
+    background-image: none;
+
     background-repeat: no-repeat;
-  }
-
-.glass, .ns-card { background-color: var(--ns-glass-2); }
-
-/* Action buttons keep a single-line label wherever space allows. */
-.clay-btn {
-  white-space: nowrap;
-}
-
-html[data-theme="dark"] .glass, html.dark .glass,
-  html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
-  html[data-theme="dark"] .glass-subtle, html.dark .glass-subtle,
-  html[data-theme="dark"] .ns-card, html.dark .ns-card,
-  html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
-  html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
-  html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
-  html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
-    border-color: var(--ns-glass-border-outer);
-    color: #f8fafc;
-    box-shadow: var(--ns-glass-bevel), var(--ns-glass-depth);
-  }
-
-.glass-strong {
-    background-color: var(--ns-glass-3);
-  }
-
-.glass-subtle {
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-sheen-soft);
-    background-size: 100% 100%;
-  }
-
-.glass-dark {
-    background-color: rgba(12, 30, 40, 0.72);
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen);
-  }
-
-.glass-warm {
-    background-color: var(--ns-glass-2);
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-warm);
-  }
-
-.ns-card-soft {
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-sheen-soft);
-    background-size: 100% 100%;
-  }
-
-.ns-glass-bar {
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
-    border-color: var(--ns-glass-border-outer);
-  }
-
-.ns-glass-bar-soft {
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
-    border-color: var(--ns-glass-border-outer);
-  }
-
-aside.ns-glass-bar-soft {
-    border-color: var(--ns-glass-border-outer);
-  }
-
-.ns-glass-band {
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-sheen-soft);
-    background-size: 100% 100%;
-  }
-
-.clay-btn-primary {
-    background-color: rgba(8, 66, 82, 0.92);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(52, 148, 170, 0.32) 0%, rgba(20, 101, 120, 0.22) 48%, rgba(13, 79, 96, 0.34) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
     color: #ffffff;
-    border: 1px solid rgba(8, 62, 76, 0.75);
+    border: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-      0 8px 18px -10px rgba(11, 76, 93, 0.60);
-    font-weight: 700;
+      
   }
 
 .clay-btn-primary:hover:not(:disabled) {
     background-color: rgba(11, 82, 101, 0.95);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(70, 171, 192, 0.36) 0%, rgba(27, 125, 147, 0.26) 48%, rgba(18, 103, 123, 0.36) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
+    background-image: none;
+
+    background-repeat: no-repeat;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      0 5px 12px -1px rgba(11, 47, 57, 0.4),
-      0 2px 4px rgba(0, 0, 0, 0.15);
+      
   }
 
 .clay-btn-primary:active:not(:disabled) {
     box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.35),
-      0 1px 1px rgba(0, 0, 0, 0.1);
+      inset 
   }
 
 html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary {
-    background-color: rgba(6, 54, 70, 0.94);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(14, 150, 214, 0.30) 0%, rgba(3, 105, 161, 0.20) 52%, rgba(7, 89, 133, 0.34) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
-    border: 1px solid rgba(56, 189, 248, 0.55);
+    background-color: var(--ns-teal);
+    background-image: none;
+
+    background-repeat: no-repeat;
+    border: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.36),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-      0 10px 22px -12px rgba(2, 132, 199, 0.70);
+      
   }
 
 .clay-btn-secondary {
     background-color: rgba(255, 255, 255, 0.24);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.18) 52%, rgba(207, 232, 236, 0.30) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
+    background-image: none;
+
+    background-repeat: no-repeat;
     color: var(--ns-ink);
-    border: 1px solid var(--ns-glass-border-outer);
+    border: none;
     box-shadow:
-      var(--ns-glass-bevel),
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
       0 7px 16px -10px rgba(12, 24, 32, 0.40);
     font-weight: 700;
   }
@@ -1092,126 +1090,80 @@ html[data-theme="dark"] .clay-btn-primary, html.dark .clay-btn-primary {
     background-color: rgba(255, 255, 255, 0.38);
     border-color: var(--ns-teal);
     box-shadow:
-      var(--ns-glass-bevel),
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
       0 12px 24px -12px rgba(12, 24, 32, 0.46);
   }
 
 .clay-btn-secondary:active:not(:disabled) {
     box-shadow:
-      inset 0 2px 4px rgba(12, 24, 32, 0.14),
-      0 1px 1px rgba(0, 0, 0, 0.04);
+      inset 
   }
 
 html[data-theme="dark"] .clay-btn-secondary, html.dark .clay-btn-secondary {
-    background-color: rgba(20, 56, 70, 0.46);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 55%, rgba(56, 189, 248, 0.12) 100%);
+    background-color: var(--ns-clay-bg);
+    background-image: none;
     color: #f8fafc;
-    border: 1px solid rgba(214, 244, 250, 0.24);
+    border: none;
     box-shadow:
-      var(--ns-glass-bevel),
-      0 8px 18px -10px rgba(0, 0, 0, 0.70);
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
+      
   }
 
 .clay-btn-accent {
-    background-color: rgba(15, 88, 106, 0.92);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(58, 150, 169, 0.32) 0%, rgba(28, 111, 132, 0.22) 52%, rgba(18, 90, 108, 0.34) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
+    background-color: var(--ns-gold);
+    background-image: none;
+
+    background-repeat: no-repeat;
     color: #ffffff;
-    border: 1px solid rgba(10, 70, 86, 0.75);
+    border: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.58),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-      0 8px 18px -10px rgba(18, 85, 104, 0.58);
-    font-weight: 700;
+      
   }
 
 .clay-btn-accent:hover:not(:disabled) {
-    background-color: rgba(19, 98, 118, 0.95);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(81, 175, 192, 0.36) 0%, rgba(40, 141, 164, 0.26) 52%, rgba(26, 113, 134, 0.36) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
+    background-color: var(--ns-gold);
+    background-image: none;
+
+    background-repeat: no-repeat;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      0 5px 12px rgba(18, 85, 104, 0.4);
+      
   }
 
 .clay-btn-accent:active:not(:disabled) {
     box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.35),
-      0 1px 1px rgba(0, 0, 0, 0.1);
+      inset 
   }
 
 .clay-btn-danger {
-    background-color: rgba(139, 22, 22, 0.92);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(180deg, rgba(206, 34, 34, 0.32) 0%, rgba(172, 26, 26, 0.22) 52%, rgba(140, 24, 24, 0.34) 100%);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
+    background-color: var(--ns-danger);
+    background-image: none;
+
+    background-repeat: no-repeat;
     color: #ffffff;
-    border: 1px solid rgba(110, 18, 18, 0.75);
+    border: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.50),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.14),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-      0 8px 18px -10px rgba(140, 20, 20, 0.58);
-    font-weight: 700;
+      
   }
 
 .clay-btn-danger:hover:not(:disabled) {
-    background: linear-gradient(180deg, rgba(239, 68, 68, 0.42) 0%, rgba(220, 38, 38, 0.32) 52%, rgba(185, 28, 28, 0.38) 100%);
+    background-color: var(--ns-clay-bg);
   }
 
 .clay-btn-danger:active:not(:disabled) {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+    box-shadow: inset 
   }
 
 .clay-btn-outline, .clay-btn-ghost {
-    background-color: var(--ns-glass-1);
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
-    background-size: 180px 180px, 100% 100%;
-    background-repeat: repeat, no-repeat;
-    color: var(--ns-ink);
-    border: 1px solid var(--ns-glass-border-outer);
-    box-shadow: var(--ns-glass-bevel-soft), 0 4px 10px -6px rgba(12, 24, 32, 0.28);
-    font-weight: 700;
-  }
+    background-color: var(--ns-clay-bg);
+    background-image: none;
 
-.clay-btn-outline:hover:not(:disabled), .clay-btn-ghost:hover:not(:disabled) {
-    background-color: var(--ns-glass-hover);
-    border-color: var(--ns-gold);
-    box-shadow: var(--ns-glass-bevel), 0 8px 18px -10px rgba(12, 24, 32, 0.34);
-  }
-
-html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
-  html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
-    background-color: rgba(18, 52, 66, 0.38);
-    background-image: var(--ns-glass-frost), var(--ns-glass-sheen-soft);
-    color: #f8fafc;
-    border: 1px solid rgba(214, 244, 250, 0.22);
-    box-shadow: var(--ns-glass-bevel-soft), 0 6px 14px -10px rgba(0, 0, 0, 0.60);
-  }
-
-.glass-input, .ns-input, input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background-color: rgba(255, 255, 255, 0.30);
-    background-image:
-      var(--ns-glass-sheen-soft),
-      linear-gradient(180deg, rgba(15, 71, 86, 0.06), transparent 62%);
-    background-size: 100% 100%, 100% 100%;
     background-repeat: no-repeat;
-    border: 1px solid var(--ns-glass-border-outer);
+    border: none;
     box-shadow:
-      inset 0 1px 2px rgba(12, 62, 78, 0.14),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.55),
-      0 1px 0 rgba(255, 255, 255, 0.45);
+      
     color: var(--ns-ink);
     font-weight: 600;
   }
@@ -1221,91 +1173,24 @@ html[data-theme="dark"] .glass-input, html.dark .glass-input,
   html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
   html[data-theme="dark"] select,
   html[data-theme="dark"] textarea {
-    background-color: rgba(8, 28, 38, 0.44);
-    background-image: var(--ns-glass-sheen-soft);
-    border: 1px solid rgba(214, 244, 250, 0.20);
-    box-shadow:
-      inset 0 1px 3px rgba(0, 0, 0, 0.48),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.10),
-      0 1px 0 rgba(255, 255, 255, 0.05);
-    color: #f8fafc;
-  }
+    background-color: var(--ns-clay-bg);
+    background-image: none;
 
-.glass-input::placeholder, .ns-input::placeholder,
-  input::placeholder, textarea::placeholder {
-    color: color-mix(in srgb, var(--ns-ink) 72%, var(--ns-muted) 28%);
-    opacity: 1;
-    font-weight: 600;
-  }
-
-.glass-input:focus, .ns-input:focus,
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--ns-teal);
-    background-color: rgba(255, 255, 255, 0.46);
-    box-shadow:
-      inset 0 1px 2px rgba(12, 62, 78, 0.10),
-      0 0 0 3px rgba(12, 89, 107, 0.26),
-      0 6px 18px -10px rgba(10, 60, 75, 0.45);
-  }
-
-html[data-theme="dark"] .glass-input:focus, html.dark .glass-input:focus,
-  html[data-theme="dark"] .ns-input:focus, html.dark .ns-input:focus,
-  html[data-theme="dark"] input:focus, html.dark select:focus, html.dark textarea:focus {
-    border-color: var(--ns-teal);
-    background-color: rgba(10, 40, 54, 0.62);
-    box-shadow:
-      inset 0 1px 3px rgba(0, 0, 0, 0.4),
-      0 0 0 3px rgba(56, 189, 248, 0.34),
-      0 8px 22px -12px rgba(0, 0, 0, 0.7);
-  }
-
-.ns-glass-hover:hover {
-    background-color: var(--ns-glass-hover);
-    border-color: var(--ns-glass-line);
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 18px 38px -22px rgba(10, 60, 75, 0.44);
-  }
-
-html[data-theme="dark"] .ns-glass-hover:hover, html.dark .ns-glass-hover:hover {
-    background-color: var(--ns-glass-hover);
-    border-color: rgba(214, 244, 250, 0.30);
-    box-shadow:
-      var(--ns-glass-bevel),
-      0 20px 42px -24px rgba(0, 0, 0, 0.70);
-  }
-
-.ns-glass-selected {
-    background-color: var(--ns-glass-3);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(35, 142, 168, 0.24) 0%, rgba(255, 255, 255, 0.14) 46%, rgba(35, 142, 168, 0.16) 100%);
-    background-size: 180px 180px, 100% 100%;
-    border-color: color-mix(in srgb, var(--ns-teal) 62%, white);
+    border-color: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.90),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.34),
-      inset 0 -1px 0 rgba(10, 76, 93, 0.14),
-      0 10px 24px -16px rgba(10, 76, 93, 0.55);
-  }
-
-html[data-theme="dark"] .ns-glass-selected, html.dark .ns-glass-selected {
-    background-color: var(--ns-glass-3);
-    background-image:
-      var(--ns-glass-frost),
-      linear-gradient(150deg, rgba(56, 189, 248, 0.22) 0%, rgba(255, 255, 255, 0.05) 48%, rgba(56, 189, 248, 0.14) 100%);
-    border-color: rgba(125, 211, 252, 0.62);
+      
+    background-image: none;
+    border-color: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.24),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.42),
-      0 12px 28px -18px rgba(0, 0, 0, 0.80);
+      
   }
 
 .clay-btn, .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
   .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
     box-shadow:
-      var(--ns-glass-bevel),
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
       0 9px 20px -13px rgba(7, 61, 77, 0.60);
   }
 
@@ -1314,8 +1199,8 @@ html[data-theme="dark"] .ns-glass-selected, html.dark .ns-glass-selected {
   .clay-btn-danger:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled),
   .clay-btn-ghost:hover:not(:disabled) {
     box-shadow:
-      var(--ns-glass-bevel),
-      0 14px 28px -16px rgba(7, 61, 77, 0.65);
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
+      
   }
 
 html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
@@ -1326,7 +1211,7 @@ html[data-theme="dark"] .clay-btn, html.dark .clay-btn,
   html[data-theme="dark"] .clay-btn-outline, html.dark .clay-btn-outline,
   html[data-theme="dark"] .clay-btn-ghost, html.dark .clay-btn-ghost {
     box-shadow:
-      var(--ns-glass-bevel),
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
       0 10px 24px -14px rgba(0, 0, 0, 0.80);
   }
 
@@ -1338,8 +1223,8 @@ html[data-theme="dark"] .clay-btn:hover:not(:disabled), html.dark .clay-btn:hove
   html[data-theme="dark"] .clay-btn-outline:hover:not(:disabled), html.dark .clay-btn-outline:hover:not(:disabled),
   html[data-theme="dark"] .clay-btn-ghost:hover:not(:disabled), html.dark .clay-btn-ghost:hover:not(:disabled) {
     box-shadow:
-      var(--ns-glass-bevel),
-      0 16px 32px -18px rgba(0, 0, 0, 0.90);
+      6px 6px 12px var(--ns-clay-shadow-dark), -6px -6px 12px var(--ns-clay-shadow-light), inset 1px 1px 2px var(--ns-clay-bevel-dark), inset -1px -1px 2px var(--ns-clay-bevel-light),
+      
   }
 
 .clay-btn:active:not(:disabled), .clay-btn-primary:active:not(:disabled),
