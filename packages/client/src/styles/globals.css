@@ -105,6 +105,7 @@
 
   /* Claymorphism + Neumorphism surface tokens (Light) */
   --ns-clay-bg: #d8e9ed;
+  --ns-well-bg: #cfe2e7;
   --ns-clay-shadow-light: rgba(255, 255, 255, 0.90);
   --ns-clay-shadow-dark: rgba(10, 60, 75, 0.16);
   --ns-clay-bevel-light: rgba(255, 255, 255, 0.98);
@@ -122,17 +123,17 @@
 
 html[data-theme="dark"], html.dark {
   color-scheme: dark;
-  /* Ultra-Visible High-Contrast Palette (Dark Mode) */
-  --ns-ink: #f8fafc;
-  --ns-ink-2: #e2e8f0;
-  --ns-muted: #edf6fb;
+  /* Deep sea-slate canvas with a raised, tactile clay surface. */
+  --ns-ink: #f3f8fb;
+  --ns-ink-2: #d9e7ee;
+  --ns-muted: #a4bac6;
   --ns-panel: rgba(8, 22, 31, 0.22);
   --ns-panel-strong: rgba(8, 22, 31, 0.28);
   --ns-teal: #38bdf8;
   --ns-teal-deep: #7dd3fc;
   --ns-gold: #fbbf24;
   --ns-gold-soft: rgba(251, 191, 36, 0.14);
-  --ns-bg: #070d14;
+  --ns-bg: #0b1720;
   --ns-danger: #f87171;
   --ns-success: #34d399;
   --ns-warning: #fbbf24;
@@ -188,7 +189,7 @@ html[data-theme="dark"], html.dark {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
 
   /* Notification panel: strongly opaque so the dashboard behind never bleeds through. */
-  --ns-notif-bg: rgba(7, 13, 20, 0.97);
+  --ns-notif-bg: rgba(20, 37, 47, 0.98);
   --ns-notif-border: rgba(214, 244, 250, 0.22);
   --ns-notif-shadow:
     0 24px 64px -16px rgba(0, 0, 0, 0.6),
@@ -212,12 +213,21 @@ html[data-theme="dark"], html.dark {
   --clay-btn-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
   --clay-card-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.28), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 
-  /* Claymorphism + Neumorphism surface tokens (Dark) */
-  --ns-clay-bg: #070d14;
-  --ns-clay-shadow-light: rgba(255, 255, 255, 0.06);
-  --ns-clay-shadow-dark: rgba(0, 0, 0, 0.65);
-  --ns-clay-bevel-light: rgba(255, 255, 255, 0.10);
-  --ns-clay-bevel-dark: rgba(0, 0, 0, 0.45);
+  /* Claymorphism + Neumorphism surface tokens (Dark).
+     The surface sits a step above the canvas so cards read as raised clay,
+     and inputs sit a step below so they read as pressed wells. */
+  --ns-clay-bg: #172a35;
+  --ns-well-bg: #101f28;
+  --ns-clay-shadow-light: rgba(146, 206, 226, 0.16);
+  --ns-clay-shadow-dark: rgba(0, 0, 0, 0.55);
+  --ns-clay-bevel-light: rgba(255, 255, 255, 0.16);
+  --ns-clay-bevel-dark: rgba(0, 0, 0, 0.40);
+
+  /* Dark canvas: primary/accent controls carry deep ink on a vivid fill
+     (6:1+), which reads far better than muted paint with white text. */
+  --ns-primary-fill: color-mix(in srgb, var(--ns-teal) 78%, #06141c);
+  --ns-gold-fill: color-mix(in srgb, var(--ns-gold) 78%, #06141c);
+  --ns-danger-fill: color-mix(in srgb, var(--ns-danger) 56%, #06141c);
 }
 
 @layer base {
@@ -361,6 +371,26 @@ html[data-theme="dark"], html.dark {
     :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger) * {
     color: #ffffff !important;
   }
+
+  /* Dark theme: vivid primary/accent fills carry deep ink labels. Lives in
+     the base layer so it outranks the white !important rule above (important
+     declarations reverse layer order). Danger keeps white on deep red. */
+  html[data-theme="dark"] .clay-btn-primary,
+  html[data-theme="dark"] .clay-btn-primary *,
+  html[data-theme="dark"] .clay-btn-accent,
+  html[data-theme="dark"] .clay-btn-accent *,
+  html.dark .clay-btn-primary,
+  html.dark .clay-btn-primary *,
+  html.dark .clay-btn-accent,
+  html.dark .clay-btn-accent * {
+    color: #06222b !important;
+  }
+  html[data-theme="dark"] .clay-btn-primary svg,
+  html[data-theme="dark"] .clay-btn-accent svg,
+  html.dark .clay-btn-primary svg,
+  html.dark .clay-btn-accent svg {
+    stroke: #06222b !important;
+  }
 }
 
 html[data-theme="dark"] body, html.dark body {
@@ -413,7 +443,7 @@ html[data-theme="dark"] body, html.dark body {
     filter: grayscale(0.35) contrast(1.05);
   }
   html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
-    opacity: 0.09;
+    opacity: 0.05;
     filter: grayscale(0.25) contrast(1.10);
   }
 
@@ -453,10 +483,10 @@ html[data-theme="dark"] body, html.dark body {
 
   html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
     background:
-      radial-gradient(1100px 760px at 4% -12%, rgba(26, 132, 160, 0.42), transparent 58%),
-      radial-gradient(900px 640px at 102% 2%, rgba(198, 158, 92, 0.20), transparent 56%),
-      radial-gradient(1100px 800px at 50% 118%, rgba(20, 96, 124, 0.46), transparent 60%),
-      linear-gradient(145deg, #061a25 0%, #082631 48%, #061a25 100%);
+      radial-gradient(1100px 760px at 4% -12%, rgba(38, 146, 174, 0.20), transparent 58%),
+      radial-gradient(900px 640px at 102% 2%, rgba(214, 168, 106, 0.10), transparent 56%),
+      radial-gradient(1100px 800px at 50% 118%, rgba(26, 104, 132, 0.22), transparent 60%),
+      linear-gradient(145deg, #0d1c26 0%, #0a1620 52%, #08121a 100%);
   }
   html[data-theme="dark"] .ns-ambient::after, html.dark .ns-ambient::after {
     opacity: .06;
@@ -1060,6 +1090,24 @@ html[data-theme="dark"] body, html.dark body {
   border: none;
 }
 
+/* Dark surfaces get a whisper of top-light so the clay reads as moulded
+   rather than as flat paint. Very low contrast on purpose. */
+html[data-theme="dark"] .glass, html.dark .glass,
+html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
+html[data-theme="dark"] .glass-subtle, html.dark .glass-subtle,
+html[data-theme="dark"] .ns-card, html.dark .ns-card,
+html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
+html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
+html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
+html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
+  background-image: linear-gradient(
+    152deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    rgba(255, 255, 255, 0) 46%,
+    rgba(0, 0, 0, 0.10) 100%
+  );
+}
+
 /* Saturated buttons: controlled fill + white label in every theme. */
 .clay-btn-primary,
 .clay-btn-primary:hover:not(:disabled) {
@@ -1093,10 +1141,28 @@ html[data-theme="dark"] body, html.dark body {
 .glass-input, .ns-input,
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 select, textarea {
-  background-color: var(--ns-clay-bg);
+  background-color: var(--ns-well-bg, var(--ns-clay-bg));
   background-image: none;
   color: var(--ns-ink);
   border: none;
+}
+
+/* Dark inputs read as carved wells: mostly inset, no lifted halo. */
+html[data-theme="dark"] .glass-input, html.dark .glass-input,
+html[data-theme="dark"] .ns-input, html.dark .ns-input,
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html[data-theme="dark"] select, html.dark select,
+html[data-theme="dark"] textarea, html.dark textarea {
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.55),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.08);
+}
+
+/* Placeholders must stay readable without competing with real values. */
+input::placeholder, textarea::placeholder {
+  color: color-mix(in srgb, var(--ns-muted) 82%, transparent);
+  opacity: 1;
 }
 
 /* Keep action labels on one line; buttons also use nowrap. */
@@ -1109,13 +1175,17 @@ select, textarea {
   background-color: var(--ns-clay-bg);
 }
 
-/* Selected nav / list item: pressed-in clay. */
+/* Selected nav / tab / list item: pressed into the clay, so the active
+   choice stays obvious even though it shares the surface colour. */
 .ns-glass-selected {
-  background-color: var(--ns-clay-bg);
+  background-color: color-mix(in srgb, var(--ns-clay-bg) 86%, var(--ns-teal));
   background-image: none;
   border: none;
+  box-shadow:
+    inset 2px 2px 4px var(--ns-clay-bevel-dark),
+    inset -2px -2px 4px var(--ns-clay-bevel-light);
 }
 
 .ns-glass-hover:hover {
-  background-color: var(--ns-clay-bg);
+  background-color: color-mix(in srgb, var(--ns-clay-bg) 92%, var(--ns-ink));
 }

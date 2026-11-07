@@ -65,7 +65,7 @@ const initialPreference = getInitialPreference();
 
 export type RGB = { r: number; g: number; b: number };
 
-const DARK_BG = '#070d14';
+const DARK_BG = '#0b1720';
 const LIGHT_BG = '#f5f6f4';
 
 function parseHex(value: string | undefined | null): RGB | null {
@@ -112,17 +112,17 @@ function mix(from: RGB, to: RGB, amount: number): RGB {
  * legible. Darken (light mode) or lighten (dark mode) towards the background's
  * opposite until the token clears WCAG AA for normal text.
  */
-function readableBrand(color: string | undefined, background: string, fallback: string): string {
+function readableBrand(color: string | undefined, background: string, fallback: string, minimum = 4.8): string {
   const fg = parseHex(color);
   const bg = parseHex(background);
   if (!fg || !bg) return fallback;
-  if (contrastRatio(fg, bg) >= 4.5) return toHex(fg);
+  if (contrastRatio(fg, bg) >= minimum) return toHex(fg);
 
   const target: RGB = luminance(bg) > 0.5 ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 };
   let candidate = fg;
   for (let step = 1; step <= 20; step++) {
     candidate = mix(fg, target, step / 20);
-    if (contrastRatio(candidate, bg) >= 4.5) break;
+    if (contrastRatio(candidate, bg) >= minimum) break;
   }
   return toHex(candidate);
 }
@@ -214,12 +214,18 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
   // pasted in, and drive the real tokens from the same values.
   const surface = dark ? DARK_BG : parseHex(theme.bgColor) ? theme.bgColor : LIGHT_BG;
 
+  // Copy actually sits on clay cards, which are darker than the canvas in
+  // light mode and lighter than it in dark mode. Validate against that
+  // surface so AA still holds where the text really lives.
+  const clay = getComputedStyle(root).getPropertyValue('--ns-clay-bg').trim();
+  const readableOn = parseHex(clay) ? clay : surface;
+
   // In dark mode a light-mode brand colour cannot simply be mixed towards
   // white — that yields grey. Lift it in HSL space first, then clamp.
   const brand = (value: string | undefined, fallbackDark: string, fallbackLight: string) =>
     dark
-      ? readableBrand(vividForDark(value ?? fallbackDark, fallbackDark), surface, fallbackDark)
-      : readableBrand(value, surface, fallbackLight);
+      ? readableBrand(vividForDark(value ?? fallbackDark, fallbackDark), readableOn, fallbackDark)
+      : readableBrand(value, readableOn, fallbackLight);
 
   const primary = brand(theme.primaryColor, '#38bdf8', '#075f76');
   const secondary = brand(theme.secondaryColor, '#fbbf24', '#2b7f97');
@@ -229,11 +235,11 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
       : theme.accentColor
     : secondary;
   const ink = dark
-    ? readableText(theme.textColor, surface, '#f8fafc')
-    : readableBrand(theme.textColor, surface, '#0b1d28');
+    ? readableText(theme.textColor, readableOn, '#f8fafc')
+    : readableBrand(theme.textColor, readableOn, '#0b1d28');
   const muted = dark
-    ? readableText(theme.textMuted, surface, '#edf6fb')
-    : readableBrand(theme.textMuted, surface, '#3f6073');
+    ? readableText(theme.textMuted, readableOn, '#a4bac6')
+    : readableBrand(theme.textMuted, readableOn, '#3f6073');
   const success = brand(theme.successColor, '#34d399', '#0d6b51');
   const warning = brand(theme.warningColor, '#fbbf24', '#92400e');
   const danger = brand(theme.errorColor, '#f87171', '#b91c1c');
