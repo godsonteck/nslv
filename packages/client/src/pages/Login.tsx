@@ -152,7 +152,7 @@ export default function Login() {
 
             {/* Top Calm Eyebrow */}
             <div className="relative z-10 flex items-center gap-2">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[var(--ns-ink)] text-[12px] font-semibold tracking-wider uppercase drop-shadow-sm">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--ns-clay-bg)] border border-[var(--ns-glass-line)] text-[var(--ns-ink)] text-[12px] font-semibold tracking-wider uppercase drop-shadow-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--ns-gold)]" />
                 Staff portal
               </span>
