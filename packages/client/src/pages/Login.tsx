@@ -160,27 +160,27 @@ export default function Login() {
 
             {/* Editorial Centerpiece — Uncluttered & Poetic */}
             <div className="relative z-10 space-y-4 my-auto py-8">
-              <h1 className="text-4xl xl:text-5xl font-black text-[var(--ns-ink)] font-serif tracking-tight leading-[1.15] drop-shadow-sm">
+              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-sm">
                 Your place, <br />
                 <span className="text-[var(--ns-success)] italic font-light">all in one view.</span>
               </h1>
-              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-[var(--ns-ink)] drop-shadow-sm">
+              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-[var(--ns-ink-2)] drop-shadow-sm">
                 See bookings, guests, room status, and daily work from one place.
               </p>
 
               {/* Calm, quiet villa attributes — no busy boxes */}
-              <div className="pt-6 flex items-center gap-3 text-xs font-medium text-[var(--ns-ink)] drop-shadow-md">
+              <div className="pt-6 flex items-center gap-3 text-xs font-medium text-[var(--ns-ink-2)] drop-shadow-md">
                 <span>12 guest rooms</span>
-                <span className="text-[var(--ns-ink)] drop-shadow-sm">·</span>
+                <span className="text-[var(--ns-ink-2)] drop-shadow-sm">·</span>
                 <span>Pool area</span>
-                <span className="text-[var(--ns-ink)] drop-shadow-sm">·</span>
+                <span className="text-[var(--ns-ink-2)] drop-shadow-sm">·</span>
                 <span>Front desk & dining</span>
               </div>
             </div>
 
             {/* Bottom Property Signature */}
-            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/20 pt-4 font-medium text-[var(--ns-ink)] drop-shadow-md">
-              <div className="flex items-center gap-1.5 text-[var(--ns-ink)] drop-shadow-sm">
+            <div className="relative z-10 flex items-center justify-between text-xs border-t border-white/20 pt-4 font-medium text-[var(--ns-ink-2)] drop-shadow-md">
+              <div className="flex items-center gap-1.5 text-[var(--ns-ink-2)] drop-shadow-sm">
                 <MapPin size={13} className="text-[var(--ns-success)]" />
                 <span>Lokoe, Ho · Volta Region, Ghana</span>
               </div>
@@ -207,7 +207,7 @@ export default function Login() {
                 <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
                   {two ? 'Confirm it’s you' : 'Welcome'}
                 </h2>
-                <p className="mt-1 text-xs font-medium" style={{ color: 'var(--ns-muted)' }}>
+                <p className="mt-1 text-xs font-medium" style={{ color: 'var(--ns-ink-2)' }}>
                   {two
                     ? 'Enter the 6-digit code from your device'
                     : 'Use your login details to continue'}
@@ -234,7 +234,7 @@ export default function Login() {
                       <div className="relative">
                         <UserIcon
                           size={15}
-                          className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--ns-muted)]"
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--ns-ink-2)]"
                         />
                         <input
                           type="text"
@@ -257,7 +257,7 @@ export default function Login() {
                       <div className="relative">
                         <Lock
                           size={15}
-                          className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--ns-muted)]"
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--ns-ink-2)]"
                         />
                         <input
                           type={show ? 'text' : 'password'}
@@ -272,7 +272,7 @@ export default function Login() {
                         <button
                           type="button"
                           onClick={() => setShow(!show)}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-lg text-[var(--ns-muted)] hover:text-[var(--ns-ink)] transition-colors"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-lg text-[var(--ns-ink-2)] hover:text-[var(--ns-ink)] transition-colors"
                           disabled={busy}
                           aria-label={show ? 'Hide password' : 'Show password'}
                           title={show ? 'Hide password' : 'Show password'}
@@ -307,7 +307,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setTwo(false)}
-                      className="mt-2 text-[12px] font-semibold text-[var(--ns-muted)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
+                      className="mt-2 text-[12px] font-semibold text-[var(--ns-ink-2)] hover:text-[var(--ns-gold)] flex items-center gap-1 transition-colors"
                     >
                       <ArrowLeft size={12} />
                       Back to sign in
@@ -349,7 +349,7 @@ export default function Login() {
             </div>
 
             {/* Calm Footer Footnote */}
-            <p className="text-center mt-3 text-[12px] font-medium text-[var(--ns-muted)]">
+            <p className="text-center mt-3 text-[12px] font-medium text-[var(--ns-ink-2)]">
               Staff access only.
             </p>
           </div>
