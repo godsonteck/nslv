@@ -152,7 +152,7 @@ export default function Login() {
 
             {/* Top Calm Eyebrow */}
             <div className="relative z-10 flex items-center gap-2">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[12px] font-semibold tracking-wider uppercase">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[var(--ns-ink)] text-[12px] font-semibold tracking-wider uppercase drop-shadow-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--ns-gold)]" />
                 Staff portal
               </span>
@@ -164,7 +164,7 @@ export default function Login() {
                 Your place, <br />
                 <span className="text-[#9de0ea] italic font-light">all in one view.</span>
               </h1>
-              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-white/90">
+              <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-white drop-shadow-sm">
                 See bookings, guests, room status, and daily work from one place.
               </p>
 
