@@ -379,8 +379,8 @@ html[data-theme="dark"] body, html.dark body {
     pointer-events: none;
   }
 
-  /* Subtle logo watermark: centered, behind all content, never competes with
-     copy. Fully pointer-transparent so it cannot block clicks or text. */
+  /* Logo watermark: centered behind all content, visible but non-intrusive.
+     Fully pointer-transparent so it cannot block clicks or text selection. */
   .ns-watermark {
     position: fixed;
     inset: 0;
@@ -390,17 +390,17 @@ html[data-theme="dark"] body, html.dark body {
     -webkit-user-select: none;
     display: grid;
     place-items: center;
-    opacity: 0.18;
-    mix-blend-mode: soft-light;
-    filter: grayscale(0.25) contrast(1.0) blur(8px);
-    max-width: 56vw;
-    max-height: 56vh;
+    opacity: 0.30;
+    mix-blend-mode: normal;
+    filter: grayscale(0.30) contrast(1.10) blur(4px);
+    max-width: 60vw;
+    max-height: 60vh;
     width: auto;
     height: auto;
   }
   html[data-theme="dark"] .ns-watermark, html.dark .ns-watermark {
-    opacity: 0.14;
-    filter: grayscale(0.15) contrast(1.05) blur(8px);
+    opacity: 0.26;
+    filter: grayscale(0.20) contrast(1.15) blur(4px);
   }
 
   .ns-orb {
