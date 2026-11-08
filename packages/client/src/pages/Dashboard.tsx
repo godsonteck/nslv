@@ -331,16 +331,16 @@ const PropertyDashboard: React.FC = () => {
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center justify-between gap-4 px-5 py-3.5 ns-glass-hover transition-colors"
+                    className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 ns-glass-hover transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ns-glass-band text-[12px] font-black text-[var(--ns-ink)] shadow-xs border border-[var(--ns-glass-line)]">
                         {initials}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate text-xs font-bold text-[var(--ns-ink)] flex items-center gap-2">
-                          <span>{guestFullName}</span>
-                          <span className="rounded-md border border-[var(--ns-gold)] glass-subtle px-1.5 py-0.5 text-[12px] font-black text-[var(--ns-gold)]">
+                        <div className="text-xs font-bold text-[var(--ns-ink)] flex flex-wrap items-center gap-2">
+                          <span className="break-words">{guestFullName}</span>
+                          <span className="shrink-0 rounded-md border border-[var(--ns-gold)] glass-subtle px-1.5 py-0.5 text-[12px] font-black text-[var(--ns-gold)]">
                             Rm {s.room?.number || '—'}
                           </span>
                         </div>

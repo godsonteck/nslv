@@ -32,7 +32,7 @@ import type { ThemeConfig } from '../services/apiService';
 export default function Login() {
   const nav = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
-  const { themePreference, setThemePreference } = useThemeStore();
+  const { effectiveDark, setThemePreference } = useThemeStore();
 
   const [login, setLogin] = useState('');
   const [pw, setPw] = useState('');
@@ -124,14 +124,14 @@ export default function Login() {
         <button
           type="button"
           onClick={() => {
-            const newTheme = themePreference === 'dark' ? 'light' : 'dark';
+            const newTheme = effectiveDark ? 'light' : 'dark';
             setThemePreference(newTheme);
           }}
           className="flex h-10 w-10 items-center justify-center rounded-2xl glass border border-[var(--ns-glass-line)] text-[var(--ns-ink)] transition-all hover:scale-105"
-          aria-label={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
-          title={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
+          aria-label={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
+          title={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
         >
-          {themePreference === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          {effectiveDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </header>
 
@@ -139,7 +139,7 @@ export default function Login() {
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch relative">
           
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-between relative rounded-3xl overflow-hidden border border-white/15 p-10 xl:p-12 min-h-[560px]" style={{ background: 'transparent' }}>
+          <div className="ns-login-hero hidden lg:flex lg:col-span-7 flex-col justify-between relative overflow-hidden p-10 xl:p-12 min-h-[560px]" style={{ background: 'transparent' }}>
             {/* Background Photography Vignette */}
             <div className="absolute inset-0 z-0">
               <img
@@ -162,9 +162,9 @@ export default function Login() {
 
             {/* Editorial Centerpiece — Uncluttered & Poetic */}
             <div className="relative z-10 space-y-4 my-auto py-8">
-              <h1 className="text-4xl xl:text-5xl font-black text-white font-serif tracking-tight leading-[1.15] drop-shadow-md">
+              <h1 className="text-4xl xl:text-5xl font-bold text-white tracking-tight leading-[1.15]">
                 Your place, <br />
-                <span className="text-[#9de0ea] italic font-light">all in one view.</span>
+                <span className="text-[#b8dedb] font-medium">all in one view.</span>
               </h1>
               <p className="text-sm xl:text-base font-medium max-w-md leading-relaxed text-white/90 drop-shadow-md">
                 See bookings, guests, room status, and daily work from one place.
@@ -194,19 +194,14 @@ export default function Login() {
           </div>
 
           <div className="w-full lg:col-span-5 max-w-md mx-auto flex flex-col justify-center">
-            <div className="glass-strong rounded-3xl p-8 sm:p-9 relative overflow-hidden">
-              
-              <div className="absolute top-0 left-0 right-0 h-px bg-[linear-gradient(90deg,transparent,rgba(76,169,188,.85),transparent)]" />
+            <div className="ns-login-card glass-strong p-8 sm:p-9 relative overflow-hidden">
 
               {/* Card Header */}
               <div className="text-center pb-6">
                 <div className="mx-auto mb-3 h-13 w-13 rounded-2xl glass p-1 border border-[var(--ns-glass-line)] shadow-xs flex items-center justify-center">
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
-                <div className="text-[12px] font-black uppercase tracking-widest text-[var(--ns-ink)]">
-                  {two ? 'Two-step check' : 'Staff login'}
-                </div>
-                <h2 className="mt-1 text-2xl font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>
+                <h2 className="ns-login-heading mt-1 tracking-tight" style={{ color: 'var(--ns-ink)' }}>
                   {two ? 'Confirm it’s you' : 'Welcome'}
                 </h2>
                 <p className="mt-1 text-xs font-medium" style={{ color: 'var(--ns-ink-2)' }}>
@@ -230,7 +225,7 @@ export default function Login() {
                   <>
                     {/* Username / Email */}
                     <div>
-                      <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
+                      <label htmlFor="login-username" className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
                         Username or email
                       </label>
                       <div className="relative">
@@ -241,6 +236,7 @@ export default function Login() {
                         <input
                           type="text"
                           required
+                          id="login-username"
                           autoComplete="username"
                           value={login}
                           onChange={(e) => setLogin(e.target.value)}
@@ -253,7 +249,7 @@ export default function Login() {
 
                     {/* Password */}
                     <div>
-                      <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
+                      <label htmlFor="login-password" className="block text-xs font-bold mb-1.5" style={{ color: 'var(--ns-ink)' }}>
                         Password
                       </label>
                       <div className="relative">
@@ -264,6 +260,7 @@ export default function Login() {
                         <input
                           type={show ? 'text' : 'password'}
                           required
+                          id="login-password"
                           autoComplete="current-password"
                           value={pw}
                           onChange={(e) => setPw(e.target.value)}

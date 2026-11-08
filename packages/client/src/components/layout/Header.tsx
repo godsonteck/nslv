@@ -13,7 +13,7 @@ export const Header: React.FC = () => {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const { unreadCount, getUnreadCount } = useNotificationStore();
-  const { theme, themePreference, setThemePreference } = useThemeStore();
+  const { theme, effectiveDark, setThemePreference } = useThemeStore();
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const notificationsRef = React.useRef<HTMLDivElement | null>(null);
   const notificationsButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -93,6 +93,8 @@ export const Header: React.FC = () => {
         {/* Sidebar Toggle Button */}
         <button
           onClick={toggleSidebar}
+          aria-expanded={sidebarOpen}
+          aria-controls="main-navigation"
           aria-label={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           title={sidebarOpen ? 'Collapse sidebar to icons' : 'Expand sidebar'}
           className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] hover:text-[var(--ns-ink)] transition-all shrink-0"
@@ -131,14 +133,14 @@ export const Header: React.FC = () => {
           {/* Theme Toggle - Simple Light/Dark Switch */}
           <button
             onClick={() => {
-              const newTheme = themePreference === 'dark' ? 'light' : 'dark';
+              const newTheme = effectiveDark ? 'light' : 'dark';
               setThemePreference(newTheme);
             }}
             className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-all hover:scale-110"
-            aria-label={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
-            title={`Switch to ${themePreference === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
+            title={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
           >
-            {themePreference === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            {effectiveDark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
           {/* Notifications */}
@@ -173,7 +175,7 @@ export const Header: React.FC = () => {
             {showNotifications && (
               <div className="fixed inset-0 z-[80]">
                 <div
-                  className="absolute inset-0 cursor-pointer bg-slate-950/85 backdrop-blur-[3px]"
+                  className="ns-scrim absolute inset-0 cursor-pointer"
                   onClick={closeNotifications}
                   aria-hidden="true"
                 />

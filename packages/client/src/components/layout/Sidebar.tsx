@@ -114,7 +114,9 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`ns-glass-bar-soft relative z-10 flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden rounded-[28px] border transition-all duration-300 ease-in-out ${
+      id="main-navigation"
+      aria-label="Main navigation"
+      className={`ns-sidebar ${sidebarOpen ? 'is-open' : ''} ns-glass-bar-soft relative z-10 flex h-full shrink-0 flex-col overflow-y-auto overflow-x-hidden rounded-[28px] border transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'w-[268px] px-3 py-4' : 'w-[72px] px-2.5 py-4'
       }`}
     >
@@ -163,6 +165,7 @@ export const Sidebar: React.FC = () => {
                 <NavLink
                   key={to}
                   to={to}
+                  onClick={() => { if (window.matchMedia('(max-width: 767px)').matches) useUIStore.getState().setSidebarOpen(false); }}
                   title={label}
                   className={({ isActive }) =>
                     `group relative z-0 flex items-center rounded-xl text-[12px] font-bold transition-all ${

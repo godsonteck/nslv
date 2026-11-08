@@ -2,1190 +2,311 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
 
+@theme {
+  --font-weight-black: 750;
+  --font-weight-extrabold: 700;
+  --font-weight-bold: 650;
+}
+
 :root {
   color-scheme: light;
-  /* Clear coastal-glass palette — high contrast enough for operational work. */
-  --ns-ink: #0b1d28;
-  --ns-ink-2: #153b49;
-  --ns-muted: #3f6073;
-  --ns-panel: rgba(255, 255, 255, 0.18);
-  --ns-panel-strong: rgba(255, 255, 255, 0.28);
-  --ns-teal: #075f76;
-  --ns-teal-deep: #0d5062;
-  --ns-gold: #2b7f97;
-  --ns-gold-soft: rgba(43, 127, 151, 0.12);
-  --ns-bg: #d8e9ed;
-  --ns-danger: #b91c1c;
-  --ns-success: #0d6b51;
-  --ns-warning: #92400e;
-  --ns-info: #0369a1;
-  --ns-purple: #6d28d9;
-
   --font-heading: "Manrope", system-ui, sans-serif;
   --font-body: "DM Sans", system-ui, sans-serif;
-
-  /* Frosted Glass Foundation (Light Mode) — Ultra-Transparent */
-  --ns-glass-1: rgba(255, 255, 255, 0.05);
-  --ns-glass-2: rgba(255, 255, 255, 0.09);
-  --ns-glass-3: rgba(255, 255, 255, 0.16);
-  --ns-glass-line: rgba(255, 255, 255, 0.70);
-  --ns-glass-line-soft: rgba(24, 79, 96, 0.12);
-  --ns-glass-border-outer: rgba(24, 79, 96, 0.18);
-  --ns-glass-blur: 8px;
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(140%) brightness(1.02);
-  --ns-glass-hover: rgba(255, 255, 255, 0.18);
-
-  /* Light falling across the pane: bright head, clear body, re-lit foot. */
-  --ns-glass-sheen:
-    linear-gradient(150deg,
-      rgba(255, 255, 255, 0.22) 0%,
-      rgba(255, 255, 255, 0.04) 30%,
-      transparent 65%,
-      rgba(255, 255, 255, 0.10) 100%);
-  --ns-glass-sheen-soft:
-    linear-gradient(150deg,
-      rgba(255, 255, 255, 0.14) 0%,
-      transparent 55%,
-      rgba(255, 255, 255, 0.05) 100%);
-  --ns-glass-sheen-warm:
-    linear-gradient(150deg,
-      rgba(255, 252, 244, 0.58) 0%,
-      rgba(255, 246, 230, 0.22) 42%,
-      rgba(255, 250, 242, 0.10) 70%,
-      rgba(255, 247, 236, 0.26) 100%);
-
-  /* Fine frost grain: visible up close, invisible at a glance. */
+  --ns-bg: #dce6ed;
+  --ns-ink: #203641;
+  --ns-ink-2: #3c5563;
+  --ns-muted: #526773;
+  --ns-teal: #276b78;
+  --ns-teal-deep: #205563;
+  --ns-gold: #426e98;
+  --ns-gold-soft: #d1e2ec;
+  --ns-danger: #ad4654;
+  --ns-success: #276e57;
+  --ns-warning: #93622a;
+  --ns-info: #386c98;
+  --ns-purple: #75569a;
+  --ns-clay-bg: #e5edf2;
+  --ns-clay-raised: #edf3f6;
+  --ns-well-bg: #d7e2e9;
+  --ns-clay-shadow-light: rgba(255,255,255,.72);
+  --ns-clay-shadow-dark: rgba(60,89,111,.18);
+  --ns-clay-bevel-light: rgba(255,255,255,.78);
+  --ns-clay-bevel-dark: rgba(81,115,138,.16);
+  --ns-line: rgba(68,99,119,.17);
+  --ns-focus: #286b86;
+  --ns-scrim-fill: rgba(25,44,59,.38);
+  --ns-selected-bg: #c7dfdf;
+  --ns-selected-ink: #224d59;
+  --ns-on-accent: #183b45;
+  --ns-primary-fill: color-mix(in srgb, var(--ns-teal) 32%, #d9f0e9);
+  --ns-gold-fill: color-mix(in srgb, var(--ns-gold) 26%, #ddebf6);
+  --ns-danger-fill: color-mix(in srgb, var(--ns-danger) 82%, #421823);
+  --clay-specular: inset 1px 2px 3px var(--ns-clay-bevel-light);
+  --clay-bevel-bottom: inset -2px -3px 5px var(--ns-clay-bevel-dark);
+  --clay-card-shadow: 7px 10px 22px -5px var(--ns-clay-shadow-dark), -5px -5px 16px -3px var(--ns-clay-shadow-light), var(--clay-specular), var(--clay-bevel-bottom);
+  --clay-panel-shadow: 12px 18px 36px -9px var(--ns-clay-shadow-dark), -6px -6px 20px -4px var(--ns-clay-shadow-light), inset 2px 3px 5px var(--ns-clay-bevel-light), inset -3px -4px 7px var(--ns-clay-bevel-dark);
+  --clay-btn-shadow: 3px 5px 9px -2px var(--ns-clay-shadow-dark), -2px -2px 7px -1px var(--ns-clay-shadow-light), inset 1px 2px 2px var(--ns-clay-bevel-light), inset -1px -3px 4px var(--ns-clay-bevel-dark);
+  --clay-well-shadow: inset 3px 3px 7px var(--ns-clay-shadow-dark), inset -2px -2px 5px var(--ns-clay-shadow-light), 0 1px 0 var(--ns-clay-bevel-light);
+  --clay-accent-shadow: 3px 5px 10px -3px var(--ns-clay-shadow-dark), inset 1px 2px 3px rgba(255,255,255,.5), inset -2px -4px 6px rgba(33,74,90,.2);
+  --ns-radius-card: 24px;
+  --ns-radius-panel: 30px;
+  --ns-radius-control: 14px;
+  --ns-ease: cubic-bezier(.22,1,.36,1);
+  --ns-panel: var(--ns-clay-bg);
+  --ns-panel-strong: var(--ns-clay-raised);
+  --ns-glass-1: var(--ns-clay-bg);
+  --ns-glass-2: var(--ns-well-bg);
+  --ns-glass-3: var(--ns-clay-raised);
+  --ns-glass-line: var(--ns-line);
+  --ns-glass-line-soft: var(--ns-line);
+  --ns-glass-border-outer: var(--ns-line);
+  --ns-clay-border-outer: var(--ns-line);
+  --ns-glass-blur: 0px;
+  --ns-glass-filter: none;
+  --ns-glass-hover: color-mix(in srgb, var(--ns-teal) 7%, var(--ns-clay-bg));
+  --ns-glass-sheen: none;
+  --ns-glass-sheen-soft: none;
+  --ns-glass-sheen-warm: none;
   --ns-glass-frost: none;
-
-  /* Two-tone edge: dark hairline outside, bright cut edge inside. */
-  --ns-glass-bevel:
-    inset 0 1px 0 rgba(255, 255, 255, 0.98),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.42),
-    inset 0 -1px 0 rgba(12, 62, 78, 0.10);
-  --ns-glass-bevel-soft:
-    inset 0 1px 0 rgba(255, 255, 255, 0.80),
-    inset 0 -1px 0 rgba(12, 62, 78, 0.06);
-
-  --ns-glass-depth:
-    0 26px 58px -26px rgba(10, 60, 75, 0.42),
-    0 8px 20px -12px rgba(10, 60, 75, 0.20);
-  --ns-glass-depth-lg:
-    0 40px 90px -30px rgba(8, 52, 66, 0.50),
-    0 14px 30px -16px rgba(8, 52, 66, 0.26);
-
-  --ns-glass-shadow:
-    0 14px 32px -14px rgba(13, 66, 82, 0.30),
-    0 2px 6px -1px rgba(13, 66, 82, 0.10),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
-
-  /* Notification panel: strongly opaque so the dashboard behind never bleeds through. */
-  --ns-notif-bg: rgba(255, 255, 255, 0.94);
-  --ns-notif-border: rgba(24, 79, 96, 0.35);
-  --ns-notif-shadow:
-    0 24px 64px -16px rgba(10, 60, 75, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.90);
-
-  --ns-surface: var(--ns-glass-1);
-  --ns-surface-2: var(--ns-glass-2);
-  --ns-line: var(--ns-glass-border-outer);
-  --glass-bg: var(--ns-glass-1);
-  --glass-bg-strong: var(--ns-glass-2);
-  --glass-border: var(--ns-glass-line);
-  --glass-border-soft: var(--ns-glass-line-soft);
+  --ns-glass-bevel: var(--clay-specular), var(--clay-bevel-bottom);
+  --ns-glass-bevel-soft: var(--clay-specular);
+  --ns-glass-depth: var(--clay-card-shadow);
+  --ns-glass-depth-lg: var(--clay-panel-shadow);
+  --ns-glass-shadow: var(--clay-card-shadow);
+  --ns-notif-bg: var(--ns-clay-raised);
+  --ns-notif-border: var(--ns-line);
+  --ns-notif-shadow: var(--clay-panel-shadow);
+  --ns-surface: var(--ns-clay-bg);
+  --ns-surface-2: var(--ns-well-bg);
+  --glass-bg: var(--ns-clay-bg);
+  --glass-bg-strong: var(--ns-clay-raised);
+  --glass-border: var(--ns-line);
+  --glass-border-soft: var(--ns-line);
   --glass-text: var(--ns-ink);
   --glass-text-muted: var(--ns-muted);
-  --glass-shadow: var(--ns-glass-shadow);
-
-  /* Claymorphic Tactile Specs (Light Mode) */
-  --clay-specular: inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  --clay-bevel-bottom: inset 0 -1px 0 rgba(12, 24, 32, 0.06);
-  --clay-well-shadow: inset 0 2px 5px rgba(17, 71, 87, 0.16), inset 0 1px 1px rgba(17, 71, 87, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9);
-  --clay-btn-shadow: 0 3px 7px -1px rgba(13, 66, 82, 0.18), 0 1px 2px rgba(13, 66, 82, 0.10);
-  --clay-card-shadow: 0 16px 34px -14px rgba(13, 66, 82, 0.30), 0 2px 7px -2px rgba(13, 66, 82, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
-
-  /* Claymorphism + Neumorphism surface tokens (Light) */
-  --ns-clay-bg: #d8e9ed;
-  --ns-well-bg: #cfe2e7;
-  --ns-clay-shadow-light: rgba(255, 255, 255, 0.90);
-  --ns-clay-shadow-dark: rgba(10, 60, 75, 0.16);
-  --ns-clay-bevel-light: rgba(255, 255, 255, 0.98);
-  --ns-clay-bevel-dark: rgba(10, 60, 75, 0.10);
-
-  /* Saturated controls: labels are always white, so the fill is darkened
-     from the live accent token until white text clears WCAG AA. The theme
-     config can override --ns-teal/--ns-gold/--ns-danger inline, and these
-     mixes re-resolve against those inline values. */
-  --ns-on-accent: #ffffff;
-  --ns-primary-fill: color-mix(in srgb, var(--ns-teal) 52%, #06141c);
-  --ns-gold-fill: color-mix(in srgb, var(--ns-gold) 52%, #06141c);
-  --ns-danger-fill: color-mix(in srgb, var(--ns-danger) 52%, #06141c);
+  --glass-shadow: var(--clay-card-shadow);
 }
 
 html[data-theme="dark"], html.dark {
   color-scheme: dark;
-  /* Deep sea-slate canvas with a raised, tactile clay surface. */
-  --ns-ink: #f3f8fb;
-  --ns-ink-2: #d9e7ee;
-  --ns-muted: #a4bac6;
-  --ns-panel: rgba(8, 22, 31, 0.22);
-  --ns-panel-strong: rgba(8, 22, 31, 0.28);
-  --ns-teal: #38bdf8;
-  --ns-teal-deep: #7dd3fc;
-  --ns-gold: #fbbf24;
-  --ns-gold-soft: rgba(251, 191, 36, 0.14);
-  --ns-bg: #0b1720;
-  --ns-danger: #f87171;
-  --ns-success: #34d399;
-  --ns-warning: #fbbf24;
-  --ns-info: #60a5fa;
-  --ns-purple: #c084fc;
-
-  /* Frosted Glass Foundation (Dark Mode) — Crystal Clear Smoked Glass */
-  --ns-glass-1: rgba(8, 22, 30, 0.14);
-  --ns-glass-2: rgba(9, 28, 38, 0.19);
-  --ns-glass-3: rgba(11, 34, 46, 0.28);
-  --ns-glass-line: rgba(214, 244, 250, 0.28);
-  --ns-glass-line-soft: rgba(214, 244, 250, 0.12);
-  --ns-glass-border-outer: rgba(186, 232, 244, 0.18);
-  --ns-glass-blur: 8px;
-  --ns-glass-filter: blur(var(--ns-glass-blur)) saturate(135%) brightness(1.02);
-  --ns-glass-hover: rgba(190, 236, 246, 0.10);
-
-  --ns-glass-sheen:
-    linear-gradient(150deg,
-      rgba(255, 255, 255, 0.20) 0%,
-      rgba(255, 255, 255, 0.06) 38%,
-      rgba(255, 255, 255, 0.02) 64%,
-      rgba(255, 255, 255, 0.11) 100%);
-  --ns-glass-sheen-soft:
-    linear-gradient(150deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.03) 60%,
-      rgba(255, 255, 255, 0.07) 100%);
-  --ns-glass-sheen-warm:
-    linear-gradient(150deg,
-      rgba(255, 226, 182, 0.20) 0%,
-      rgba(255, 214, 160, 0.06) 55%,
-      rgba(255, 228, 186, 0.10) 100%);
-
-  --ns-glass-bevel:
-    inset 0 1px 0 rgba(255, 255, 255, 0.26),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
-  --ns-glass-bevel-soft:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
-
-  --ns-glass-depth:
-    0 30px 66px -28px rgba(0, 0, 0, 0.78),
-    0 10px 24px -14px rgba(0, 0, 0, 0.55);
-  --ns-glass-depth-lg:
-    0 46px 100px -32px rgba(0, 0, 0, 0.86),
-    0 16px 34px -18px rgba(0, 0, 0, 0.62);
-
-  --ns-glass-shadow:
-    0 14px 40px -4px rgba(0, 0, 0, 0.6),
-    0 4px 10px -2px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
-
-  /* Notification panel: strongly opaque so the dashboard behind never bleeds through. */
-  --ns-notif-bg: rgba(20, 37, 47, 0.98);
-  --ns-notif-border: rgba(214, 244, 250, 0.22);
-  --ns-notif-shadow:
-    0 24px 64px -16px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-  --ns-surface: var(--ns-glass-1);
-  --ns-surface-2: var(--ns-glass-2);
-  --ns-line: var(--ns-glass-border-outer);
-  --glass-bg: var(--ns-glass-1);
-  --glass-bg-strong: var(--ns-glass-2);
-  --glass-border: var(--ns-glass-line);
-  --glass-border-soft: var(--ns-glass-line-soft);
-  --glass-text: var(--ns-ink);
-  --glass-text-muted: var(--ns-muted);
-  --glass-shadow: var(--ns-glass-shadow);
-
-  /* Claymorphic Tactile Specs (Dark Mode) */
-  --clay-specular: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  --clay-bevel-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.45);
-  --clay-well-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.10);
-  --clay-btn-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --clay-card-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.28), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
-
-  /* Claymorphism + Neumorphism surface tokens (Dark).
-     The surface sits a step above the canvas so cards read as raised clay,
-     and inputs sit a step below so they read as pressed wells. */
-  --ns-clay-bg: #172a35;
-  --ns-well-bg: #101f28;
-  --ns-clay-shadow-light: rgba(146, 206, 226, 0.16);
-  --ns-clay-shadow-dark: rgba(0, 0, 0, 0.55);
-  --ns-clay-bevel-light: rgba(255, 255, 255, 0.16);
-  --ns-clay-bevel-dark: rgba(0, 0, 0, 0.40);
-
-  /* Dark canvas: primary/accent controls carry deep ink on a vivid fill
-     (6:1+), which reads far better than muted paint with white text. */
-  --ns-primary-fill: color-mix(in srgb, var(--ns-teal) 78%, #06141c);
-  --ns-gold-fill: color-mix(in srgb, var(--ns-gold) 78%, #06141c);
-  --ns-danger-fill: color-mix(in srgb, var(--ns-danger) 56%, #06141c);
+  --ns-bg: #1b2833;
+  --ns-ink: #edf3f7;
+  --ns-ink-2: #d1dfe7;
+  --ns-muted: #b1c4d0;
+  --ns-teal: #99d0cd;
+  --ns-teal-deep: #b0dcd7;
+  --ns-gold: #a4c4e5;
+  --ns-gold-soft: #354d60;
+  --ns-danger: #efa9af;
+  --ns-success: #9ad1b5;
+  --ns-warning: #e6c28e;
+  --ns-info: #a4c8ec;
+  --ns-purple: #c9b4e5;
+  --ns-clay-bg: #293c4a;
+  --ns-clay-raised: #304554;
+  --ns-well-bg: #20313e;
+  --ns-clay-shadow-light: rgba(117,151,175,.11);
+  --ns-clay-shadow-dark: rgba(4,13,22,.42);
+  --ns-clay-bevel-light: rgba(170,202,222,.15);
+  --ns-clay-bevel-dark: rgba(3,14,24,.32);
+  --ns-line: rgba(172,203,223,.16);
+  --ns-focus: #a6d5df;
+  --ns-scrim-fill: rgba(8,17,25,.64);
+  --ns-selected-bg: #385764;
+  --ns-selected-ink: #d7efec;
+  --ns-danger-fill: color-mix(in srgb, var(--ns-danger) 38%, #581b2b);
 }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
-  html, body, #root { min-height: 100vh; margin: 0; }
+  html, body, #root { min-height: 100%; margin: 0; }
   html { background: var(--ns-bg); }
   body {
     isolation: isolate;
-    background: transparent;
     color: var(--ns-ink);
     font-family: var(--font-body);
-    font-weight: 600;
+    font-weight: 450;
     line-height: 1.5;
+    background: transparent;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
   }
-  #root, .ns-page, .app-shell { background: transparent; }
-
-  /* High Legibility Typography Defaults */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    color: var(--ns-ink);
-    font-weight: 800;
-    letter-spacing: -0.025em;
-  }
-
-  p {
-    color: var(--ns-ink);
-  }
-
-  label {
-    font-weight: 700;
-    color: var(--ns-ink);
-  }
-
-  button, input, select, textarea {
-    font: inherit;
-  }
-
-  button {
-    cursor: pointer;
-    user-select: none;
-  }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; letter-spacing: -.025em; text-wrap: balance; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; user-select: none; }
   button:disabled { cursor: not-allowed; }
-
-  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-    outline: 2px solid var(--ns-gold);
-    outline-offset: 2px;
-  }
-
-  input, select, textarea {
-    color: var(--ns-ink);
-    font-weight: 600;
-  }
-
-  option {
-    background: var(--ns-bg);
-    color: var(--ns-ink);
-    font-weight: 600;
-  }
-
-  ::-webkit-scrollbar { width: 9px; height: 9px; }
-  ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); }
-  ::-webkit-scrollbar-thumb {
-    background: var(--ns-clay-shadow-dark);
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
-  ::-webkit-scrollbar-thumb:hover { background-color: var(--ns-gold); }
-  ::selection { background: var(--ns-teal); color: #ffffff; }
-
-  /* Force readable text across all glass surfaces and theme variants.
-     [data-accent] opts an element out so semantic colours (danger, gold,
-     priority badges) survive inside an ink-forced pane. */
-  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft,
-  .clay-card, .clay-badge, .clay-btn, .ns-input, .glass-input,
-  .glass *:not([data-accent]),
-  .glass-strong *:not([data-accent]),
-  .glass-subtle *:not([data-accent]),
-  .glass-dark *:not([data-accent]),
-  .glass-warm *:not([data-accent]),
-  .ns-card *:not([data-accent]),
-  .ns-card-soft *:not([data-accent]),
-  .ns-glass-band *:not([data-accent]),
-  .ns-glass-bar *:not([data-accent]),
-  .ns-glass-bar-soft *:not([data-accent]) {
-    color: var(--ns-ink) !important;
-  }
-
-  /* Semantic accents that must survive the ink rule inside glass panes. */
-  .ns-accent-danger { color: var(--ns-danger) !important; }
-  .ns-accent-warning { color: var(--ns-warning) !important; }
-  .ns-accent-info { color: var(--ns-info) !important; }
-  .ns-accent-success { color: var(--ns-success) !important; }
-  .ns-accent-gold { color: var(--ns-gold) !important; }
-  .ns-accent-danger svg, .ns-accent-warning svg, .ns-accent-info svg,
-  .ns-accent-success svg, .ns-accent-gold svg { stroke: currentColor !important; }
-
-  /* Override remaining utility classes using muted glass text with a high-contrast fallback */
-  .text-\[var\(--ns-muted\)\],
-  .text-\[var\(--ns-ink\)\],
-  .placeholder-\[var\(--ns-muted\)\] {
-    color: var(--ns-ink) !important;
-  }
-
-  .text-slate-300,
-  .text-slate-400,
-  .text-slate-500,
-  .text-gray-300,
-  .text-gray-400,
-  .text-gray-500,
-  .text-zinc-300,
-  .text-zinc-400,
-  .text-zinc-500,
-  .text-neutral-300,
-  .text-neutral-400,
-  .text-neutral-500 {
-    color: var(--ns-muted) !important;
-  }
-
-  /* Saturated action buttons keep white labelling inside ink-forced panes.
-     Declared at the end of the base layer so they also beat the .text-[var(--ns-*)]
-     overrides above. */
-  .clay-btn-primary, .clay-btn-primary *,
-  .clay-btn-accent, .clay-btn-accent *,
-  .clay-btn-danger, .clay-btn-danger * {
-    color: #ffffff !important;
-  }
-  .clay-btn-primary svg, .clay-btn-accent svg, .clay-btn-danger svg {
-    stroke: #ffffff !important;
-  }
-  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
-    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger),
-  :is(.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-       .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft)
-    :is(.clay-btn-primary, .clay-btn-accent, .clay-btn-danger) * {
-    color: #ffffff !important;
-  }
-
-  /* Dark theme: vivid primary/accent fills carry deep ink labels. Lives in
-     the base layer so it outranks the white !important rule above (important
-     declarations reverse layer order). Danger keeps white on deep red. */
-  html[data-theme="dark"] .clay-btn-primary,
-  html[data-theme="dark"] .clay-btn-primary *,
-  html[data-theme="dark"] .clay-btn-accent,
-  html[data-theme="dark"] .clay-btn-accent *,
-  html.dark .clay-btn-primary,
-  html.dark .clay-btn-primary *,
-  html.dark .clay-btn-accent,
-  html.dark .clay-btn-accent * {
-    color: #06222b !important;
-  }
-  html[data-theme="dark"] .clay-btn-primary svg,
-  html[data-theme="dark"] .clay-btn-accent svg,
-  html.dark .clay-btn-primary svg,
-  html.dark .clay-btn-accent svg {
-    stroke: #06222b !important;
-  }
+  a { text-underline-offset: .2em; }
+  :is(button, a, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--ns-focus); outline-offset: 3px; }
+  input, select, textarea { color: var(--ns-ink); caret-color: var(--ns-teal); }
+  input[type="checkbox"], input[type="radio"] { accent-color: var(--ns-teal); }
+  option { background: var(--ns-clay-bg); color: var(--ns-ink); }
+  ::selection { background: var(--ns-selected-bg); color: var(--ns-selected-ink); }
+  * { scrollbar-width: thin; scrollbar-color: var(--ns-line) transparent; }
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-thumb { background: var(--ns-line); border-radius: 12px; }
+  ::-webkit-scrollbar-track { background: transparent; }
 }
 
-html[data-theme="dark"] body, html.dark body {
-  -webkit-font-smoothing: antialiased;
+.ns-ambient { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(135deg, color-mix(in srgb, var(--ns-bg) 93%, #9fc6dd), var(--ns-bg) 65%); }
+
+.glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
+.ns-card, .ns-card-soft, .ns-glass-bar, .ns-glass-bar-soft, .clay-card {
+  background-color: var(--ns-clay-bg);
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: var(--ns-radius-card);
+  box-shadow: var(--clay-card-shadow);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
+.glass-strong { background-color: var(--ns-clay-raised); border-radius: var(--ns-radius-panel); box-shadow: var(--clay-panel-shadow); }
+.glass-subtle, .ns-card-soft { box-shadow: var(--clay-btn-shadow); border-radius: 18px; }
+.glass-warm { background-color: color-mix(in srgb, var(--ns-clay-bg) 94%, var(--ns-gold)); }
+.glass-dark { background-color: var(--ns-well-bg); }
+.ns-glass-band { background: color-mix(in srgb, var(--ns-clay-bg) 60%, var(--ns-well-bg)); border-color: var(--ns-line); box-shadow: none; }
+.ns-glass-band:has(h1) { background: var(--ns-clay-bg); border-color: transparent; border-radius: var(--ns-radius-card); box-shadow: var(--clay-card-shadow); }
+.ns-glass-selected { background: var(--ns-selected-bg); color: var(--ns-selected-ink); border-color: transparent; box-shadow: var(--clay-well-shadow); }
+.ns-glass-hover { transition: background-color 160ms ease, color 160ms ease; }
+.ns-glass-hover:hover { background-color: var(--ns-glass-hover); }
 
-@layer components {
-  /* ──────────────────────────────────────────
-     Ambient Silk Canvas Under Frosted Glass
-     ────────────────────────────────────────── */
-  .ns-ambient {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
-    background:
-      radial-gradient(1100px 760px at 4% -12%, rgba(24, 118, 142, 0.30), transparent 58%),
-      radial-gradient(900px 640px at 102% 2%, rgba(198, 158, 92, 0.26), transparent 56%),
-      radial-gradient(1100px 800px at 50% 118%, rgba(58, 170, 196, 0.30), transparent 60%),
-      /* The configured brand background, lifted at the head and shaded at the
-         foot so the canvas still reads as a lit surface rather than flat paint. */
-      linear-gradient(145deg,
-        color-mix(in srgb, var(--ns-bg) 86%, #ffffff) 0%,
-        var(--ns-bg) 48%,
-        color-mix(in srgb, var(--ns-bg) 94%, #0b1d28) 100%);
-  }
-
-  /* No grid: the orbs carry the structure the glass refracts. */
-  .ns-ambient::before { content: none; }
-
-  .ns-ambient::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: .08;
-    background-image: linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .28) 47%, transparent 60%);
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-  }
-
-  /* Full-page tiled logo watermark — repeats across the whole viewport as a
-     subtle brand background. Applied to .ns-ambient via inline background-image
-     (asset URL) with repeat tiling; opacity/filter handled here per theme. */
-  .ns-ambient {
-    background-repeat: repeat;
-    background-size: 220px 220px;
-    background-position: 0 0;
-    opacity: 0.12;
-    filter: grayscale(0.35) contrast(1.05);
-  }
-  html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
-    opacity: 0.05;
-    filter: grayscale(0.25) contrast(1.10);
-  }
-
-  .ns-orb {
-    position: absolute;
-    border-radius: 999px;
-    filter: blur(62px);
-    opacity: 0.68;
-    will-change: transform;
-  }
-  .ns-orb-1 {
-    width: 46vw; height: 46vw; left: -13vw; top: -15vw;
-    background: radial-gradient(circle at 40% 38%, rgba(16, 104, 128, 0.62), rgba(16, 104, 128, 0) 70%);
-    animation: ns-drift-a 30s ease-in-out infinite;
-  }
-  .ns-orb-2 {
-    width: 40vw; height: 40vw; right: -10vw; bottom: -17vw;
-    background: radial-gradient(circle at 60% 40%, rgba(198, 158, 92, 0.50), rgba(198, 158, 92, 0) 70%);
-    animation: ns-drift-b 36s ease-in-out infinite;
-  }
-  .ns-orb-3 {
-    width: 32vw; height: 32vw; right: 12vw; top: -17vw;
-    background: radial-gradient(circle at 50% 50%, rgba(70, 176, 208, 0.48), rgba(70, 176, 208, 0) 70%);
-    animation: ns-drift-a 44s ease-in-out infinite reverse;
-  }
-  html[data-theme="dark"] .ns-orb, html.dark .ns-orb { opacity: 0.42; }
-
-  @keyframes ns-drift-a {
-    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-    50%      { transform: translate3d(3vw, 2vh, 0) scale(1.08); }
-  }
-  @keyframes ns-drift-b {
-    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-    50%      { transform: translate3d(-3vw, -2vh, 0) scale(1.06); }
-  }
-  @media (prefers-reduced-motion: reduce) { .ns-orb { animation: none; } }
-
-  html[data-theme="dark"] .ns-ambient, html.dark .ns-ambient {
-    background:
-      radial-gradient(1100px 760px at 4% -12%, rgba(38, 146, 174, 0.20), transparent 58%),
-      radial-gradient(900px 640px at 102% 2%, rgba(214, 168, 106, 0.10), transparent 56%),
-      radial-gradient(1100px 800px at 50% 118%, rgba(26, 104, 132, 0.22), transparent 60%),
-      linear-gradient(145deg, #0d1c26 0%, #0a1620 52%, #08121a 100%);
-  }
-  html[data-theme="dark"] .ns-ambient::after, html.dark .ns-ambient::after {
-    opacity: .06;
-    background-image: linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .12) 47%, transparent 60%);
-  }
-
-  /* Notification rows: theme-aware clay instead of fixed white fills. */
-  .ns-notif-item {
-    background-color: var(--ns-clay-bg);
-    border: none;
-    border-radius: 16px;
-    box-shadow:
-      4px 4px 8px var(--ns-clay-shadow-dark),
-      -4px -4px 8px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
-  }
-  .ns-notif-item:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      6px 6px 12px var(--ns-clay-shadow-dark),
-      -6px -6px 12px var(--ns-clay-shadow-light),
-      inset 2px 2px 4px var(--ns-clay-bevel-dark),
-      inset -2px -2px 4px var(--ns-clay-bevel-light);
-  }
-  .ns-notif-item--unread {
-    border-color: color-mix(in srgb, var(--ns-teal) 42%, transparent);
-    box-shadow:
-      4px 4px 8px var(--ns-clay-shadow-dark),
-      -4px -4px 8px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-  html[data-theme="dark"] .ns-notif-item, html.dark .ns-notif-item {
-    box-shadow:
-      4px 4px 8px rgba(0, 0, 0, 0.60),
-      -4px -4px 8px rgba(255, 255, 255, 0.04),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.40),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
-  }
-  html[data-theme="dark"] .ns-notif-item--unread, html.dark .ns-notif-item--unread {
-    border-color: color-mix(in srgb, var(--ns-teal) 52%, transparent);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      0 10px 24px -16px rgba(0, 0, 0, 0.75);
-  }
-
-  /* ──────────────────────────────────────────
-     Claymorphism + Neumorphism (Both Themes)
-     Opaque surfaces extruded from the page background with dual-tone
-     bevel shadows — no backdrop-filter, no transparency.
-     ────────────────────────────────────────── */
-  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-  .ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft,
-  .clay-card {
-    background-color: var(--ns-clay-bg);
-    border: none;
-    border-radius: 24px;
-    color: var(--ns-ink);
-    box-shadow:
-      /* outer drop shadow (bottom-right dark, top-left light) */
-      8px 8px 16px var(--ns-clay-shadow-dark),
-      -8px -8px 16px var(--ns-clay-shadow-light),
-      /* inner bevel (top-left light highlight, bottom-right dark groove) */
-      inset 2px 2px 4px var(--ns-clay-bevel-dark),
-      inset -2px -2px 4px var(--ns-clay-bevel-light);
-  }
-  .ns-card { border-radius: 24px; }
-  .ns-card-soft { border-radius: 16px; }
-
-  /* Raised surface — stronger elevation */
-  .glass-strong, .ns-glass-bar {
-    box-shadow:
-      12px 12px 24px var(--ns-clay-shadow-dark),
-      -12px -12px 24px var(--ns-clay-shadow-light),
-      inset 3px 3px 6px var(--ns-clay-bevel-dark),
-      inset -3px -3px 6px var(--ns-clay-bevel-light);
-  }
-
-  /* Subtle surface — softer, lower elevation */
-  .glass-subtle, .ns-glass-band, .ns-glass-bar-soft {
-    box-shadow:
-      5px 5px 10px var(--ns-clay-shadow-dark),
-      -5px -5px 10px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-
-  /* Semantic dark surface */
-  .glass-dark {
-    background-color: color-mix(in srgb, var(--ns-clay-bg) 85%, #0b1d28);
-    color: #f8fafc;
-    box-shadow:
-      10px 10px 20px rgba(0, 0, 0, 0.50),
-      -10px -10px 20px rgba(255, 255, 255, 0.04),
-      inset 2px 2px 4px rgba(0, 0, 0, 0.60),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.06);
-  }
-  html[data-theme="dark"] .glass-dark, html.dark .glass-dark {
-    background-color: #051018;
-    box-shadow:
-      10px 10px 20px rgba(0, 0, 0, 0.80),
-      -10px -10px 20px rgba(255, 255, 255, 0.02),
-      inset 2px 2px 4px rgba(0, 0, 0, 0.90),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.04);
-  }
-
-  /* Semantic warm surface */
-  .glass-warm {
-    background-color: color-mix(in srgb, var(--ns-clay-bg) 85%, #7c3a12);
-    box-shadow:
-      10px 10px 20px rgba(0, 0, 0, 0.25),
-      -10px -10px 20px rgba(255, 255, 255, 0.08),
-      inset 2px 2px 4px rgba(0, 0, 0, 0.20),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.10);
-  }
-
-  /* Scrim — solid overlay for modals, no clay bevel */
-  .ns-scrim {
-    background: var(--ns-clay-bg);
-    opacity: 0.92;
-    border-radius: 0;
-  }
-
-  /* ──────────────────────────────────────────
-     Claymorphic + Neumorphic Buttons
-     ────────────────────────────────────────── */
-  .clay-btn, button:not([class*="text-"]):not([class*="p-0"]):not([class*="h-full"]) {
-    position: relative;
-    background-color: var(--ns-clay-bg);
-    border: none;
-    border-radius: 16px;
-    color: var(--ns-ink);
-    box-shadow:
-      6px 6px 12px var(--ns-clay-shadow-dark),
-      -6px -6px 12px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* Primary — saturated teal, extruded from surface */
-  .clay-btn-primary {
-    background-color: var(--ns-teal);
-    color: #ffffff;
-    box-shadow:
-      6px 6px 12px color-mix(in srgb, var(--ns-teal) 40%, transparent),
-      -6px -6px 12px rgba(255, 255, 255, 0.40),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.25),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.50);
-  }
-  .clay-btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow:
-      8px 8px 16px color-mix(in srgb, var(--ns-teal) 50%, transparent),
-      -8px -8px 16px rgba(255, 255, 255, 0.50),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.20),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.55);
-  }
-  .clay-btn-primary:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
-    box-shadow:
-      3px 3px 6px color-mix(in srgb, var(--ns-teal) 30%, transparent),
-      -3px -3px 6px rgba(255, 255, 255, 0.30),
-      inset 2px 2px 4px rgba(0, 0, 0, 0.30),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.20);
-  }
-
-  /* Secondary — surface tone with bevel */
-  .clay-btn-secondary {
-    background-color: var(--ns-clay-bg);
-    color: var(--ns-ink-2);
-    box-shadow:
-      5px 5px 10px var(--ns-clay-shadow-dark),
-      -5px -5px 10px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-  .clay-btn-secondary:hover:not(:disabled) {
-    transform: translateY(-2px);
-  }
-  .clay-btn-secondary:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
-  }
-
-  /* Accent — gold */
-  .clay-btn-accent {
-    background-color: var(--ns-gold);
-    color: #ffffff;
-    box-shadow:
-      6px 6px 12px color-mix(in srgb, var(--ns-gold) 40%, transparent),
-      -6px -6px 12px rgba(255, 255, 255, 0.40),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.25),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.50);
-  }
-  .clay-btn-accent:hover:not(:disabled) {
-    transform: translateY(-2px);
-  }
-  .clay-btn-accent:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
-  }
-
-  /* Danger — red */
-  .clay-btn-danger {
-    background-color: var(--ns-danger);
-    color: #ffffff;
-    box-shadow:
-      6px 6px 12px color-mix(in srgb, var(--ns-danger) 40%, transparent),
-      -6px -6px 12px rgba(255, 255, 255, 0.40),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.25),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.50);
-  }
-  .clay-btn-danger:hover:not(:disabled) {
-    transform: translateY(-2px);
-  }
-  .clay-btn-danger:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
-  }
-
-  /* Outline / Ghost — surface with border bevel */
-  .clay-btn-outline, .clay-btn-ghost {
-    background-color: var(--ns-clay-bg);
-    color: var(--ns-ink-2);
-    border: 2px solid var(--ns-clay-border-outer);
-    box-shadow:
-      5px 5px 10px var(--ns-clay-shadow-dark),
-      -5px -5px 10px var(--ns-clay-shadow-light);
-  }
-  .clay-btn-outline:hover:not(:disabled), .clay-btn-ghost:hover:not(:disabled) {
-    transform: translateY(-2px);
-  }
-
-  /* Frosted Input Wells — clay recessed into surface */
-  .glass-input, .ns-input,
-  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    background-color: var(--ns-clay-bg);
-    border: none;
-    border-radius: 16px;
-    color: var(--ns-ink);
-    box-shadow:
-      5px 5px 10px var(--ns-clay-shadow-dark),
-      -5px -5px 10px var(--ns-clay-shadow-light),
-      inset 2px 2px 4px var(--ns-clay-bevel-dark),
-      inset -2px -2px 4px var(--ns-clay-bevel-light);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  }
-
-  /* Tactile Raised Badges & Status Chips */
-  .clay-badge {
-    position: relative;
-    background-color: var(--ns-clay-bg);
-    border: none;
-    border-radius: 999px;
-    color: var(--ns-ink-2);
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    box-shadow:
-      3px 3px 6px var(--ns-clay-shadow-dark),
-      -3px -3px 6px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-  html[data-theme="dark"] .clay-badge, html.dark .clay-badge {
-    color: var(--ns-ink-2);
-    box-shadow:
-      3px 3px 6px rgba(0, 0, 0, 0.70),
-      -3px -3px 6px rgba(255, 255, 255, 0.04),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.50),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
-  }
-
-  /* Tactile Raised Cards */
-  .clay-card:hover {
-    transform: translateY(-3px);
-    box-shadow:
-      12px 12px 24px var(--ns-clay-shadow-dark),
-      -12px -12px 24px var(--ns-clay-shadow-light),
-      inset 3px 3px 6px var(--ns-clay-bevel-dark),
-      inset -3px -3px 6px var(--ns-clay-bevel-light);
-  }
-  html[data-theme="dark"] .clay-card, html.dark .clay-card {
-    box-shadow:
-      10px 10px 20px rgba(0, 0, 0, 0.60),
-      -10px -10px 20px rgba(255, 255, 255, 0.03),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.40),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
-  }
-  html[data-theme="dark"] .clay-card:hover, html.dark .clay-card:hover {
-    box-shadow:
-      14px 14px 28px rgba(0, 0, 0, 0.80),
-      -14px -14px 28px rgba(255, 255, 255, 0.04),
-      inset 2px 2px 4px rgba(0, 0, 0, 0.50),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.03);
-  }
-
-  /* Eyebrows, Labels & Numeric Display */
-  .ns-eyebrow {
-    color: var(--ns-gold);
-    font-size: 10.5px;
-    font-weight: 800;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-  }
-  html[data-theme="dark"] .ns-eyebrow, html.dark .ns-eyebrow {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  }
-
-  .ns-number {
-    font-family: var(--font-heading);
-    font-variant-numeric: tabular-nums;
-    font-weight: 800;
-    letter-spacing: -.035em;
-    color: var(--ns-ink);
-  }
-
-  .ns-page { animation: ns-page-in .18s ease-out both; }
-
-  .ns-glass-hover {
-    transition: background-color .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
-  }
-
-  /* ──────────────────────────────────────────
-     Claymorphic + Neumorphic Tables
-     ────────────────────────────────────────── */
-  .ns-table thead th {
-    background-color: var(--ns-clay-bg);
-    color: var(--ns-ink-2);
-    border-bottom: 2px solid var(--ns-clay-bg);
-    font-size: 12px;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    font-weight: 800;
-    box-shadow:
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-  html[data-theme="dark"] .ns-table thead th, html.dark .ns-table thead th {
-    color: #e2e8f0;
-    border-bottom: 2px solid var(--ns-clay-bg);
-    box-shadow:
-      inset 1px 1px 2px rgba(0, 0, 0, 0.50),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.04);
-  }
-
-  .ns-table tbody td {
-    color: var(--ns-ink);
-    font-weight: 600;
-    border-bottom: 1px solid var(--ns-clay-bg);
-  }
-  .ns-table tbody tr {
-    background-color: var(--ns-clay-bg);
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
-  }
-  .ns-table tbody tr:hover {
-    background-color: var(--ns-clay-bg);
-    box-shadow:
-      inset 2px 2px 4px var(--ns-clay-bevel-dark),
-      inset -2px -2px 4px var(--ns-clay-bevel-light);
-    transform: scale(1.01);
-  }
-  html[data-theme="dark"] .ns-table tbody tr:hover, html.dark .ns-table tbody tr:hover {
-    box-shadow:
-      inset 2px 2px 4px rgba(0, 0, 0, 0.50),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.04);
-  }
-
-  /* Clay surface border consistency — no borders, shadows define edges */
-  .glass, .ns-card,
-  .glass-strong, .ns-card-soft, .ns-glass-band,
-  .ns-glass-bar, .ns-glass-bar-soft,
-  .ns-glass-selected {
-    border: none;
-  }
-
-  .clay-btn, .clay-btn-primary, .clay-btn-secondary, .clay-btn-accent,
-  .clay-btn-danger, .clay-btn-outline, .clay-btn-ghost {
-    border-radius: 16px;
-  }
-  .clay-btn:hover:not(:disabled), .clay-btn-primary:hover:not(:disabled),
-  .clay-btn-secondary:hover:not(:disabled), .clay-btn-accent:hover:not(:disabled),
-  .clay-btn-danger:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled),
-  .clay-btn-ghost:hover:not(:disabled) {
-    transform: translateY(-3px);
-  }
-  .clay-btn:active:not(:disabled), .clay-btn-primary:active:not(:disabled),
-  .clay-btn-secondary:active:not(:disabled), .clay-btn-accent:active:not(:disabled),
-  .clay-btn-danger:active:not(:disabled), .clay-btn-outline:active:not(:disabled),
-  .clay-btn-ghost:active:not(:disabled) {
-    transform: translateY(1px) scale(0.98);
-  }
-  .glass-input, .ns-input,
-  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea {
-    border-radius: 16px;
-  }
-  .clay-badge {
-    border-radius: 999px;
-  }
-
-  /* ──────────────────────────────────────────
-     Property Operations Console — layout v2
-     A calm, consistent work surface for every route.
-     ────────────────────────────────────────── */
-  .app-workspace__main {
-    position: relative;
-    scrollbar-gutter: stable;
-  }
-  .app-workspace__main::before {
-    content: "";
-    position: fixed;
-    top: 70px;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: -1;
-    background: linear-gradient(115deg, rgba(255,255,255,.06), transparent 30%, rgba(90,183,202,.045) 72%, transparent);
-  }
-  .app-workspace__canvas {
-    display: flow-root;
-  }
-  .workspace-page__header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    min-height: 98px;
-    padding: 18px 20px;
-    border: none;
-    border-radius: 24px;
-    background-color: var(--ns-clay-bg);
-    background-image: none;
-    background-size: auto;
-    background-repeat: no-repeat;
-    box-shadow:
-      6px 6px 12px var(--ns-clay-shadow-dark),
-      -6px -6px 12px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-  .workspace-page__eyebrow {
-    color: var(--ns-teal);
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-  }
-  .workspace-page__title {
-    margin: 3px 0 0;
-    color: var(--ns-ink);
-    font-family: var(--font-heading);
-    font-size: clamp(1.35rem, 2vw, 2rem);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -.045em;
-  }
-  .workspace-page__subtitle {
-    max-width: 760px;
-    margin: 7px 0 0;
-    color: var(--ns-muted);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.55;
-  }
-  .workspace-page__actions {
-    display: flex;
-    flex: 0 0 auto;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-  .workspace-page .glass, .workspace-page .ns-card, .workspace-page .ns-card-soft {
-    box-shadow:
-      6px 6px 12px var(--ns-clay-shadow-dark),
-      -6px -6px 12px var(--ns-clay-shadow-light),
-      inset 1px 1px 2px var(--ns-clay-bevel-dark),
-      inset -1px -1px 2px var(--ns-clay-bevel-light);
-  }
-  .workspace-page .ns-glass-band {
-    border: none;
-  }
-  .ns-page > .grid { align-items: start; }
-  .ns-page .glass > .ns-glass-band:first-child,
-  .ns-page .glass-strong > .ns-glass-band:first-child {
-    min-height: 52px;
-  }
-  @media (max-width: 900px) {
-    .workspace-page__header { align-items: flex-start; flex-direction: column; min-height: 0; padding: 16px; }
-    .workspace-page__actions { justify-content: flex-start; width: 100%; }
-  }
-  html[data-theme="dark"] .workspace-page__header, html.dark .workspace-page__header {
-    background-color: var(--ns-clay-bg);
-    background-image: none;
-    background-size: auto;
-    background-repeat: no-repeat;
-    border: none;
-    box-shadow:
-      6px 6px 12px rgba(0, 0, 0, 0.60),
-      -6px -6px 12px rgba(255, 255, 255, 0.04),
-      inset 1px 1px 2px rgba(0, 0, 0, 0.40),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.02);
-  }
-  header.ns-glass-bar {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.80),
-      inset 0 -1px 0 rgba(12, 62, 78, 0.06),
-      0 18px 40px -30px rgba(7, 61, 77, 0.55);
-  }
-  html[data-theme="dark"] header.ns-glass-bar, html.dark header.ns-glass-bar {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.22),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.40),
-      0 20px 44px -30px rgba(0, 0, 0, 0.80);
-  }
-  header.ns-glass-bar > div { min-height: 76px; height: 76px; }
-  aside.ns-glass-bar-soft a {
-    min-height: 42px;
-    border-radius: 16px;
-  }
-  aside.ns-glass-bar-soft a.ns-glass-selected {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.30),
-      0 10px 22px -14px rgba(7, 61, 77, 0.55);
-  }
-  html[data-theme="dark"] aside.ns-glass-bar-soft a.ns-glass-selected {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.22),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.40),
-      0 12px 26px -16px rgba(0, 0, 0, 0.80);
-  }
-  aside.ns-glass-bar-soft a:not(.ns-glass-selected):hover {
-    transform: translateX(2px);
-  }
-  .workspace-page .clay-btn-primary, .workspace-page .clay-btn-accent {
-    min-height: 38px;
-    padding-inline: 15px;
-  }
-
-  @media (max-width: 1023px) { .ns-card { border-radius: 16px; } }
-  @media (prefers-reduced-motion: reduce) { .ns-page { animation: none; } }
+.clay-btn {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: var(--ns-radius-control);
+  background: var(--ns-clay-bg);
+  color: var(--ns-ink);
+  box-shadow: var(--clay-btn-shadow);
+  font-weight: 650;
+  white-space: nowrap;
+  transition: box-shadow 180ms var(--ns-ease), transform 180ms var(--ns-ease), background-color 180ms ease;
 }
+.clay-btn-primary, .clay-btn-accent, .clay-btn-danger { border-radius: var(--ns-radius-control); box-shadow: var(--clay-accent-shadow); color: var(--ns-on-accent); transition: box-shadow 180ms var(--ns-ease), transform 180ms var(--ns-ease); }
+.clay-btn-primary { background: var(--ns-primary-fill); }
+.clay-btn-accent { background: var(--ns-gold-fill); }
+.clay-btn-danger { background: var(--ns-danger-fill); color: #fff; }
+.clay-btn-primary *, .clay-btn-accent *, .clay-btn-danger * { color: inherit; }
+.clay-btn-secondary { background: var(--ns-clay-bg); color: var(--ns-ink); }
+.clay-btn-outline { background: transparent; border-color: var(--ns-line); box-shadow: var(--clay-specular); }
+.clay-btn-ghost { background: transparent; box-shadow: none; }
+@media (hover: hover) {
+  :is(.clay-btn, .clay-btn-primary, .clay-btn-accent, .clay-btn-danger):hover:not(:disabled) { transform: translateY(-1px); }
+  .clay-btn-ghost:hover:not(:disabled), .clay-btn-outline:hover:not(:disabled) { background: var(--ns-glass-hover); }
+}
+:is(.clay-btn, .clay-btn-primary, .clay-btn-accent, .clay-btn-danger):active:not(:disabled) { transform: translateY(1px); box-shadow: var(--clay-well-shadow); }
+.clay-btn:disabled { opacity: .5; box-shadow: var(--clay-specular); }
 
-@keyframes ns-page-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+.glass-input, .ns-input,
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="range"]):not([type="color"]):not([type="file"]), select, textarea {
+  background: var(--ns-well-bg);
+  color: var(--ns-ink);
+  border: 1px solid var(--ns-line);
+  border-radius: var(--ns-radius-control);
+  box-shadow: var(--clay-well-shadow);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.glass-input.h-8 { padding-block: 0; }
+input::placeholder, textarea::placeholder { color: var(--ns-muted); opacity: 1; }
+input:disabled, select:disabled, textarea:disabled { opacity: .65; cursor: not-allowed; }
+:is(input, select, textarea)[aria-invalid="true"] { border-color: var(--ns-danger); }
+:is(input, select, textarea):focus-visible { border-color: var(--ns-focus); }
+
+.clay-badge { border-radius: 10px; border: 1px solid var(--ns-line); background: var(--ns-clay-bg); box-shadow: var(--clay-specular), var(--clay-bevel-bottom); font-weight: 650; letter-spacing: .01em; }
+.ns-status { gap: 6px; color: var(--status-ink, var(--ns-muted)); background: color-mix(in srgb, var(--status-ink, var(--ns-muted)) 9%, var(--ns-clay-bg)); }
+.ns-status::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.ns-status[data-status="available"], .ns-status[data-status="success"] { --status-ink: var(--ns-success); }
+.ns-status[data-status="reserved"], .ns-status[data-status="dirty"], .ns-status[data-status="warning"] { --status-ink: var(--ns-warning); }
+.ns-status[data-status="occupied"], .ns-status[data-status="danger"] { --status-ink: var(--ns-danger); }
+.ns-status[data-status="cleaning"] { --status-ink: var(--ns-purple); }
+.ns-status[data-status="ready"] { --status-ink: var(--ns-teal); }
+.ns-status[data-status="info"] { --status-ink: var(--ns-info); }
+.ns-accent-danger { color: var(--ns-danger); }
+.ns-accent-warning { color: var(--ns-warning); }
+.ns-accent-info { color: var(--ns-info); }
+.ns-accent-success { color: var(--ns-success); }
+.ns-accent-gold { color: var(--ns-gold); }
+.ns-number { font-family: var(--font-heading); font-variant-numeric: tabular-nums; letter-spacing: -.03em; font-weight: 750; }
+.ns-eyebrow { color: var(--ns-muted); font-size: 12px; font-weight: 600; letter-spacing: .035em; }
+.ns-table { border-radius: var(--ns-radius-card); }
+.ns-table thead th, .workspace-page table thead th { background: color-mix(in srgb, var(--ns-well-bg) 65%, var(--ns-clay-bg)); color: var(--ns-muted); border-bottom: 1px solid var(--ns-line); font-size: 11px; font-weight: 650; letter-spacing: .045em; }
+.ns-table tbody td { border-bottom: 1px solid var(--ns-line); font-weight: 450; }
+.ns-table tbody tr:last-child td { border-bottom: 0; }
+.ns-table tbody tr { transition: background-color 150ms ease; }
+.ns-table tbody tr:hover { background: var(--ns-glass-hover); }
+.ns-table .clay-card { background: transparent; border: 0; box-shadow: none; }
+.ns-notif-item { background: var(--ns-clay-bg); border: 1px solid var(--ns-line); border-radius: 18px; box-shadow: var(--clay-btn-shadow); }
+.ns-notif-item--unread { background: color-mix(in srgb, var(--ns-teal) 8%, var(--ns-clay-bg)); }
+.ns-scrim { background: var(--ns-scrim-fill); }
+
+.app-workspace__body { padding: 16px 0 16px 16px; gap: 6px; }
+.app-workspace__main { scrollbar-gutter: stable; }
+.app-workspace__canvas { display: flow-root; }
+header.ns-glass-bar { border-radius: 0; border: 0; box-shadow: 0 3px 12px -5px var(--ns-clay-shadow-dark), var(--clay-specular); }
+header.ns-glass-bar > div { min-height: 76px; }
+aside.ns-glass-bar-soft { border-radius: 26px; box-shadow: var(--clay-card-shadow); }
+aside.ns-glass-bar-soft a { min-height: 42px; border-radius: 13px; }
+aside.ns-glass-bar-soft a.ns-glass-selected { box-shadow: var(--clay-well-shadow); }
+.workspace-page__header { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 94px; padding: 21px 24px; background: var(--ns-clay-bg); border-radius: var(--ns-radius-card); box-shadow: var(--clay-card-shadow); }
+.workspace-page__eyebrow { color: var(--ns-muted); font-size: 11px; font-weight: 600; letter-spacing: .05em; }
+.workspace-page__title { margin: 0; font-family: var(--font-heading); font-size: clamp(1.4rem, 2vw, 1.9rem); line-height: 1.2; letter-spacing: -.035em; font-weight: 750; color: var(--ns-ink); }
+.workspace-page__subtitle { max-width: 72ch; margin: 6px 0 0; color: var(--ns-muted); font-size: 13px; font-weight: 450; line-height: 1.6; }
+.workspace-page__actions { display: flex; flex: 0 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.workspace-page__actions .clay-btn { min-height: 40px; }
+.ns-page > .grid { align-items: start; }
+.ns-tabs { background: var(--ns-well-bg); box-shadow: var(--clay-well-shadow); border: 1px solid transparent; border-radius: 17px; padding: 5px; }
+.ns-tabs > button { border-radius: 12px; min-height: 36px; white-space: nowrap; }
+.ns-tabs > button[aria-pressed="true"] { background: var(--ns-clay-raised); color: var(--ns-ink); box-shadow: var(--clay-btn-shadow); }
+.ns-settings-rail { background: var(--ns-well-bg); box-shadow: var(--clay-well-shadow); }
+.ns-settings-rail > button[aria-pressed="true"] { background: var(--ns-clay-raised); box-shadow: var(--clay-btn-shadow); }
+.ns-mobile-scrim { display: none; }
+.ns-login-hero { border: 7px solid var(--ns-clay-bg); border-radius: 34px; box-shadow: var(--clay-panel-shadow); }
+.ns-login-card { border-radius: 32px; }
+.ns-login-card .ns-input { min-height: 46px; font-size: 13px; }
+.ns-login-card .clay-btn-primary { min-height: 46px; font-size: 13px; }
+.ns-login-card .ns-login-heading { font-size: 28px; font-weight: 750; }
+
+@media (max-width: 1023px) {
+  .workspace-page__header { align-items: flex-start; flex-direction: column; padding: 20px; }
+  .workspace-page__actions { justify-content: flex-start; width: 100%; }
+}
+@media (max-width: 767px) {
+  .app-workspace__body { padding: 0; gap: 0; }
+  .ns-sidebar { position: absolute; inset: 12px auto 12px 12px; height: auto; z-index: 40; max-width: calc(100vw - 40px); }
+  .ns-sidebar:not(.is-open) { display: none; }
+  .ns-mobile-scrim { display: block; position: absolute; inset: 0; z-index: 30; background: var(--ns-scrim-fill); }
+  .ns-settings-rail { width: 100%; flex-direction: row; overflow-x: auto; }
+  .ns-settings-rail > button { flex-shrink: 0; white-space: nowrap; }
+  .workspace-page__actions { gap: 8px; }
+  .workspace-page__header { border-radius: 20px; }
+  header.ns-glass-bar > div { min-height: 68px; }
+  .ns-login-card { padding: 28px 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 
 @media print {
-  /* Theme tokens are written as inline styles on <html>, so only !important
-     here can force a dark-mode session to print black-on-white. */
+  /* Branding is applied inline, so print tokens must outrank the saved theme. */
   :root, html[data-theme="dark"], html.dark {
-    --ns-ink: #000000 !important;
-    --ns-ink-2: #222222 !important;
-    --ns-muted: #444444 !important;
-    --ns-gold: #79551f !important;
+    --ns-ink: #000 !important;
+    --ns-ink-2: #222 !important;
+    --ns-muted: #444 !important;
+    --ns-bg: #fff !important;
+    --ns-clay-bg: #fff !important;
+    --ns-clay-raised: #fff !important;
+    --ns-well-bg: #fff !important;
+    --ns-line: #ddd !important;
     --ns-teal: #194a5a !important;
-    --ns-success: #16634b !important;
+    --ns-gold: #385878 !important;
+    --ns-success: #276e57 !important;
     --ns-warning: #87500c !important;
     --ns-danger: #a92e39 !important;
     --ns-info: #185b8c !important;
     --ns-purple: #684391 !important;
-    --ns-bg: #fff !important;
-    --ns-glass-1: transparent !important;
-    --ns-glass-2: transparent !important;
-    --ns-glass-3: transparent !important;
     color-scheme: light !important;
   }
-  .ns-ambient { display: none !important; }
-  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
-  .ns-card, .ns-card-soft, .glass-input, .ns-input, .ns-glass-band,
-  .ns-glass-bar, .ns-glass-bar-soft {
-    background: #fff !important;
-    box-shadow: none !important;
-    border-color: #dfe3e0 !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-}
-
-/* ──────────────────────────────────────────
-   Cascade overrides — unlayered and last in the file.
-   Tailwind utilities live in a cascade layer, so these rules beat them
-   without !important. Keep this block at the end.
-   ────────────────────────────────────────── */
-
-/* Clay surfaces: opaque, inked, no borders (edges are carved by shadow). */
-.glass, .glass-strong, .glass-subtle, .glass-warm,
-.ns-card, .ns-card-soft, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft {
-  background-color: var(--ns-clay-bg);
-  background-image: none;
-  color: var(--ns-ink);
-  border: none;
-}
-
-.glass-dark {
-  background-color: color-mix(in srgb, var(--ns-clay-bg) 85%, #0b1d28);
-  background-image: none;
-  color: #f8fafc;
-  border: none;
-}
-
-/* Dark surfaces get a whisper of top-light so the clay reads as moulded
-   rather than as flat paint. Very low contrast on purpose. */
-html[data-theme="dark"] .glass, html.dark .glass,
-html[data-theme="dark"] .glass-strong, html.dark .glass-strong,
-html[data-theme="dark"] .glass-subtle, html.dark .glass-subtle,
-html[data-theme="dark"] .ns-card, html.dark .ns-card,
-html[data-theme="dark"] .ns-card-soft, html.dark .ns-card-soft,
-html[data-theme="dark"] .ns-glass-band, html.dark .ns-glass-band,
-html[data-theme="dark"] .ns-glass-bar, html.dark .ns-glass-bar,
-html[data-theme="dark"] .ns-glass-bar-soft, html.dark .ns-glass-bar-soft {
-  background-image: linear-gradient(
-    152deg,
-    rgba(255, 255, 255, 0.045) 0%,
-    rgba(255, 255, 255, 0) 46%,
-    rgba(0, 0, 0, 0.10) 100%
-  );
-}
-
-/* Saturated buttons: controlled fill + white label in every theme. */
-.clay-btn-primary,
-.clay-btn-primary:hover:not(:disabled) {
-  background-color: var(--ns-primary-fill);
-  background-image: none;
-  color: var(--ns-on-accent);
-}
-.clay-btn-accent,
-.clay-btn-accent:hover:not(:disabled) {
-  background-color: var(--ns-gold-fill);
-  background-image: none;
-  color: var(--ns-on-accent);
-}
-.clay-btn-danger,
-.clay-btn-danger:hover:not(:disabled) {
-  background-color: var(--ns-danger-fill);
-  background-image: none;
-  color: var(--ns-on-accent);
-}
-
-/* Surface buttons stay inked. */
-.clay-btn-secondary,
-.clay-btn-outline,
-.clay-btn-ghost {
-  background-color: var(--ns-clay-bg);
-  background-image: none;
-  color: var(--ns-ink);
-}
-
-/* Inputs — recessed clay wells. */
-.glass-input, .ns-input,
-input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-select, textarea {
-  background-color: var(--ns-well-bg, var(--ns-clay-bg));
-  background-image: none;
-  color: var(--ns-ink);
-  border: none;
-}
-
-/* Dark inputs read as carved wells: mostly inset, no lifted halo. */
-html[data-theme="dark"] .glass-input, html.dark .glass-input,
-html[data-theme="dark"] .ns-input, html.dark .ns-input,
-html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-html[data-theme="dark"] select, html.dark select,
-html[data-theme="dark"] textarea, html.dark textarea {
-  box-shadow:
-    inset 3px 3px 7px rgba(0, 0, 0, 0.55),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.08);
-}
-
-/* Placeholders must stay readable without competing with real values. */
-input::placeholder, textarea::placeholder {
-  color: color-mix(in srgb, var(--ns-muted) 82%, transparent);
-  opacity: 1;
-}
-
-/* Keep action labels on one line; buttons also use nowrap. */
-.clay-btn {
-  white-space: nowrap;
-}
-
-/* Table row hover uses the recessed-in well, matching the clay system. */
-.ns-table tbody tr:hover {
-  background-color: var(--ns-clay-bg);
-}
-
-/* Selected nav / tab / list item: pressed into the clay, so the active
-   choice stays obvious even though it shares the surface colour. */
-.ns-glass-selected {
-  background-color: color-mix(in srgb, var(--ns-clay-bg) 86%, var(--ns-teal));
-  background-image: none;
-  border: none;
-  box-shadow:
-    inset 2px 2px 4px var(--ns-clay-bevel-dark),
-    inset -2px -2px 4px var(--ns-clay-bevel-light);
-}
-
-.ns-glass-hover:hover {
-  background-color: color-mix(in srgb, var(--ns-clay-bg) 92%, var(--ns-ink));
+  .ns-ambient, .ns-mobile-scrim { display: none !important; }
+  .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm, .clay-card,
+  .ns-card, .ns-card-soft, .ns-input, .glass-input, .ns-glass-band, .ns-glass-bar, .ns-glass-bar-soft,
+  .workspace-page__header { background: #fff !important; box-shadow: none !important; }
 }

@@ -8,18 +8,18 @@ const DEFAULT_THEME: ThemeConfig = {
   villaTagline: 'Property Operations',
   logoUrl: undefined,
   loginBgUrl: undefined,
-  primaryColor: '#16a4d4',
-  secondaryColor: '#f1a83f',
-  accentColor: '#1cecd4',
-  bgColor: '#f5f6f4',
-  textColor: '#14232b',
-  textMuted: '#7a858a',
-  borderColor: '#e5e8e5',
-  successColor: '#2d8a68',
-  warningColor: '#d97706',
-  errorColor: '#dc2626',
-  infoColor: '#0284c7',
-  fontFamily: 'system-ui, -apple-system, sans-serif',
+  primaryColor: '#276b78',
+  secondaryColor: '#426e98',
+  accentColor: '#82c7bb',
+  bgColor: '#dce6ed',
+  textColor: '#203641',
+  textMuted: '#526773',
+  borderColor: '#bacdd7',
+  successColor: '#276e57',
+  warningColor: '#93622a',
+  errorColor: '#ad4654',
+  infoColor: '#386c98',
+  fontFamily: '"DM Sans", system-ui, sans-serif',
   headingFont: 'Manrope, sans-serif',
   customCss: undefined,
   useCustomLogin: false,
@@ -65,8 +65,8 @@ const initialPreference = getInitialPreference();
 
 export type RGB = { r: number; g: number; b: number };
 
-const DARK_BG = '#0b1720';
-const LIGHT_BG = '#f5f6f4';
+const DARK_BG = '#1b2833';
+const LIGHT_BG = '#dce6ed';
 
 function parseHex(value: string | undefined | null): RGB | null {
   if (typeof value !== 'string') return null;
@@ -113,7 +113,7 @@ function mix(from: RGB, to: RGB, amount: number): RGB {
  * opposite until the token clears WCAG AA for normal text.
  */
 function readableBrand(color: string | undefined, background: string, fallback: string, minimum = 4.8): string {
-  const fg = parseHex(color);
+  const fg = parseHex(color) ?? parseHex(fallback);
   const bg = parseHex(background);
   if (!fg || !bg) return fallback;
   if (contrastRatio(fg, bg) >= minimum) return toHex(fg);
@@ -214,11 +214,15 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
   // pasted in, and drive the real tokens from the same values.
   const surface = dark ? DARK_BG : parseHex(theme.bgColor) ? theme.bgColor : LIGHT_BG;
 
-  // Copy actually sits on clay cards, which are darker than the canvas in
-  // light mode and lighter than it in dark mode. Validate against that
-  // surface so AA still holds where the text really lives.
-  const clay = getComputedStyle(root).getPropertyValue('--ns-clay-bg').trim();
-  const readableOn = parseHex(clay) ? clay : surface;
+  // Validate against the most restrictive material or canvas backdrop.
+  const styles = getComputedStyle(root);
+  const clay = styles.getPropertyValue('--ns-clay-bg').trim();
+  const well = styles.getPropertyValue('--ns-well-bg').trim();
+  const raised = styles.getPropertyValue('--ns-clay-raised').trim();
+  const readableOn = [clay, well, raised, surface].filter((color) => parseHex(color)).reduce((current, color) => {
+    const difference = luminance(parseHex(color)!) - luminance(parseHex(current)!);
+    return (dark ? difference > 0 : difference < 0) ? color : current;
+  }, surface);
 
   // In dark mode a light-mode brand colour cannot simply be mixed towards
   // white — that yields grey. Lift it in HSL space first, then clamp.
@@ -235,10 +239,10 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
       : theme.accentColor
     : secondary;
   const ink = dark
-    ? readableText(theme.textColor, readableOn, '#f8fafc')
+    ? readableText(theme.textColor, readableOn, '#edf3f7')
     : readableBrand(theme.textColor, readableOn, '#0b1d28');
   const muted = dark
-    ? readableText(theme.textMuted, readableOn, '#a4bac6')
+    ? readableText(theme.textMuted, readableOn, '#b1c4d0')
     : readableBrand(theme.textMuted, readableOn, '#3f6073');
   const success = brand(theme.successColor, '#34d399', '#0d6b51');
   const warning = brand(theme.warningColor, '#fbbf24', '#92400e');
@@ -263,15 +267,18 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
   root.style.setProperty('--ns-gold-soft', rgba(accent, dark ? 0.16 : 0.12, 'rgba(43, 127, 151, 0.12)'));
   root.style.setProperty('--ns-bg', surface);
   root.style.setProperty('--ns-ink', ink);
-  root.style.setProperty('--ns-ink-2', toHex(mix(parseHex(ink)!, parseHex(surface)!, dark ? 0.12 : 0.18)));
+  root.style.setProperty('--ns-ink-2', readableBrand(
+    toHex(mix(parseHex(ink)!, parseHex(surface)!, dark ? 0.12 : 0.18)), readableOn, ink,
+  ));
   root.style.setProperty('--ns-muted', muted);
   root.style.setProperty('--ns-success', success);
   root.style.setProperty('--ns-warning', warning);
   root.style.setProperty('--ns-danger', danger);
   root.style.setProperty('--ns-info', info);
+  root.style.setProperty('--ns-purple', brand(undefined, '#c9b4e5', '#75569a'));
 
-  root.style.setProperty('--font-body', theme.fontFamily || 'system-ui, -apple-system, sans-serif');
-  root.style.setProperty('--font-heading', theme.headingFont || 'Manrope, sans-serif');
+  root.style.setProperty('--font-body', theme.fontFamily || DEFAULT_THEME.fontFamily);
+  root.style.setProperty('--font-heading', theme.headingFont || DEFAULT_THEME.headingFont);
 }
 
 // Immediately apply cached theme on startup (0ms FOUC)

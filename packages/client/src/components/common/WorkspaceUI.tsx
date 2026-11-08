@@ -147,10 +147,12 @@ export const SegmentedTabs: React.FC<{
   active: string;
   onChange: (value: string) => void;
 }> = ({ tabs, active, onChange }) => (
-  <div className="flex max-w-full gap-1 overflow-x-auto p-1.5 glass-subtle rounded-2xl border border-[var(--ns-glass-line)] w-fit">
+  <div className="ns-tabs flex max-w-full gap-1 overflow-x-auto w-fit">
     {tabs.map((tab) => (
       <button
         key={tab.value}
+        type="button"
+        aria-pressed={active === tab.value}
         onClick={() => onChange(tab.value)}
         className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
           active === tab.value
@@ -199,12 +201,14 @@ export const SettingsRail: React.FC<{
   active: string;
   onChange: (value: string) => void;
 }> = ({ tabs, active, onChange }) => (
-  <div className="flex gap-1 flex-col glass-subtle rounded-2xl border border-[var(--ns-glass-line)] p-2 w-56 shrink-0">
+  <div className="ns-settings-rail flex gap-1 flex-col glass-subtle rounded-2xl border border-[var(--ns-glass-line)] p-2 w-56 shrink-0">
     {tabs.map((tab) => {
       const Icon = tab.icon;
       return (
         <button
           key={tab.value}
+          type="button"
+          aria-pressed={active === tab.value}
           onClick={() => onChange(tab.value)}
           className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${
             active === tab.value

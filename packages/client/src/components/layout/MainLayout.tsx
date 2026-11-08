@@ -6,10 +6,21 @@ import { ToastContainer } from '../ui';
 import { authApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { useUIStore } from '../../stores/uiStore';
 
 export const MainLayout: React.FC = () => {
   const location = useLocation();
   const synced = useRef(false);
+  const { sidebarOpen, setSidebarOpen } = useUIStore();
+
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) setSidebarOpen(false);
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && window.matchMedia('(max-width: 767px)').matches) setSidebarOpen(false);
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, [setSidebarOpen]);
 
   // Re-issue the access token and re-sync the cached profile on startup so role
   // / permission changes take effect without forcing a manual log out / log in.
@@ -44,6 +55,7 @@ export const MainLayout: React.FC = () => {
     <div className="app-workspace relative isolate flex h-[100dvh] min-h-screen flex-col overflow-hidden" style={{ color: 'var(--ns-ink)', background: 'transparent' }}>
       <Header />
       <div className="app-workspace__body relative z-0 flex min-h-0 flex-1 overflow-hidden">
+        {sidebarOpen && <button type="button" className="ns-mobile-scrim" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
         <Sidebar />
         <main className="app-workspace__main relative z-0 min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain" style={{ background: 'transparent' }}>
           <div

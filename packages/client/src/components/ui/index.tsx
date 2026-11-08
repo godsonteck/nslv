@@ -128,9 +128,9 @@ export const Button: React.FC<ButtonProps> = ({
     outline: 'clay-btn clay-btn-outline',
   };
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs rounded-md gap-1.5',
-    md: 'px-4 py-2 text-xs font-medium rounded-md gap-2',
-    lg: 'px-5 py-2.5 text-sm font-medium rounded-md gap-2',
+    sm: 'min-h-8 px-3 py-1.5 text-xs gap-1.5',
+    md: 'min-h-10 px-4 py-2 text-[13px] gap-2',
+    lg: 'min-h-12 px-5 py-2.5 text-sm gap-2',
   };
 
   return (
@@ -154,22 +154,8 @@ interface BadgeProps {
 }
 
 export const Badge: React.FC<BadgeProps> = ({ label, variant = 'neutral' }) => {
-  const cls = {
-    available: 'bg-transparent text-[var(--ns-success)] border-emerald-500/55',
-    reserved: 'bg-transparent text-[var(--ns-warning)] border-amber-500/55',
-    occupied: 'bg-transparent text-[var(--ns-danger)] border-rose-500/55',
-    dirty: 'bg-transparent text-[var(--ns-warning)] border-amber-600/55',
-    cleaning: 'bg-transparent text-[var(--ns-purple)] border-purple-500/55',
-    ready: 'bg-transparent text-[var(--ns-teal)] border-teal-500/55',
-    maintenance: 'bg-transparent text-[var(--ns-muted)] border-slate-500/55',
-    success: 'bg-transparent text-[var(--ns-success)] border-emerald-500/55',
-    warning: 'bg-transparent text-[var(--ns-warning)] border-amber-500/55',
-    danger: 'bg-transparent text-[var(--ns-danger)] border-rose-500/55',
-    info: 'bg-transparent text-[var(--ns-info)] border-sky-500/55',
-    neutral: 'bg-transparent text-[var(--ns-muted)] border-slate-400/55',
-  };
   return (
-    <span className={`glass-subtle clay-badge inline-flex items-center px-2.5 py-0.5 rounded-md text-[12px] font-black tracking-wide border ${cls[variant]}`}>
+    <span data-status={variant} className="ns-status clay-badge inline-flex items-center px-2.5 py-1 text-[12px]">
       {label}
     </span>
   );
@@ -232,7 +218,6 @@ interface PageHeaderProps {
 export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, badge, actions }) => (
   <header className="workspace-page__header mb-5">
     <div>
-      <div className="workspace-page__eyebrow">Property operations</div>
       <div className="mt-1 flex flex-wrap items-center gap-2.5">
         <h1 className="workspace-page__title">{title}</h1>
         {badge && <span className="glass clay-badge rounded-full border border-[var(--ns-teal)]/55 px-2.5 py-1 text-[12px] font-extrabold uppercase tracking-[.12em]" style={{ color: 'var(--ns-teal)' }}>{badge}</span>}
@@ -623,6 +608,7 @@ export const TextInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & {
 }) => (
   <input
     {...props}
+    aria-invalid={error || props['aria-invalid']}
     style={{ color: 'var(--ns-ink)', ...style }}
     className={`glass-input w-full border ${
       error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
@@ -639,6 +625,7 @@ export const SelectInput: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 }) => (
   <select
     {...props}
+    aria-invalid={error || props['aria-invalid']}
     style={{ color: 'var(--ns-ink)', ...style }}
     className={`glass-input w-full border ${
       error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
@@ -656,6 +643,7 @@ export const TextareaInput: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaEl
 }) => (
   <textarea
     {...props}
+    aria-invalid={error || props['aria-invalid']}
     style={{ color: 'var(--ns-ink)', ...style }}
     className={`glass-input w-full border ${
       error ? 'border-red-500' : 'border-[var(--ns-glass-line)]'
