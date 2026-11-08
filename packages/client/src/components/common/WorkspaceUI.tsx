@@ -49,9 +49,10 @@ export const KpiRibbon: React.FC<{
     {items.map((item, i) => (
       <button
         key={i}
+        type="button"
         onClick={item.onClick}
-        className={`glass-subtle clay-card min-h-[82px] rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] transition-all hover:border-[var(--ns-teal)] ${
-          item.onClick ? 'cursor-pointer' : ''
+        className={`glass-subtle clay-card min-h-[82px] rounded-2xl px-4 py-3 text-left border border-[var(--ns-glass-line)] ${
+          item.onClick ? 'ns-pressable cursor-pointer hover:border-[var(--ns-teal)]' : 'cursor-default'
         }`}
       >
         <div className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--ns-muted)' }}>
@@ -126,7 +127,7 @@ export const DetailDrawer: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="ns-scrim absolute inset-0" onClick={onClose} />
-      <div className={`glass-strong clay-card relative ${width} w-full h-full border-l border-[var(--ns-glass-line)] flex flex-col`}>
+      <div className={`ns-drawer glass-strong clay-card relative ${width} w-full h-full border-l border-[var(--ns-glass-line)] flex flex-col`}>
         <div className="ns-glass-band flex items-center justify-between border-b border-[var(--ns-glass-line)] px-5 py-3">
           <h2 className="text-base font-bold" style={{ color: 'var(--ns-ink)' }}>{title}</h2>
           <button onClick={onClose} className="clay-btn clay-btn-secondary rounded-lg p-1.5">
@@ -256,7 +257,7 @@ export const StatTile: React.FC<{
   <div
     className={`glass group relative overflow-hidden rounded-2xl p-5 transition-all duration-200 ${
       accent ? 'border-[var(--ns-gold)] ring-1 ring-[var(--ns-gold)]/40' : ''
-    } ${onClick ? 'cursor-pointer select-none hover:-translate-y-1' : ''}`}
+    } ${onClick ? 'ns-pressable cursor-pointer select-none' : ''}`}
     onClick={onClick}
     role={onClick ? 'button' : undefined}
     tabIndex={onClick ? 0 : undefined}
@@ -267,7 +268,7 @@ export const StatTile: React.FC<{
         {label}
       </span>
       {Icon && (
-        <span className="glass-subtle clay-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-teal)' }}>
+        <span className="ns-sculpted-icon glass-subtle clay-badge flex h-9 w-9 items-center justify-center rounded-xl transition-colors group-hover:text-[var(--ns-teal)] border border-[var(--ns-glass-line)]" style={{ color: 'var(--ns-teal)' }}>
           <Icon size={16} />
         </span>
       )}

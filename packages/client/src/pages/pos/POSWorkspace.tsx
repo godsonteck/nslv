@@ -35,8 +35,8 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 const ACCENT = {
-  restaurant: { color: 'var(--ns-gold)', btn: 'glass ns-glass-hover text-[var(--ns-gold)]' },
-  bar: { color: 'var(--ns-purple)', btn: 'glass ns-glass-hover text-[var(--ns-purple)]' },
+  restaurant: { color: 'var(--ns-gold)', btn: 'clay-btn clay-btn-accent' },
+  bar: { color: 'var(--ns-purple)', btn: 'clay-btn clay-btn-primary' },
 };
 
 export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
@@ -330,7 +330,7 @@ export const POSWorkspace: React.FC<{ kind: Kind }> = ({ kind }) => {
                       key={i.id}
                       onClick={() => !off && add(i)}
                       className={`ns-card glass relative flex flex-col justify-between p-3 transition-all cursor-pointer group ${
-                        off ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5 hover:shadow-lg'
+                        off ? 'opacity-50 cursor-not-allowed' : 'ns-pressable'
                       }`}
                       style={inCart > 0 ? { borderColor: ac.color } : {}}
                     >

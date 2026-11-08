@@ -510,7 +510,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, subtitle, si
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`glass-strong my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-3xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all shadow-2xl border border-[var(--ns-glass-line)]`}
+        className={`ns-dialog glass-strong my-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-h-0 ${sizes[size]} flex-col rounded-3xl sm:max-h-[calc(100dvh-2rem)] overflow-hidden transition-all shadow-2xl border border-[var(--ns-glass-line)]`}
         style={{ color: 'var(--ns-ink)' }}
       >
         <div
@@ -556,7 +556,7 @@ export const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, subtitle, 
   return createPortal(
     <div className="ns-scrim fixed inset-0 z-50 overflow-hidden flex justify-end">
       <div
-        className="glass-strong w-full max-w-xl border-l border-[var(--ns-glass-line)] h-full flex flex-col"
+        className="ns-drawer glass-strong w-full max-w-xl border-l border-[var(--ns-glass-line)] h-full flex flex-col"
         style={{ color: 'var(--ns-ink)' }}
       >
         <div

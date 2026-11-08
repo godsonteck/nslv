@@ -8,13 +8,13 @@ const DEFAULT_THEME: ThemeConfig = {
   villaTagline: 'Property Operations',
   logoUrl: undefined,
   loginBgUrl: undefined,
-  primaryColor: '#276b78',
-  secondaryColor: '#426e98',
-  accentColor: '#82c7bb',
-  bgColor: '#dce6ed',
+  primaryColor: '#226f84',
+  secondaryColor: '#366ea0',
+  accentColor: '#76d7cc',
+  bgColor: '#bcd5eb',
   textColor: '#203641',
   textMuted: '#526773',
-  borderColor: '#bacdd7',
+  borderColor: '#acc9dc',
   successColor: '#276e57',
   warningColor: '#93622a',
   errorColor: '#ad4654',
@@ -65,8 +65,8 @@ const initialPreference = getInitialPreference();
 
 export type RGB = { r: number; g: number; b: number };
 
-const DARK_BG = '#1b2833';
-const LIGHT_BG = '#dce6ed';
+const DARK_BG = '#152e42';
+const LIGHT_BG = '#bcd5eb';
 
 function parseHex(value: string | undefined | null): RGB | null {
   if (typeof value !== 'string') return null;
@@ -116,13 +116,19 @@ function readableBrand(color: string | undefined, background: string, fallback: 
   const fg = parseHex(color) ?? parseHex(fallback);
   const bg = parseHex(background);
   if (!fg || !bg) return fallback;
-  if (contrastRatio(fg, bg) >= minimum) return toHex(fg);
+  // Check rounded colours against the 9% sRGB badge tint as well as the plain surface.
+  const isReadable = (candidate: RGB) => {
+    const rounded = parseHex(toHex(candidate))!;
+    return contrastRatio(rounded, bg) >= minimum
+      && contrastRatio(rounded, mix(bg, rounded, 0.09)) >= 4.5;
+  };
+  if (isReadable(fg)) return toHex(fg);
 
   const target: RGB = luminance(bg) > 0.5 ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 };
   let candidate = fg;
   for (let step = 1; step <= 20; step++) {
     candidate = mix(fg, target, step / 20);
-    if (contrastRatio(candidate, bg) >= minimum) break;
+    if (isReadable(candidate)) break;
   }
   return toHex(candidate);
 }
@@ -242,7 +248,7 @@ function applyThemeDirect(theme: ThemeConfig | null, preference: ThemePreference
     ? readableText(theme.textColor, readableOn, '#edf3f7')
     : readableBrand(theme.textColor, readableOn, '#0b1d28');
   const muted = dark
-    ? readableText(theme.textMuted, readableOn, '#b1c4d0')
+    ? readableText(theme.textMuted, readableOn, '#c1d6e2')
     : readableBrand(theme.textMuted, readableOn, '#3f6073');
   const success = brand(theme.successColor, '#34d399', '#0d6b51');
   const warning = brand(theme.warningColor, '#fbbf24', '#92400e');

@@ -11,8 +11,8 @@ vi.mock('../services/apiService', () => ({
 }));
 
 const SURFACES = {
-  light: { '--ns-clay-bg': '#e5edf2', '--ns-well-bg': '#d7e2e9', '--ns-clay-raised': '#edf3f6' },
-  dark: { '--ns-clay-bg': '#293c4a', '--ns-well-bg': '#20313e', '--ns-clay-raised': '#304554' },
+  light: { '--ns-clay-bg': '#dcecf5', '--ns-well-bg': '#c7ddec', '--ns-clay-raised': '#edf7fb' },
+  dark: { '--ns-clay-bg': '#24475c', '--ns-well-bg': '#193b50', '--ns-clay-raised': '#2d5369' },
 };
 const TEXT_TOKENS = [
   '--ns-ink', '--ns-ink-2', '--ns-muted', '--ns-teal', '--ns-teal-deep',
@@ -68,18 +68,18 @@ describe('dark-mode contrast helpers', () => {
   it('keeps a configured text colour only when it is crisp on dark clay', () => {
     const background = SURFACES.dark['--ns-clay-bg'];
     expect(readableText('#203641', background, '#edf3f7')).toBe('#edf3f7');
-    expect(readableText('#526773', background, '#b1c4d0')).toBe('#b1c4d0');
+    expect(readableText('#526773', background, '#c1d6e2')).toBe('#c1d6e2');
     expect(readableText('#edf3f7', background, '#000000')).toBe('#edf3f7');
   });
 
   it('leaves a readable light-mode text colour untouched', () => {
-    expect(readableText('#203641', '#dce6ed', '#edf3f7', 4.5)).toBe('#203641');
+    expect(readableText('#203641', '#bcd5eb', '#edf3f7', 4.5)).toBe('#203641');
   });
 
   it('preserves helper fallbacks for invalid colours', () => {
-    expect(vividForDark('invalid', '#82c7bb')).toBe('#82c7bb');
-    expect(readableText('invalid', '#293c4a', '#edf3f7')).toBe('#edf3f7');
-    expect(readableText('#edf3f7', 'invalid', '#b1c4d0')).toBe('#b1c4d0');
+    expect(vividForDark('invalid', '#76d7cc')).toBe('#76d7cc');
+    expect(readableText('invalid', SURFACES.dark['--ns-clay-bg'], '#edf3f7')).toBe('#edf3f7');
+    expect(readableText('#edf3f7', 'invalid', '#c1d6e2')).toBe('#c1d6e2');
   });
 });
 
@@ -103,25 +103,28 @@ describe('themeStore coastal clay', () => {
     }
   }
 
-  function expectReadableStatuses(mode: 'light' | 'dark') {
-    const clay = rgb(SURFACES[mode]['--ns-clay-bg']);
+  function expectReadableStatuses(backgrounds: Record<string, string>) {
     const statuses = {
       success: properties.get('--ns-success')!,
       warning: properties.get('--ns-warning')!,
       danger: properties.get('--ns-danger')!,
       ready: properties.get('--ns-teal')!,
+      secondary: properties.get('--ns-gold')!,
       info: properties.get('--ns-info')!,
       neutral: properties.get('--ns-muted')!,
       cleaning: properties.get('--ns-purple')!,
     };
-    for (const [status, color] of Object.entries(statuses)) {
-      const foreground = rgb(color);
-      const background = {
-        r: foreground.r * 0.09 + clay.r * 0.91,
-        g: foreground.g * 0.09 + clay.g * 0.91,
-        b: foreground.b * 0.09 + clay.b * 0.91,
-      };
-      expect(contrastRatio(foreground, background), `${status} on its 9% sRGB tint`).toBeGreaterThanOrEqual(4.5);
+    for (const [surface, color] of Object.entries(backgrounds)) {
+      const backdrop = rgb(color);
+      for (const [status, color] of Object.entries(statuses)) {
+        const foreground = rgb(color);
+        const background = {
+          r: foreground.r * 0.09 + backdrop.r * 0.91,
+          g: foreground.g * 0.09 + backdrop.g * 0.91,
+          b: foreground.b * 0.09 + backdrop.b * 0.91,
+        };
+        expect(contrastRatio(foreground, background), `${status} on its 9% sRGB tint over ${surface}`).toBeGreaterThanOrEqual(4.5);
+      }
     }
   }
 
@@ -170,13 +173,13 @@ describe('themeStore coastal clay', () => {
       villaTagline: 'Property Operations',
       logoUrl: undefined,
       loginBgUrl: undefined,
-      primaryColor: '#276b78',
-      secondaryColor: '#426e98',
-      accentColor: '#82c7bb',
-      bgColor: '#dce6ed',
+      primaryColor: '#226f84',
+      secondaryColor: '#366ea0',
+      accentColor: '#76d7cc',
+      bgColor: '#bcd5eb',
       textColor: '#203641',
       textMuted: '#526773',
-      borderColor: '#bacdd7',
+      borderColor: '#acc9dc',
       successColor: '#276e57',
       warningColor: '#93622a',
       errorColor: '#ad4654',
@@ -213,18 +216,18 @@ describe('themeStore coastal clay', () => {
           errorColor: 'invalid', infoColor: 'invalid', fontFamily: '', headingFont: '',
         },
       },
-    ])('keeps all text tokens at AA on material surfaces and tinted badges with $name', async ({ name, theme }) => {
+    ])('keeps all text tokens at AA on material surfaces and tinted badges with $name', async ({ theme }) => {
       cache.set('nslv_theme_config', JSON.stringify(theme));
       cache.set('nslv_theme_preference', mode);
       await import('./themeStore');
-      expectReadable(SURFACES[mode]);
-      expectReadableStatuses(mode);
-      if (name === 'defaults') expectReadable({ canvas: properties.get('--ns-bg')! });
+      const backgrounds = { ...SURFACES[mode], canvas: properties.get('--ns-bg')! };
+      expectReadable(backgrounds);
+      expectReadableStatuses(backgrounds);
       expect(cache.get('nslv_theme_config')).toBe(JSON.stringify(theme));
       if ('fontFamily' in theme && theme.fontFamily === '') {
         expect(properties.get('--font-body')).toBe('"DM Sans", system-ui, sans-serif');
         expect(properties.get('--font-heading')).toBe('Manrope, sans-serif');
-        expect(properties.get('--ns-bg')).toBe(mode === 'dark' ? '#1b2833' : '#dce6ed');
+        expect(properties.get('--ns-bg')).toBe(mode === 'dark' ? '#152e42' : '#bcd5eb');
       }
     });
 
@@ -250,12 +253,12 @@ describe('themeStore coastal clay', () => {
       surfaceOverrides = {};
       cache.set('nslv_theme_preference', mode);
       await import('./themeStore');
-      expectReadable({ canvas: mode === 'dark' ? '#1b2833' : '#dce6ed' });
+      expectReadable({ canvas: mode === 'dark' ? '#152e42' : '#bcd5eb' });
     });
 
     it('preserves readable admin colours and fonts', async () => {
-      const textColor = mode === 'dark' ? '#d6eeee' : CUSTOM_THEME.textColor;
-      const textMuted = mode === 'dark' ? '#cbdfe5' : CUSTOM_THEME.textMuted;
+      const textColor = mode === 'dark' ? '#e4f1f7' : CUSTOM_THEME.textColor;
+      const textMuted = mode === 'dark' ? '#e0f2f4' : '#405a67';
       const custom = { ...CUSTOM_THEME, textColor, textMuted };
       cache.set('nslv_theme_config', JSON.stringify(custom));
       cache.set('nslv_theme_preference', mode);
@@ -282,7 +285,7 @@ describe('themeStore coastal clay', () => {
     expect(classes.has('dark')).toBe(true);
     expect(useThemeStore.getState().effectiveDark).toBe(true);
     expect(properties.get('--ns-ink')).toBe('#edf3f7');
-    expect(properties.get('--ns-muted')).toBe('#b1c4d0');
+    expect(properties.get('--ns-muted')).toBe('#c1d6e2');
   });
 
   it('honours the saved dark-mode flag when no preference is set', async () => {
@@ -297,7 +300,7 @@ describe('themeStore coastal clay', () => {
     cache.set('nslv_theme_preference', 'invalid');
     const { useThemeStore } = await import('./themeStore');
     expect(useThemeStore.getState().themePreference).toBe('light');
-    expect(properties.get('--ns-bg')).toBe('#dce6ed');
+    expect(properties.get('--ns-bg')).toBe('#bcd5eb');
     expectReadable(SURFACES.light);
     expect(cache.get('nslv_theme_config')).toBe('{broken');
   });
@@ -313,7 +316,7 @@ describe('themeStore coastal clay', () => {
       expect(classes.has('dark')).toBe(mode === 'dark');
       expect(useThemeStore.getState().effectiveDark).toBe(mode === 'dark');
       expect(cache.get('nslv_theme_preference')).toBe(mode);
-      expect(properties.get('--ns-bg')).toBe(mode === 'dark' ? '#1b2833' : '#dce6ed');
+      expect(properties.get('--ns-bg')).toBe(mode === 'dark' ? '#152e42' : '#bcd5eb');
       expect(properties.get('--ns-ink')).toBe(mode === 'dark' ? '#edf3f7' : '#203641');
       expectReadable(SURFACES[mode]);
       if (mode === 'light') expect(properties).toEqual(lightTokens);
@@ -349,8 +352,8 @@ describe('themeStore coastal clay', () => {
     useThemeStore.getState().setThemePreference('dark');
     await useThemeStore.getState().loadTheme();
     expect(attributes.get('data-theme')).toBe('dark');
-    expect(properties.get('--color-primary')).toBe('#276b78');
-    expect(properties.get('--ns-bg')).toBe('#1b2833');
+    expect(properties.get('--color-primary')).toBe('#226f84');
+    expect(properties.get('--ns-bg')).toBe('#152e42');
     expect(properties.get('--ns-ink')).toBe('#edf3f7');
     expect(properties.get('--font-body')).toBe('"DM Sans", system-ui, sans-serif');
     expectReadable(SURFACES.dark);

@@ -136,11 +136,13 @@ export const Header: React.FC = () => {
               const newTheme = effectiveDark ? 'light' : 'dark';
               setThemePreference(newTheme);
             }}
-            className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-all hover:scale-110"
+            className="flex h-9 w-9 items-center justify-center clay-btn clay-btn-secondary rounded-xl text-[var(--ns-ink)] transition-all"
             aria-label={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
             title={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
           >
-            {effectiveDark ? <Sun size={16} /> : <Moon size={16} />}
+            <span key={String(effectiveDark)} className="ns-theme-glyph">
+              {effectiveDark ? <Sun size={16} /> : <Moon size={16} />}
+            </span>
           </button>
 
           {/* Notifications */}

@@ -127,11 +127,13 @@ export default function Login() {
             const newTheme = effectiveDark ? 'light' : 'dark';
             setThemePreference(newTheme);
           }}
-          className="flex h-10 w-10 items-center justify-center rounded-2xl glass border border-[var(--ns-glass-line)] text-[var(--ns-ink)] transition-all hover:scale-105"
+          className="flex h-10 w-10 items-center justify-center rounded-2xl clay-btn clay-btn-secondary text-[var(--ns-ink)]"
           aria-label={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
           title={`Switch to ${effectiveDark ? 'light' : 'dark'} mode`}
         >
-          {effectiveDark ? <Sun size={16} /> : <Moon size={16} />}
+          <span key={String(effectiveDark)} className="ns-theme-glyph">
+            {effectiveDark ? <Sun size={16} /> : <Moon size={16} />}
+          </span>
         </button>
       </header>
 
@@ -198,7 +200,7 @@ export default function Login() {
 
               {/* Card Header */}
               <div className="text-center pb-6">
-                <div className="mx-auto mb-3 h-13 w-13 rounded-2xl glass p-1 border border-[var(--ns-glass-line)] shadow-xs flex items-center justify-center">
+                <div className="ns-brand-seal mx-auto mb-5 flex items-center justify-center">
                   <img src={logo} alt={villaName} className="h-full w-full object-cover rounded-xl" />
                 </div>
                 <h2 className="ns-login-heading mt-1 tracking-tight" style={{ color: 'var(--ns-ink)' }}>
