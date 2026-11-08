@@ -152,6 +152,8 @@ html[data-theme="dark"], html.dark {
 }
 
 .ns-ambient { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(135deg, color-mix(in srgb, var(--ns-bg) 93%, #9fc6dd), var(--ns-bg) 65%); }
+.ns-ambient__watermark { position: absolute; top: 50%; left: 50%; width: min(88vmin, 860px); aspect-ratio: 1; object-fit: contain; transform: translate(-50%, -50%); opacity: .14; user-select: none; }
+html[data-theme="dark"] .ns-ambient__watermark, html.dark .ns-ambient__watermark { opacity: .14; }
 
 .glass, .glass-strong, .glass-subtle, .glass-dark, .glass-warm,
 .ns-card, .ns-card-soft, .ns-glass-bar, .ns-glass-bar-soft, .clay-card {
