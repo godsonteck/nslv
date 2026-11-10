@@ -34,11 +34,23 @@ No separate backend server needed. The API runs as Vercel serverless functions.
 
 > **Updating an existing database.** Every new migration must be applied before
 > the matching deployment goes live. Run `npm run db:migrate:prod` again (with the
-> production `DATABASE_URL`) whenever migrations are added. The Events module in
-> particular requires `20260823200000_change_event_pricing_from_hour_to_day`,
-> which adds `event_spaces.price_per_day`. Without it, the API answers
-> `503 DATABASE_SCHEMA_OUTDATED` and the Venues page cannot list anything.
-> Check what is pending with `npx prisma migrate status --schema=packages/server/prisma/schema.prisma`.
+> production `DATABASE_URL`) whenever migrations are added. Check what is pending
+> with `npx prisma migrate status --schema=packages/server/prisma/schema.prisma`.
+>
+> The Events/Venues module also repairs one additive drift by itself: if
+> `event_spaces.price_per_day` is missing, the API adds the column and copies the
+> legacy `price_per_hour` value on first use. It never drops a column or deletes
+> data, so the Venues page stays online when a deployment reaches production
+> before the migration. This does not update Prisma's migration history. If the
+> API repaired the column before you ran the migration, reconcile it with:
+>
+> ```bash
+> npx prisma migrate resolve --applied 20260823200000_change_event_pricing_from_hour_to_day
+> ```
+>
+> That marks the migration as applied and keeps the legacy `price_per_hour`
+> column (harmless). After confirming the copied rates, you may drop that column
+> manually if you want the database to match `schema.prisma` exactly.
 
 ---
 

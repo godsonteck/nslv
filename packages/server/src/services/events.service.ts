@@ -2,6 +2,7 @@
 // Event spaces and event bookings (birthdays, weddings, corporate, private parties).
 
 import { prisma } from '../config';
+import { ensureEventSpacePricingSchema } from '../config/schema-repair';
 import { EventBookingStatus } from '@prisma/client';
 
 const assertEmptyTitle = (title: string) => {
@@ -57,7 +58,8 @@ export class EventsService {
   // Event spaces
   // ──────────────────────────────────────────
 
-  static listSpaces() {
+  static async listSpaces() {
+    await ensureEventSpacePricingSchema();
     return prisma.eventSpace.findMany({
       orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
       include: { _count: { select: { bookings: true } } },
@@ -65,6 +67,7 @@ export class EventsService {
   }
 
   static async createSpace(data: EventSpaceDTO) {
+    await ensureEventSpacePricingSchema();
     if (!data.name?.trim()) throw new Error('Event space name is required.');
     const capacity = Number.isInteger(data.capacity) ? Number(data.capacity) : 0;
     const pricePerDay = assertMoney(data.pricePerDay, 'Price per day');
@@ -82,6 +85,7 @@ export class EventsService {
   }
 
   static async updateSpace(id: string, data: Partial<EventSpaceDTO>) {
+    await ensureEventSpacePricingSchema();
     const existing = await prisma.eventSpace.findUnique({ where: { id } });
     if (!existing) throw new Error('Event space not found.');
     return prisma.eventSpace.update({
@@ -99,6 +103,7 @@ export class EventsService {
   }
 
   static async deleteSpace(id: string) {
+    await ensureEventSpacePricingSchema();
     const existing = await prisma.eventSpace.findUnique({ where: { id } });
     if (!existing) throw new Error('Event space not found.');
     await prisma.eventSpace.delete({ where: { id } });
@@ -109,7 +114,8 @@ export class EventsService {
   // Event bookings
   // ──────────────────────────────────────────
 
-  static listBookings(from?: string, to?: string) {
+  static async listBookings(from?: string, to?: string) {
+    await ensureEventSpacePricingSchema();
     const where: {
       startAt?: { gte?: Date; lte?: Date };
       status?: { not: EventBookingStatus };
@@ -123,11 +129,13 @@ export class EventsService {
     });
   }
 
-  static getBooking(id: string) {
+  static async getBooking(id: string) {
+    await ensureEventSpacePricingSchema();
     return prisma.eventBooking.findUnique({ where: { id }, include: { eventSpace: true } });
   }
 
   static async createBooking(data: EventBookingDTO, userId?: string) {
+    await ensureEventSpacePricingSchema();
     assertEmptyTitle(data.title);
     const startAt = new Date(data.startAt);
     const endAt = new Date(data.endAt);
@@ -156,6 +164,7 @@ export class EventsService {
   }
 
   static async updateBooking(id: string, data: Partial<EventBookingDTO>) {
+    await ensureEventSpacePricingSchema();
     const existing = await prisma.eventBooking.findUnique({ where: { id } });
     if (!existing) throw new Error('Event not found.');
 
@@ -190,6 +199,7 @@ export class EventsService {
   }
 
   static async cancelBooking(id: string) {
+    await ensureEventSpacePricingSchema();
     const existing = await prisma.eventBooking.findUnique({ where: { id } });
     if (!existing) throw new Error('Event not found.');
     return prisma.eventBooking.update({
@@ -222,6 +232,7 @@ export class EventsService {
 
   /** Calculate total price based on event space pricePerDay, booking duration, and guest count. */
   static async calculateBookingPrice(eventSpaceId: string, startAt: Date, endAt: Date, guestCount: number = 0): Promise<{ success: true; data: { pricePerDay: number; totalDays: number; guestCount: number; totalPrice: number } }> {
+    await ensureEventSpacePricingSchema();
     const space = await prisma.eventSpace.findUnique({ where: { id: eventSpaceId } });
     if (!space || !space.pricePerDay) {
       return { success: true, data: { pricePerDay: 0, totalDays: 0, guestCount: 0, totalPrice: 0 } };
