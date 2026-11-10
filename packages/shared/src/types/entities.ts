@@ -373,7 +373,7 @@ export interface EventSpace {
   description: string | null;
   location: string | null;
   capacity: number;
-  pricePerHour: number;
+  pricePerDay: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

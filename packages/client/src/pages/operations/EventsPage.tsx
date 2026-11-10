@@ -20,6 +20,7 @@ import {
   UserCheck,
   CheckCircle2,
   Search,
+  AlertCircle,
 } from 'lucide-react';
 import {
   Button,
@@ -33,7 +34,7 @@ import {
 } from '../../components/ui';
 import { eventsApi, EventBookingRecord, EventSpaceRecord } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { PERMISSIONS } from '@nslv/shared';
+import { PERMISSIONS, formatCurrency } from '@nslv/shared';
 
 const EVENT_STATUSES = ['PLANNED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 
@@ -41,6 +42,8 @@ const toLocalInput = (iso: string) => new Date(iso).toISOString().slice(0, 16);
 
 export const EventsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+  const [spacesError, setSpacesError] = useState<string | null>(null);
   const [events, setEvents] = useState<EventBookingRecord[]>([]);
   const [spaces, setSpaces] = useState<EventSpaceRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,15 +75,32 @@ export const EventsPage: React.FC = () => {
   const [spaceName, setSpaceName] = useState('');
   const [spaceLocation, setSpaceLocation] = useState('');
   const [spaceCapacity, setSpaceCapacity] = useState('');
+  const [spacePrice, setSpacePrice] = useState('');
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [eventsRes, spacesRes] = await Promise.all([eventsApi.list(), eventsApi.spaces()]);
-      setEvents(eventsRes);
-      setSpaces(spacesRes);
-    } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to load events.');
+      // Load independently: a failing venue query must not hide event bookings
+      // that were fetched successfully (and vice versa).
+      const [eventsRes, spacesRes] = await Promise.allSettled([eventsApi.list(), eventsApi.spaces()]);
+
+      if (eventsRes.status === 'fulfilled') {
+        setEvents(eventsRes.value);
+        setEventsError(null);
+      } else {
+        const message = eventsRes.reason?.message ?? 'Failed to load events.';
+        setEventsError(message);
+        showToast('error', message);
+      }
+
+      if (spacesRes.status === 'fulfilled') {
+        setSpaces(spacesRes.value);
+        setSpacesError(null);
+      } else {
+        const message = spacesRes.reason?.message ?? 'Failed to load venues.';
+        setSpacesError(message);
+        showToast('error', message);
+      }
     } finally {
       setLoading(false);
     }
@@ -191,12 +211,14 @@ export const EventsPage: React.FC = () => {
         name: spaceName.trim(),
         location: spaceLocation.trim() || undefined,
         capacity: Number(spaceCapacity) || 0,
+        pricePerDay: Number(spacePrice) || 0,
       });
       showToast('success', 'Event space added.');
       setSpaceModalOpen(false);
       setSpaceName('');
       setSpaceLocation('');
       setSpaceCapacity('');
+      setSpacePrice('');
       await fetchAll();
     } catch (err: any) {
       showToast('error', err?.message ?? 'Failed to add event space.');
@@ -357,12 +379,14 @@ export const EventsPage: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by title, organizer, or venue…"
+                  aria-label="Search events"
                   className="ns-input h-9 pl-8 pr-3 text-xs glass-input border-[var(--ns-glass-line)] w-56"
                 />
               </div>
               <SelectInput
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filter events by status"
                 className="w-40 text-xs"
               >
                 <option value="">All Statuses</option>
@@ -378,6 +402,18 @@ export const EventsPage: React.FC = () => {
 
           {loading ? (
             <div className="p-12"><LoadingState /></div>
+          ) : eventsError ? (
+            <div className="p-12 text-center">
+              <AlertCircle size={22} className="mx-auto mb-3 text-[var(--ns-danger)]" />
+              <h3 className="text-sm font-black text-[var(--ns-ink)]">Could not load events</h3>
+              <p className="mx-auto mt-1.5 max-w-lg text-xs font-semibold text-[var(--ns-muted)]">{eventsError}</p>
+              <p className="mx-auto mt-2 max-w-lg text-[12px] text-[var(--ns-muted)]">
+                The events table may be missing from the database. Apply the pending Prisma migrations, then retry.
+              </p>
+              <Button size="sm" className="mt-4" onClick={() => void fetchAll()}>
+                <RefreshCw size={14} /> Retry
+              </Button>
+            </div>
           ) : filtered.length === 0 ? (
             <div className="p-16 text-center text-xs text-[var(--ns-muted)]">
               {events.length === 0 ? 'No events booked yet.' : 'No events match your search.'}
@@ -497,7 +533,7 @@ export const EventsPage: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  {canCreate && (
+                  {canEdit && (
                     <button
                       onClick={() => handleDeleteSpace(sp)}
                       className="text-[var(--ns-muted)] hover:text-[var(--ns-danger)] p-1"
@@ -514,13 +550,25 @@ export const EventsPage: React.FC = () => {
                     {sp.capacity > 0 ? `${sp.capacity} Guests` : 'Flexible'}
                   </span>
                 </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[var(--ns-muted)]">Daily Rate:</span>
+                  <span className="font-mono font-bold text-[var(--ns-teal)]">
+                    {sp.pricePerDay ? formatCurrency(Number(sp.pricePerDay)) : 'Free / Included'}
+                  </span>
+                </div>
               </div>
             ))}
-            {spaces.length === 0 && (
+            {spacesError ? (
+              <div className="col-span-3 py-10 text-center">
+                <AlertCircle size={20} className="mx-auto mb-2 text-[var(--ns-danger)]" />
+                <p className="text-xs font-bold text-[var(--ns-ink)]">Could not load venues</p>
+                <p className="mx-auto mt-1 max-w-md text-[12px] text-[var(--ns-muted)]">{spacesError}</p>
+              </div>
+            ) : spaces.length === 0 ? (
               <div className="col-span-3 py-12 text-center text-xs text-[var(--ns-muted)]">
                 No event spaces configured yet. Click "Add Venue Space" above to configure areas.
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}
@@ -660,6 +708,17 @@ export const EventsPage: React.FC = () => {
               value={spaceCapacity}
               onChange={(e) => setSpaceCapacity(e.target.value)}
               placeholder="e.g. 150"
+            />
+          </FormField>
+
+          <FormField label="Daily Rate (GHS)">
+            <TextInput
+              type="number"
+              min="0"
+              step="0.01"
+              value={spacePrice}
+              onChange={(e) => setSpacePrice(e.target.value)}
+              placeholder="e.g. 1500.00"
             />
           </FormField>
 

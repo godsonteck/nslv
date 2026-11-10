@@ -306,6 +306,7 @@ export function DataTable<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
+                  scope="col"
                   style={col.width ? { width: col.width } : undefined}
                   className={`px-4 py-3 font-bold text-[12px] uppercase tracking-wider ${
                     col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'

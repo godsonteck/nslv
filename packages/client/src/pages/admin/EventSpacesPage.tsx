@@ -5,16 +5,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { eventsApi, EventSpaceRecord } from '../../services/apiService';
-import { Building2, Plus, RefreshCw, Pencil, Trash2 } from 'lucide-react';
+import { Building2, Plus, RefreshCw, Pencil, Trash2, AlertCircle } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, showToast, LoadingState, DataTable } from '../../components/ui';
 import { formatCurrency } from '@nslv/shared';
 
-const emptySpaceForm = { name: '', description: '', location: '', capacity: '', pricePerHour: '' };
+const emptySpaceForm = { name: '', description: '', location: '', capacity: '', pricePerDay: '' };
 
 export const EventSpacesPage: React.FC = () => {
   const [spaces, setSpaces] = useState<EventSpaceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -25,10 +26,13 @@ export const EventSpacesPage: React.FC = () => {
     try {
       if (isInitial) setLoading(true);
       else setRefreshing(true);
+      setLoadError(null);
       const data = await eventsApi.spaces();
       setSpaces(data);
     } catch (err: any) {
-      showToast('error', err?.message ?? 'Failed to load event spaces');
+      const message = err?.message ?? 'Failed to load event spaces';
+      setLoadError(message);
+      showToast('error', message);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -52,7 +56,7 @@ export const EventSpacesPage: React.FC = () => {
       description: space.description || '',
       location: space.location || '',
       capacity: space.capacity != null ? String(space.capacity) : '',
-      pricePerHour: space.pricePerHour != null ? String(space.pricePerHour) : '',
+      pricePerDay: space.pricePerDay != null ? String(space.pricePerDay) : '',
     });
     setModalOpen(true);
   };
@@ -70,7 +74,7 @@ export const EventSpacesPage: React.FC = () => {
         description: form.description || undefined,
         location: form.location || undefined,
         capacity: form.capacity ? Number(form.capacity) : 0,
-        pricePerHour: form.pricePerHour ? Number(form.pricePerHour) : 0,
+        pricePerDay: form.pricePerDay ? Number(form.pricePerDay) : 0,
       };
       if (editing) {
         await eventsApi.updateSpace(editing.id, body);
@@ -124,23 +128,23 @@ export const EventSpacesPage: React.FC = () => {
     },
     {
       key: 'rate',
-      header: 'Rate / Hour',
+      header: 'Rate / Day',
       render: (s: EventSpaceRecord) => (
         <span className="font-mono text-xs font-bold text-[var(--ns-teal)]">
-          {s.pricePerHour ? formatCurrency(Number(s.pricePerHour)) : 'Free / Included'}
+          {s.pricePerDay ? formatCurrency(Number(s.pricePerDay)) : 'Free / Included'}
         </span>
       ),
     },
     {
       key: 'actions',
-      header: '',
+      header: 'Actions',
       align: 'right' as const,
       render: (s: EventSpaceRecord) => (
         <div className="flex items-center justify-end gap-1">
-          <button onClick={() => openEdit(s)} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-teal)]">
+          <button onClick={() => openEdit(s)} aria-label={`Edit ${s.name}`} title={`Edit ${s.name}`} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-teal)]">
             <Pencil size={14} />
           </button>
-          <button onClick={() => handleDelete(s)} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-danger)]">
+          <button onClick={() => handleDelete(s)} aria-label={`Delete ${s.name}`} title={`Delete ${s.name}`} className="p-1.5 glass-subtle ns-glass-hover text-[var(--ns-muted)] hover:text-[var(--ns-danger)]">
             <Trash2 size={14} />
           </button>
         </div>
@@ -158,7 +162,7 @@ export const EventSpacesPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--ns-ink)' }}>Event Spaces Management</h1>
-            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure property event locations, max capacities, and hourly rental rates for bookings.</p>
+            <p className="text-[12px] font-semibold" style={{ color: 'var(--ns-muted)' }}>Configure property event locations, max capacities, and daily rental rates for bookings.</p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -171,7 +175,21 @@ export const EventSpacesPage: React.FC = () => {
         </div>
       </div>
 
-      <DataTable columns={columns} data={spaces} loading={refreshing} keyFn={(s) => s.id} />
+      {loadError ? (
+        <div className="glass rounded-2xl border border-[var(--ns-danger)]/40 p-8 text-center">
+          <AlertCircle size={22} className="mx-auto mb-3 text-[var(--ns-danger)]" />
+          <h2 className="text-sm font-black text-[var(--ns-ink)]">Could not load venues</h2>
+          <p className="mx-auto mt-1.5 max-w-lg text-xs font-semibold text-[var(--ns-muted)]">{loadError}</p>
+          <p className="mx-auto mt-2 max-w-lg text-[12px] text-[var(--ns-muted)]">
+            The venue table may be missing from the database. Apply the pending Prisma migrations, then retry.
+          </p>
+          <Button size="sm" className="mt-4" onClick={() => void loadSpaces()}>
+            <RefreshCw size={14} /> Retry
+          </Button>
+        </div>
+      ) : (
+        <DataTable columns={columns} data={spaces} loading={refreshing} keyFn={(s) => s.id} />
+      )}
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Event Space' : 'New Event Space'}>
         <form onSubmit={handleSave} className="space-y-4">
@@ -185,8 +203,8 @@ export const EventSpacesPage: React.FC = () => {
             <FormField label="Max Capacity (Guests)">
               <TextInput type="number" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} placeholder="e.g. 150" />
             </FormField>
-            <FormField label="Hourly Rate (GHS)">
-              <TextInput type="number" step="0.01" value={form.pricePerHour} onChange={(e) => setForm({ ...form, pricePerHour: e.target.value })} placeholder="0.00" />
+            <FormField label="Daily Rate (GHS)">
+              <TextInput type="number" step="0.01" min="0" value={form.pricePerDay} onChange={(e) => setForm({ ...form, pricePerDay: e.target.value })} placeholder="0.00" />
             </FormField>
           </div>
           <FormField label="Description">

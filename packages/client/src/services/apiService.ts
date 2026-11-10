@@ -973,7 +973,7 @@ export interface EventSpaceRecord {
   description: string | null;
   location: string | null;
   capacity: number;
-  pricePerHour: number;
+  pricePerDay: number;
   isActive: boolean;
   _count?: { bookings: number };
   createdAt: string;
@@ -1029,8 +1029,8 @@ export const eventsApi = {
 
   deleteSpace: (id: string): Promise<any> => apiFetch<any>(`/events/spaces/${id}`, { method: 'DELETE' }, token()),
 
-  calculateBookingPrice: (eventSpaceId: string, startAt: string, endAt: string): Promise<{ success: true; data: { pricePerDay: number; totalDays: number; totalPrice: number } }> =>
-    apiFetch<{ success: true; data: { pricePerDay: number; totalDays: number; totalPrice: number } }>('/events/calculate-price', { method: 'POST', body: JSON.stringify({ eventSpaceId, startAt, endAt }) }, token()),
+  calculateBookingPrice: (eventSpaceId: string, startAt: string, endAt: string): Promise<{ pricePerDay: number; totalDays: number; totalPrice: number }> =>
+    apiFetch<{ pricePerDay: number; totalDays: number; totalPrice: number }>(`/events/${eventSpaceId}/calculate-price`, { method: 'POST', body: JSON.stringify({ startAt, endAt }) }, token()),
 };
 
 // ──────────────────────────────────────────

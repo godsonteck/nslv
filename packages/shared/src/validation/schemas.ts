@@ -449,7 +449,7 @@ export const createEventSpaceSchema = z.object({
   description: optionalString,
   location: z.string().max(100).trim().optional(),
   capacity: positiveInt.optional(),
-  pricePerHour: nonNegativeNumber.optional(),
+  pricePerDay: nonNegativeNumber.optional(),
   isActive: z.boolean().optional(),
 });
 export const updateEventSpaceSchema = createEventSpaceSchema.partial();

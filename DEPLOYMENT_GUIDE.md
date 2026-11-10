@@ -32,6 +32,14 @@ No separate backend server needed. The API runs as Vercel serverless functions.
    npm run db:migrate:prod && npm run db:seed
    ```
 
+> **Updating an existing database.** Every new migration must be applied before
+> the matching deployment goes live. Run `npm run db:migrate:prod` again (with the
+> production `DATABASE_URL`) whenever migrations are added. The Events module in
+> particular requires `20260823200000_change_event_pricing_from_hour_to_day`,
+> which adds `event_spaces.price_per_day`. Without it, the API answers
+> `503 DATABASE_SCHEMA_OUTDATED` and the Venues page cannot list anything.
+> Check what is pending with `npx prisma migrate status --schema=packages/server/prisma/schema.prisma`.
+
 ---
 
 ## Step 2: Deploy to Vercel
