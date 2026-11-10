@@ -355,7 +355,7 @@ export const EventsPage: React.FC = () => {
           <Building2 size={14} />
           <span>Villa Function Spaces</span>
           <span className="rounded-full ns-glass-band px-2 py-0.5 text-[12px]">
-            {spaces.length}
+            {spacesError ? '—' : spaces.length}
           </span>
         </button>
       </div>
