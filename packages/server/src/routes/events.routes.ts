@@ -26,7 +26,7 @@ router.get('/spaces', requirePermission('events.view'), async (_req, res, next) 
   }
 });
 
-router.post('/spaces', requirePermission('events.edit'), async (req, res, next) => {
+router.post('/spaces', requirePermission('events.edit'), validateBody(createEventSpaceSchema), async (req, res, next) => {
   try {
     res.status(201).json({ success: true, data: await EventsService.createSpace(req.body) });
   } catch (error) {
@@ -34,7 +34,7 @@ router.post('/spaces', requirePermission('events.edit'), async (req, res, next) 
   }
 });
 
-router.patch('/spaces/:id', requirePermission('events.edit'), async (req, res, next) => {
+router.patch('/spaces/:id', requirePermission('events.edit'), validateBody(updateEventSpaceSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     res.json({ success: true, data: await EventsService.updateSpace(id, req.body) });
@@ -77,7 +77,7 @@ router.get('/:id', requirePermission('events.view'), async (req, res, next) => {
   }
 });
 
-router.post('/', requirePermission('events.create'), async (req, res, next) => {
+router.post('/', requirePermission('events.create'), validateBody(createEventBookingSchema), async (req, res, next) => {
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     res.status(201).json({ success: true, data: await EventsService.createBooking(req.body, userId) });
@@ -86,7 +86,7 @@ router.post('/', requirePermission('events.create'), async (req, res, next) => {
   }
 });
 
-router.patch('/:id', requirePermission('events.edit'), async (req, res, next) => {
+router.patch('/:id', requirePermission('events.edit'), validateBody(updateEventBookingSchema), async (req, res, next) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     res.json({ success: true, data: await EventsService.updateBooking(id, req.body) });

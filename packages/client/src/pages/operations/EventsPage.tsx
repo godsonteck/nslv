@@ -283,25 +283,25 @@ export const EventsPage: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSpaceModalOpen(true)}
+              className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold"
+            >
+              <Building2 size={12} /> Add Venue
+            </Button>
+          )}
           {canCreate && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSpaceModalOpen(true)}
-                className="gap-1.5 border-[var(--ns-glass-line)] glass ns-glass-hover text-[var(--ns-ink)] shadow-xs text-[12px] font-semibold"
-              >
-                <Building2 size={12} /> Add Venue
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={openCreate}
-                className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold ns-glass-hover"
-              >
-                <Plus size={12} /> Book Event
-              </Button>
-            </>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={openCreate}
+              className="gap-1.5 glass text-[var(--ns-teal)] shadow-md text-[12px] font-bold ns-glass-hover"
+            >
+              <Plus size={12} /> Book Event
+            </Button>
           )}
         </div>
       </div>

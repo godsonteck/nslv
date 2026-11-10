@@ -448,7 +448,7 @@ export const createEventSpaceSchema = z.object({
   name: z.string().min(1, 'Space name is required').max(100).trim(),
   description: optionalString,
   location: z.string().max(100).trim().optional(),
-  capacity: positiveInt.optional(),
+  capacity: wholeNumber.optional(),
   pricePerDay: nonNegativeNumber.optional(),
   isActive: z.boolean().optional(),
 });
@@ -457,14 +457,14 @@ export const updateEventSpaceSchema = createEventSpaceSchema.partial();
 export const createEventBookingSchema = z.object({
   title: z.string().min(1, 'Event title is required').max(120).trim(),
   description: optionalString,
-  eventSpaceId: uuidSchema.nullable().optional(),
+  eventSpaceId: uuidSchema.nullable().optional().or(z.literal('')),
   startAt: isoDateString,
   endAt: isoDateString,
   status: z.enum(['PLANNED', 'CONFIRMED', 'COMPLETED', 'CANCELLED']).optional(),
   guestCount: wholeNumber.optional(),
   contactName: z.string().max(100).trim().optional(),
   contactPhone: z.string().max(30).optional(),
-  contactEmail: emailSchema.optional().nullable(),
+  contactEmail: emailSchema.optional().nullable().or(z.literal('')),
   notes: optionalString,
 });
 export const updateEventBookingSchema = createEventBookingSchema.partial();

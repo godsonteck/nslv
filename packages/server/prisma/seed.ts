@@ -552,12 +552,47 @@ async function main() {
 
   console.log('🎉 Seeding event spaces...');
   const eventSpaces = [
-    { name: 'Poolside Deck', location: 'Ground floor by the pool', capacity: 80 },
-    { name: 'Restaurant Terrace', location: 'Open-air restaurant level', capacity: 50 },
-    { name: 'Garden Lawn', location: 'Front garden', capacity: 120 },
-    { name: 'Conference Room', location: 'Main building, first floor', capacity: 30 },
+    {
+      name: 'Poolside Deck',
+      description: 'Outdoor deck beside the luxury infinity pool, ideal for cocktail parties, evening soirees, and intimate receptions.',
+      location: 'Ground floor by the pool',
+      capacity: 80,
+      pricePerDay: 2500,
+    },
+    {
+      name: 'Restaurant Terrace',
+      description: 'Elevated open-air terrace overlooking the estate, perfect for private dinners, luncheons, and banquets.',
+      location: 'Open-air restaurant level',
+      capacity: 50,
+      pricePerDay: 1800,
+    },
+    {
+      name: 'Garden Lawn',
+      description: 'Sprawling landscaped lawn suitable for grand wedding ceremonies, banquets, and private galas.',
+      location: 'Front garden',
+      capacity: 120,
+      pricePerDay: 3500,
+    },
+    {
+      name: 'Conference Room',
+      description: 'Fully air-conditioned executive meeting suite equipped for corporate gatherings, workshops, and board meetings.',
+      location: 'Main building, first floor',
+      capacity: 30,
+      pricePerDay: 1200,
+    },
   ];
-  await prisma.eventSpace.createMany({ data: eventSpaces, skipDuplicates: true });
+  for (const sp of eventSpaces) {
+    await prisma.eventSpace.upsert({
+      where: { name: sp.name },
+      update: {
+        description: sp.description,
+        location: sp.location,
+        capacity: sp.capacity,
+        pricePerDay: sp.pricePerDay,
+      },
+      create: sp,
+    });
+  }
 
   // 7. Create administrator account
   console.log('👤 Creating initial administrator...');
@@ -602,6 +637,64 @@ async function main() {
     update: {},
     create: { userId: adminUser.id, roleId: adminRole.id },
   });
+
+  const bookingCount = await prisma.eventBooking.count();
+  if (bookingCount === 0) {
+    console.log('📅 Seeding initial event bookings...');
+    const lawn = await prisma.eventSpace.findUnique({ where: { name: 'Garden Lawn' } });
+    const pool = await prisma.eventSpace.findUnique({ where: { name: 'Poolside Deck' } });
+    const conf = await prisma.eventSpace.findUnique({ where: { name: 'Conference Room' } });
+
+    const now = new Date();
+    const addDays = (d: number, h: number = 0) => new Date(now.getTime() + d * 86400000 + h * 3600000);
+
+    await prisma.eventBooking.createMany({
+      data: [
+        {
+          title: 'Mensah Wedding Reception & Dinner',
+          description: 'Outdoor luxury wedding dinner with cocktail bar and acoustic stage.',
+          eventSpaceId: lawn?.id ?? null,
+          startAt: addDays(4, 14),
+          endAt: addDays(4, 22),
+          status: 'CONFIRMED',
+          guestCount: 95,
+          contactName: 'Kofi Mensah',
+          contactPhone: '+233 24 456 7890',
+          contactEmail: 'kofi.mensah@example.com',
+          notes: 'Buffet setup, live band area, ambient fairy lights.',
+          createdById: adminUser.id,
+        },
+        {
+          title: 'Ecobank Ghana Executive Strategy Retreat',
+          description: 'Quarterly leadership strategy session and presentations.',
+          eventSpaceId: conf?.id ?? null,
+          startAt: addDays(8, 9),
+          endAt: addDays(8, 17),
+          status: 'CONFIRMED',
+          guestCount: 22,
+          contactName: 'Ama Serwaa',
+          contactPhone: '+233 20 876 5432',
+          contactEmail: 'ama.serwaa@example.com',
+          notes: 'High-speed projector, whiteboards, morning and afternoon tea break.',
+          createdById: adminUser.id,
+        },
+        {
+          title: 'Sunset Cocktails & Jazz Soiree',
+          description: 'Private poolside cocktail evening with saxophonist.',
+          eventSpaceId: pool?.id ?? null,
+          startAt: addDays(12, 17),
+          endAt: addDays(12, 23),
+          status: 'PLANNED',
+          guestCount: 45,
+          contactName: 'Elikem Dotse',
+          contactPhone: '+233 50 123 4567',
+          contactEmail: 'elikem.dotse@example.com',
+          notes: 'Canapés service, mocktails and premium wine selection.',
+          createdById: adminUser.id,
+        },
+      ],
+    });
+  }
 
   console.log('✅ Database seed completed successfully!');
   console.log(`Administrator account ready: ${adminUser.email}`);

@@ -83,6 +83,15 @@ async function addPricingColumn(shape: TableShape): Promise<void> {
            WHERE "${PRICING_COLUMN}" = 0 AND "${LEGACY_PRICING_COLUMN}" <> 0`,
         );
       }
+      await tx.$executeRawUnsafe(
+        `DO $$ BEGIN
+           IF NOT EXISTS (
+             SELECT 1 FROM pg_constraint WHERE conname = 'event_spaces_non_negative_price'
+           ) THEN
+             ALTER TABLE "${EVENT_SPACES_TABLE}" ADD CONSTRAINT "event_spaces_non_negative_price" CHECK ("${PRICING_COLUMN}" >= 0);
+           END IF;
+         END $$;`,
+      );
     },
     { timeout: 15_000 },
   );

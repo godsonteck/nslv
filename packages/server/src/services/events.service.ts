@@ -216,8 +216,12 @@ export class EventsService {
     return { deleted: true };
   }
 
-  /** Fail fast when a booked event space already has an overlapping booking. */
+  /** Fail fast when a booked event space does not exist or already has an overlapping booking. */
   private static async assertSpaceAvailable(spaceId: string, startAt: Date, endAt: Date, excludeId?: string) {
+    const space = await prisma.eventSpace.findUnique({ where: { id: spaceId } });
+    if (!space) throw new Error('Event space not found.');
+    if (!space.isActive) throw new Error(`${space.name} is currently inactive and cannot be booked.`);
+
     const overlap = await prisma.eventBooking.findFirst({
       where: {
         eventSpaceId: spaceId,
@@ -227,7 +231,7 @@ export class EventsService {
         ...(excludeId ? { id: { not: excludeId } } : {}),
       },
     });
-    if (overlap) throw new Error(`${overlap.title} is already booked during that time for this space.`);
+    if (overlap) throw new Error(`${space.name} is already booked for "${overlap.title}" during that time.`);
   }
 
   /** Calculate total price based on event space pricePerDay, booking duration, and guest count. */
