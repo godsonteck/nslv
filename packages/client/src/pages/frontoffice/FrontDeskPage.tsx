@@ -211,6 +211,27 @@ export const FrontDeskPage: React.FC = () => {
     return { due: Math.max(0, debt - applied), applied };
   })();
 
+  /** Group credit that cannot be absorbed by the other rooms and therefore
+   *  has to be refunded before the stay can be closed. */
+  const checkoutResidualCredit = (() => {
+    if (action?.type !== 'out') return 0;
+    const row = action.row;
+    const fee = chargeLateCheckoutFee && activeLateInfo ? activeLateInfo.fee : 0;
+    if (row.groupCreditHeld !== undefined && row.groupCreditHeld !== null) {
+      const held = Number(row.groupCreditHeld || 0);
+      const transferable = Number(row.groupCreditTransferable || 0);
+      return Math.max(0, held - fee - transferable);
+    }
+    const folio =
+      (row.reservation?.folios || []).find((x: any) => x.status === 'OPEN') ??
+      (row.reservation?.folios || [])[0] ??
+      null;
+    const ledger = (folio?.items || [])
+      .filter((item: any) => !item.voidedAt)
+      .reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0);
+    return Math.max(0, -(ledger + fee));
+  })();
+
   /** Itemised folio breakdown for the checkout modal.
    *  Charges (positive items) and payments-applied (negative items) are split
    *  so staff see exactly what the payment covers before confirming. */
@@ -783,6 +804,21 @@ export const FrontDeskPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Hard block: residual guest credit must be refunded before checkout */}
+              {checkoutResidualCredit > 0.005 && (
+                <div className="rounded-xl border-2 border-[var(--ns-warning)] glass-subtle p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-black text-[var(--ns-warning)] uppercase tracking-wide">
+                    <AlertTriangle size={15} className="shrink-0" />
+                    <span>Guest Credit — Refund Required Before Check-Out</span>
+                  </div>
+                  <p className="text-[12px] text-[var(--ns-warning)] leading-relaxed">
+                    This room holds <strong>GHS {checkoutResidualCredit.toFixed(2)}</strong> in credit that the other
+                    rooms in the booking cannot use. Refund the excess (or post it against another folio) before
+                    completing check-out.
+                  </p>
+                </div>
+              )}
+
               <label className="flex items-center gap-2 text-xs font-bold text-[var(--ns-ink)] cursor-pointer">
                 <input
                   type="checkbox"
@@ -811,7 +847,7 @@ export const FrontDeskPage: React.FC = () => {
             <Button
               type="submit"
               loading={busy}
-              disabled={splitOpen ? !tendersCoverTotal(tenders, checkoutTotal) : false}
+              disabled={checkoutResidualCredit > 0.005 || (splitOpen ? !tendersCoverTotal(tenders, checkoutTotal) : false)}
               className="glass text-[var(--ns-teal)] ns-glass-hover"
             >
               {action?.type === 'in' ? 'Confirm Check-In' : 'Settle & Complete Check-Out'}

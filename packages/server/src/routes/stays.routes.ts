@@ -4,7 +4,7 @@
 
 import { Router } from 'express';
 import { StayService } from '../services/stays.service';
-import { authenticate, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, requirePermission, requireManagerOrAdmin, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { checkInSchema, checkOutSchema } from '@nslv/shared';
 
@@ -63,6 +63,22 @@ router.post('/check-out', requirePermission('checkout.perform'), validateBody(ch
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await StayService.checkOutGuest({ ...req.body, checkedOutBy: userId });
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Undo a check-out (reopen the stay, void its settlement, restore the room).
+// Restricted to managers/admins because it reverses money movement.
+router.post('/undo-checkout', requirePermission('checkout.perform'), requireManagerOrAdmin, async (req, res, next) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user.userId;
+    const { reservationId, reason } = req.body || {};
+    if (!reservationId || typeof reservationId !== 'string') {
+      return res.status(422).json({ success: false, error: { code: 'RESERVATION_REQUIRED', message: 'A reservation is required.' } });
+    }
+    const data = await StayService.undoCheckOut({ reservationId, reason, undoneBy: userId });
     res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);

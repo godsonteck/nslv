@@ -8,6 +8,8 @@ import { AuditService } from './audit.service';
 import { AppError } from '../middleware/error';
 import { randomUUID } from 'node:crypto';
 import { PaymentService } from './payments.service';
+import { CashRegisterService } from './cash-register.service';
+import { DailyCloseService, lockBusinessDay } from './daily-close.service';
 import { FolioService } from './folios.service';
 import { NotificationService } from './notification.service';
 import { PERMISSIONS } from '@nslv/shared';
@@ -57,6 +59,12 @@ export interface CheckInDTO {
   idDocumentType?: IdDocumentType | string;
   idDocumentNumber?: string;
   notes?: string;
+}
+
+export interface UndoCheckOutDTO {
+  reservationId: string;
+  undoneBy: string;
+  reason?: string;
 }
 
 export interface CheckOutDTO {
@@ -250,6 +258,8 @@ export class StayService {
         groupCheckoutDue: groupSettlement?.due,
         groupCreditApplied: groupSettlement?.creditApplied,
         groupCreditAvailable: groupSettlement?.siblingCreditAvailable,
+        groupCreditHeld: groupSettlement?.creditHeld,
+        groupCreditTransferable: groupSettlement?.creditTransferable,
         checkedInByUser: staffById.get(stay.checkedInBy) || { id: stay.checkedInBy, name: 'Former staff account' },
       };
     });
@@ -984,29 +994,46 @@ export class StayService {
     currentReservationId: string,
     participants: GroupCreditFolio[],
     bookingId: string,
-  ): { due: number; creditApplied: number; siblingCreditAvailable: number } {
+  ): {
+    due: number;
+    creditApplied: number;
+    siblingCreditAvailable: number;
+    creditHeld: number;
+    creditTransferable: number;
+  } {
     const EPSILON = 0.005;
+    const empty = { due: 0, creditApplied: 0, siblingCreditAvailable: 0, creditHeld: 0, creditTransferable: 0 };
     const current = participants.find((p) => p.reservationId === currentReservationId);
-    if (!current) return { due: 0, creditApplied: 0, siblingCreditAvailable: 0 };
+    if (!current) return empty;
 
-    if (current.balance <= EPSILON) {
-      // Credit (or settled) room: checkout itself will not collect anything.
-      return { due: 0, creditApplied: 0, siblingCreditAvailable: 0 };
-    }
+    const siblings = participants.filter((p) => p.reservationId !== currentReservationId);
 
-    const siblingCreditAvailable = participants
-      .filter((p) => p.reservationId !== currentReservationId)
-      .reduce(
+    if (current.balance > EPSILON) {
+      const siblingCreditAvailable = siblings.reduce(
         (sum, sibling) =>
           sum + Math.min(Math.max(0, -sibling.balance), this.groupFundingTotal(sibling.payments, bookingId)),
         0,
       );
-    const creditApplied = Math.min(current.balance, siblingCreditAvailable);
-    return {
-      due: Math.max(0, current.balance - creditApplied),
-      creditApplied,
-      siblingCreditAvailable,
-    };
+      const creditApplied = Math.min(current.balance, siblingCreditAvailable);
+      return {
+        due: Math.max(0, current.balance - creditApplied),
+        creditApplied,
+        siblingCreditAvailable,
+        creditHeld: 0,
+        creditTransferable: 0,
+      };
+    }
+
+    // Credit (or settled) room: report how much of the credit can be moved to
+    // rooms that still owe, and how much would be left over for a refund.
+    const creditHeld = current.balance < -EPSILON ? -current.balance : 0;
+    const siblingDebt = siblings.reduce((sum, sibling) => sum + Math.max(0, sibling.balance), 0);
+    const creditTransferable = Math.min(
+      creditHeld,
+      this.groupFundingTotal(current.payments, bookingId),
+      siblingDebt,
+    );
+    return { ...empty, creditHeld, creditTransferable };
   }
 
   /**
@@ -1568,6 +1595,215 @@ export class StayService {
     } catch (error) {
       if ((error as { code?: string }).code === 'P2034' || (error as { code?: string }).code === 'P2002') {
         throw new AppError('The stay changed or was checked out concurrently. Please retry.', 409, 'CHECKOUT_CONFLICT');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Reverse a check-out so the stay can be re-settled.
+   *
+   * This is deliberately limited to the checkout action itself: it voids the
+   * settlement payment(s) collected by that checkout (plus any late-fee charge
+   * posted at checkout), reopens the folio, restores the reservation to
+   * CHECKED_IN and the room to OCCUPIED, and deletes the CheckOut record.
+   *
+   * Group-credit reallocation performed at checkout is intentionally left in
+   * place: it represents the correct allocation of group money to this room,
+   * so re-checking out will simply settle at zero.
+   *
+   * Refunds linked to the checkout settlement block the reversal, and the
+   * business day of the checkout must still be open.
+   */
+  static async undoCheckOut(data: UndoCheckOutDTO) {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const reservation = await tx.reservation.findUnique({
+          where: { id: data.reservationId },
+          include: {
+            guests: { where: { isPrimary: true }, include: { guest: true } },
+            room: { select: { number: true, status: true } },
+            checkOuts: true,
+            folios: { include: { items: true, payments: true } },
+          },
+        });
+
+        if (!reservation) throw new AppError('Reservation not found.', 404, 'RESERVATION_NOT_FOUND');
+        if (reservation.status !== 'CHECKED_OUT') {
+          throw new AppError('Only a checked-out stay can be reopened.', 409, 'STAY_NOT_CHECKED_OUT');
+        }
+
+        const checkOut = reservation.checkOuts[0];
+        if (!checkOut) {
+          throw new AppError('The check-out record for this stay was not found.', 404, 'CHECKOUT_NOT_FOUND');
+        }
+
+        // Reversing money movement is only allowed while the day it was
+        // recorded is still open, so a closed day can never be rewritten.
+        const businessDate = checkOut.actualCheckOut.toISOString().slice(0, 10);
+        await lockBusinessDay(tx, businessDate);
+        await DailyCloseService.assertBusinessDayOpen(businessDate, tx);
+
+        const folio = reservation.folios[0];
+        const voidReason = `Checkout undone${data.reason?.trim() ? `: ${data.reason.trim()}` : ''}`;
+        const now = new Date();
+
+        const settlementPayments = (folio?.payments ?? []).filter(
+          (payment) =>
+            !payment.voidedAt &&
+            ['PAYMENT', 'DEPOSIT'].includes(String(payment.type)) &&
+            Boolean(payment.idempotencyKey?.startsWith(`checkout-payment-${reservation.id}`)),
+        );
+
+        if (settlementPayments.length > 0) {
+          const linkedRefunds = await tx.payment.count({
+            where: {
+              originalPaymentId: { in: settlementPayments.map((payment) => payment.id) },
+              type: 'REFUND',
+              voidedAt: null,
+              status: { in: ['COMPLETED', 'PENDING'] },
+            },
+          });
+          if (linkedRefunds > 0) {
+            throw new AppError(
+              'This check-out has refunds recorded against its settlement. Reverse those refunds before undoing the check-out.',
+              409,
+              'CHECKOUT_HAS_REFUNDS',
+            );
+          }
+        }
+
+        for (const payment of settlementPayments) {
+          await tx.payment.update({
+            where: { id: payment.id },
+            data: { voidedAt: now, voidedBy: data.undoneBy, voidReason },
+          });
+          await tx.folioItem.updateMany({
+            where: {
+              folioId: payment.folioId ?? folio?.id,
+              referenceId: payment.id,
+              referenceType: 'PAYMENT',
+              voidedAt: null,
+            },
+            data: { voidedAt: now, voidedBy: data.undoneBy, voidReason },
+          });
+
+          // Put any cash taken at checkout back into the drawer as a reversing
+          // outflow. Matching the original inflow keeps this safe even when the
+          // checkout used split tenders.
+          if (String(payment.method).toUpperCase() === 'CASH') {
+            const paymentDate = (payment.processedAt ?? checkOut.actualCheckOut).toISOString().slice(0, 10);
+            const register = await tx.cashRegister.findUnique({
+              where: { businessDate: new Date(`${paymentDate}T00:00:00.000Z`) },
+              select: { id: true },
+            });
+            if (register) {
+              const inflow = await tx.cashRegisterEntry.findFirst({
+                where: {
+                  cashRegisterId: register.id,
+                  type: 'INFLOW',
+                  amount: payment.amount,
+                  description: { contains: reservation.id.slice(0, 8).toUpperCase() },
+                },
+                select: { id: true },
+              });
+              if (inflow) {
+                await CashRegisterService.recordCashRefund(
+                  {
+                    businessDate: paymentDate,
+                    amount: Number(payment.amount),
+                    description: `Checkout undone — reversing cash settlement ${payment.id} (${reservation.confirmationNo})`,
+                    reference: reservation.confirmationNo,
+                    processedBy: data.undoneBy,
+                  },
+                  tx,
+                );
+              }
+            }
+          }
+        }
+
+        // Late-checkout charges are posted as CHECKOUT-referenced items during
+        // check-out; they must not survive a reversal.
+        if (folio) {
+          await tx.folioItem.updateMany({
+            where: { folioId: folio.id, referenceType: 'CHECKOUT', voidedAt: null },
+            data: { voidedAt: now, voidedBy: data.undoneBy, voidReason },
+          });
+
+          const ledger = await tx.folioItem.aggregate({
+            where: { folioId: folio.id, voidedAt: null },
+            _sum: { amount: true },
+          });
+          await tx.folio.update({
+            where: { id: folio.id },
+            data: {
+              status: 'OPEN',
+              closedAt: null,
+              balance: new Prisma.Decimal(ledger._sum.amount || 0),
+            },
+          });
+        }
+
+        await tx.checkOut.delete({ where: { id: checkOut.id } });
+
+        await tx.reservation.update({
+          where: { id: reservation.id },
+          data: { status: ReservationStatus.CHECKED_IN },
+        });
+
+        await tx.room.update({
+          where: { id: reservation.roomId },
+          data: { status: RoomStatus.OCCUPIED },
+        });
+
+        await AuditService.logInTransaction(tx, {
+          userId: data.undoneBy,
+          action: 'stay.checkout_undone',
+          resource: 'reservation',
+          resourceId: reservation.id,
+          beforeData: {
+            checkOutId: checkOut.id,
+            status: reservation.status,
+            finalBalance: checkOut.finalBalance.toString(),
+            roomStatus: reservation.room?.status ?? null,
+          },
+          afterData: {
+            status: 'CHECKED_IN',
+            roomStatus: 'OCCUPIED',
+            folioId: folio?.id ?? null,
+            voidedPaymentIds: settlementPayments.map((payment) => payment.id),
+            reason: data.reason?.trim() || null,
+          },
+        });
+
+        const primaryGuest = reservation.guests[0]?.guest;
+        return {
+          reservationId: reservation.id,
+          confirmationNo: reservation.confirmationNo,
+          roomNumber: reservation.room?.number ?? '—',
+          folioId: folio?.id ?? null,
+          guestName: primaryGuest ? `${primaryGuest.firstName} ${primaryGuest.lastName}`.trim() : 'Guest',
+          voidedPaymentIds: settlementPayments.map((payment) => payment.id),
+          reopened: true,
+        };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }).then((result) => {
+        NotificationService.notifyStaff(
+          [PERMISSIONS.CHECKOUT_PERFORM],
+          {
+            type: 'RESERVATION',
+            title: 'Check-out undone',
+            message: `${result.guestName} · Room ${result.roomNumber} (${result.confirmationNo}) reopened for settlement`,
+            priority: 'HIGH',
+            data: { reservationId: result.reservationId },
+          },
+          data.undoneBy,
+        );
+        return result;
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2034') {
+        throw new AppError('The stay changed while the check-out was being reversed. Please retry.', 409, 'CHECKOUT_UNDO_CONFLICT');
       }
       throw error;
     }

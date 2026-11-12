@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reservationsApi, roomsApi, guestsApi, paymentsApi } from '../../services/apiService';
+import { reservationsApi, roomsApi, guestsApi, paymentsApi, staysApi } from '../../services/apiService';
 import { useAuthStore } from '../../stores/authStore';
-import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronRight, ChevronsUpDown, ArrowUpDown } from 'lucide-react';
+import { CalendarDays, Plus, RefreshCw, Users, Link2, X, Minus, MoreHorizontal, Trash2, Pencil, Eye, UserX, BedDouble, Shield, Printer, Mail, Phone, Clock, FileText, CreditCard, ChevronUp, ChevronDown, ChevronRight, ChevronsUpDown, ArrowUpDown, RotateCcw } from 'lucide-react';
 import { Button, Modal, FormField, TextInput, SelectInput, showToast, LoadingState, statusBadge } from '../../components/ui';
 import { TenderSplit, makeTenderRow, parseTenders, tendersCoverTotal, type TenderRow } from '../../components/ui/TenderSplit';
 import { formatCurrency, formatGuestName } from '@nslv/shared';
@@ -83,6 +83,7 @@ export const ReservationsPage: React.FC = () => {
   const isAdmin = useAuthStore((s) => s.hasRole('admin'));
   const canDiscount = useAuthStore((s) => s.hasPermission('folios.adjust'));
   const canProcessPayment = useAuthStore((s) => s.hasPermission('payments.create'));
+  const canUndoCheckout = useAuthStore((s) => s.hasRole('admin') || s.hasRole('manager'));
   const navigate = useNavigate();
 
   const tableRef = useRef<HTMLDivElement>(null);
@@ -389,6 +390,20 @@ export const ReservationsPage: React.FC = () => {
       load();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Unable to mark reservation as no-show');
+    }
+  };
+
+  const undoCheckout = async (r: any) => {
+    if (!window.confirm(`Undo check-out for ${r.confirmationNo || r.id}?\n\nThis reopens the folio, reverses the settlement payment collected at check-out, and returns the room to occupied so the stay can be settled again.`)) return;
+    const reason = window.prompt('Reason for undoing this check-out (optional):', 'Check-out reversed at front desk');
+    if (reason === null) return;
+    try {
+      await staysApi.undoCheckOut({ reservationId: r.id, reason: reason.trim() || undefined });
+      showToast('success', 'Check-out undone. The stay is back in house and ready to settle.');
+      if (detailsRes?.id === r.id) setDetailsRes(null);
+      load();
+    } catch (e) {
+      showToast('error', e instanceof Error ? e.message : 'Unable to undo check-out');
     }
   };
 
@@ -2223,6 +2238,16 @@ export const ReservationsPage: React.FC = () => {
                       onClick={openDeposit}
                     >
                       <CreditCard size={13} /> Record payment
+                    </Button>
+                  )}
+                  {canUndoCheckout && String(detailsRes.status).toUpperCase() === 'CHECKED_OUT' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-[var(--ns-warning)] border-[var(--ns-warning)] ns-glass-hover font-bold"
+                      onClick={() => undoCheckout(detailsRes)}
+                    >
+                      <RotateCcw size={13} /> Undo check-out
                     </Button>
                   )}
                   {canCancel && ['PENDING', 'CONFIRMED'].includes(String(detailsRes.status).toUpperCase()) && (
