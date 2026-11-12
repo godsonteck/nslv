@@ -196,6 +196,21 @@ export const FrontDeskPage: React.FC = () => {
 
   const activeLateInfo = action?.type === 'out' ? getLateInfo(action.row) : null;
 
+  /** Group bookings post their deposit to the lead room. Mirror the server's
+   *  netting so staff see the amount that will actually be collected for this
+   *  room, not the gross folio debt that group credit already covers. */
+  const groupCheckoutPreview = (() => {
+    if (action?.type !== 'out') return null;
+    const row = action.row;
+    if (row.groupCheckoutDue === undefined || row.groupCheckoutDue === null) return null;
+    const baseDebt = Number(row.groupCheckoutDue || 0) + Number(row.groupCreditApplied || 0);
+    const fee = chargeLateCheckoutFee && activeLateInfo ? activeLateInfo.fee : 0;
+    const debt = baseDebt + fee;
+    const available = Number(row.groupCreditAvailable || 0);
+    const applied = Math.min(debt, available);
+    return { due: Math.max(0, debt - applied), applied };
+  })();
+
   /** Itemised folio breakdown for the checkout modal.
    *  Charges (positive items) and payments-applied (negative items) are split
    *  so staff see exactly what the payment covers before confirming. */
@@ -226,6 +241,15 @@ export const FrontDeskPage: React.FC = () => {
           // Existing payments already applied (deposits, part-payments, etc.)
           if (paymentsApplied > 0) {
             lines.push({ label: 'Payments already applied', amount: paymentsApplied, type: 'PAYMENTS_APPLIED', isCredit: true });
+          }
+          // Group credit held on a sibling room, netted by the server at checkout.
+          if (groupCheckoutPreview && groupCheckoutPreview.applied > 0.005) {
+            lines.push({
+              label: 'Group payment credit applied',
+              amount: groupCheckoutPreview.applied,
+              type: 'GROUP_CREDIT',
+              isCredit: true,
+            });
           }
           // New late checkout fee — shown separately so staff can toggle it
           if (activeLateInfo) {
@@ -258,10 +282,14 @@ export const FrontDeskPage: React.FC = () => {
         parts.push(`Late checkout fee of GHS ${activeLateInfo.fee.toFixed(2)} deferred / owing`);
       }
     }
+    if (groupCheckoutPreview && groupCheckoutPreview.applied > 0.005) {
+      parts.push(`Group payment credit applied (GHS ${groupCheckoutPreview.applied.toFixed(2)})`);
+    }
     return parts.length ? `Settlement for: ${parts.join(' + ')}` : 'Final settlement at check-out';
   })();
 
   const checkoutTotal = (() => {
+    if (groupCheckoutPreview) return groupCheckoutPreview.due;
     const charges = checkoutLineItems
       .filter((l) => !l.isCredit && !l.voided && !l.unpaid)
       .reduce((sum, l) => sum + l.amount, 0);
@@ -714,6 +742,14 @@ export const FrontDeskPage: React.FC = () => {
                           ⚠ GHS {activeLateInfo.fee.toFixed(2)} deferred / remaining as debt
                         </span>
                       )}
+                    </div>
+                  )}
+                  {groupCheckoutPreview && groupCheckoutPreview.applied > 0.005 && (
+                    <div className="flex items-center gap-1.5 text-[12px]">
+                      <span className="font-semibold">Group credit:</span>{' '}
+                      <span className="text-[var(--ns-success)] font-bold">
+                        ✓ GHS {groupCheckoutPreview.applied.toFixed(2)} applied from the group deposit
+                      </span>
                     </div>
                   )}
                 </div>

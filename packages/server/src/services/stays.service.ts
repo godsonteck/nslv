@@ -23,6 +23,33 @@ export interface LateFeeVoidableItem {
   voidReason?: string | null;
 }
 
+/** Payment row used when reallocating a group payment across sibling folios. */
+interface GroupCreditPayment {
+  id: string;
+  amount: Prisma.Decimal | number | string;
+  currency?: string | null;
+  method: string;
+  reference?: string | null;
+  source?: string | null;
+  sourceId?: string | null;
+  type: string;
+  status?: string | null;
+  processedAt?: Date | string | null;
+  voidedAt?: Date | string | null;
+  description?: string | null;
+}
+
+/** Snapshot of one open folio in a multi-room (group) booking. */
+interface GroupCreditFolio {
+  reservationId: string;
+  folioId: string;
+  guestId: string;
+  roomNumber: string;
+  /** Live ledger balance: positive = guest owes, negative = guest credit. */
+  balance: number;
+  payments: GroupCreditPayment[];
+}
+
 export interface CheckInDTO {
   reservationId: string;
   checkedInBy: string;
@@ -97,6 +124,65 @@ export class StayService {
     const staffIds = [...new Set(stays.map((stay) => stay.checkedInBy))];
     const staff = staffIds.length ? await prisma.user.findMany({ where: { id: { in: staffIds } }, select: { id: true, firstName: true, lastName: true, username: true } }) : [];
     const staffById = new Map(staff.map((user) => [user.id, { id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.username, username: user.username }]));
+
+    // Pre-load the open folios of every group party so each in-house room can
+    // show the amount that will actually be collected after group credit is netted.
+    const groupBookingIds = [
+      ...new Set(stays.map((stay) => stay.reservation?.bookingId).filter((id): id is string => Boolean(id))),
+    ];
+    const groupParticipants = new Map<string, GroupCreditFolio[]>();
+    if (groupBookingIds.length > 0) {
+      const groupReservations = await prisma.reservation.findMany({
+        where: { bookingId: { in: groupBookingIds }, status: 'CHECKED_IN' },
+        select: {
+          id: true,
+          bookingId: true,
+          folios: {
+            where: { status: 'OPEN' },
+            select: {
+              id: true,
+              items: { where: { voidedAt: null }, select: { amount: true } },
+              payments: {
+                where: { voidedAt: null },
+                select: {
+                  id: true,
+                  amount: true,
+                  currency: true,
+                  method: true,
+                  reference: true,
+                  source: true,
+                  sourceId: true,
+                  type: true,
+                  status: true,
+                  processedAt: true,
+                  voidedAt: true,
+                  description: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      for (const reservation of groupReservations) {
+        if (!reservation.bookingId) continue;
+        const folio = reservation.folios[0];
+        if (!folio) continue;
+        const balance = folio.items
+          .reduce((sum, item) => sum.plus(new Prisma.Decimal(item.amount)), new Prisma.Decimal(0))
+          .toNumber();
+        const participants = groupParticipants.get(reservation.bookingId) ?? [];
+        participants.push({
+          reservationId: reservation.id,
+          folioId: folio.id,
+          guestId: '',
+          roomNumber: '',
+          balance,
+          payments: folio.payments as GroupCreditPayment[],
+        });
+        groupParticipants.set(reservation.bookingId, participants);
+      }
+    }
+
     return stays.map((stay) => {
       const folio = stay.reservation?.folios?.find((f) => f.status === 'OPEN') || stay.reservation?.folios?.[0];
 
@@ -142,6 +228,15 @@ export class StayService {
         currentOwed = Number((totalBilled - totalPaid).toFixed(2));
       }
 
+      const bookingId = stay.reservation?.bookingId;
+      const groupSettlement = bookingId
+        ? this.summarizeGroupSettlement(
+            stay.reservation.id,
+            groupParticipants.get(bookingId) ?? [],
+            bookingId,
+          )
+        : null;
+
       return {
         ...stay,
         totalBilled,
@@ -152,6 +247,9 @@ export class StayService {
         momoPaid,
         cardPaid,
         bankPaid,
+        groupCheckoutDue: groupSettlement?.due,
+        groupCreditApplied: groupSettlement?.creditApplied,
+        groupCreditAvailable: groupSettlement?.siblingCreditAvailable,
         checkedInByUser: staffById.get(stay.checkedInBy) || { id: stay.checkedInBy, name: 'Former staff account' },
       };
     });
@@ -857,6 +955,354 @@ export class StayService {
     }
   }
 
+  /** True when a payment row represents money collected for the whole group. */
+  private static isGroupFundingPayment(
+    payment: Pick<GroupCreditPayment, 'source' | 'sourceId' | 'type' | 'status' | 'voidedAt'>,
+    bookingId: string,
+  ): boolean {
+    return (
+      !payment.voidedAt &&
+      (payment.status ?? 'COMPLETED') === 'COMPLETED' &&
+      ['PAYMENT', 'DEPOSIT'].includes(String(payment.type)) &&
+      (payment.source === 'GROUP_BOOKING' || payment.sourceId === bookingId)
+    );
+  }
+
+  private static groupFundingTotal(payments: GroupCreditPayment[], bookingId: string): number {
+    return payments
+      .filter((p) => this.isGroupFundingPayment(p, bookingId))
+      .reduce((sum, p) => sum.plus(new Prisma.Decimal(p.amount)), new Prisma.Decimal(0))
+      .toNumber();
+  }
+
+  /**
+   * Read-only preview of what a group checkout will actually collect. Mirrors
+   * the reallocation performed inside checkOutGuest so the front desk does not
+   * ask for cash that the group deposit already covers.
+   */
+  private static summarizeGroupSettlement(
+    currentReservationId: string,
+    participants: GroupCreditFolio[],
+    bookingId: string,
+  ): { due: number; creditApplied: number; siblingCreditAvailable: number } {
+    const EPSILON = 0.005;
+    const current = participants.find((p) => p.reservationId === currentReservationId);
+    if (!current) return { due: 0, creditApplied: 0, siblingCreditAvailable: 0 };
+
+    if (current.balance <= EPSILON) {
+      // Credit (or settled) room: checkout itself will not collect anything.
+      return { due: 0, creditApplied: 0, siblingCreditAvailable: 0 };
+    }
+
+    const siblingCreditAvailable = participants
+      .filter((p) => p.reservationId !== currentReservationId)
+      .reduce(
+        (sum, sibling) =>
+          sum + Math.min(Math.max(0, -sibling.balance), this.groupFundingTotal(sibling.payments, bookingId)),
+        0,
+      );
+    const creditApplied = Math.min(current.balance, siblingCreditAvailable);
+    return {
+      due: Math.max(0, current.balance - creditApplied),
+      creditApplied,
+      siblingCreditAvailable,
+    };
+  }
+
+  /**
+   * Move part of a group-funded payment from a credit folio to a sibling folio
+   * that still owes money.  The payment ledger is split (never duplicated) so
+   * group revenue is unchanged, and the source payment keeps its original
+   * processedAt so historical daily totals do not move.
+   */
+  private static async transferGroupPaymentCredit(
+    tx: Prisma.TransactionClient,
+    params: {
+      source: GroupCreditFolio;
+      destination: GroupCreditFolio;
+      amount: number;
+      bookingId: string;
+      userId: string;
+    },
+  ): Promise<void> {
+    const { source, destination, bookingId, userId } = params;
+    let remaining = new Prisma.Decimal(params.amount);
+    const moveReason = `Group payment reallocated to room ${destination.roomNumber} at check-out`;
+
+    for (const payment of source.payments) {
+      if (remaining.lte(new Prisma.Decimal(0.005))) break;
+      if (!this.isGroupFundingPayment(payment, bookingId)) continue;
+
+      const paymentAmount = new Prisma.Decimal(payment.amount);
+      if (paymentAmount.lte(0)) continue;
+
+      const take = paymentAmount.lt(remaining) ? paymentAmount : remaining;
+      if (take.lte(0)) continue;
+
+      // The source folio's existing payment item(s) are voided, then a
+      // replacement is written for whatever portion remains on this folio.
+      // Net ledger movement is exactly +take.
+      const sourceItems = await tx.folioItem.findMany({
+        where: { folioId: source.folioId, referenceId: payment.id, referenceType: 'PAYMENT', voidedAt: null },
+        select: { id: true, amount: true },
+      });
+      const sourceItemTotal = sourceItems.reduce(
+        (sum, item) => sum.plus(new Prisma.Decimal(item.amount)),
+        new Prisma.Decimal(0),
+      );
+      if (sourceItems.length > 0) {
+        await tx.folioItem.updateMany({
+          where: { id: { in: sourceItems.map((item) => item.id) } },
+          data: { voidedAt: new Date(), voidedBy: userId, voidReason: moveReason },
+        });
+      }
+      const sourceAdjustment = take.plus(sourceItemTotal);
+      if (sourceAdjustment.abs().gt(new Prisma.Decimal(0.005))) {
+        await tx.folioItem.create({
+          data: {
+            folioId: source.folioId,
+            type: payment.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
+            description: moveReason,
+            amount: sourceAdjustment,
+            quantity: 1,
+            unitPrice: sourceAdjustment,
+            department: 'FRONT_DESK',
+            referenceId: payment.id,
+            referenceType: 'PAYMENT',
+            postedBy: userId,
+          },
+        });
+      }
+
+      const isFullMove = take.eq(paymentAmount);
+      let destinationPaymentId = payment.id;
+
+      if (isFullMove) {
+        // A Payment row cannot be zeroed (amount > 0 constraint), so move the
+        // whole row to the sibling reservation instead of splitting it.
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: {
+            reservationId: destination.reservationId,
+            folioId: destination.folioId,
+            guestId: destination.guestId,
+          },
+        });
+        payment.amount = new Prisma.Decimal(0);
+      } else {
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: { amount: paymentAmount.minus(take) },
+        });
+        payment.amount = paymentAmount.minus(take);
+        const splitPayment = await tx.payment.create({
+          data: {
+            reservationId: destination.reservationId,
+            folioId: destination.folioId,
+            guestId: destination.guestId,
+            amount: take,
+            currency: payment.currency || 'GHS',
+            method: payment.method as PaymentMethod,
+            reference: payment.reference,
+            source: payment.source,
+            sourceId: payment.sourceId,
+            status: 'COMPLETED',
+            type: payment.type as 'PAYMENT' | 'DEPOSIT' | 'REFUND' | 'ADJUSTMENT',
+            description: `${payment.description ? `${payment.description} — ` : ''}reallocated to room ${destination.roomNumber} at check-out`,
+            processedBy: userId,
+            processedAt: payment.processedAt ? new Date(payment.processedAt) : new Date(),
+            idempotencyKey: `group-realloc-${payment.id}-${destination.reservationId}-${randomUUID()}`,
+          },
+        });
+        destinationPaymentId = splitPayment.id;
+      }
+
+      await tx.folioItem.create({
+        data: {
+          folioId: destination.folioId,
+          type: payment.type === 'DEPOSIT' ? 'DEPOSIT' : 'PAYMENT',
+          description: `Group payment reallocated from room ${source.roomNumber} at check-out`,
+          amount: take.negated(),
+          quantity: 1,
+          unitPrice: take.negated(),
+          department: 'FRONT_DESK',
+          referenceId: destinationPaymentId,
+          referenceType: 'PAYMENT',
+          postedBy: userId,
+        },
+      });
+      await tx.folio.update({
+        where: { id: destination.folioId },
+        data: { balance: { decrement: take } },
+      });
+      // Keep the source folio's cached balance aligned with its ledger too.
+      // For the room being checked out this is overwritten below, but for a
+      // sibling that remains in house it prevents a stale credit balance.
+      await tx.folio.update({
+        where: { id: source.folioId },
+        data: { balance: { increment: take } },
+      });
+
+      await AuditService.logInTransaction(tx, {
+        userId,
+        action: 'stay.group_payment_reallocated',
+        resource: 'reservation',
+        resourceId: destination.reservationId,
+        afterData: {
+          bookingId,
+          amount: take.toNumber(),
+          sourceReservationId: source.reservationId,
+          sourceFolioId: source.folioId,
+          destinationReservationId: destination.reservationId,
+          destinationFolioId: destination.folioId,
+          paymentId: payment.id,
+          splitPaymentId: isFullMove ? null : destinationPaymentId,
+        },
+      });
+
+      remaining = remaining.minus(take);
+    }
+
+    if (remaining.gt(new Prisma.Decimal(0.005))) {
+      throw new AppError(
+        'The group payment credit could not be reallocated because the originating payment is missing.',
+        409,
+        'GROUP_CREDIT_REALLOCATION_FAILED',
+      );
+    }
+  }
+
+  /**
+   * Group deposits are collected once and posted to the lead reservation, which
+   * leaves the lead folio in credit while sibling rooms still owe their share.
+   * Before checkout hard-blocks on a credit/debt, net the group-funded credit
+   * across the open folios so each room can be settled independently.
+   *
+   * Returns the adjusted ledger balance for the reservation being checked out.
+   */
+  private static async reallocateGroupPaymentCredit(
+    tx: Prisma.TransactionClient,
+    params: {
+      bookingId: string;
+      reservationId: string;
+      guestId: string;
+      roomNumber: string;
+      folioId: string;
+      balance: number;
+      payments: GroupCreditPayment[];
+      userId: string;
+    },
+  ): Promise<number> {
+    const EPSILON = 0.005;
+    const current: GroupCreditFolio = {
+      reservationId: params.reservationId,
+      folioId: params.folioId,
+      guestId: params.guestId,
+      roomNumber: params.roomNumber,
+      balance: params.balance,
+      payments: params.payments,
+    };
+
+    const siblings = await tx.reservation.findMany({
+      where: { bookingId: params.bookingId, id: { not: params.reservationId }, status: 'CHECKED_IN' },
+      select: {
+        id: true,
+        room: { select: { number: true } },
+        guests: { where: { isPrimary: true }, select: { guestId: true } },
+        folios: {
+          where: { status: 'OPEN' },
+          select: {
+            id: true,
+            items: { where: { voidedAt: null }, select: { amount: true } },
+            payments: {
+              where: { voidedAt: null },
+              select: {
+                id: true,
+                amount: true,
+                currency: true,
+                method: true,
+                reference: true,
+                source: true,
+                sourceId: true,
+                type: true,
+                status: true,
+                processedAt: true,
+                voidedAt: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const siblingFolios: GroupCreditFolio[] = [];
+    for (const sibling of siblings) {
+      const folio = sibling.folios[0];
+      if (!folio) continue;
+      const balance = folio.items
+        .reduce((sum, item) => sum.plus(new Prisma.Decimal(item.amount)), new Prisma.Decimal(0))
+        .toNumber();
+      siblingFolios.push({
+        reservationId: sibling.id,
+        folioId: folio.id,
+        guestId: sibling.guests[0]?.guestId || current.guestId,
+        roomNumber: sibling.room?.number || '—',
+        balance,
+        payments: folio.payments as GroupCreditPayment[],
+      });
+    }
+
+    let adjusted = current.balance;
+    if (Math.abs(adjusted) < EPSILON || siblingFolios.length === 0) return adjusted;
+
+    if (adjusted < 0) {
+      // Current folio holds the group credit: share it with rooms that owe.
+      let credit = Math.min(-adjusted, this.groupFundingTotal(current.payments, params.bookingId));
+      for (const sibling of siblingFolios) {
+        if (credit < EPSILON) break;
+        if (sibling.balance <= EPSILON) continue;
+        const amount = Math.min(credit, sibling.balance);
+        await this.transferGroupPaymentCredit(tx, {
+          source: current,
+          destination: sibling,
+          amount,
+          bookingId: params.bookingId,
+          userId: params.userId,
+        });
+        current.balance += amount;
+        sibling.balance -= amount;
+        credit -= amount;
+        adjusted += amount;
+      }
+    } else {
+      // Current room owes money: draw on any group-funded credit held by siblings.
+      let debt = adjusted;
+      for (const sibling of siblingFolios) {
+        if (debt < EPSILON) break;
+        const available = Math.min(
+          Math.max(0, -sibling.balance),
+          this.groupFundingTotal(sibling.payments, params.bookingId),
+        );
+        if (available < EPSILON) continue;
+        const amount = Math.min(debt, available);
+        await this.transferGroupPaymentCredit(tx, {
+          source: sibling,
+          destination: current,
+          amount,
+          bookingId: params.bookingId,
+          userId: params.userId,
+        });
+        sibling.balance += amount;
+        current.balance -= amount;
+        debt -= amount;
+        adjusted -= amount;
+      }
+    }
+
+    return adjusted;
+  }
+
   /** Execute Check-Out workflow */
   static async checkOutGuest(data: CheckOutDTO) {
     try {
@@ -865,6 +1311,7 @@ export class StayService {
           where: { id: data.reservationId },
           include: {
             guests: { where: { isPrimary: true }, include: { guest: true } },
+            room: { select: { number: true } },
             folios: {
               include: { items: true, payments: true },
             },
@@ -962,6 +1409,22 @@ export class StayService {
           ? await tx.folioItem.aggregate({ where: { folioId: folio.id, voidedAt: null }, _sum: { amount: true } })
           : null;
         let finalBalance = ledger ? Number(ledger._sum.amount || 0) : 0;
+
+        // Group bookings collect one deposit and post it to the lead room, which
+        // can leave that folio in credit while sibling rooms still owe money.
+        // Net the group-funded credit across the party before the hard blocks.
+        if (folio && reservation.bookingId) {
+          finalBalance = await this.reallocateGroupPaymentCredit(tx, {
+            bookingId: reservation.bookingId,
+            reservationId: reservation.id,
+            guestId: primaryGuestId,
+            roomNumber: (reservation as { room?: { number?: string } }).room?.number || '—',
+            folioId: folio.id,
+            balance: finalBalance,
+            payments: folio.payments as GroupCreditPayment[],
+            userId: data.checkedOutBy,
+          });
+        }
 
         // The front-desk checkout form captures the settlement method. Settle
         // through PaymentService.processPaymentInTx to enforce daily-close locking,
