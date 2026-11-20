@@ -49,6 +49,7 @@ router.get('/availability', validateQuery(publicAvailabilityQuerySchema), async 
       checkOutDate: string;
       adults?: number;
       children?: number;
+      roomNumber?: string;
     };
     const data = await PublicBookingService.getAvailability(query);
     res.json({ success: true, data });

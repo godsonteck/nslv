@@ -216,6 +216,7 @@ export class PublicBookingService {
     checkOutDate: string;
     adults?: number;
     children?: number;
+    roomNumber?: string;
   }) {
     const cfg = await this.getConfig();
     if (!cfg.publicEnabled) {
@@ -227,6 +228,7 @@ export class PublicBookingService {
     const nights = this.validateDates(checkIn, checkOut, cfg);
     const adults = Math.max(1, Number(query.adults) || 1);
     const children = Math.max(0, Number(query.children) || 0);
+    const roomNumber = query.roomNumber?.trim();
 
     await this.expireStaleHolds();
 
@@ -236,8 +238,12 @@ export class PublicBookingService {
       include: {
         amenities: { include: { amenity: true } },
         rooms: {
-          where: { isActive: true, status: { notIn: [RoomStatus.MAINTENANCE, RoomStatus.OUT_OF_SERVICE] } },
-          select: { id: true },
+          where: {
+            isActive: true,
+            status: { notIn: [RoomStatus.MAINTENANCE, RoomStatus.OUT_OF_SERVICE] },
+            ...(roomNumber ? { number: { equals: roomNumber, mode: 'insensitive' } } : {}),
+          },
+          select: { id: true, number: true, name: true },
         },
       },
     });
@@ -252,7 +258,10 @@ export class PublicBookingService {
     const unavailableRoomIds = new Set(unavailable.map((r) => r.roomId));
 
     return roomTypes.map((type) => {
-      const availableCount = type.rooms.filter((room) => !unavailableRoomIds.has(room.id)).length;
+      const availableRooms = type.rooms
+        .filter((room) => !unavailableRoomIds.has(room.id))
+        .map((room) => ({ number: room.number, name: room.name }));
+      const availableCount = availableRooms.length;
       const baseRate = Number(type.basePrice);
       const subtotal = roundMoney(baseRate * nights);
       const taxAmount = roundMoney(subtotal * (cfg.taxRate / 100));
@@ -274,6 +283,7 @@ export class PublicBookingService {
           icon: entry.amenity.icon,
           category: entry.amenity.category,
         })),
+        availableRooms: capacityOk ? availableRooms : [],
         availableCount,
         available: capacityOk && availableCount > 0,
         capacityOk,

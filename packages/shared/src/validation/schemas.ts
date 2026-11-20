@@ -408,6 +408,7 @@ export const publicAvailabilityQuerySchema = z.object({
   checkOutDate: isoDateString,
   adults: wholeNumber.optional(),
   children: wholeNumber.optional(),
+  roomNumber: z.string().trim().min(1).max(32).optional(),
 });
 
 export const createPublicBookingSchema = z.object({
