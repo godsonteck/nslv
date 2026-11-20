@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { PaymentService } from '../services/payments.service';
+import { PublicBookingService } from '../services/public-booking.service';
 import { authenticate, requireAdmin, requirePermission, requireAnyPermission, requireManagerOrAdmin, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { processPaymentSchema, refundPaymentSchema } from '@nslv/shared';
@@ -38,6 +39,18 @@ router.post('/', requirePermission('payments.create'), validateBody(processPayme
   try {
     const userId = (req as AuthenticatedRequest).user.userId;
     const data = await PaymentService.processPayment({ ...req.body, processedBy: userId });
+
+    // A website booking is held as PENDING until its deposit is verified. Once
+    // reception records a deposit that covers the required amount, confirm the
+    // reservation automatically and send the guest their confirmation.
+    if (req.body.reservationId) {
+      try {
+        await PublicBookingService.confirmIfDepositMet(req.body.reservationId);
+      } catch (confirmError) {
+        console.error('[PAYMENTS] Booking auto-confirmation failed:', confirmError);
+      }
+    }
+
     res.status(201).json({ success: true, data });
   } catch (error) {
     next(error);

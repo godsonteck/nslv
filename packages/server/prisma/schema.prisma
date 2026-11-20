@@ -169,6 +169,8 @@ model RoomType {
   id          String   @id @default(uuid())
   name        String   @unique
   description String?
+  shortDescription String? @map("short_description")
+  imageUrls   String[] @default([]) @map("image_urls")
   basePrice   Decimal  @map("base_price")
   maxAdults   Int      @default(2) @map("max_adults")
   maxChildren Int      @default(0) @map("max_children")
@@ -259,11 +261,69 @@ model Guest {
   checkOuts       CheckOut[]
   folios          Folio[]
   payments        Payment[]
+  account         GuestAccount?
 
   @@index([email])
   @@index([phone])
   @@index([lastName, firstName])
   @@map("guests")
+}
+
+// ──────────────────────────────────────────
+// Guest Self-Service Accounts (public booking site)
+// ──────────────────────────────────────────
+
+model GuestAccount {
+  id              String             @id @default(uuid())
+  guestId         String             @unique @map("guest_id")
+  email           String             @unique
+  passwordHash    String             @map("password_hash")
+  emailVerifiedAt DateTime?          @map("email_verified_at")
+  status          GuestAccountStatus @default(ACTIVE)
+  lastLoginAt     DateTime?          @map("last_login_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  guest    Guest             @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  sessions GuestSession[]
+  tokens   GuestAuthToken[]
+
+  @@index([email])
+  @@index([status])
+  @@map("guest_accounts")
+}
+
+model GuestSession {
+  id               String   @id @default(uuid())
+  guestAccountId   String   @map("guest_account_id")
+  refreshTokenHash String   @map("refresh_token_hash")
+  deviceInfo       String?  @map("device_info")
+  ipAddress        String?  @map("ip_address")
+  expiresAt        DateTime @map("expires_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  guestAccount GuestAccount @relation(fields: [guestAccountId], references: [id], onDelete: Cascade)
+
+  @@index([guestAccountId])
+  @@index([expiresAt])
+  @@map("guest_sessions")
+}
+
+model GuestAuthToken {
+  id             String             @id @default(uuid())
+  guestAccountId String             @map("guest_account_id")
+  type           GuestAuthTokenType
+  tokenHash      String             @unique @map("token_hash")
+  expiresAt      DateTime           @map("expires_at")
+  usedAt         DateTime?          @map("used_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+
+  guestAccount GuestAccount @relation(fields: [guestAccountId], references: [id], onDelete: Cascade)
+
+  @@index([guestAccountId])
+  @@index([type])
+  @@index([expiresAt])
+  @@map("guest_auth_tokens")
 }
 
 // ──────────────────────────────────────────
@@ -290,6 +350,9 @@ model Reservation {
   totalAmount        Decimal           @map("total_amount")
   specialRequests    String?           @map("special_requests")
   notes              String?
+  holdExpiresAt      DateTime?         @map("hold_expires_at")
+  guestPaymentReference String?        @map("guest_payment_reference")
+  paymentSubmittedAt DateTime?         @map("payment_submitted_at")
   createdBy          String?           @map("created_by")
   cancelledBy        String?           @map("cancelled_by")
   cancelledAt        DateTime?         @map("cancelled_at")
@@ -311,6 +374,7 @@ model Reservation {
   @@index([checkInDate])
   @@index([checkOutDate])
   @@index([confirmationNo])
+  @@index([holdExpiresAt])
   @@map("reservations")
 }
 
@@ -936,6 +1000,36 @@ model Notification {
 }
 
 // ──────────────────────────────────────────
+// Outbound Message Outbox (email / WhatsApp)
+// Messages are queued here first so a provider outage can never break a
+// booking flow. A worker or admin can deliver / retry them later.
+// ──────────────────────────────────────────
+
+model MessageOutbox {
+  id           String              @id @default(uuid())
+  channel      MessageChannel
+  recipient    String
+  subject      String?
+  body         String
+  template     String?
+  payload      String?             // JSON payload used to render the message
+  status       MessageStatus       @default(PENDING)
+  attempts     Int                 @default(0)
+  lastError    String?             @map("last_error")
+  relatedType  String?             @map("related_type")
+  relatedId    String?             @map("related_id")
+  sentAt       DateTime?           @map("sent_at")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([channel])
+  @@index([createdAt])
+  @@index([relatedType, relatedId])
+  @@map("message_outbox")
+}
+
+// ──────────────────────────────────────────
 // Database Enums (PostgreSQL Native Types)
 // ──────────────────────────────────────────
 
@@ -943,6 +1037,27 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   DEACTIVATED
+}
+
+enum GuestAccountStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum GuestAuthTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+enum MessageChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 enum RoomStatus {

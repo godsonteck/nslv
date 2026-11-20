@@ -76,9 +76,14 @@ export const config = {
   },
 
   // CORS
-  corsOrigins: requireEnv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3001')
-    .split(',')
-    .map((s) => s.trim()),
+  corsOrigins: Array.from(
+    new Set(
+      requireEnv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3001')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    ),
+  ),
 
   // Villa
   villa: {

@@ -27,10 +27,18 @@ import eventsRoutes from './events.routes';
 import systemRoutes from './system.routes';
 import notificationsRoutes from './notifications.routes';
 import categoriesRoutes from './categories.routes';
+import publicRoutes from './public.routes';
+import guestAuthRoutes from './guest-auth.routes';
+import guestBookingsRoutes from './guest-bookings.routes';
+import outboxRoutes from './outbox.routes';
 
 const router = Router();
 
 router.use('/health', healthRoutes);
+router.use('/public', publicRoutes);
+router.use('/guest-auth', guestAuthRoutes);
+router.use('/guest', guestBookingsRoutes);
+router.use('/outbox', outboxRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);

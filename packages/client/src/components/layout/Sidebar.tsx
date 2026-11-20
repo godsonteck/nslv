@@ -27,6 +27,7 @@ import {
   Tags,
   Clock,
   WalletCards,
+  Inbox,
 } from 'lucide-react';
 import type { PermissionCode } from '@nslv/shared';
 
@@ -86,6 +87,7 @@ const ALL_SECTIONS: NavSection[] = [
       { label: 'Menus', to: '/admin/menus', icon: Utensils, perms: ['restaurant.menu', 'bar.menu', 'pool.manage'] },
       { label: 'Items', to: '/admin/categories', icon: Tags, perms: ['categories.view'] },
       { label: 'Settings', to: '/admin/settings', icon: Settings, perms: ['settings.view'] },
+      { label: 'Outbox', to: '/admin/outbox', icon: Inbox, perms: ['settings.view'] },
       { label: 'Brand', to: '/admin/branding', icon: Palette, perms: ['settings.edit'] },
       { label: 'Late stays', to: '/admin/late-checkouts', icon: Clock, perms: ['reports.view'] },
       { label: 'Audit', to: '/admin/audit', icon: ScrollText, perms: ['audit.view'] },

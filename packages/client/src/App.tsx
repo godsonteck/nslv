@@ -4,15 +4,22 @@
 // ============================================
 
 import React, { lazy, Suspense, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useThemeStore } from './stores/themeStore';
 import { MainLayout } from './components/layout/MainLayout';
+import { PublicLayout } from './components/public/PublicLayout';
 import Login from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Spinner } from './components/ui';
 import { PortalGuard, portalPathFor } from './components/auth/PortalGuard';
 import { RequirePermission } from './components/auth/RequirePermission';
+
+// Public guest booking site
+const BookingPage = lazy(() => import('./pages/public/BookingPage').then((m) => ({ default: m.BookingPage })));
+const GuestAuthPage = lazy(() => import('./pages/public/GuestAuthPage').then((m) => ({ default: m.GuestAuthPage })));
+const GuestBookingsPage = lazy(() => import('./pages/public/GuestBookingsPage').then((m) => ({ default: m.GuestBookingsPage })));
+const GuestActionPage = lazy(() => import('./pages/public/GuestActionPage').then((m) => ({ default: m.GuestActionPage })));
 
 // Lazy-Loaded Hospitality Pages
 const ManagerPortalPage = lazy(() => import('./pages/operations/ManagerPortalPage'));
@@ -40,6 +47,7 @@ const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
 const AuditLogsPage = lazy(() => import('./pages/admin/AuditLogsPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
+const OutboxPage = lazy(() => import('./pages/admin/OutboxPage'));
 const BrandingSettingsPage = lazy(() => import('./pages/admin/BrandingSettingsPage'));
 const MenuManagementPage = lazy(() => import('./pages/admin/MenuManagementPage'));
 const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'));
@@ -82,11 +90,26 @@ const HomeRedirect: React.FC = () => {
   return <Navigate to={portalPathFor(user?.roles ?? [])} replace />;
 };
 
+// The packaged Electron app runs from file:// and needs hash routing. The web
+// app uses real URLs so guests can share /book, and email links resolve cleanly.
+const Router = typeof window !== 'undefined' && window.location.protocol === 'file:' ? HashRouter : BrowserRouter;
+
 export const App: React.FC = () => {
   return (
     <AppInitializer>
-      <HashRouter>
+      <Router>
         <Routes>
+        {/* Public guest booking site */}
+        <Route element={<PublicLayout />}>
+          <Route path="/book" element={<Suspense fallback={<PageLoader />}><BookingPage /></Suspense>} />
+          <Route path="/guest/login" element={<Suspense fallback={<PageLoader />}><GuestAuthPage mode="login" /></Suspense>} />
+          <Route path="/guest/register" element={<Suspense fallback={<PageLoader />}><GuestAuthPage mode="register" /></Suspense>} />
+          <Route path="/guest/bookings" element={<Suspense fallback={<PageLoader />}><GuestBookingsPage /></Suspense>} />
+          <Route path="/guest/forgot" element={<Suspense fallback={<PageLoader />}><GuestActionPage mode="forgot" /></Suspense>} />
+          <Route path="/guest/reset" element={<Suspense fallback={<PageLoader />}><GuestActionPage mode="reset" /></Suspense>} />
+          <Route path="/guest/verify" element={<Suspense fallback={<PageLoader />}><GuestActionPage mode="verify" /></Suspense>} />
+        </Route>
+
         {/* Public Authentication Route */}
         <Route path="/login" element={<Login />} />
 
@@ -138,6 +161,7 @@ export const App: React.FC = () => {
           <Route path="admin/roles" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['roles.view']}><RolesPage /></RequirePermission></Suspense>} />
           <Route path="admin/audit" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['audit.view']}><AuditLogsPage /></RequirePermission></Suspense>} />
           <Route path="admin/settings" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.view']}><SettingsPage /></RequirePermission></Suspense>} />
+          <Route path="admin/outbox" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.view']}><OutboxPage /></RequirePermission></Suspense>} />
           <Route path="admin/branding" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['settings.edit']}><BrandingSettingsPage /></RequirePermission></Suspense>} />
           <Route path="admin/menus" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['restaurant.menu', 'bar.menu', 'pool.manage']}><MenuManagementPage /></RequirePermission></Suspense>} />
           <Route path="admin/categories" element={<Suspense fallback={<PageLoader />}><RequirePermission any={['categories.view']}><CategoriesPage /></RequirePermission></Suspense>} />
@@ -150,7 +174,7 @@ export const App: React.FC = () => {
           <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense>} />
         </Route>
       </Routes>
-    </HashRouter>
+    </Router>
     </AppInitializer>
   );
 };

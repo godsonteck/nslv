@@ -5,13 +5,9 @@
 
 import type { ApiResponse, ApiError } from '@nslv/shared';
 
-const isFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:';
-const rawApiUrl = (import.meta.env.VITE_API_URL || (isFileProtocol ? 'http://localhost:3001' : '')).replace(/\/+$/, '');
-const API_BASE = !rawApiUrl
-  ? '/api/v1'
-  : rawApiUrl.endsWith('/api/v1')
-  ? rawApiUrl
-  : `${rawApiUrl}/api/v1`;
+import { apiBaseUrl } from '../lib/apiBase';
+
+const API_BASE = apiBaseUrl();
 
 export class ApiClientError extends Error {
   public code: string;

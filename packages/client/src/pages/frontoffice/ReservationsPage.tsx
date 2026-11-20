@@ -1143,6 +1143,11 @@ export const ReservationsPage: React.FC = () => {
                               <span className="inline-flex items-center gap-1 rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold text-[var(--ns-ink)] border border-[var(--ns-glass-line)]">
                                 <Users size={10} className="text-[var(--ns-gold)]" /> GROUP · {item.reservations.length} ROOMS
                               </span>
+                              {item.reservations.some((x: any) => String(x.source || '').toUpperCase() === 'WEBSITE') && (
+                                <span className="inline-flex items-center rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-info)] border border-[var(--ns-info)]">
+                                  Website
+                                </span>
+                              )}
                             </div>
                             <div className="mt-1 text-[12px] text-[var(--ns-muted)]">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</div>
                             {isAdmin && <div className="mt-1 text-[12px] text-[var(--ns-muted)]">Booked by: {item.bookedBy?.name || '-'}</div>}
@@ -1281,8 +1286,13 @@ export const ReservationsPage: React.FC = () => {
                       className="cursor-pointer ns-glass-hover transition-colors"
                     >
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-mono text-[12px] font-bold text-[var(--ns-gold)]">{r.confirmationNo || r.id.slice(0, 8)}</span>
+                          {String(r.source || '').toUpperCase() === 'WEBSITE' && (
+                            <span className="inline-flex items-center rounded-md glass-subtle px-2 py-0.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--ns-info)] border border-[var(--ns-info)]">
+                              Website
+                            </span>
+                          )}
                         </div>
                         <div className="mt-1 text-[12px] text-[var(--ns-muted)]">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</div>
                         {isAdmin && <div className="mt-1 text-[12px] text-[var(--ns-muted)]">Booked by: {r.bookedBy?.name || '-'}</div>}
@@ -1985,6 +1995,24 @@ export const ReservationsPage: React.FC = () => {
                     <span>Booked on {detailsRes.createdAt ? new Date(detailsRes.createdAt).toLocaleString() : '—'}</span>
                     {detailsRes.source && <span>· Via {detailsRes.source}</span>}
                   </div>
+                  {String(detailsRes.source || '').toUpperCase() === 'WEBSITE' && (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[12px]">
+                      <span className="inline-flex items-center rounded-md glass-subtle px-2 py-0.5 font-extrabold uppercase tracking-wide text-[var(--ns-info)] border border-[var(--ns-info)]">
+                        Website booking
+                      </span>
+                      {detailsRes.guestPaymentReference ? (
+                        <span className="text-[var(--ns-ink)]">
+                          Guest MoMo ref:{' '}
+                          <span className="font-mono font-bold text-[var(--ns-gold)]">{detailsRes.guestPaymentReference}</span>
+                          {detailsRes.paymentSubmittedAt && (
+                            <span className="text-[var(--ns-muted)]"> · submitted {new Date(detailsRes.paymentSubmittedAt).toLocaleString()}</span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--ns-warning)] font-semibold">No MoMo reference submitted yet</span>
+                      )}
+                    </div>
+                  )}
                   {detailsRes.bookedBy && (
                     <div className="mt-1 text-xs flex items-center gap-1 text-[var(--ns-ink)] font-semibold">
                       <span>👤 Booked by</span>
@@ -2126,6 +2154,18 @@ export const ReservationsPage: React.FC = () => {
                     <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
                       <span className="text-[var(--ns-muted)]">Taxes & Levies</span>
                       <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(detailsRes.taxAmount)}</span>
+                    </div>
+                  )}
+                  {detailsRes.guestPaymentReference && (
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                      <span className="text-[var(--ns-muted)]">Guest MoMo Reference</span>
+                      <span className="font-mono font-bold text-[var(--ns-gold)]">{detailsRes.guestPaymentReference}</span>
+                    </div>
+                  )}
+                  {Number(detailsRes.depositAmount || 0) > 0 && (
+                    <div className="flex justify-between py-1 border-b border-[var(--ns-glass-line)]">
+                      <span className="text-[var(--ns-muted)]">Deposit Required</span>
+                      <span className="font-bold text-[var(--ns-ink)]">{formatCurrency(detailsRes.depositAmount)}</span>
                     </div>
                   )}
 

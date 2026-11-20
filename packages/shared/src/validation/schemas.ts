@@ -388,6 +388,80 @@ export const cancelReservationSchema = z.object({
   reason: z.string().max(500).trim().optional(),
 });
 
+// ──────────────────────────────────────────
+// Public Booking & Guest Self-Service
+// ──────────────────────────────────────────
+
+/** Guest passwords favour length over composition; the site shows a strength hint. */
+export const guestPasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password must not exceed 128 characters');
+
+const requiredPhoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\+?[0-9\s-]{7,20}$/, 'Please enter a valid phone number');
+
+export const publicAvailabilityQuerySchema = z.object({
+  checkInDate: isoDateString,
+  checkOutDate: isoDateString,
+  adults: wholeNumber.optional(),
+  children: wholeNumber.optional(),
+});
+
+export const createPublicBookingSchema = z.object({
+  roomTypeId: uuidSchema,
+  checkInDate: isoDateString,
+  checkOutDate: isoDateString,
+  adults: positiveInt.default(1),
+  children: wholeNumber.default(0),
+  firstName: nameSchema,
+  lastName: nameSchema,
+  email: emailSchema,
+  phone: requiredPhoneSchema,
+  password: guestPasswordSchema.optional(),
+  specialRequests: optionalString,
+  paymentReference: z.string().max(120).trim().optional(),
+  acceptPolicy: z.boolean().refine((value) => value, 'Please accept the booking and cancellation policy'),
+});
+
+export const submitMomoReferenceSchema = z.object({
+  email: emailSchema,
+  reference: z.string().min(3, 'Enter the MoMo transaction reference').max(120).trim(),
+});
+
+export const guestRegisterSchema = z.object({
+  firstName: nameSchema,
+  lastName: nameSchema,
+  email: emailSchema,
+  phone: requiredPhoneSchema,
+  password: guestPasswordSchema,
+});
+
+export const guestLoginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, 'Password is required'),
+});
+
+export const guestForgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export const guestResetPasswordSchema = z.object({
+  token: z.string().min(20, 'Invalid reset link'),
+  password: guestPasswordSchema,
+});
+
+export const guestVerifyEmailSchema = z.object({
+  token: z.string().min(20, 'Invalid verification link'),
+});
+
+export const guestRefreshTokenSchema = z.object({
+  refreshToken: z.string().min(1, 'Refresh token is required'),
+});
+
+
 // ── Folios ──
 export const createFolioChargeSchema = z.object({
   type: z.enum(['ACCOMMODATION', 'RESTAURANT', 'BAR', 'POOL', 'SERVICE', 'DISCOUNT', 'TAX']),

@@ -1104,3 +1104,50 @@ export const systemApi = {
       method: 'DELETE',
     }, token()),
 };
+
+// ──────────────────────────────────────────
+// Message Outbox (mock email / WhatsApp delivery)
+// ──────────────────────────────────────────
+export interface OutboxMessage {
+  id: string;
+  channel: 'EMAIL' | 'WHATSAPP';
+  recipient: string;
+  subject: string | null;
+  body: string;
+  template: string | null;
+  payload: string | null;
+  status: 'PENDING' | 'SENT' | 'FAILED';
+  attempts: number;
+  lastError: string | null;
+  relatedType: string | null;
+  relatedId: string | null;
+  sentAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OutboxPage {
+  items: OutboxMessage[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export const outboxApi = {
+  list: (params?: { status?: string; channel?: string; page?: number; pageSize?: number }): Promise<OutboxPage> => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.channel) qs.set('channel', params.channel);
+    if (params?.page) qs.set('page', String(params.page));
+    if (params?.pageSize) qs.set('pageSize', String(params.pageSize));
+    const query = qs.toString();
+    return apiFetch<OutboxPage>(`/outbox${query ? `?${query}` : ''}`, { cache: 'no-store' }, token());
+  },
+
+  markSent: (id: string): Promise<OutboxMessage> =>
+    apiFetch<OutboxMessage>(`/outbox/${id}/mark-sent`, { method: 'POST' }, token()),
+
+  retry: (id: string): Promise<OutboxMessage> =>
+    apiFetch<OutboxMessage>(`/outbox/${id}/retry`, { method: 'POST' }, token()),
+};

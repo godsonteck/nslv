@@ -22,6 +22,7 @@ import {
   UtensilsCrossed,
   Waves,
   CalendarClock,
+  CalendarDays,
   Receipt,
   Boxes,
   Layers,
@@ -64,6 +65,7 @@ interface SettingEntry {
 const TABS = [
   { id: 'villa', label: 'Property & Villa Profile', icon: Building2 },
   { id: 'financial', label: 'Financial & Rates', icon: DollarSign },
+  { id: 'booking', label: 'Online Booking', icon: CalendarDays },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'security', label: 'Security & Access', icon: Shield },
   { id: 'regional', label: 'Regional & Localization', icon: Globe },
@@ -80,6 +82,11 @@ const TAB_KEYS: Record<TabId, string[]> = {
     'villa.currency', 'villa.tax_rate', 'financial.service_charge_rate',
     'villa.checkin_time', 'villa.checkout_time', 'financial.late_checkout_fee',
     'financial.cancellation_policy_hours',
+  ],
+  booking: [
+    'booking.public_enabled', 'booking.momo_number', 'booking.momo_name',
+    'booking.deposit_percent', 'booking.hold_minutes', 'booking.cancellation_hours',
+    'booking.max_advance_days', 'booking.max_nights',
   ],
   notifications: [
     'notifications.email_enabled', 'notifications.sms_enabled',
@@ -108,13 +115,28 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, draft, onChange })
   const val = draft[setting.key] !== undefined ? draft[setting.key] : setting.value;
   let label = setting.key
     .replace(/_/g, ' ')
-    .replace(/^villa\.|^financial\.|^notifications\.|^security\.|^regional\./, '')
+    .replace(/^villa\.|^financial\.|^booking\.|^notifications\.|^security\.|^regional\./, '')
     .trim()
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
   let description = setting.description;
 
-  if (setting.key === 'financial.late_checkout_fee') {
+  if (setting.key === 'booking.momo_number') {
+    label = 'Mobile Money Number';
+    description = 'The number guests send their deposit to, e.g. 024 000 0000. Shown on the public booking page.';
+  } else if (setting.key === 'booking.momo_name') {
+    label = 'Mobile Money Account Name';
+    description = 'The name registered on the Mobile Money account, shown alongside the number.';
+  } else if (setting.key === 'booking.deposit_percent') {
+    label = 'Deposit Percentage (%)';
+    description = 'Percentage of the stay total collected before a website booking is confirmed. 30 means a 30% deposit.';
+  } else if (setting.key === 'booking.hold_minutes') {
+    label = 'Room Hold (minutes)';
+    description = 'How long a room is held while the guest pays the Mobile Money deposit.';
+  } else if (setting.key === 'booking.cancellation_hours') {
+    label = 'Online Cancellation Window (hours)';
+    description = 'Guests can cancel from their account until this many hours before arrival.';
+  } else if (setting.key === 'financial.late_checkout_fee') {
     label = 'Late Check-out Fee Per Hour (GHS)';
     description = 'Hourly fee in Cedis (GHS) applied for each started hour after the check-out deadline (e.g. 50 GHS/hr; 2 hrs = 100 GHS, 3 hrs = 150 GHS).';
   } else if (setting.key === 'villa.checkout_time') {

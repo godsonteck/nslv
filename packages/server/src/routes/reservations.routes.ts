@@ -4,6 +4,7 @@
 
 import { Router } from 'express';
 import { ReservationService } from '../services/reservations.service';
+import { PublicBookingService } from '../services/public-booking.service';
 import { AppError } from '../middleware/error';
 import { authenticate, requireAdmin, requirePermission, verifyActiveUser, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
@@ -33,6 +34,7 @@ const reservationFailure = (error: unknown) => {
 // Check availability
 router.get('/availability', requirePermission('reservations.view'), async (req, res, next) => {
   try {
+    await PublicBookingService.expireStaleHolds();
     const { checkInDate, checkOutDate, roomTypeId } = req.query;
     if (!checkInDate || !checkOutDate) {
       return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'checkInDate and checkOutDate required' } });
@@ -51,6 +53,7 @@ router.get('/availability', requirePermission('reservations.view'), async (req, 
 // Get reservations
 router.get('/', requirePermission('reservations.view'), async (req, res, next) => {
   try {
+    await PublicBookingService.expireStaleHolds();
     const { status, search, roomId } = req.query;
     const data = await ReservationService.getReservations({
       status: status as string,

@@ -45,7 +45,17 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   const token = authHeader.slice(7);
 
   try {
-    const payload = jwt.verify(token, config.jwt.accessSecret) as JwtPayload;
+    const payload = jwt.verify(token, config.jwt.accessSecret) as JwtPayload & { tokenType?: string };
+
+    // Guest self-service tokens are signed for a different audience. Reject
+    // them here so a guest session can never be mistaken for a staff session.
+    if (payload.tokenType === 'GUEST') {
+      res.status(401).json({
+        success: false,
+        error: { code: 'INVALID_TOKEN', message: 'Invalid authentication token.' },
+      });
+      return;
+    }
 
     // Attach user context
     (req as AuthenticatedRequest).user = payload;

@@ -18,7 +18,6 @@ This repository is now organized as a real-data application foundation.
 - Made the initial administrator credentials explicitly environment-driven.
 - Added a local PostgreSQL Docker Compose service.
 - Redesigned the application shell and main dashboard around live API data and intentional empty states.
-- Added responsive mobile navigation.
 - Removed UI controls that did not have real behavior.
 
 ## Fresh-install behavior
