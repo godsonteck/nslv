@@ -20,6 +20,8 @@ export const Header: React.FC = () => {
   const [openDropdown, setOpenDropdown] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [query, setQuery] = React.useState('');
+  const audioContextRef = React.useRef<AudioContext | null>(null);
+  const previousUnreadCountRef = React.useRef<number | null>(null);
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'NS';
   const canSettings = user?.permissions?.includes('settings.view') ?? false;
   const canSearchGuests = user?.permissions?.includes('guests.view') ?? false;
@@ -27,6 +29,48 @@ export const Header: React.FC = () => {
     setShowNotifications(false);
     window.requestAnimationFrame(() => notificationsButtonRef.current?.focus());
   };
+
+  const getAudioContext = React.useCallback(() => {
+    if (typeof window === 'undefined') return null;
+    const AudioContextConstructor = window.AudioContext
+      || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextConstructor) return null;
+    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+      audioContextRef.current = new AudioContextConstructor();
+    }
+    return audioContextRef.current;
+  }, []);
+
+  const playNotificationSound = React.useCallback(() => {
+    const context = getAudioContext();
+    if (!context) return;
+
+    const emitTone = () => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const now = context.currentTime;
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, now);
+      oscillator.frequency.setValueAtTime(1174.66, now + 0.08);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.21);
+      oscillator.onended = () => {
+        oscillator.disconnect();
+        gain.disconnect();
+      };
+    };
+
+    if (context.state === 'suspended') {
+      void context.resume().then(emitTone).catch(() => undefined);
+      return;
+    }
+    emitTone();
+  }, [getAudioContext]);
 
   const villaName = theme?.villaName || 'NS Luxury Villa';
   const villaTagline = theme?.villaTagline || 'Lokoe, Ho, Ghana';
@@ -37,22 +81,51 @@ export const Header: React.FC = () => {
   }, [location.pathname]);
 
   React.useEffect(() => {
-    void getUnreadCount();
-    if (typeof document === 'undefined') return;
-    const tick = () => {
-      if (document.hidden) return;
-      void getUnreadCount();
+    const unlockAudio = () => {
+      const context = getAudioContext();
+      if (context?.state === 'suspended') {
+        void context.resume().catch(() => undefined);
+      }
     };
-    const interval = setInterval(tick, 30000);
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      const context = audioContextRef.current;
+      audioContextRef.current = null;
+      if (context && context.state !== 'closed') {
+        void context.close().catch(() => undefined);
+      }
+    };
+  }, [getAudioContext]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const refreshUnreadCount = async () => {
+      const count = await getUnreadCount();
+      if (cancelled || count === null) return;
+      if (previousUnreadCountRef.current !== null && count > previousUnreadCountRef.current) {
+        playNotificationSound();
+      }
+      previousUnreadCountRef.current = count;
+    };
+
+    void refreshUnreadCount();
+    if (typeof document === 'undefined') return;
+    const interval = setInterval(() => {
+      if (!document.hidden) void refreshUnreadCount();
+    }, 30000);
     const onVisible = () => {
-      if (!document.hidden) void getUnreadCount();
+      if (!document.hidden) void refreshUnreadCount();
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => {
+      cancelled = true;
       clearInterval(interval);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [getUnreadCount]);
+  }, [getUnreadCount, playNotificationSound]);
 
   React.useEffect(() => {
     if (!showNotifications) return;

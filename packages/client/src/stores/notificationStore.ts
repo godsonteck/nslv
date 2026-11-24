@@ -9,7 +9,7 @@ interface NotificationStore {
   
   // Actions
   loadNotifications: (params?: { page?: number; pageSize?: number; isRead?: boolean }) => Promise<void>;
-  getUnreadCount: () => Promise<void>;
+  getUnreadCount: () => Promise<number | null>;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
@@ -43,8 +43,10 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     try {
       const result = await notificationsApi.getUnreadCount();
       set({ unreadCount: result.data.unreadCount });
+      return result.data.unreadCount;
     } catch (error) {
       console.error('Failed to get unread count:', error);
+      return null;
     }
   },
 
